@@ -8,10 +8,19 @@ const CROP_BAND = 28;
 const PREVIEW_SIZE = 160;
 const PREVIEW_BAND = (CROP_BAND / CROP_SIZE) * PREVIEW_SIZE;
 
-function CornerBracket({ position }: { position: string }) {
+function CornerBracket({
+  position,
+  onPointerDown,
+}: {
+  position: string;
+  onPointerDown: React.PointerEventHandler<HTMLButtonElement>;
+}) {
   return (
-    <span
-      className={`pointer-events-none absolute size-[18px] border-portal-light ${position}`}
+    <button
+      type="button"
+      aria-label="Resize crop area"
+      onPointerDown={onPointerDown}
+      className={`absolute size-[24px] touch-none border-portal-light ${position}`}
     />
   );
 }
@@ -20,6 +29,8 @@ type CropModalProps = {
   src: string;
   offset: number;
   onOffsetChange: (offset: number) => void;
+  cropScale: number;
+  onCropScaleChange: (scale: number) => void;
   onCancel: () => void;
   onApply: () => void;
 };
@@ -28,15 +39,27 @@ function CropModal({
   src,
   offset,
   onOffsetChange,
+  cropScale,
+  onCropScaleChange,
   onCancel,
   onApply,
 }: CropModalProps) {
   const cropArea = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startY: number; startOffset: number } | null>(null);
+  const resize = useRef<{ startY: number; startScale: number; direction: number } | null>(null);
 
   const clamp = (value: number) => Math.max(-1, Math.min(1, value));
-  const bandSize = () =>
-    ((cropArea.current?.clientWidth ?? CROP_SIZE) * CROP_BAND) / CROP_SIZE;
+  const maxOffset = () => {
+    const size = cropArea.current?.clientWidth ?? CROP_SIZE;
+    return size * (CROP_BAND / CROP_SIZE + (1 - cropScale) / 2);
+  };
+  const startResize =
+    (direction: number): React.PointerEventHandler<HTMLButtonElement> =>
+    (event) => {
+      event.stopPropagation();
+      resize.current = { startY: event.clientY, startScale: cropScale, direction };
+      event.currentTarget.setPointerCapture(event.pointerId);
+    };
 
   return (
     <div
@@ -85,16 +108,31 @@ function CropModal({
                 event.currentTarget.setPointerCapture(event.pointerId);
               }}
               onPointerMove={(event) => {
+                if (resize.current) {
+                  const size = cropArea.current?.clientWidth ?? CROP_SIZE;
+                  onCropScaleChange(
+                    Math.max(
+                      0.55,
+                      Math.min(
+                        1,
+                        resize.current.startScale +
+                          (resize.current.direction * 2 * (event.clientY - resize.current.startY)) / size,
+                      ),
+                    ),
+                  );
+                  return;
+                }
                 if (!drag.current) return;
                 onOffsetChange(
                   clamp(
                     drag.current.startOffset +
-                      (event.clientY - drag.current.startY) / bandSize(),
+                      (event.clientY - drag.current.startY) / maxOffset(),
                   ),
                 );
               }}
               onPointerUp={() => {
                 drag.current = null;
+                resize.current = null;
               }}
             >
               <div className="absolute inset-y-0 left-1/2 aspect-[298/354] max-w-full -translate-x-1/2 cursor-grab active:cursor-grabbing">
@@ -102,19 +140,21 @@ function CropModal({
                   src={src}
                   alt="Selected profile photo"
                   draggable={false}
-                  style={{ transform: `translateY(calc(${offset} * 28 / 354 * 100%))` }}
+                  style={{
+                    transform: `translateY(calc(${offset} * (${CROP_BAND} + (1 - ${cropScale}) * ${CROP_SIZE / 2}) / 354 * 100%))`,
+                  }}
                   className="pointer-events-none size-full max-w-none object-cover will-change-transform"
                 />
 
                 {/* Dimmed bands above and below the 1:1 crop window */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-[calc(28/354*100%)] bg-[rgba(34,34,34,0.28)]" />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[calc(28/354*100%)] bg-[rgba(34,34,34,0.27)]" />
-
-                <div className="pointer-events-none absolute inset-x-0 top-[calc(28/354*100%)] aspect-square border-2 border-solid border-portal-border">
-                  <CornerBracket position="top-0 left-0 border-t-2 border-l-2" />
-                  <CornerBracket position="top-0 right-0 border-t-2 border-r-2" />
-                  <CornerBracket position="bottom-0 left-0 border-b-2 border-l-2" />
-                  <CornerBracket position="bottom-0 right-0 border-b-2 border-r-2" />
+                <div
+                  style={{ width: `${cropScale * 100}%` }}
+                  className="absolute top-1/2 left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 border-2 border-solid border-portal-border shadow-[0_0_0_999px_rgba(34,34,34,0.28)]"
+                >
+                  <CornerBracket onPointerDown={startResize(-1)} position="-top-0.5 -left-0.5 cursor-nwse-resize border-t-2 border-l-2" />
+                  <CornerBracket onPointerDown={startResize(-1)} position="-top-0.5 -right-0.5 cursor-nesw-resize border-t-2 border-r-2" />
+                  <CornerBracket onPointerDown={startResize(1)} position="-bottom-0.5 -left-0.5 cursor-nesw-resize border-b-2 border-l-2" />
+                  <CornerBracket onPointerDown={startResize(1)} position="-right-0.5 -bottom-0.5 cursor-nwse-resize border-b-2 border-r-2" />
                 </div>
 
                 <div className="pointer-events-none absolute top-1/2 left-1/2 flex size-[24px] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-clip rounded-[6px] bg-[rgba(64,62,60,0.7)] p-1">
@@ -163,10 +203,15 @@ export default function SetProfilePhoto({
 }: SetProfilePhotoProps) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<string | null>(null);
-  const [photo, setPhoto] = useState<{ src: string; offset: number } | null>(
+  const [photo, setPhoto] = useState<{
+    src: string;
+    offset: number;
+    cropScale: number;
+  } | null>(
     null,
   );
   const [offset, setOffset] = useState(0);
+  const [cropScale, setCropScale] = useState(1);
 
   const pickFile = () => fileInput.current?.click();
 
@@ -175,6 +220,7 @@ export default function SetProfilePhoto({
     if (!file) return;
     setPending(URL.createObjectURL(file));
     setOffset(0);
+    setCropScale(1);
     event.target.value = "";
   };
 
@@ -207,11 +253,20 @@ export default function SetProfilePhoto({
                   src={photo.src}
                   alt="Your profile photo"
                   style={{
-                    height: PREVIEW_SIZE + PREVIEW_BAND * 2,
-                    top: -PREVIEW_BAND,
-                    transform: `translateY(${photo.offset * PREVIEW_BAND}px)`,
+                    width: PREVIEW_SIZE / photo.cropScale,
+                    height:
+                      ((PREVIEW_SIZE + PREVIEW_BAND * 2) / photo.cropScale),
+                    left: -((1 - photo.cropScale) * PREVIEW_SIZE) / (2 * photo.cropScale),
+                    top:
+                      -(
+                        PREVIEW_BAND +
+                        ((1 - photo.cropScale) * PREVIEW_SIZE) / 2 -
+                        photo.offset *
+                          (PREVIEW_BAND +
+                            ((1 - photo.cropScale) * PREVIEW_SIZE) / 2)
+                      ) / photo.cropScale,
                   }}
-                  className="absolute left-0 w-full max-w-none object-cover"
+                  className="absolute max-w-none object-cover"
                 />
               </div>
               <button
@@ -286,9 +341,11 @@ export default function SetProfilePhoto({
               src={pending}
               offset={offset}
               onOffsetChange={setOffset}
+              cropScale={cropScale}
+              onCropScaleChange={setCropScale}
               onCancel={() => setPending(null)}
               onApply={() => {
-                setPhoto({ src: pending, offset });
+                setPhoto({ src: pending, offset, cropScale });
                 setPending(null);
               }}
             />,
