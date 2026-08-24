@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Camera, CheckCircle2, IdCard, MapPin, Plus, Shield, ShieldCheck, X } from "lucide-react";
+import { Camera, CheckCircle2, IdCard, Landmark, MapPin, Plus, Shield, ShieldCheck, TriangleAlert, X } from "lucide-react";
 import Button from "./components/Button";
 import ProfilePhoto, { PROFILE_PHOTO_KEY } from "./components/ProfilePhoto";
 import SocialAccountRow, { type SocialPlatform } from "./components/SocialAccountRow";
@@ -170,10 +170,22 @@ export default function ManageAccount() {
         onShowHelp={() => { window.location.hash = "#/help-center"; }}
       />
 
+      {!identityVerified || !paymentConnected ? (
+        <aside
+          className="flex w-full items-center justify-center gap-3 border-b border-[#e6e5e4] bg-portal-light px-6 py-3 lg:px-[120px]"
+          aria-label="Account setup required"
+        >
+          <div className="flex items-center gap-3">
+            <TriangleAlert aria-hidden="true" className="size-5 shrink-0 text-[#f59e0b]" strokeWidth={1.75} />
+            <p className="text-body-md font-medium text-[#2d2305]">To publish your shop, you need to verify your identity and connect a payment method.</p>
+          </div>
+        </aside>
+      ) : null}
+
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1200px] flex-col gap-9 px-6 py-8 lg:px-0">
         <div><h1 className="text-body-xxl font-medium">Manage Account</h1><p className="text-body-sm text-portal-muted">Your profile, payouts and connected accounts.</p></div>
         <div className="flex flex-col items-start gap-10 md:flex-row">
-          <nav aria-label="Account settings" className="flex w-full shrink-0 gap-1 overflow-x-auto md:w-[260px] md:flex-col">{(["Profile", "Social accounts", "Identity", "Payouts", "Shipping addresses"] as const).map((item) => <button key={item} type="button" onClick={() => setActiveSection(item)} className={`shrink-0 rounded-lg px-3 py-2.5 text-left text-body-sm ${item === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}>{item}</button>)}</nav>
+          <nav aria-label="Account settings" className="flex w-full shrink-0 gap-1 overflow-x-auto md:w-[260px] md:flex-col">{(["Profile", "Social accounts", "Identity", "Payouts", "Shipping addresses"] as const).map((item) => <button key={item} type="button" onClick={() => setActiveSection(item)} className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-left text-body-sm ${item === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{item}</span>{(item === "Identity" && !identityVerified) || (item === "Payouts" && !paymentConnected) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}</nav>
           <section className="flex min-w-0 flex-1 flex-col gap-5">
             {activeSection === "Social accounts" ? (
               <>
@@ -212,7 +224,8 @@ export default function ManageAccount() {
                 <div><h2 className="track-section text-body-md font-medium uppercase">Connect Your Payment</h2><p className="text-body-sm text-portal-muted">Connect your bank account to receive your earnings.</p></div>
                 {paymentConnected ? (
                   <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6">
-                    <div className="flex items-center gap-3"><span className="flex size-8 items-center justify-center rounded-full bg-portal-ok-bg text-[#16a34a]"><CheckCircle2 className="size-4" /></span><div><h3 className="text-body-md font-medium">Payment connection completed</h3><p className="text-body-sm text-portal-muted">Your payout account is ready to receive earnings.</p></div></div>
+                    <div className="flex flex-col gap-3 rounded-[10px] bg-[#eaf6fd] p-4"><img src="/urmei/hitpay-logo.png" alt="HitPay" className="h-6 w-auto self-start" /><p className="text-body-sm text-portal-muted">Get your earnings deposited straight into your bank account for easy access.</p></div>
+                    <div className="flex items-center gap-3"><span className="flex size-8 items-center justify-center rounded-full bg-portal-ok-bg text-[#16a34a]"><Landmark className="size-4" strokeWidth={1.75} /></span><div><h3 className="text-body-md font-medium">Payment connection completed</h3><p className="text-body-sm text-portal-muted">Your payout account is ready to receive earnings.</p></div></div>
                     <div className="grid gap-3 border-t border-portal-border pt-5 text-body-sm"><div className="flex justify-between"><span className="text-portal-muted">Account name</span><span className="font-medium">Charlotte Tan</span></div><div className="flex justify-between"><span className="text-portal-muted">Currency</span><span className="font-medium">SGD (Singapore Dollar)</span></div><div className="flex justify-between"><span className="text-portal-muted">Account number</span><span className="font-medium">•••• •••• 4829</span></div><div className="flex justify-between"><span className="text-portal-muted">Payment provider</span><span className="font-medium">HitPay</span></div></div>
                     <div><Button variant="portalOutline" disabled={paymentPending} onClick={openPayoutPartner}>{paymentPending ? "Opening HitPay" : "Manage payout account"}</Button></div>
                   </div>
