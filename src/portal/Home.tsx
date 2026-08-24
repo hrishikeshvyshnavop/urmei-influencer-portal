@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   Bell,
+  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -87,6 +88,7 @@ export default function Home({
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
+  const [shopUrlCopied, setShopUrlCopied] = useState(false);
   const [identityComplete] = useState(() =>
     hasCompletedAction(VERIFICATION_STORAGE_KEY),
   );
@@ -123,6 +125,25 @@ export default function Home({
       left: direction * carousel.clientWidth,
       behavior: "smooth",
     });
+  };
+
+  const copyShopUrl = async () => {
+    const shopUrl = "urmei.com/shop/charlotte";
+    try {
+      await navigator.clipboard.writeText(shopUrl);
+    } catch {
+      const input = document.createElement("textarea");
+      input.value = shopUrl;
+      input.setAttribute("readonly", "");
+      input.style.position = "fixed";
+      input.style.opacity = "0";
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      input.remove();
+    }
+    setShopUrlCopied(true);
+    window.setTimeout(() => setShopUrlCopied(false), 1800);
   };
 
   return (
@@ -219,11 +240,17 @@ export default function Home({
               <span className="flex items-center gap-1"><img src="/urmei/home/tiktok-stat.svg" alt="TikTok" className="size-[14px]" />112.2K</span><span className="flex items-center gap-1"><img src="/urmei/home/instagram-stat.svg" alt="Instagram" className="size-[14px]" />15.4K</span>
             </div>
             <button
-              onClick={() => navigator.clipboard?.writeText("urmei.com/shop/charlotte")}
+              type="button"
+              onClick={() => void copyShopUrl()}
+              aria-label="Copy shop URL"
               className="flex w-[297px] max-w-full items-center justify-between rounded-lg border border-portal-border bg-[#fffefd] px-3 py-1.5 text-left"
             >
-              <span><span className="block text-[10px] leading-4 text-portal-muted">Shop URL</span><span className="block text-body-sm font-medium">urmei.com/shop/charlotte</span></span>
-              <img src="/urmei/home/copy.svg" alt="Copy" className="size-4" />
+              <span><span className="block text-[10px] leading-4 text-portal-muted">Shop URL</span><span className="block text-body-sm font-medium">{shopUrlCopied ? "Copied" : "urmei.com/shop/charlotte"}</span></span>
+              {shopUrlCopied ? (
+                <Check aria-hidden="true" className="size-4 text-portal-success-text" strokeWidth={2} />
+              ) : (
+                <img src="/urmei/home/copy.svg" alt="" className="size-4" />
+              )}
             </button>
           </div>
           <div className="flex min-h-[128px] flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-[#f2efed] p-6 sm:flex-row sm:items-center lg:gap-10 lg:p-8">
