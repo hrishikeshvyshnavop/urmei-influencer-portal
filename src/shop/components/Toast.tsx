@@ -4,18 +4,18 @@ type ToastAction = { label: string; onClick: () => void }
 
 type ToastProps = {
   message: string
-  /**
-   * Distance from the top of the viewport. The flows place the toast
-   * differently: 92px inside the browse overlay, 150px on the My Shop page.
-   */
-  top?: number
   /** check-circle (success, default) or x-circle (blocked/error). */
   variant?: 'success' | 'error'
   /** e.g. "Manage Slot" on the featured-slots-full toast — fixes the toast at 400px wide. */
   action?: ToastAction
 }
 
-export function Toast({ message, top = 92, variant = 'success', action }: ToastProps) {
+/** Figma's Toast Container is a fixed 146px-tall band pinned to the top of
+ *  every screen (My Shop and both Product Detail frames), with the toast
+ *  bottom-aligned inside it — 92px from the top, identically everywhere. */
+const TOAST_TOP = 92
+
+export function Toast({ message, variant = 'success', action }: ToastProps) {
   return (
     <div
       role="status"
@@ -23,7 +23,7 @@ export function Toast({ message, top = 92, variant = 'success', action }: ToastP
         'fixed left-1/2 z-50 flex -translate-x-1/2 items-center gap-md-sm rounded-md bg-surface-primary-500 p-md-sm',
         action ? 'w-[400px] justify-between' : 'w-fit',
       ].join(' ')}
-      style={{ top }}
+      style={{ top: TOAST_TOP }}
     >
       <span className="flex items-center gap-sm">
         <Icon name={variant === 'success' ? 'check-circle' : 'x-circle'} size={22} />
