@@ -103,7 +103,7 @@ export default function NotificationsDrawer({
             aria-label="Close"
             className="flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-lg border border-solid border-portal-border"
           >
-            <X size={10} />
+            <X aria-hidden="true" className="size-4" strokeWidth={1.5} />
           </button>
         </div>
 

@@ -10,12 +10,17 @@ import { PAYMENT_STORAGE_KEY } from "./PaymentPartner";
 import { isSetupRequired } from "./setup-status";
 import { useHasShopItems, useIsShopPublished } from "../shop/shop-status";
 import ShopUrl from "./components/ShopUrl";
+import { PRODUCTS } from "../shop/data/catalogue";
+import type { Product } from "../shop/types";
+import { AddToShopModal } from "../shop/components/AddToShopModal";
+import { setShopItemCount } from "../shop/shop-status";
+import { Toast } from "../shop/components/Toast";
 
 const productImages = [
-  { image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
-  { image: "/urmei/home/product-2.png", title: "Water Bank Blue Hyaluronic Cream" },
-  { image: "/urmei/home/product-3.png", title: "Water Bank Blue Hyaluronic Cream" },
-  { image: "/urmei/home/product-4.png", title: "Water Bank Blue Hyaluronic Cream" },
+  { productId: "laneige-water-bank", image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
+  { productId: "cosrx-snail-96", image: "/urmei/home/product-2.png", title: "Advanced Snail 96 Mucin Power Essence" },
+  { productId: "innisfree-green-tea-seed", image: "/urmei/home/product-3.png", title: "Green Tea Seed Hyaluronic Serum" },
+  { productId: "sulwhasoo-first-care", image: "/urmei/home/product-4.png", title: "First Care Activating Serum" },
 ];
 
 const products = [0, 1].flatMap((page) =>
@@ -42,10 +47,10 @@ function hasCompletedAction(storageKey: string) {
   }
 }
 
-function ProductCard({ image, title }: { image: string; title: string }) {
+function ProductCard({ productId, image, title, onAdd }: { productId: string; image: string; title: string; onAdd: (productId: string) => void }) {
   return (
     <article className="min-w-[260px] flex-1 snap-start sm:min-w-[285px]">
-      <img src={image} alt={title} className="aspect-square w-full rounded-[6px] object-cover" />
+      <button type="button" onClick={() => { window.location.hash = `#/shop/product/${productId}`; }} aria-label={`View details for ${title}`} className="block w-full cursor-pointer overflow-hidden rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"><img src={image} alt={title} className="aspect-square w-full object-cover" /></button>
       <div className="flex flex-col gap-3 pt-3">
         <div>
           <p className="text-[10px] leading-4 text-portal-muted">LANEIGE</p>
@@ -58,7 +63,7 @@ function ProductCard({ image, title }: { image: string; title: string }) {
           </div>
         </div>
         <p className="text-[10px] leading-4 text-portal-muted">Singapore&nbsp;&nbsp;•&nbsp;&nbsp;Malaysia</p>
-        <Button variant="portalOutline" className="w-full">Add to Shop</Button>
+        <Button variant="portalOutline" className="w-full" onClick={() => onAdd(productId)}>Add to Shop</Button>
       </div>
     </article>
   );
@@ -74,6 +79,8 @@ export default function Home({
   const hasShopItems = useHasShopItems();
   const isShopPublished = useIsShopPublished();
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
+  const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
+  const [showAddedToast, setShowAddedToast] = useState(false);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
   const [identityComplete] = useState(() =>
@@ -104,6 +111,12 @@ export default function Home({
     resizeObserver.observe(carousel);
     return () => resizeObserver.disconnect();
   }, []);
+
+  useEffect(() => {
+    if (!showAddedToast) return;
+    const timer = window.setTimeout(() => setShowAddedToast(false), 3200);
+    return () => window.clearTimeout(timer);
+  }, [showAddedToast]);
 
   const scrollProducts = (direction: number) => {
     const carousel = productsRef.current;
@@ -170,7 +183,7 @@ export default function Home({
             </div>
             <ShopUrl published={isShopPublished} />
           </div>
-          {!isShopPublished ? (
+          {!hasShopItems ? (
             <div className="flex min-h-[128px] flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-[#f2efed] p-6 sm:flex-row sm:items-center lg:gap-10 lg:p-8">
               <img src="/urmei/home/store.svg" alt="" className="size-16" />
               <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Set Up Your Shop</h2><p className="text-body-sm text-portal-muted">Curate your product collection and publish your shop to start earning</p></div>
@@ -217,7 +230,7 @@ export default function Home({
             onScroll={updateCarouselControls}
             className="flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {products.map((product) => <ProductCard key={product.id} {...product} />)}
+            {products.map((product) => <ProductCard key={product.id} {...product} onAdd={(productId) => setPendingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)} />)}
           </div>
         </section>
 
@@ -232,6 +245,21 @@ export default function Home({
         </section>
       </main>
 
+      {pendingProduct ? (
+        <AddToShopModal
+          product={pendingProduct}
+          featuredCount={0}
+          featuredLimit={6}
+          onClose={() => setPendingProduct(null)}
+          onFeatureBlocked={() => {}}
+          onConfirm={() => {
+            setShopItemCount(1);
+            setPendingProduct(null);
+            setShowAddedToast(true);
+          }}
+        />
+      ) : null}
+      {showAddedToast ? <Toast message="Product added to your shop" top={100} /> : null}
     </AppShell>
   );
 }
