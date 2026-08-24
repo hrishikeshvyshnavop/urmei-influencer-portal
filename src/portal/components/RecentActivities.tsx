@@ -1,9 +1,7 @@
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, DollarSign, Megaphone } from "lucide-react";
 
 type Activity = {
   icon: "dollar" | "megaphone";
-  /** Icon inset from the design; each glyph sits in an 8px box. */
-  inset: string;
   label: string;
   /** Bold trailing amount, present only on commission rows. */
   amount?: string;
@@ -14,7 +12,6 @@ type Activity = {
 const activities: Activity[] = [
   {
     icon: "dollar",
-    inset: "bottom-[8.33%] left-1/4 right-1/4 top-[8.33%]",
     label: "Commission earned:",
     amount: "S$15",
     detail: "From Laneige water sleeping mask",
@@ -22,7 +19,6 @@ const activities: Activity[] = [
   },
   {
     icon: "dollar",
-    inset: "bottom-[8.33%] left-1/4 right-1/4 top-[8.33%]",
     label: "Commission earned:",
     amount: "S$91",
     detail: "From Sulwhasoo first care serum",
@@ -30,7 +26,6 @@ const activities: Activity[] = [
   },
   {
     icon: "megaphone",
-    inset: "bottom-[20.8%] left-[12.5%] right-[12.5%] top-1/4",
     label: "Product added to shop",
     detail: "Mamonde rose water toner",
     time: "Yesterday, 5:55 PM",
@@ -65,15 +60,11 @@ export default function RecentActivities() {
           >
             <div className="flex min-w-px flex-1 items-start gap-3">
               <div className="flex size-[32px] shrink-0 items-center justify-center rounded-full bg-portal-tint p-[6px]">
-                <span className="relative size-[8px] shrink-0 overflow-clip">
-                  <span className={`absolute ${activity.inset}`}>
-                    <img
-                      src={`/urmei/home/icon-${activity.icon}.svg`}
-                      alt=""
-                      className="block size-full max-w-none"
-                    />
-                  </span>
-                </span>
+                {activity.icon === "dollar" ? (
+                  <DollarSign aria-hidden="true" className="size-4" strokeWidth={1.5} />
+                ) : (
+                  <Megaphone aria-hidden="true" className="size-4" strokeWidth={1.5} />
+                )}
               </div>
 
               <div className="flex min-w-px flex-1 flex-col items-start gap-1">
