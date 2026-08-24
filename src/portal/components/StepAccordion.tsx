@@ -7,11 +7,21 @@ export type StepStatus =
   | "failed"
   | "complete";
 
-export function Icon16({ src, inset }: { src: string; inset: string }) {
+export function Icon16({
+  src,
+  inset,
+  bleed,
+}: {
+  src: string;
+  inset: string;
+  bleed?: string;
+}) {
   return (
-    <span className="relative size-[16px] shrink-0 overflow-clip">
-      <span className={`absolute ${inset}`}>
-        <img src={src} alt="" className="block size-full max-w-none" />
+    <span className="relative block size-[16px] shrink-0 overflow-clip">
+      <span className={`absolute block ${inset}`}>
+        <span className={`absolute block ${bleed ?? "inset-0"}`}>
+          <img src={src} alt="" className="block size-full max-w-none" />
+        </span>
       </span>
     </span>
   );
@@ -51,11 +61,13 @@ export function StatusHeader({
   well,
   icon,
   inset,
+  bleed,
   heading,
 }: {
   well: string;
   icon: string;
   inset: string;
+  bleed?: string;
   heading: string;
 }) {
   return (
@@ -63,8 +75,12 @@ export function StatusHeader({
       <div
         className={`flex size-[32px] shrink-0 items-center justify-center rounded-[10px] ${well}`}
       >
-        <span className={icon.includes("circle-dashed") ? "motion-spin-soft" : ""}>
-          <Icon16 src={icon} inset={inset} />
+        <span
+          className={`block size-[16px] ${
+            icon.includes("circle-dashed") ? "motion-spin-soft" : ""
+          }`}
+        >
+          <Icon16 src={icon} inset={inset} bleed={bleed} />
         </span>
       </div>
       <p className="min-w-px flex-1 text-body-md font-medium text-portal-text">

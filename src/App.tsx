@@ -171,12 +171,20 @@ function screenFor(
     case "#/reset-password":
       return <SetPassword copy={resetPasswordCopy} onLogIn={toLogin} />;
 
-    default:
+    case "#/login":
       return (
         <Login
           onLogIn={() => navigate("#/profile/username")}
           onForgotPassword={() => navigate("#/forgot-password")}
           onApply={() => navigate("#/apply/form")}
+        />
+      );
+
+    default:
+      return (
+        <ApplyLanding
+          onApply={() => navigate("#/apply/form")}
+          onLogin={toLogin}
         />
       );
   }

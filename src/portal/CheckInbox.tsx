@@ -44,7 +44,7 @@ export default function CheckInbox({
         </div>
         <div className="flex flex-wrap gap-3">
           <Button variant="portal" onClick={onOpenEmail}>
-            Open test email
+            Open Email
           </Button>
           <Button
             variant="portalOutlineLg"

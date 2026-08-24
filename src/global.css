@@ -82,12 +82,19 @@ body {
   to { transform: rotate(360deg); }
 }
 
+@keyframes portal-success-tick {
+  0% { opacity: 0; transform: translateY(4px) scale(0.55) rotate(-10deg); }
+  65% { opacity: 1; transform: translateY(0) scale(1.12) rotate(2deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+
 .motion-page { animation: portal-enter 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .motion-card { animation: portal-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .motion-feedback { animation: portal-pop 200ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .motion-modal-backdrop { animation: portal-backdrop 180ms ease-out both; }
 .motion-modal-panel { animation: portal-modal 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 .motion-spin-soft { animation: portal-spin 1.6s linear infinite; }
+.motion-success-tick { animation: portal-success-tick 480ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

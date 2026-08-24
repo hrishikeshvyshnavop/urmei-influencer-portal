@@ -153,6 +153,45 @@ export default function Onboarding({
     window.open(partnerUrl, "urmei-verification-partner");
   };
 
+  if (allDone) {
+    return (
+      <PortalLayout>
+        <div className="motion-feedback flex w-full max-w-[375px] flex-col items-start justify-center gap-[14px]">
+          <div className="flex w-full flex-col items-start justify-center gap-[6px]">
+            <div className="flex size-[48px] items-center justify-center">
+              <span className="motion-success-tick relative block size-[40px] shrink-0 overflow-hidden">
+                <span className="absolute bottom-[29.17%] left-[16.67%] right-[16.67%] top-1/4">
+                  <span className="absolute inset-[-3.63%_-2.49%]">
+                    <img
+                      src="/urmei/icon-check.svg"
+                      alt=""
+                      className="block size-full max-w-none"
+                    />
+                  </span>
+                </span>
+              </span>
+            </div>
+            <h1 className="w-full text-h3 uppercase text-portal-text">
+              You&#39;re all set!
+            </h1>
+            <p className="w-full text-body-sm text-portal-muted">
+              Your identity has been verified and your payment account is
+              connected. You&#39;re ready to start earning with URMEI.
+            </p>
+          </div>
+
+          <Button
+            variant="portalOutlineLg"
+            className="bg-portal-light"
+            onClick={onFinish}
+          >
+            Continue
+          </Button>
+        </div>
+      </PortalLayout>
+    );
+  }
+
   return (
     <PortalLayout
       headerAction={
@@ -165,12 +204,10 @@ export default function Onboarding({
         <div className="flex w-full flex-col items-start gap-3">
           <div className="flex w-full flex-col items-start gap-[6px]">
             <h1 className="w-full text-body-xxl text-portal-text">
-              {allDone ? "You're all set!" : "You're nearly there!"}
+              You&#39;re nearly there!
             </h1>
             <p className="w-full text-body-md text-portal-muted">
-              {allDone
-                ? "Your identity is verified and payment is connected. Continue to start selling."
-                : "Complete these steps to verify your identity and set up payouts"}
+              Complete these steps to verify your identity and set up payouts
             </p>
           </div>
         </div>
@@ -286,31 +323,35 @@ export default function Onboarding({
               </StepCard>
             ) : null}
 
-            {identity === "complete" && payment === "locked" ? (
+            {identity === "complete" ? (
               <StepCard>
                 <div className="flex w-full flex-col items-start gap-3">
                   <StatusHeader
                     well="bg-portal-ok-bg"
                     icon="/urmei/icon-shield-check-success.svg"
                     inset="inset-[8.33%_16.67%]"
+                    bleed="inset-[-4.99%_-6.23%]"
                     heading="Identity verified"
                   />
                   <p className="w-full text-body-md text-portal-muted">
-                    Your identity has been successfully verified. You can now
-                    proceed to connect your payment method.
+                    {payment === "locked"
+                      ? "Your identity has been successfully verified. You can now proceed to connect your payment method."
+                      : "Your identity has been successfully verified."}
                   </p>
                 </div>
-                <div className="flex w-full flex-col items-start">
-                  <Button
-                    variant="portal"
-                    onClick={() => {
-                      setPayment("idle");
-                      setOpen(2);
-                    }}
-                  >
-                    Continue
-                  </Button>
-                </div>
+                {payment === "locked" ? (
+                  <div className="flex w-full flex-col items-start">
+                    <Button
+                      variant="portal"
+                      onClick={() => {
+                        setPayment("idle");
+                        setOpen(2);
+                      }}
+                    >
+                      Continue
+                    </Button>
+                  </div>
+                ) : null}
               </StepCard>
             ) : null}
           </Step>
@@ -418,13 +459,6 @@ export default function Onboarding({
           </Step>
         </div>
 
-        {allDone ? (
-          <div className="motion-feedback w-full">
-            <Button variant="portalBlock" onClick={onFinish}>
-              Continue
-            </Button>
-          </div>
-        ) : null}
       </div>
     </PortalLayout>
   );
