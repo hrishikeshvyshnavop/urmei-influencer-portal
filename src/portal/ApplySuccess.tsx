@@ -1,7 +1,13 @@
 import Button from "./components/Button";
 import PortalLayout from "./components/PortalLayout";
 
-export default function ApplySuccess({ onBackToLogin }: { onBackToLogin: () => void }) {
+export default function ApplySuccess({
+  onBackToLogin,
+  onPreviewApproval,
+}: {
+  onBackToLogin: () => void;
+  onPreviewApproval: () => void;
+}) {
   return (
     <PortalLayout>
       <div className="flex w-full max-w-[375px] flex-col items-start justify-center gap-[14px]">
@@ -29,9 +35,14 @@ export default function ApplySuccess({ onBackToLogin }: { onBackToLogin: () => v
             you via email shortly.
           </p>
         </div>
-        <Button variant="portalOutlineLg" onClick={onBackToLogin}>
-          Back to Login
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="portal" onClick={onPreviewApproval}>
+            Preview approval
+          </Button>
+          <Button variant="portalOutlineLg" onClick={onBackToLogin}>
+            Back to Login
+          </Button>
+        </div>
       </div>
     </PortalLayout>
   );

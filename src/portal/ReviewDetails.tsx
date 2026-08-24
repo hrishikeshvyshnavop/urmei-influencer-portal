@@ -15,6 +15,8 @@ type ReviewField = {
   icon?: "calendar";
   type?: "text" | "email" | "tel";
   options?: string[];
+  numericOnly?: boolean;
+  maxLength?: number;
 };
 
 const personalFields: ReviewField[] = [
@@ -39,12 +41,23 @@ const personalFields: ReviewField[] = [
 ];
 
 const addressFields: ReviewField[] = [
-  { name: "postalCode", label: "Postal Code", value: "520101" },
+  {
+    name: "postalCode",
+    label: "Postal Code",
+    value: "520101",
+    numericOnly: true,
+    maxLength: 6,
+  },
   { name: "blockNo", label: "Blk / House No", value: "12A" },
   { name: "street", label: "Street Name", value: "Orchard Boulevard" },
   { name: "building", label: "Building Name", value: "Camden Medical Centre" },
   { name: "floorNo", label: "Floor No.", value: "03" },
-  { name: "unitNumber", label: "Unit Number", value: "28" },
+  {
+    name: "unitNumber",
+    label: "Unit Number",
+    value: "28",
+    numericOnly: true,
+  },
   {
     name: "country",
     label: "Country",
@@ -84,6 +97,8 @@ function FieldGrid({
           icon={field.icon}
           locked={field.locked}
           options={field.options}
+          numericOnly={field.numericOnly}
+          maxLength={field.maxLength}
           value={values[field.name] ?? ""}
           onChange={(value) => onChange(field.name, value)}
         />

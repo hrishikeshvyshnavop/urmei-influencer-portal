@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -28,6 +29,8 @@ type TextFieldProps = {
   icon?: "calendar";
   autoComplete?: string;
   options?: string[];
+  numericOnly?: boolean;
+  maxLength?: number;
   /** Review Details renders identity fields as read-only, filled swatches. */
   locked?: boolean;
 };
@@ -41,6 +44,8 @@ export default function TextField({
   icon,
   autoComplete,
   options,
+  numericOnly = false,
+  maxLength,
   locked = false,
 }: TextFieldProps) {
   const id = useId();
@@ -62,15 +67,16 @@ export default function TextField({
             : "border-portal-border"
         }`}
       >
-        <div className="flex min-w-px flex-1 items-center gap-1">
+        <div className="relative flex min-w-px flex-1 items-center gap-1">
           {options ? (
-            <select
+            <>
+              <select
               id={id}
               value={value}
               onChange={(event) => onChange(event.target.value)}
               autoComplete={autoComplete}
               disabled={locked}
-              className={`w-full min-w-px cursor-pointer bg-transparent text-body-sm outline-none disabled:cursor-not-allowed ${
+              className={`w-full min-w-px cursor-pointer appearance-none bg-transparent pr-6 text-body-sm outline-none disabled:cursor-not-allowed ${
                 value ? "text-portal-text" : "text-portal-placeholder"
               }`}
             >
@@ -82,16 +88,30 @@ export default function TextField({
                   {option}
                 </option>
               ))}
-            </select>
+              </select>
+              <ChevronDownIcon
+                aria-hidden="true"
+                className="pointer-events-none absolute right-0 size-4 text-portal-muted"
+              />
+            </>
           ) : (
             <input
               id={id}
               type={type}
               value={value}
-              inputMode={type === "tel" ? "tel" : undefined}
+              inputMode={numericOnly ? "numeric" : type === "tel" ? "tel" : undefined}
+              maxLength={maxLength}
+              onClick={() => {
+                if (icon === "calendar" && !locked) setOpen(true);
+              }}
+              onFocus={() => {
+                if (icon === "calendar" && !locked) setOpen(true);
+              }}
               onChange={(event) =>
                 onChange(
-                  type === "tel"
+                  numericOnly
+                    ? event.target.value.replace(/\D/g, "").slice(0, maxLength)
+                    : type === "tel"
                     ? event.target.value.replace(/[^\d+()\s-]/g, "")
                     : event.target.value,
                 )

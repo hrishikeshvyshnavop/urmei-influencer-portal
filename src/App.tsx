@@ -15,6 +15,8 @@ import Home from "./portal/Home";
 import ProductTour from "./portal/components/ProductTour";
 import PaymentPartner from "./portal/PaymentPartner";
 import ResetEmail from "./portal/ResetEmail";
+import ApprovalPreview from "./portal/ApprovalPreview";
+import ApprovalEmail from "./portal/ApprovalEmail";
 
 // This project has no router, so the portal screens are selected by hash.
 function subscribe(onChange: () => void) {
@@ -90,7 +92,23 @@ function screenFor(
         />
       );
     case "#/apply/success":
-      return <ApplySuccess onBackToLogin={toLogin} />;
+      return (
+        <ApplySuccess
+          onBackToLogin={toLogin}
+          onPreviewApproval={() => navigate("#/approval-preview")}
+        />
+      );
+    case "#/approval-preview":
+      return (
+        <ApprovalPreview onApproved={() => navigate("#/approval-email")} />
+      );
+    case "#/approval-email":
+      return (
+        <ApprovalEmail
+          email="charlotte.tan@email.com"
+          onOpenPortal={toHome}
+        />
+      );
 
     // Registration
     case "#/set-password":

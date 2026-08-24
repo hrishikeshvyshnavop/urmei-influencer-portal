@@ -1,68 +1,87 @@
 import * as React from "react";
-import { DayPicker } from "react-day-picker";
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
+import { DayPicker, getDefaultClassNames, type DayButton } from "react-day-picker";
 import { cn } from "@/lib/utils";
 
-/**
- * shadcn/ui Calendar (react-day-picker), themed with the portal's tokens.
- * `captionLayout="dropdown"` keeps birthdays reachable without paging back
- * hundreds of months.
- */
 function Calendar({
   className,
   classNames,
   showOutsideDays = true,
+  captionLayout = "label",
+  formatters,
+  components,
   ...props
 }: React.ComponentProps<typeof DayPicker>) {
+  const defaults = getDefaultClassNames();
+
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      captionLayout={captionLayout}
       className={cn(
-        "relative w-[280px] max-w-[calc(100vw-48px)] text-body-sm text-portal-text",
+        "relative w-[280px] max-w-[calc(100vw-48px)] bg-white text-body-sm text-portal-text [--cell-size:36px]",
         className,
       )}
+      formatters={{
+        formatMonthDropdown: (date) => date.toLocaleString("default", { month: "short" }),
+        ...formatters,
+      }}
       classNames={{
-        months: "w-full",
-        month: "flex w-full flex-col gap-3",
-        month_caption: "flex h-9 items-center justify-center px-10",
-        caption_label: "text-body-sm font-medium text-portal-text",
-        dropdowns: "flex min-w-0 items-center justify-center gap-2",
-        dropdown_root: "relative",
-        dropdown:
-          "max-w-[112px] cursor-pointer rounded-[6px] border border-solid border-portal-border bg-white px-2 py-1 text-body-sm text-portal-text outline-none",
-        nav: "absolute inset-x-0 top-0 flex h-9 items-center justify-between",
-        button_previous:
-          "flex size-8 cursor-pointer items-center justify-center rounded-[6px] border border-solid border-portal-border text-portal-text disabled:cursor-not-allowed disabled:opacity-40",
-        button_next:
-          "flex size-8 cursor-pointer items-center justify-center rounded-[6px] border border-solid border-portal-border text-portal-text disabled:cursor-not-allowed disabled:opacity-40",
-        month_grid: "w-full table-fixed border-collapse",
-        weekdays: "grid grid-cols-7",
-        weekday:
-          "flex h-8 items-center justify-center text-body-xs font-medium text-portal-muted",
-        week: "mt-1 grid grid-cols-7",
-        day: "flex min-w-0 items-center justify-center p-0",
-        day_button:
-          "flex size-9 max-w-full cursor-pointer items-center justify-center rounded-[6px] text-body-sm text-portal-text hover:bg-portal-surface",
-        selected:
-          "[&_button]:bg-portal-dark [&_button]:text-portal-light [&_button]:hover:bg-portal-dark",
-        today: "[&_button]:font-medium [&_button]:underline",
-        outside: "[&_button]:text-portal-placeholder",
-        disabled: "[&_button]:cursor-not-allowed [&_button]:opacity-40",
-        hidden: "invisible",
+        root: cn("w-fit", defaults.root),
+        months: cn("relative flex flex-col gap-4", defaults.months),
+        month: cn("flex w-full flex-col gap-3", defaults.month),
+        nav: cn("absolute inset-x-0 top-0 flex h-9 w-full items-center justify-between", defaults.nav),
+        button_previous: cn("flex size-9 cursor-pointer items-center justify-center rounded-md border border-portal-border bg-white disabled:cursor-not-allowed disabled:opacity-40", defaults.button_previous),
+        button_next: cn("flex size-9 cursor-pointer items-center justify-center rounded-md border border-portal-border bg-white disabled:cursor-not-allowed disabled:opacity-40", defaults.button_next),
+        month_caption: cn("flex h-9 w-full items-center justify-center px-10", defaults.month_caption),
+        dropdowns: cn("flex h-9 w-full items-center justify-center gap-1.5 font-medium", defaults.dropdowns),
+        dropdown_root: cn("relative rounded-md border border-portal-border bg-white focus-within:border-portal-dark focus-within:ring-2 focus-within:ring-portal-surface", defaults.dropdown_root),
+        dropdown: cn("absolute inset-0 cursor-pointer opacity-0", defaults.dropdown),
+        caption_label: cn("flex h-8 items-center gap-1 px-2 font-medium select-none [&>svg]:size-3.5 [&>svg]:text-portal-muted", defaults.caption_label),
+        month_grid: cn("w-full border-collapse", defaults.month_grid),
+        weekdays: cn("flex", defaults.weekdays),
+        weekday: cn("flex-1 text-center text-body-xs font-medium text-portal-muted select-none", defaults.weekday),
+        week: cn("mt-1 flex w-full", defaults.week),
+        day: cn("group/day relative aspect-square h-full w-full p-0 text-center select-none", defaults.day),
+        today: cn("rounded-md bg-portal-surface", defaults.today),
+        outside: cn("text-portal-placeholder", defaults.outside),
+        disabled: cn("opacity-40", defaults.disabled),
+        hidden: cn("invisible", defaults.hidden),
         ...classNames,
       }}
       components={{
-        Chevron: ({ orientation, ...chevronProps }) =>
-          orientation === "left" ? (
-            <ChevronLeftIcon className="size-4" {...chevronProps} />
-          ) : (
-            <ChevronRightIcon className="size-4" {...chevronProps} />
-          ),
+        Chevron: ({ className: iconClassName, orientation, ...iconProps }) => {
+          const Icon = orientation === "left" ? ChevronLeftIcon : orientation === "right" ? ChevronRightIcon : ChevronDownIcon;
+          return <Icon className={cn("size-4", iconClassName)} {...iconProps} />;
+        },
+        DayButton: CalendarDayButton,
+        ...components,
       }}
       {...props}
     />
   );
 }
 
-export { Calendar };
+function CalendarDayButton({ className, day, modifiers, ...props }: React.ComponentProps<typeof DayButton>) {
+  const ref = React.useRef<HTMLButtonElement>(null);
+
+  React.useEffect(() => {
+    if (modifiers.focused) ref.current?.focus();
+  }, [modifiers.focused]);
+
+  return (
+    <button
+      ref={ref}
+      type="button"
+      data-day={day.date.toLocaleDateString()}
+      data-selected={modifiers.selected || undefined}
+      className={cn(
+        "flex size-9 cursor-pointer items-center justify-center rounded-md font-normal transition-colors hover:bg-portal-surface focus-visible:relative focus-visible:z-10 focus-visible:outline-2 focus-visible:outline-portal-dark disabled:cursor-not-allowed data-[selected=true]:bg-portal-dark data-[selected=true]:text-portal-light data-[selected=true]:hover:bg-portal-dark",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+export { Calendar, CalendarDayButton };

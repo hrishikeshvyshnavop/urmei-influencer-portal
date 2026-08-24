@@ -15,6 +15,8 @@ type FieldSpec = {
   icon?: "calendar";
   autoComplete?: string;
   options?: string[];
+  numericOnly?: boolean;
+  maxLength?: number;
 };
 
 const personalFields: FieldSpec[] = [
@@ -65,6 +67,8 @@ const addressFields: FieldSpec[] = [
     label: "Postal Code",
     placeholder: "e.g. 520101",
     autoComplete: "postal-code",
+    numericOnly: true,
+    maxLength: 6,
   },
   { name: "blockNo", label: "Blk / House No", placeholder: "e.g. 12A" },
   {
@@ -80,7 +84,12 @@ const addressFields: FieldSpec[] = [
     autoComplete: "address-line2",
   },
   { name: "floorNo", label: "Floor No.", placeholder: "e.g. 03" },
-  { name: "unitNumber", label: "Unit Number", placeholder: "e.g. 28" },
+  {
+    name: "unitNumber",
+    label: "Unit Number",
+    placeholder: "e.g. 28",
+    numericOnly: true,
+  },
   {
     name: "country",
     label: "Country",
@@ -117,6 +126,8 @@ function FieldGrid({
           icon={field.icon}
           autoComplete={field.autoComplete}
           options={field.options}
+          numericOnly={field.numericOnly}
+          maxLength={field.maxLength}
           value={values[field.name] ?? ""}
           onChange={(value) => onChange(field.name, value)}
         />

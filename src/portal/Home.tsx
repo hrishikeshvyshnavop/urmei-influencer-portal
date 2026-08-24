@@ -7,6 +7,9 @@ import {
   Search,
 } from "lucide-react";
 import Button from "./components/Button";
+import NotificationsDrawer from "./components/NotificationsDrawer";
+import RecentActivities from "./components/RecentActivities";
+import TopProducts from "./components/TopProducts";
 
 const products = [
   { image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
@@ -45,6 +48,7 @@ function ProductCard({ image, title }: { image: string; title: string }) {
 }
 
 export default function Home() {
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const productsRef = useRef<HTMLDivElement>(null);
 
@@ -78,7 +82,11 @@ export default function Home() {
             />
             <span>EN</span>
           </button>
-          <button aria-label="Notifications" className="relative flex size-12 items-center justify-center">
+          <button
+            aria-label="Notifications"
+            onClick={() => setNotificationsOpen(true)}
+            className="relative flex size-12 cursor-pointer items-center justify-center"
+          >
             <Bell size={20} />
             <span className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" />
           </button>
@@ -119,6 +127,10 @@ export default function Home() {
           </div>
         </section>
 
+        <RecentActivities />
+
+        <TopProducts />
+
         <section className="py-7">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="track-section text-body-md font-medium uppercase">Recommended Products</h2>
@@ -149,6 +161,9 @@ export default function Home() {
           <div className="flex items-center justify-between"><p className="text-body-md">© 2025 URMEI ®</p><div className="flex gap-3">{["facebook", "instagram", "twitter"].map((network) => <button key={network} aria-label={network} className="flex size-12 items-center justify-center rounded-full bg-[#f2efed]"><img src={`/urmei/home/${network}.svg`} alt="" className="size-4" /></button>)}</div></div>
         </div>
       </footer>
+      {notificationsOpen ? (
+        <NotificationsDrawer onClose={() => setNotificationsOpen(false)} />
+      ) : null}
     </div>
   );
 }
