@@ -12,6 +12,10 @@ import RecentActivities from "./components/RecentActivities";
 import TopProducts from "./components/TopProducts";
 import ProfileMenu from "./components/ProfileMenu";
 import ProfilePhoto from "./components/ProfilePhoto";
+import { VERIFICATION_STORAGE_KEY } from "./VerificationPartner";
+import { PAYMENT_STORAGE_KEY } from "./PaymentPartner";
+import LanguageSelector from "./components/LanguageSelector";
+import { isSetupRequired } from "./setup-status";
 
 const productImages = [
   { image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
@@ -39,6 +43,16 @@ const footerSocials = [
   { name: "instagram", iconClass: "size-[14.663px]" },
   { name: "twitter", iconClass: "h-[12.672px] w-[14.663px]" },
 ];
+
+function hasCompletedAction(storageKey: string) {
+  try {
+    const value = window.localStorage.getItem(storageKey);
+    if (!value) return false;
+    return (JSON.parse(value) as { status?: string }).status === "complete";
+  } catch {
+    return false;
+  }
+}
 
 function ProductCard({ image, title }: { image: string; title: string }) {
   return (
@@ -73,7 +87,16 @@ export default function Home({
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
+  const [identityComplete] = useState(() =>
+    hasCompletedAction(VERIFICATION_STORAGE_KEY),
+  );
+  const [paymentComplete] = useState(() =>
+    hasCompletedAction(PAYMENT_STORAGE_KEY),
+  );
+  const [setupWasSkipped] = useState(isSetupRequired);
   const productsRef = useRef<HTMLDivElement>(null);
+  const setupComplete =
+    identityComplete && paymentComplete && !setupWasSkipped;
 
   const updateCarouselControls = () => {
     const carousel = productsRef.current;
@@ -128,18 +151,7 @@ export default function Home({
             <Search size={16} />
             <input aria-label="Search products and brands" placeholder="Find products and brands" className="min-w-0 flex-1 bg-transparent text-body-sm outline-none placeholder:text-portal-muted" />
           </label>
-          <button
-            type="button"
-            className="hidden h-12 cursor-pointer items-center gap-[6px] px-2 text-body-md font-medium sm:flex"
-            aria-label="Language: English"
-          >
-            <img
-              src="/urmei/flag-en.svg"
-              alt=""
-              className="block size-5"
-            />
-            <span>EN</span>
-          </button>
+          <LanguageSelector />
           <button
             aria-label="Notifications"
             onClick={() => setNotificationsOpen(true)}
@@ -151,7 +163,7 @@ export default function Home({
           <ProfileMenu
             onShowTour={() => onShowTour?.()}
             onShowHelp={() => {
-              document.getElementById("help-center")?.scrollIntoView({ behavior: "smooth" });
+              window.location.hash = "#/help-center";
             }}
             onLogout={() => {
               window.location.hash = "#/login";
@@ -159,6 +171,34 @@ export default function Home({
           />
         </div>
       </header>
+
+      {!setupComplete ? (
+        <aside
+          className="flex w-full flex-col items-start justify-between gap-3 border-b border-[#e6e5e4] bg-[#fffefd] px-6 py-3 sm:flex-row sm:items-center lg:px-[120px]"
+          aria-label="Account setup required"
+        >
+          <div className="flex min-w-0 items-start gap-3 sm:items-center">
+            <img
+              src="/urmei/icon-triangle-alert.svg"
+              alt=""
+              className="mt-px size-5 shrink-0 sm:mt-0"
+            />
+            <p className="text-body-md font-medium text-[#2d2305]">
+              To publish your shop, you need to verify your identity and connect
+              a payment method.
+            </p>
+          </div>
+          <Button
+            variant="portalOutline"
+            className="shrink-0 bg-[#fffefd]"
+            onClick={() => {
+              window.location.hash = identityComplete ? "#/payment" : "#/verify";
+            }}
+          >
+            Complete action
+          </Button>
+        </aside>
+      ) : null}
 
       <main className="mx-auto flex w-full max-w-[1440px] flex-col px-6 py-8 lg:px-[120px]">
         <section className="overflow-hidden rounded-[10px] bg-portal-surface shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
@@ -209,7 +249,7 @@ export default function Home({
                 aria-label="Previous products"
                 onClick={() => scrollProducts(-1)}
                 disabled={!canScrollBack}
-                className="!size-8 !p-0"
+                className="!size-8 !p-0 disabled:!border-portal-surface disabled:!bg-portal-light disabled:!text-portal-disabled disabled:!opacity-100"
               >
                 <ChevronLeft aria-hidden="true" className="size-4" strokeWidth={1.5} />
               </Button>
@@ -218,7 +258,7 @@ export default function Home({
                 aria-label="Next products"
                 onClick={() => scrollProducts(1)}
                 disabled={!canScrollForward}
-                className="!size-8 !p-0"
+                className="!size-8 !p-0 disabled:!border-portal-surface disabled:!bg-portal-light disabled:!text-portal-disabled disabled:!opacity-100"
               >
                 <ChevronRight aria-hidden="true" className="size-4" strokeWidth={1.5} />
               </Button>
@@ -236,7 +276,7 @@ export default function Home({
         </section>
 
         <section id="help-center" className="scroll-mt-24 py-6">
-          <div className="flex items-center justify-between"><h2 className="track-section text-body-md font-medium uppercase">Help Center</h2><button className="flex items-center gap-2 text-body-sm font-medium">View all <ChevronRight size={16} /></button></div>
+          <div className="flex items-center justify-between"><h2 className="track-section text-body-md font-medium uppercase">Help Center</h2><a href="#/help-center" className="flex items-center gap-2 text-body-sm font-medium">View all <ChevronRight size={16} /></a></div>
           <div className="mt-2">
             {questions.map(([question, answer], index) => {
               const expanded = openQuestion === index;

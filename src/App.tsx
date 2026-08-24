@@ -17,6 +17,8 @@ import PaymentPartner from "./portal/PaymentPartner";
 import ResetEmail from "./portal/ResetEmail";
 import ApprovalPreview from "./portal/ApprovalPreview";
 import ApprovalEmail from "./portal/ApprovalEmail";
+import { clearSetupRequired, markSetupRequired } from "./portal/setup-status";
+import HelpCenter from "./portal/HelpCenter";
 
 // This project has no router, so the portal screens are selected by hash.
 function subscribe(onChange: () => void) {
@@ -31,13 +33,32 @@ function navigate(hash: string) {
 
 const toLogin = () => navigate("#/login");
 const toHome = () => navigate("#/home");
+const skipSetup = () => {
+  markSetupRequired();
+  toHome();
+};
+const finishSetup = () => {
+  clearSetupRequired();
+  toHome();
+};
 
 /** Separates the empty first-arrival Home from the returning creator view. */
 const HOME_VISITED_KEY = "urmei.home-visited";
+const TOUR_AFTER_LOGIN_KEY = "urmei.tour-after-login";
 
 function hasVisitedHome() {
   try {
     return window.localStorage.getItem(HOME_VISITED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function consumeTourAfterLogin() {
+  try {
+    const shouldShow = window.sessionStorage.getItem(TOUR_AFTER_LOGIN_KEY) === "1";
+    if (shouldShow) window.sessionStorage.removeItem(TOUR_AFTER_LOGIN_KEY);
+    return shouldShow;
   } catch {
     return false;
   }
@@ -48,7 +69,9 @@ function hasVisitedHome() {
  * opened explicitly from the profile menu; `#/home/tour` remains linkable.
  */
 function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
-  const [showTour, setShowTour] = useState(forceTour);
+  const [showTour, setShowTour] = useState(
+    () => forceTour || consumeTourAfterLogin(),
+  );
   const [firstVisit] = useState(() => !hasVisitedHome());
 
   useEffect(() => {
@@ -134,19 +157,19 @@ function screenFor(
     // so they are reachable without a backend; the client-side transitions
     // (start -> pending -> restart, and step 1 -> step 2) work for real.
     case "#/verify":
-      return <Onboarding onFinish={toHome} onSkip={toHome} />;
+      return <Onboarding onFinish={finishSetup} onSkip={skipSetup} />;
     case "#/verify/partner":
       return <VerificationPartner />;
     case "#/verify/failed":
       return (
-        <Onboarding identityStatus="failed" onFinish={toHome} onSkip={toHome} />
+        <Onboarding identityStatus="failed" onFinish={finishSetup} onSkip={skipSetup} />
       );
     case "#/verify/verified":
       return (
         <Onboarding
           identityStatus="complete"
-          onFinish={toHome}
-          onSkip={toHome}
+          onFinish={finishSetup}
+          onSkip={skipSetup}
         />
       );
     case "#/payment":
@@ -154,8 +177,8 @@ function screenFor(
         <Onboarding
           identityStatus="complete"
           paymentStatus="idle"
-          onFinish={toHome}
-          onSkip={toHome}
+          onFinish={finishSetup}
+          onSkip={skipSetup}
         />
       );
     case "#/payment/pending":
@@ -163,8 +186,8 @@ function screenFor(
         <Onboarding
           identityStatus="complete"
           paymentStatus="pending"
-          onFinish={toHome}
-          onSkip={toHome}
+          onFinish={finishSetup}
+          onSkip={skipSetup}
         />
       );
     case "#/payment/failed":
@@ -172,8 +195,8 @@ function screenFor(
         <Onboarding
           identityStatus="complete"
           paymentStatus="failed"
-          onFinish={toHome}
-          onSkip={toHome}
+          onFinish={finishSetup}
+          onSkip={skipSetup}
         />
       );
     case "#/payment/complete":
@@ -181,8 +204,8 @@ function screenFor(
         <Onboarding
           identityStatus="complete"
           paymentStatus="complete"
-          onFinish={toHome}
-          onSkip={toHome}
+          onFinish={finishSetup}
+          onSkip={skipSetup}
         />
       );
     case "#/payment/partner":
@@ -191,6 +214,8 @@ function screenFor(
       return <HomeScreen />;
     case "#/home/tour":
       return <HomeScreen forceTour />;
+    case "#/help-center":
+      return <HelpCenter />;
 
     // Password reset
     case "#/forgot-password":
@@ -224,7 +249,14 @@ function screenFor(
     case "#/login":
       return (
         <Login
-          onLogIn={() => navigate("#/profile/username")}
+          onLogIn={() => {
+            try {
+              window.sessionStorage.setItem(TOUR_AFTER_LOGIN_KEY, "1");
+            } catch {
+              // The login and onboarding flow still works without storage.
+            }
+            navigate("#/profile/username");
+          }}
           onForgotPassword={() => navigate("#/forgot-password")}
           onApply={() => navigate("#/apply/form")}
         />
