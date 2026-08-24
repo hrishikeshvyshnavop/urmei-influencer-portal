@@ -53,7 +53,7 @@ export default function Home() {
 
   return (
     <div className="motion-page min-h-screen bg-[#fffefd] text-portal-text">
-      <header className="flex h-[88px] items-center justify-between rounded-b-[10px] bg-portal-surface px-6 lg:px-[120px]">
+      <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[10px] bg-portal-surface px-6 shadow-[0_2px_10px_rgba(34,34,34,0.04)] lg:px-[120px]">
         <div className="flex items-center gap-8">
           <img src="/urmei/home/logo.svg" alt="URMEI" className="h-4 w-[109px]" />
           <nav className="hidden items-center gap-1 md:flex">
@@ -66,7 +66,18 @@ export default function Home() {
             <Search size={16} />
             <input aria-label="Search products and brands" placeholder="Find products and brands" className="min-w-0 flex-1 bg-transparent text-body-sm outline-none placeholder:text-portal-muted" />
           </label>
-          <span className="hidden items-center gap-1 text-body-md font-medium sm:flex">🇸🇬 EN</span>
+          <button
+            type="button"
+            className="hidden h-12 cursor-pointer items-center gap-[6px] px-2 text-body-md font-medium sm:flex"
+            aria-label="Language: English"
+          >
+            <img
+              src="/urmei/flag-en.svg"
+              alt=""
+              className="block size-5"
+            />
+            <span>EN</span>
+          </button>
           <button aria-label="Notifications" className="relative flex size-12 items-center justify-center">
             <Bell size={20} />
             <span className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" />
