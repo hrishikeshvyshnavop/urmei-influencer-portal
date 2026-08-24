@@ -1,9 +1,6 @@
 import { useState } from "react";
-import { Bell, ChevronDown, ChevronRight, Search } from "lucide-react";
-import LanguageSelector from "./components/LanguageSelector";
-import NotificationsDrawer from "./components/NotificationsDrawer";
-import ProfileMenu from "./components/ProfileMenu";
-import { markNotificationsAsRead, useHasUnreadNotifications } from "./notification-status";
+import { ChevronDown, ChevronRight } from "lucide-react";
+import AppShell from "./components/AppShell";
 
 const topics = [
   ["upload", "Can I upload tutorials and reviews?", "Yes. You can publish tutorials and product reviews through content linked from your shop. Use clear product information and disclose sponsored collaborations."],
@@ -16,42 +13,15 @@ const topics = [
   ["design", "Do I need design skills to start?", "No. URMEI provides product assets and guided tools to help you create and publish your shop."],
 ] as const;
 
-const footerSocials = [
-  { name: "facebook", href: "https://www.facebook.com/", iconClass: "h-[13.333px] w-[7.333px]" },
-  { name: "instagram", href: "https://www.instagram.com/", iconClass: "size-[14.663px]" },
-  { name: "twitter", href: "https://x.com/", iconClass: "h-[12.672px] w-[14.663px]" },
-];
-
 export default function HelpCenter() {
-  const hasUnreadNotifications = useHasUnreadNotifications();
   const [openQuestion, setOpenQuestion] = useState<string | null>(topics[0][0]);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   return (
-    <div className="motion-page min-h-screen bg-portal-surface text-portal-text">
-      <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[10px] bg-portal-surface px-6 lg:px-[120px]">
-        <div className="flex items-center gap-8">
-          <a href="#/home" aria-label="URMEI home" className="rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-portal-dark">
-            <img src="/urmei/home/logo.svg" alt="URMEI" className="h-4 w-[109px]" />
-          </a>
-          <nav className="hidden items-center gap-4 md:flex">
-            <a href="#/home" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">Home</a>
-            <button type="button" className="track-section cursor-pointer rounded-lg px-4 py-2 text-body-sm font-medium uppercase">My Shop</button>
-          </nav>
-        </div>
-        <div className="flex items-center gap-3 lg:gap-6">
-          <label className="hidden w-[300px] items-center gap-2 rounded-[6px] border border-portal-border px-3 py-2 lg:flex">
-            <Search aria-hidden="true" className="size-4" strokeWidth={1.5} />
-            <input aria-label="Search products and brands" placeholder="Find products and brands" className="min-w-0 flex-1 bg-transparent text-body-sm outline-none placeholder:text-portal-muted" />
-          </label>
-          <LanguageSelector />
-          <button type="button" aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"} onClick={() => { markNotificationsAsRead(); setNotificationsOpen(true); }} className="relative flex size-12 cursor-pointer items-center justify-center">
-            <Bell aria-hidden="true" className="size-5" strokeWidth={1.5} />
-            {hasUnreadNotifications ? <span aria-hidden="true" className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" /> : null}
-          </button>
-          <ProfileMenu onShowTour={() => { window.location.hash = "#/home/tour"; }} onShowHelp={() => window.scrollTo({ top: 0, behavior: "smooth" })} onLogout={() => { window.location.hash = "#/login"; }} />
-        </div>
-      </header>
+    <AppShell
+      className="motion-page bg-portal-surface text-portal-text"
+      onShowTour={() => { window.location.hash = "#/home/tour"; }}
+      onShowHelp={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+    >
 
       <main className="mx-auto min-h-[calc(100vh-88px)] w-full max-w-[794px] px-6 pb-12 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
@@ -86,19 +56,6 @@ export default function HelpCenter() {
         </section>
       </main>
 
-      <footer className="bg-[#2c2927] px-6 py-10 text-[#fdfdfd] lg:px-[120px]">
-        <div className="mx-auto max-w-[1200px]">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {[["URMEI", "About Us"], ["Collaborate", "Top Brands"], ["Support", "Help Center", "Contact Us"], ["Legal", "Terms of Service", "Privacy Policy", "Cookies"]].map(([title, ...links]) => <div key={title}><h2 className="track-section mb-3 text-body-md font-medium uppercase">{title}</h2>{links.map((link) => <a key={link} href={link === "Help Center" ? "#/help-center" : "#"} className="block text-body-md">{link}</a>)}</div>)}
-          </div>
-          <img src="/urmei/home/footer-wordmark.svg" alt="URMEI" className="my-16 w-full opacity-60" />
-          <div className="flex items-center justify-between">
-            <p className="text-body-md">© 2025 URMEI ®</p>
-            <div className="flex gap-3">{footerSocials.map((social) => <a key={social.name} href={social.href} target="_blank" rel="noreferrer" aria-label={`Open URMEI on ${social.name}`} className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#f2efed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-light"><span className="flex size-4 items-center justify-center"><img src={`/urmei/home/${social.name}.svg`} alt="" className={`block max-w-none ${social.iconClass}`} /></span></a>)}</div>
-          </div>
-        </div>
-      </footer>
-      {notificationsOpen ? <NotificationsDrawer onClose={() => setNotificationsOpen(false)} /> : null}
-    </div>
+    </AppShell>
   );
 }

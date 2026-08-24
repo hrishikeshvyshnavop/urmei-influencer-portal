@@ -45,6 +45,76 @@
   --text-h2--line-height: 62px;
   --text-h3: 40px;
   --text-h3--line-height: 52px;
+
+  /* Tokens mirrored from the URMEI Shop Experience Figma library (Generic
+     variable collection). Kept under their own surface-/text- names rather
+     than portal- since the shop screens (src/shop/) were built against
+     this token set. */
+  --color-surface-primary-200: #cbc9c7;
+  --color-surface-primary-500: #403e3c;
+  --color-surface-primary-700: #332f2d;
+  --color-surface-primary-800: #2c2927;
+  --color-surface-secondary-100: #fffefd;
+  --color-surface-secondary-200: #fdfdfd;
+  --color-surface-secondary-300: #f8f8f8;
+  --color-surface-secondary-400: #e5e5e5;
+  --color-surface-secondary-500: #d5d5d5;
+  --color-surface-secondary-900: #464646;
+  --color-surface-secondary-1000: #222222;
+  --color-surface-tertiary-100: #f2efed;
+  --color-surface-tertiary-300: #f8f7f6;
+  --color-surface-tertiary-500: #efece9;
+  --color-surface-tertiary-1000: #272726;
+  --color-surface-other-alert: #ee4442;
+  --color-surface-alert-tint: #f7ece1;
+  --color-scrim: #00000080;
+
+  --color-text-primary-1000: #1f1c1a;
+  --color-text-secondary-100: #fffefd;
+  --color-text-secondary-200: #fdfdfd;
+  --color-text-secondary-500: #d5d5d5;
+  --color-text-secondary-600: #b1b1b1;
+  --color-text-secondary-700: #757575;
+  --color-text-secondary-800: #6c6c6c;
+  --color-text-secondary-900: #464646;
+  --color-text-secondary-1000: #222222;
+  --color-text-tertiary-100: #f2efed;
+  --color-text-tertiary-800: #777674;
+  --color-text-tertiary-900: #4f4e4d;
+  --color-text-success: #66bb6a;
+
+  --color-border-default: #e5e5e5;
+  --color-border-outlined: #b1b1b1;
+  --color-border-muted: #f8f8f8;
+
+  --text-body-xxs: 10px;
+  --text-body-xxs--line-height: 16px;
+  --text-h6: 24px;
+  --text-h6--line-height: 34px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-ten: 10px;
+  --spacing-md-sm: 12px;
+  --spacing-fourteen: 14px;
+  --spacing-md: 16px;
+  --spacing-md-2: 20px;
+  --spacing-lg: 24px;
+  --spacing-xl: 28px;
+  --spacing-xxl: 32px;
+  --spacing-3xl: 36px;
+  --spacing-4xl-1: 40px;
+  --spacing-4xl-2: 48px;
+  --spacing-5xl: 64px;
+  --spacing-margin: 120px;
+
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+
+  --shadow-ds-sm: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
+  --shadow-store-card: 0 4px 20px 0 rgba(0, 0, 0, 0.03);
 }
 
 /* Section titles carry 1.6px tracking (Heading/body-sm-medium(ST)). */

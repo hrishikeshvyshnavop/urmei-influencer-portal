@@ -1,23 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import {
-  Bell,
-  Check,
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-} from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
+import AppShell from "./components/AppShell";
 import Button from "./components/Button";
-import NotificationsDrawer from "./components/NotificationsDrawer";
 import RecentActivities from "./components/RecentActivities";
 import TopProducts from "./components/TopProducts";
-import ProfileMenu from "./components/ProfileMenu";
 import ProfilePhoto from "./components/ProfilePhoto";
 import { VERIFICATION_STORAGE_KEY } from "./VerificationPartner";
 import { PAYMENT_STORAGE_KEY } from "./PaymentPartner";
-import LanguageSelector from "./components/LanguageSelector";
 import { isSetupRequired } from "./setup-status";
-import { markNotificationsAsRead, useHasUnreadNotifications } from "./notification-status";
+import { useHasShopItems, useIsShopPublished } from "../shop/shop-status";
+import ShopUrl from "./components/ShopUrl";
 
 const productImages = [
   { image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
@@ -38,12 +30,6 @@ const questions = [
   ["Can I track my campaign performance?", "Campaign reporting will show reach, engagement, clicks, and attributed sales."],
   ["How many campaigns can I run?", "You can participate in every campaign for which your profile is eligible."],
   ["Do I need design skills to start?", "No. URMEI provides product assets and guided tools to help you publish."],
-];
-
-const footerSocials = [
-  { name: "facebook", href: "https://www.facebook.com/", iconClass: "h-[13.333px] w-[7.333px]" },
-  { name: "instagram", href: "https://www.instagram.com/", iconClass: "size-[14.663px]" },
-  { name: "twitter", href: "https://x.com/", iconClass: "h-[12.672px] w-[14.663px]" },
 ];
 
 function hasCompletedAction(storageKey: string) {
@@ -85,12 +71,11 @@ export default function Home({
   firstVisit?: boolean;
   onShowTour?: () => void;
 }) {
-  const hasUnreadNotifications = useHasUnreadNotifications();
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const hasShopItems = useHasShopItems();
+  const isShopPublished = useIsShopPublished();
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
-  const [shopUrlCopied, setShopUrlCopied] = useState(false);
   const [identityComplete] = useState(() =>
     hasCompletedAction(VERIFICATION_STORAGE_KEY),
   );
@@ -129,74 +114,13 @@ export default function Home({
     });
   };
 
-  const copyShopUrl = async () => {
-    const shopUrl = "urmei.com/shop/charlotte";
-    try {
-      await navigator.clipboard.writeText(shopUrl);
-    } catch {
-      const input = document.createElement("textarea");
-      input.value = shopUrl;
-      input.setAttribute("readonly", "");
-      input.style.position = "fixed";
-      input.style.opacity = "0";
-      document.body.appendChild(input);
-      input.select();
-      document.execCommand("copy");
-      input.remove();
-    }
-    setShopUrlCopied(true);
-    window.setTimeout(() => setShopUrlCopied(false), 1800);
-  };
-
   return (
-    <div className="motion-page min-h-screen bg-[#fffefd] text-portal-text">
-      <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[10px] bg-portal-surface px-6 shadow-[0_2px_10px_rgba(34,34,34,0.04)] lg:px-[120px]">
-        <div className="flex items-center gap-8">
-          <a
-            href="#/home"
-            aria-label="URMEI home"
-            onClick={() => window.scrollTo(0, 0)}
-            className="block shrink-0 cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-portal-dark"
-          >
-            <img
-              src="/urmei/home/logo.svg"
-              alt="URMEI"
-              className="h-4 w-[109px]"
-            />
-          </a>
-          <nav className="hidden items-center gap-1 md:flex">
-            <a href="#/home" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">Home</a>
-            <button className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">My Shop</button>
-          </nav>
-        </div>
-        <div className="flex items-center gap-3 lg:gap-6">
-          <label className="hidden w-[300px] items-center gap-2 rounded-[6px] border border-portal-border px-3 py-2 lg:flex">
-            <Search size={16} />
-            <input aria-label="Search products and brands" placeholder="Find products and brands" className="min-w-0 flex-1 bg-transparent text-body-sm outline-none placeholder:text-portal-muted" />
-          </label>
-          <LanguageSelector />
-          <button
-            aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"}
-            onClick={() => {
-              markNotificationsAsRead();
-              setNotificationsOpen(true);
-            }}
-            className="relative flex size-12 cursor-pointer items-center justify-center"
-          >
-            <Bell size={20} />
-            {hasUnreadNotifications ? <span aria-hidden="true" className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" /> : null}
-          </button>
-          <ProfileMenu
-            onShowTour={() => onShowTour?.()}
-            onShowHelp={() => {
-              window.location.hash = "#/help-center";
-            }}
-            onLogout={() => {
-              window.location.hash = "#/login";
-            }}
-          />
-        </div>
-      </header>
+    <AppShell
+      className="motion-page bg-[#fffefd] text-portal-text"
+      shadow
+      onShowTour={() => onShowTour?.()}
+      onShowHelp={() => { window.location.hash = "#/help-center"; }}
+    >
 
       {!setupComplete ? (
         <aside
@@ -244,28 +168,18 @@ export default function Home({
             <div className="flex gap-4 text-body-sm font-medium text-portal-muted">
               <span className="flex items-center gap-1"><img src="/urmei/home/tiktok-stat.svg" alt="TikTok" className="size-[14px]" />112.2K</span><span className="flex items-center gap-1"><img src="/urmei/home/instagram-stat.svg" alt="Instagram" className="size-[14px]" />15.4K</span>
             </div>
-            <button
-              type="button"
-              onClick={() => void copyShopUrl()}
-              aria-label="Copy shop URL"
-              className="flex w-[297px] max-w-full items-center justify-between rounded-lg border border-portal-border bg-[#fffefd] px-3 py-1.5 text-left"
-            >
-              <span><span className="block text-[10px] leading-4 text-portal-muted">Shop URL</span><span className="block text-body-sm font-medium">{shopUrlCopied ? "Copied" : "urmei.com/shop/charlotte"}</span></span>
-              {shopUrlCopied ? (
-                <Check aria-hidden="true" className="size-4 text-portal-success-text" strokeWidth={2} />
-              ) : (
-                <img src="/urmei/home/copy.svg" alt="" className="size-4" />
-              )}
-            </button>
+            <ShopUrl published={isShopPublished} />
           </div>
-          <div className="flex min-h-[128px] flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-[#f2efed] p-6 sm:flex-row sm:items-center lg:gap-10 lg:p-8">
-            <img src="/urmei/home/store.svg" alt="" className="size-16" />
-            <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Set Up Your Shop</h2><p className="text-body-sm text-portal-muted">Curate your product collection and publish your shop to start earning</p></div>
-            <Button variant="portal">Set Up Shop</Button>
-          </div>
+          {!isShopPublished ? (
+            <div className="flex min-h-[128px] flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-[#f2efed] p-6 sm:flex-row sm:items-center lg:gap-10 lg:p-8">
+              <img src="/urmei/home/store.svg" alt="" className="size-16" />
+              <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Set Up Your Shop</h2><p className="text-body-sm text-portal-muted">Curate your product collection and publish your shop to start earning</p></div>
+              <Button variant="portal" onClick={() => { window.location.hash = "#/shop"; }}>Set Up Shop</Button>
+            </div>
+          ) : null}
         </section>
 
-        {!firstVisit ? (
+        {!firstVisit && hasShopItems ? (
           <>
             <RecentActivities />
             <TopProducts />
@@ -318,18 +232,6 @@ export default function Home({
         </section>
       </main>
 
-      <footer className="bg-[#2c2927] px-6 py-10 text-[#fdfdfd] lg:px-[120px]">
-        <div className="mx-auto max-w-[1200px]">
-          <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {[ ["URMEI", "About Us"], ["Collaborate", "Top Brands"], ["Support", "Help Center", "Contact Us"], ["Legal", "Terms of Service", "Privacy Policy", "Cookies"] ].map(([title, ...links]) => <div key={title}><h3 className="track-section mb-3 text-body-md font-medium uppercase">{title}</h3>{links.map(link => <a key={link} href={link === "Help Center" ? "#/help-center" : "#"} className="block text-body-md">{link}</a>)}</div>)}
-          </div>
-          <img src="/urmei/home/footer-wordmark.svg" alt="URMEI" className="my-16 w-full opacity-60" />
-          <div className="flex items-center justify-between"><p className="text-body-md">© 2025 URMEI ®</p><div className="flex gap-3">{footerSocials.map((social) => <a key={social.name} href={social.href} target="_blank" rel="noreferrer" aria-label={`Open URMEI on ${social.name}`} className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#f2efed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-light"><span className="flex size-4 items-center justify-center"><img src={`/urmei/home/${social.name}.svg`} alt="" className={`block max-w-none ${social.iconClass}`} /></span></a>)}</div></div>
-        </div>
-      </footer>
-      {notificationsOpen ? (
-        <NotificationsDrawer onClose={() => setNotificationsOpen(false)} />
-      ) : null}
-    </div>
+    </AppShell>
   );
 }
