@@ -14,6 +14,7 @@ type FieldSpec = {
   type?: "text" | "email" | "tel";
   icon?: "calendar";
   autoComplete?: string;
+  options?: string[];
 };
 
 const personalFields: FieldSpec[] = [
@@ -85,13 +86,14 @@ const addressFields: FieldSpec[] = [
     label: "Country",
     placeholder: "e.g. Singapore",
     autoComplete: "country-name",
+    options: ["Singapore", "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam"],
   },
 ];
 
 const platforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
-  { id: "facebook", name: "Facebook" },
-  { id: "youtube", name: "YouTube" },
+  { id: "facebook", name: "Facebook", handle: "@charlotte.tan" },
+  { id: "youtube", name: "YouTube", handle: "@CharlotteTan" },
   { id: "tiktok", name: "TikTok", handle: "@charlotte.tan" },
 ];
 
@@ -114,6 +116,7 @@ function FieldGrid({
           type={field.type}
           icon={field.icon}
           autoComplete={field.autoComplete}
+          options={field.options}
           value={values[field.name] ?? ""}
           onChange={(value) => onChange(field.name, value)}
         />

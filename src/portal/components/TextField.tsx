@@ -27,6 +27,7 @@ type TextFieldProps = {
   /** Renders the calendar affordance from the design (Birthday field). */
   icon?: "calendar";
   autoComplete?: string;
+  options?: string[];
   /** Review Details renders identity fields as read-only, filled swatches. */
   locked?: boolean;
 };
@@ -39,6 +40,7 @@ export default function TextField({
   type = "text",
   icon,
   autoComplete,
+  options,
   locked = false,
 }: TextFieldProps) {
   const id = useId();
@@ -61,28 +63,50 @@ export default function TextField({
         }`}
       >
         <div className="flex min-w-px flex-1 items-center gap-1">
-          <input
-            id={id}
-            type={type}
-            value={value}
-            inputMode={type === "tel" ? "tel" : undefined}
-            onChange={(event) =>
-              onChange(
-                type === "tel"
-                  ? event.target.value.replace(/[^\d+()\s-]/g, "")
-                  : event.target.value,
-              )
-            }
-            placeholder={placeholder}
-            autoComplete={autoComplete}
-            readOnly={locked}
-            disabled={locked}
-            className={`w-full min-w-px bg-transparent text-body-sm outline-none placeholder:text-portal-placeholder ${
-              locked
-                ? "cursor-not-allowed text-portal-placeholder"
-                : "text-portal-text"
-            }`}
-          />
+          {options ? (
+            <select
+              id={id}
+              value={value}
+              onChange={(event) => onChange(event.target.value)}
+              autoComplete={autoComplete}
+              disabled={locked}
+              className={`w-full min-w-px cursor-pointer bg-transparent text-body-sm outline-none disabled:cursor-not-allowed ${
+                value ? "text-portal-text" : "text-portal-placeholder"
+              }`}
+            >
+              <option value="" disabled>
+                {placeholder}
+              </option>
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          ) : (
+            <input
+              id={id}
+              type={type}
+              value={value}
+              inputMode={type === "tel" ? "tel" : undefined}
+              onChange={(event) =>
+                onChange(
+                  type === "tel"
+                    ? event.target.value.replace(/[^\d+()\s-]/g, "")
+                    : event.target.value,
+                )
+              }
+              placeholder={placeholder}
+              autoComplete={autoComplete}
+              readOnly={locked}
+              disabled={locked}
+              className={`w-full min-w-px bg-transparent text-body-sm outline-none placeholder:text-portal-placeholder ${
+                locked
+                  ? "cursor-not-allowed text-portal-placeholder"
+                  : "text-portal-text"
+              }`}
+            />
+          )}
         </div>
 
         {icon === "calendar" ? (

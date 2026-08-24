@@ -14,12 +14,13 @@ type ReviewField = {
   locked?: boolean;
   icon?: "calendar";
   type?: "text" | "email" | "tel";
+  options?: string[];
 };
 
 const personalFields: ReviewField[] = [
   { name: "firstName", label: "Legal First Name", value: "Charlotte", locked: true },
   { name: "lastName", label: "Legal Last Name", value: "Tan", locked: true },
-  { name: "displayName", label: "Display Name", value: "Charlotte Tan", locked: true },
+  { name: "displayName", label: "Display Name", value: "Charlotte Tan" },
   {
     name: "email",
     label: "Email",
@@ -44,13 +45,18 @@ const addressFields: ReviewField[] = [
   { name: "building", label: "Building Name", value: "Camden Medical Centre" },
   { name: "floorNo", label: "Floor No.", value: "03" },
   { name: "unitNumber", label: "Unit Number", value: "28" },
-  { name: "country", label: "Country", value: "Singapore" },
+  {
+    name: "country",
+    label: "Country",
+    value: "Singapore",
+    options: ["Singapore", "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam"],
+  },
 ];
 
 const platforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
-  { id: "facebook", name: "Facebook" },
-  { id: "youtube", name: "YouTube" },
+  { id: "facebook", name: "Facebook", handle: "@charlotte.tan" },
+  { id: "youtube", name: "YouTube", handle: "@CharlotteTan" },
   { id: "tiktok", name: "TikTok", handle: "@charlotte.tan" },
 ];
 
@@ -77,6 +83,7 @@ function FieldGrid({
           type={field.type}
           icon={field.icon}
           locked={field.locked}
+          options={field.options}
           value={values[field.name] ?? ""}
           onChange={(value) => onChange(field.name, value)}
         />
