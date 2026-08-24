@@ -20,7 +20,7 @@ export default function VerificationPartner() {
       <section className="flex w-full max-w-[420px] flex-col items-start gap-6 rounded-[10px] border border-portal-border bg-white p-8 shadow-sm">
         <div className="flex w-full flex-col gap-2">
           <p className="text-body-xs font-medium uppercase tracking-[1.6px] text-portal-muted">
-            Demo verification provider
+            Verification provider preview
           </p>
           <h1 className="text-body-xxl text-portal-text">
             {complete ? "Verification complete" : "Verify your identity"}
@@ -38,7 +38,7 @@ export default function VerificationPartner() {
           </Button>
         ) : (
           <Button variant="portalLg" onClick={verify}>
-            Complete fake verification
+            Complete verification
           </Button>
         )}
       </section>

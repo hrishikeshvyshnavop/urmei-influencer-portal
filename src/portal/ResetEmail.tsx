@@ -11,7 +11,7 @@ export default function ResetEmail({
     <main className="min-h-screen bg-portal-surface px-4 py-12 sm:px-6">
       <div className="mx-auto w-full max-w-[640px] overflow-hidden rounded-[10px] border border-solid border-portal-border bg-portal-light shadow-[0_8px_30px_rgba(34,34,34,0.08)]">
         <div className="border-b border-solid border-portal-border px-6 py-4 text-body-sm text-portal-muted">
-          <p><span className="font-medium text-portal-text">From:</span> URMEI &lt;support@urmei.test&gt;</p>
+          <p><span className="font-medium text-portal-text">From:</span> URMEI &lt;notifications@urmei.example&gt;</p>
           <p><span className="font-medium text-portal-text">To:</span> {email}</p>
           <p><span className="font-medium text-portal-text">Subject:</span> Reset your URMEI password</p>
         </div>
@@ -33,7 +33,7 @@ export default function ResetEmail({
             Reset password
           </Button>
           <p className="text-body-xs text-portal-muted">
-            This test link expires in 24 hours. If you did not request a password
+            This preview link expires in 24 hours. If you did not request a password
             reset, you can safely ignore this email.
           </p>
         </div>
