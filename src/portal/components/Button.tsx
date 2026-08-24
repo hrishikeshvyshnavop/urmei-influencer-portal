@@ -47,7 +47,7 @@ export default function Button({
   return (
     <button
       type={type}
-      className={`font-medium transition-opacity hover:opacity-90 ${variantClasses[variant]} ${className}`}
+      className={`cursor-pointer font-medium transition-opacity enabled:hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark disabled:cursor-not-allowed disabled:outline-none disabled:ring-0 ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {children}

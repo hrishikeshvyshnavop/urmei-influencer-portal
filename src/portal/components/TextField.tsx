@@ -76,8 +76,11 @@ export default function TextField({
             placeholder={placeholder}
             autoComplete={autoComplete}
             readOnly={locked}
+            disabled={locked}
             className={`w-full min-w-px bg-transparent text-body-sm outline-none placeholder:text-portal-placeholder ${
-              locked ? "text-portal-placeholder" : "text-portal-text"
+              locked
+                ? "cursor-not-allowed text-portal-placeholder"
+                : "text-portal-text"
             }`}
           />
         </div>
