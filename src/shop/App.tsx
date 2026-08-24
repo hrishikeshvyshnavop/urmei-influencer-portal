@@ -30,7 +30,7 @@ type ToastState = {
   action?: { label: string; onClick: () => void }
 }
 
-export default function App({ initialBrowse = false, initialProductId, initialAddProductId }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string }) {
+export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string }) {
   const [items, setItems] = useState<ShopItem[]>([])
   const [activeTab, setActiveTab] = useState('all')
   const [overlay, setOverlay] = useState<OverlayView | null>(() => {
@@ -38,9 +38,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       const product = PRODUCTS.find((item) => item.id === initialProductId)
       if (product) return { kind: 'detail', query: '', product }
     }
+    if (initialSearch) return { kind: 'results', query: initialSearch }
     return initialBrowse ? { kind: 'catalogue' } : null
   })
-  const [query, setQuery] = useState('')
+  const [query, setQuery] = useState(initialSearch ?? '')
   const [pendingProduct, setPendingProduct] = useState<Product | null>(() => initialAddProductId ? PRODUCTS.find((item) => item.id === initialAddProductId) ?? null : null)
   const [toast, setToast] = useState<ToastState | null>(null)
   const [nextId, setNextId] = useState(1)

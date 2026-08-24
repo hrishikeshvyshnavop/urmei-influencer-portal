@@ -135,6 +135,9 @@ function screenFor(
   resetEmail: string,
   setResetEmail: (email: string) => void,
 ) {
+  if (hash.startsWith("#/shop/search/")) {
+    return <ShopExperience initialSearch={decodeURIComponent(hash.slice("#/shop/search/".length))} />;
+  }
   if (hash.startsWith("#/shop/add/")) {
     return <ShopExperience initialAddProductId={decodeURIComponent(hash.slice("#/shop/add/".length))} />;
   }
