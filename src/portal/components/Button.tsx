@@ -47,7 +47,7 @@ export default function Button({
   return (
     <button
       type={type}
-      className={`cursor-pointer font-medium transition-opacity enabled:hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark disabled:cursor-not-allowed disabled:outline-none disabled:ring-0 ${variantClasses[variant]} ${className}`}
+      className={`cursor-pointer font-medium transition-[background-color,border-color,color,opacity,transform,box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] enabled:hover:-translate-y-px enabled:hover:opacity-90 enabled:active:translate-y-0 enabled:active:scale-[0.98] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark disabled:cursor-not-allowed disabled:outline-none disabled:ring-0 ${variantClasses[variant]} ${className}`}
       {...props}
     >
       {children}

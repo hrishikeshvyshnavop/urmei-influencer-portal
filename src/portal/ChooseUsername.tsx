@@ -71,7 +71,7 @@ export default function ChooseUsername({
           <button
             type="submit"
             aria-label="Check username"
-            className="flex shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full bg-portal-dark p-3 transition-opacity hover:opacity-90"
+            className="flex shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full bg-portal-dark p-3 transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px hover:opacity-90 active:translate-y-0 active:scale-95"
           >
             <span className="relative size-[16px] shrink-0 overflow-clip">
               <span className="absolute top-1/4 bottom-1/4 left-[37.5%] right-[37.5%]">

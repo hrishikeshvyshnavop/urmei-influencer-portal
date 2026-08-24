@@ -30,7 +30,7 @@ export function Icon16({
 function Chevron({ expanded }: { expanded: boolean }) {
   return (
     <span
-      className={`relative size-[18px] shrink-0 overflow-clip transition-transform duration-300 ease-out motion-reduce:transition-none ${
+      className={`relative size-[18px] shrink-0 overflow-clip transition-transform duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
         expanded ? "rotate-180" : ""
       }`}
     >
@@ -121,7 +121,7 @@ export function Step({
         className="flex w-full cursor-pointer items-center gap-[14px] text-left"
       >
         <span
-          className={`flex size-[32px] shrink-0 flex-col items-center justify-center rounded-full p-[5.333px] transition-[background-color,border-color,transform] duration-300 ease-out ${
+          className={`flex size-[32px] shrink-0 flex-col items-center justify-center rounded-full p-[5.333px] transition-[background-color,border-color,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] ${
             done || status !== "locked"
               ? "bg-portal-step"
               : "border-[1.333px] border-solid border-portal-border"
@@ -165,7 +165,7 @@ export function Step({
       </button>
 
       <div
-        className={`grid w-full transition-[grid-template-rows] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
+        className={`grid w-full transition-[grid-template-rows] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
           expanded ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         }`}
       >

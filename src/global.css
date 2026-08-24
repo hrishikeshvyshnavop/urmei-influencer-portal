@@ -19,6 +19,8 @@
   --color-portal-success: #66bb6a; /* border/color/success */
   --color-portal-success-text: #28802c; /* typography/color/other/success */
   --color-portal-notice: #a68d6a; /* social requirement note */
+  --color-portal-card: #fdfdfd; /* surface/secondary/200 */
+  --color-portal-tint: #efece9; /* surface/tertiary/500 */
   --color-portal-tick: #f2efed; /* typography/color/tertiary/100 */
   --color-portal-step: #262320; /* surface/primary/900 */
   --color-portal-warn-bg: #fef3c7; /* verification: warning icon well */
@@ -35,6 +37,8 @@
   --text-body-md--line-height: 22px;
   --text-body-lg: 18px;
   --text-body-lg--line-height: 27px;
+  --text-body-xl: 20px;
+  --text-body-xl--line-height: 30px;
   --text-body-xxl: 24px;
   --text-body-xxl--line-height: 36px;
   --text-h2: 48px;
@@ -55,6 +59,13 @@ html {
 body {
   background-color: #fff;
   overflow-x: hidden;
+}
+
+:root {
+  --motion-fast: 160ms;
+  --motion-base: 240ms;
+  --motion-slow: 360ms;
+  --ease-portal: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Minimal motion language: short, functional, and shared across the portal. */
@@ -88,13 +99,25 @@ body {
   100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
 }
 
-.motion-page { animation: portal-enter 360ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.motion-card { animation: portal-enter 240ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.motion-feedback { animation: portal-pop 200ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.motion-modal-backdrop { animation: portal-backdrop 180ms ease-out both; }
-.motion-modal-panel { animation: portal-modal 260ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+@keyframes portal-popover-in {
+  from { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes portal-popover-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-2px) scale(0.98); }
+}
+
+.motion-page { animation: portal-enter var(--motion-slow) var(--ease-portal) both; }
+.motion-card { animation: portal-enter var(--motion-base) var(--ease-portal) both; }
+.motion-feedback { animation: portal-pop var(--motion-fast) var(--ease-portal) both; }
+.motion-modal-backdrop { animation: portal-backdrop var(--motion-fast) ease-out both; }
+.motion-modal-panel { animation: portal-modal var(--motion-base) var(--ease-portal) both; }
 .motion-spin-soft { animation: portal-spin 1.6s linear infinite; }
 .motion-success-tick { animation: portal-success-tick 480ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both; }
+.motion-popover[data-state="open"] { animation: portal-popover-in var(--motion-fast) var(--ease-portal) both; }
+.motion-popover[data-state="closed"] { animation: portal-popover-out 120ms ease-in both; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

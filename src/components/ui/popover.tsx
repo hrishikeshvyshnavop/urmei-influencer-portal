@@ -28,7 +28,7 @@ function PopoverContent({
         align={align}
         sideOffset={sideOffset}
         className={cn(
-          "z-50 w-auto max-w-[calc(100vw-16px)] overflow-x-auto rounded-lg border border-solid border-portal-border bg-white p-3 shadow-[0_4px_16px_rgba(34,34,34,0.12)] outline-none",
+          "motion-popover z-50 w-auto max-w-[calc(100vw-16px)] overflow-x-auto rounded-lg border border-solid border-portal-border bg-white p-3 shadow-[0_4px_16px_rgba(34,34,34,0.12)] outline-none",
           className,
         )}
         {...props}
