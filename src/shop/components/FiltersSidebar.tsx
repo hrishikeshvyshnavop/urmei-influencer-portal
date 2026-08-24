@@ -26,14 +26,22 @@ function FilterGroup({
   open,
   onToggle,
   children,
+  last = false,
 }: {
   label: string
   open: boolean
   onToggle: () => void
   children: ReactNode
+  /** The design omits the bottom border on the last (Ingredients) group. */
+  last?: boolean
 }) {
   return (
-    <div className="flex w-full flex-col items-start border-r border-b border-border-default">
+    <div
+      className={[
+        'flex w-full flex-col items-start border-r border-border-default',
+        last ? '' : 'border-b',
+      ].join(' ')}
+    >
       <button
         type="button"
         aria-expanded={open}
@@ -80,7 +88,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
   )
 
   return (
-    <aside className="flex w-[285px] flex-col items-start bg-surface-secondary-100">
+    <aside className="flex w-[285px] flex-col items-start self-start bg-surface-secondary-100">
       <div className="flex h-[74px] w-full items-center justify-between border-r border-b border-border-default px-md py-md-2">
         <p className="text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           Filters
@@ -167,6 +175,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
         label="Ingredients"
         open={openGroups.has('Ingredients')}
         onToggle={() => toggleGroup('Ingredients')}
+        last
       >
         {INGREDIENTS.map((ingredient) => (
           <Checkbox

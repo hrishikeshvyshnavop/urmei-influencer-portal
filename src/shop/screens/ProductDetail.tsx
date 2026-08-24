@@ -134,6 +134,9 @@ export function ProductDetail({
                   <p className="w-[481px] text-body-xl font-medium text-text-secondary-1000">
                     {product.name}
                   </p>
+                  {shopMode && (
+                    <p className="text-body-md text-text-secondary-700">{product.shopVariant}</p>
+                  )}
                 </div>
                 <div className="flex w-full items-center gap-[6px]">
                   <span className="flex w-[46px] items-center gap-[6px]">
@@ -147,9 +150,29 @@ export function ProductDetail({
                   </span>
                 </div>
               </div>
-              <p className="text-body-xl font-medium text-text-secondary-1000">
-                {product.priceRange}
-              </p>
+              <div className="flex w-full items-center gap-md-sm">
+                {shopMode ? (
+                  <>
+                    <p className="text-body-xl font-medium text-text-secondary-1000">
+                      {product.price}
+                    </p>
+                    {product.shopCompareAt.trim().length > 0 && (
+                      <>
+                        <p className="text-body-md text-text-secondary-600 line-through">
+                          {product.shopCompareAt}
+                        </p>
+                        <span className="flex items-center justify-center rounded-[99px] bg-[rgba(152,237,156,0.3)] px-md-sm py-xs text-body-xs font-medium text-text-success">
+                          {product.savePct}
+                        </span>
+                      </>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-body-xl font-medium text-text-secondary-1000">
+                    {product.priceRange}
+                  </p>
+                )}
+              </div>
             </div>
 
             <div className="flex w-full flex-col items-start gap-md-2">
