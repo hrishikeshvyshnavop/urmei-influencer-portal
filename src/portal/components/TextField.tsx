@@ -9,6 +9,8 @@ type TextFieldProps = {
   /** Renders the calendar affordance from the design (Birthday field). */
   icon?: "calendar";
   autoComplete?: string;
+  /** Review Details renders identity fields as read-only, filled swatches. */
+  locked?: boolean;
 };
 
 export default function TextField({
@@ -19,6 +21,7 @@ export default function TextField({
   type = "text",
   icon,
   autoComplete,
+  locked = false,
 }: TextFieldProps) {
   const id = useId();
 
@@ -31,7 +34,13 @@ export default function TextField({
         {label}
       </label>
 
-      <div className="flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid border-portal-border px-4 py-3">
+      <div
+        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 ${
+          locked
+            ? "border-portal-surface bg-portal-surface"
+            : "border-portal-border"
+        }`}
+      >
         <div className="flex min-w-px flex-1 items-center gap-1">
           <input
             id={id}
@@ -40,7 +49,10 @@ export default function TextField({
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
             autoComplete={autoComplete}
-            className="w-full min-w-px bg-transparent text-body-sm text-portal-text outline-none placeholder:text-portal-placeholder"
+            readOnly={locked}
+            className={`w-full min-w-px bg-transparent text-body-sm outline-none placeholder:text-portal-placeholder ${
+              locked ? "text-portal-placeholder" : "text-portal-text"
+            }`}
           />
         </div>
         {icon === "calendar" ? (

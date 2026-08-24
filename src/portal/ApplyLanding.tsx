@@ -1,4 +1,4 @@
-import Button from "../components/Button";
+import Button from "./components/Button";
 
 type ApplyLandingProps = {
   onApply: () => void;
@@ -7,7 +7,7 @@ type ApplyLandingProps = {
 
 export default function ApplyLanding({ onApply, onLogin }: ApplyLandingProps) {
   return (
-    <div className="portal flex min-h-screen w-full flex-col items-start bg-white font-portal">
+    <div className="flex min-h-screen w-full flex-col items-start bg-white">
       <div className="relative min-h-px w-full flex-1">
         <img
           src="/urmei/apply-hero.png"

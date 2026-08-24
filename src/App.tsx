@@ -3,12 +3,14 @@ import ApplyInfluencer from "./portal/ApplyInfluencer";
 import ApplyLanding from "./portal/ApplyLanding";
 import ApplySuccess from "./portal/ApplySuccess";
 import CheckInbox from "./portal/CheckInbox";
+import ChooseUsername from "./portal/ChooseUsername";
 import ForgotPassword from "./portal/ForgotPassword";
 import Login from "./portal/Login";
+import ReviewDetails from "./portal/ReviewDetails";
+import SetProfilePhoto from "./portal/SetProfilePhoto";
 import SetPassword, { resetPasswordCopy } from "./portal/SetPassword";
 
 // This project has no router, so the portal screens are selected by hash.
-// The Samara marketing page still lives in `./Landing`.
 function subscribe(onChange: () => void) {
   window.addEventListener("hashchange", onChange);
   return () => window.removeEventListener("hashchange", onChange);
@@ -47,6 +49,19 @@ export default function App() {
     case "#/set-password":
       return <SetPassword onLogIn={toLogin} />;
 
+    // Profile setup
+    case "#/profile/username":
+      return <ChooseUsername onSubmit={() => navigate("#/profile/review")} />;
+    case "#/profile/review":
+      return <ReviewDetails onContinue={() => navigate("#/profile/photo")} />;
+    case "#/profile/photo":
+      return (
+        <SetProfilePhoto
+          onContinue={() => navigate("#/login")}
+          onSkip={() => navigate("#/login")}
+        />
+      );
+
     // Password reset
     case "#/forgot-password":
       return (
@@ -64,7 +79,7 @@ export default function App() {
       return (
         <Login
           onForgotPassword={() => navigate("#/forgot-password")}
-          onApply={() => navigate("#/apply")}
+          onApply={() => navigate("#/apply/form")}
         />
       );
   }

@@ -1,13 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
-  --color-brand: #0096f7;
-
-  /* Influencer portal — tokens mirrored from the URMEI Figma library */
-  --font-portal: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  /* Tokens mirrored from the URMEI influencer portal Figma library. */
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
 
   --color-portal-text: #222222; /* typography/color/secondary/1000 */
   --color-portal-muted: #757575; /* typography/color/secondary/700 */
@@ -21,7 +17,9 @@
   --color-portal-dark: #403e3c; /* surface/primary/500 */
   --color-portal-alert: #ee4442; /* surface/other/alert */
   --color-portal-success: #66bb6a; /* border/color/success */
+  --color-portal-success-text: #28802c; /* typography/color/other/success */
   --color-portal-notice: #a68d6a; /* social requirement note */
+  --color-portal-tick: #f2efed; /* typography/color/tertiary/100 */
 
   --text-body-xs: 12px;
   --text-body-xs--line-height: 19px;
@@ -39,23 +37,11 @@
   --text-h3--line-height: 52px;
 }
 
-* {
-  letter-spacing: -0.027em !important;
-}
-
-/* The portal design specifies letterSpacing: 0, so it opts out of the
-   global tracking above (which is !important and would otherwise win). */
-.portal,
-.portal * {
-  letter-spacing: 0 !important;
-}
-
-/* Section titles in the portal carry 1.6px tracking; this beats the reset
-   above on specificity so the design's letter-spacing survives. */
-.portal .track-section {
-  letter-spacing: 1.6px !important;
+/* Section titles carry 1.6px tracking (Heading/body-sm-medium(ST)). */
+.track-section {
+  letter-spacing: 1.6px;
 }
 
 body {
-  background-color: #000;
+  background-color: #fff;
 }

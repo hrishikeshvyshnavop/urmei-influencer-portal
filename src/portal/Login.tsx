@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Button from "../components/Button";
+import Button from "./components/Button";
 import EmailField from "./components/EmailField";
 import PortalLayout from "./components/PortalLayout";
 

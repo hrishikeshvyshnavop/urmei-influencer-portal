@@ -1,9 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type Variant =
-  | "primary"
-  | "accent"
-  | "light"
   | "portal"
   | "portalBlock"
   | "portalLg"
@@ -19,11 +16,6 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
 };
 
 const variantClasses: Record<Variant, string> = {
-  primary: "rounded-full bg-brand px-[18px] py-[14px] text-base text-white cursor-pointer",
-  accent:
-    "rounded-[12px] bg-[rgb(255,64,0)] px-[18px] py-[14px] text-base text-white cursor-pointer",
-  light:
-    "inline-flex items-center gap-1 rounded-[12px] bg-white px-[18px] py-[10px] text-[14px] text-black shadow-[rgba(0,0,0,0.12)_0px_0.5px_2px_0px] cursor-pointer",
   portal:
     "border border-solid border-transparent flex items-center justify-center gap-2 rounded-lg bg-portal-dark px-4 py-2 text-body-sm capitalize text-portal-light cursor-pointer disabled:cursor-not-allowed disabled:bg-portal-surface disabled:text-portal-disabled disabled:hover:opacity-100",
   portalBlock:
@@ -46,7 +38,7 @@ export default function Button({
   children,
   className = "",
   type = "button",
-  variant = "primary",
+  variant = "portal",
   ...props
 }: ButtonProps) {
   return (

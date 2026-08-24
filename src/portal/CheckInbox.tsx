@@ -1,4 +1,4 @@
-import Button from "../components/Button";
+import Button from "./components/Button";
 import PortalLayout from "./components/PortalLayout";
 
 export default function CheckInbox({
