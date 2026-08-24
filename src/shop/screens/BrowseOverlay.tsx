@@ -12,8 +12,9 @@ type BrowseOverlayProps = {
 /**
  * Full-screen "Browse and find products to add" panel. It sits over the My Shop
  * page, starting below the site header, with a scrim across the whole viewport.
- * The panel is capped at the app's 1200px content width; `ScaledBox` shrinks it to
- * fit narrower viewports without reflowing or forcing horizontal scroll.
+ * The panel is capped at the app's 1440px screen width (matching every other
+ * shop screen's `ScaledBox`); `ScaledBox` shrinks it to fit narrower viewports
+ * without reflowing or forcing horizontal scroll.
  *
  * The header and the body sit in two separate `ScaledBox`es (rather than one,
  * scrolled as a unit) so the header can stay put while only the body scrolls:
@@ -34,7 +35,7 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
   return (
     <div className="fixed inset-0 z-30 flex flex-col bg-scrim" style={{ paddingTop: 88 }}>
       <div className="flex w-full justify-center overflow-x-hidden" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-        <ScaledBox width={1200} className="shrink-0 rounded-t-lg bg-surface-secondary-100">
+        <ScaledBox width={1440} className="shrink-0 rounded-t-lg bg-surface-secondary-100">
           <header className="flex w-full items-center justify-between border-b border-border-default bg-surface-secondary-100 px-margin py-[20px]">
             <div className="flex items-center gap-md-2">
               <img src="/assets/img/urmei-mark.svg" alt="" className="h-[15.999px] w-[29.573px]" />
@@ -54,7 +55,7 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
 
       <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-surface-secondary-100">
         <div className="flex min-h-full w-full justify-center" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-          <ScaledBox width={1200} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">
+          <ScaledBox width={1440} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">
             {children}
           </ScaledBox>
         </div>
