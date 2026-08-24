@@ -39,3 +39,7 @@ yarn-error.log*
 
 # vite
 vite.config.ts.timestamp-*
+
+# claude code local state
+.claude/worktrees/
+.claude/settings.local.json
