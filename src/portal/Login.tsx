@@ -4,6 +4,8 @@ import EmailField from "./components/EmailField";
 import PortalLayout from "./components/PortalLayout";
 import { scrollToFirstError } from "@/lib/form-validation";
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 type LoginProps = {
   onLogIn: () => void;
   onForgotPassword: () => void;
@@ -18,7 +20,9 @@ export default function Login({
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const canSubmit = email.trim().length > 0 && password.length > 0;
+  const isEmailValid = emailPattern.test(email.trim());
+  const showEmailError = email.trim().length > 0 && !isEmailValid;
+  const canSubmit = isEmailValid && password.length > 0;
 
   return (
     <PortalLayout>
@@ -30,7 +34,7 @@ export default function Login({
         className="flex w-full max-w-[500px] flex-col items-start gap-6"
         onSubmit={(event) => {
           event.preventDefault();
-          onLogIn();
+          if (canSubmit) onLogIn();
         }}
       >
         <div className="flex w-full flex-col items-start">
@@ -51,6 +55,7 @@ export default function Login({
               value={email}
               onChange={setEmail}
               autoComplete="email"
+              error={showEmailError ? "Please enter a valid email address" : undefined}
             />
             <EmailField
               label="Password"
