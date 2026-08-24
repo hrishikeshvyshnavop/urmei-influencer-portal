@@ -30,6 +30,44 @@ function navigate(hash: string) {
 const toLogin = () => navigate("#/login");
 const toHome = () => navigate("#/home");
 
+/** Set once the creator has seen (or dismissed) the product tour. */
+const TOUR_SEEN_KEY = "urmei.product-tour-seen";
+
+function hasSeenTour() {
+  try {
+    return window.localStorage.getItem(TOUR_SEEN_KEY) === "1";
+  } catch {
+    // Private-mode browsers can throw on storage access; show the tour rather
+    // than crash, it just will not be remembered.
+    return false;
+  }
+}
+
+/**
+ * Home, with the product tour on first arrival. `#/home/tour` forces it so the
+ * tour stays linkable after it has been dismissed.
+ */
+function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
+  const [showTour, setShowTour] = useState(() => forceTour || !hasSeenTour());
+
+  const dismiss = () => {
+    try {
+      window.localStorage.setItem(TOUR_SEEN_KEY, "1");
+    } catch {
+      // Ignore: the tour simply reappears next visit.
+    }
+    setShowTour(false);
+    if (forceTour) navigate("#/home");
+  };
+
+  return (
+    <>
+      <Home />
+      {showTour ? <ProductTour onClose={dismiss} onFinish={dismiss} /> : null}
+    </>
+  );
+}
+
 function screenFor(
   hash: string,
   resetEmail: string,
@@ -67,7 +105,7 @@ function screenFor(
       return (
         <SetProfilePhoto
           onContinue={() => navigate("#/verify")}
-          onSkip={() => navigate("#/verify")}
+          onSkip={toHome}
         />
       );
 
@@ -76,19 +114,19 @@ function screenFor(
     // so they are reachable without a backend; the client-side transitions
     // (start -> pending -> restart, and step 1 -> step 2) work for real.
     case "#/verify":
-      return <Onboarding onFinish={toHome} onSkip={toLogin} />;
+      return <Onboarding onFinish={toHome} onSkip={toHome} />;
     case "#/verify/partner":
       return <VerificationPartner />;
     case "#/verify/failed":
       return (
-        <Onboarding identityStatus="failed" onFinish={toHome} onSkip={toLogin} />
+        <Onboarding identityStatus="failed" onFinish={toHome} onSkip={toHome} />
       );
     case "#/verify/verified":
       return (
         <Onboarding
           identityStatus="complete"
           onFinish={toHome}
-          onSkip={toLogin}
+          onSkip={toHome}
         />
       );
     case "#/payment":
@@ -97,7 +135,7 @@ function screenFor(
           identityStatus="complete"
           paymentStatus="idle"
           onFinish={toHome}
-          onSkip={toLogin}
+          onSkip={toHome}
         />
       );
     case "#/payment/pending":
@@ -106,7 +144,7 @@ function screenFor(
           identityStatus="complete"
           paymentStatus="pending"
           onFinish={toHome}
-          onSkip={toLogin}
+          onSkip={toHome}
         />
       );
     case "#/payment/failed":
@@ -115,7 +153,7 @@ function screenFor(
           identityStatus="complete"
           paymentStatus="failed"
           onFinish={toHome}
-          onSkip={toLogin}
+          onSkip={toHome}
         />
       );
     case "#/payment/complete":
@@ -124,23 +162,15 @@ function screenFor(
           identityStatus="complete"
           paymentStatus="complete"
           onFinish={toHome}
-          onSkip={toLogin}
+          onSkip={toHome}
         />
       );
     case "#/payment/partner":
       return <PaymentPartner />;
     case "#/home":
-      return <Home />;
+      return <HomeScreen />;
     case "#/home/tour":
-      return (
-        <>
-          <Home />
-          <ProductTour
-            onClose={() => navigate("#/home")}
-            onFinish={() => navigate("#/home")}
-          />
-        </>
-      );
+      return <HomeScreen forceTour />;
 
     // Password reset
     case "#/forgot-password":
