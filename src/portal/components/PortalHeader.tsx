@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import LanguageSelector from "./LanguageSelector";
 
 const logoLetters = [
   { src: "/urmei/logo-u.svg", alt: "U", className: "h-[16px] w-[14.059px]" },
@@ -47,19 +48,7 @@ export default function PortalHeader({ action }: { action?: ReactNode }) {
           </div>
           <div className="flex min-w-px flex-1 items-center justify-end gap-[10px]">
             {action}
-            <button
-              type="button"
-              className="flex h-[48px] cursor-pointer items-center gap-[6px] px-2"
-            >
-              <img
-                src="/urmei/flag-en.svg"
-                alt=""
-                className="block size-[20px]"
-              />
-              <span className="text-body-md font-medium text-portal-text">
-                EN
-              </span>
-            </button>
+            <LanguageSelector />
           </div>
         </header>
       </div>
