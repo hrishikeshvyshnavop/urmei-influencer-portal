@@ -61,6 +61,14 @@ body {
   overflow-x: hidden;
 }
 
+/* Radix Select locks page scrolling while open. The document already reserves
+   its scrollbar gutter, so react-remove-scroll-bar's extra margin causes a
+   horizontal layout shift. Keep the lock, but remove duplicate compensation. */
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+  --removed-body-scroll-bar-size: 0px !important;
+}
+
 :root {
   --motion-fast: 160ms;
   --motion-base: 240ms;
