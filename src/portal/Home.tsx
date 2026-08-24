@@ -259,7 +259,7 @@ export default function Home({
           }}
         />
       ) : null}
-      {showAddedToast ? <Toast message="Product added to your shop" top={100} /> : null}
+      {showAddedToast ? <Toast message="Product added to your shop" /> : null}
     </AppShell>
   );
 }
