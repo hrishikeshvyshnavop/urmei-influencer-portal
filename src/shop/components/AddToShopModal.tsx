@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import type { Product } from '../types'
 import { Icon } from './Icon'
 import { Toggle } from './Toggle'
@@ -28,6 +29,17 @@ export function AddToShopModal({
   const atLimit = featuredCount >= featuredLimit
   const nextFeaturedCount = featured ? featuredCount + 1 : featuredCount
 
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+    const previousOverscroll = document.body.style.overscrollBehavior
+    document.body.style.overflow = 'hidden'
+    document.body.style.overscrollBehavior = 'none'
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.body.style.overscrollBehavior = previousOverscroll
+    }
+  }, [])
+
   function handleFeatureToggle(next: boolean) {
     if (next && atLimit) {
       onFeatureBlocked()
@@ -36,13 +48,14 @@ export function AddToShopModal({
     setFeatured(next)
   }
 
-  return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-scrim" role="presentation">
+  return createPortal(
+    <div className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-scrim p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
       <div
+        onMouseDown={(event) => event.stopPropagation()}
         role="dialog"
         aria-modal="true"
         aria-label="Add this product to your shop?"
-        className="flex w-[525px] flex-col items-center overflow-clip rounded-lg border border-border-default bg-surface-secondary-100"
+        className="my-auto flex w-[525px] max-w-full shrink-0 flex-col items-center overflow-clip rounded-lg border border-border-default bg-surface-secondary-100"
       >
         <div className="flex w-full items-center justify-between border-b border-border-default px-lg py-md">
           <p className="flex-1 text-body-xl font-semibold text-text-secondary-1000">
@@ -136,6 +149,7 @@ export function AddToShopModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

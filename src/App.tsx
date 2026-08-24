@@ -117,10 +117,15 @@ function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
     if (forceTour) navigate("#/home");
   };
 
+  const finishTour = () => {
+    setShowTour(false);
+    navigate("#/shop");
+  };
+
   return (
     <>
       <Home firstVisit={firstVisit} onShowTour={() => setShowTour(true)} />
-      {showTour ? <ProductTour onClose={dismiss} onFinish={dismiss} /> : null}
+      {showTour ? <ProductTour onClose={dismiss} onFinish={finishTour} /> : null}
     </>
   );
 }
@@ -130,6 +135,13 @@ function screenFor(
   resetEmail: string,
   setResetEmail: (email: string) => void,
 ) {
+  if (hash.startsWith("#/shop/add/")) {
+    return <ShopExperience initialAddProductId={decodeURIComponent(hash.slice("#/shop/add/".length))} />;
+  }
+  if (hash.startsWith("#/shop/product/")) {
+    return <ShopExperience initialProductId={decodeURIComponent(hash.slice("#/shop/product/".length))} />;
+  }
+
   switch (hash) {
     // Request flow
     case "#/apply":
@@ -252,6 +264,8 @@ function screenFor(
       return <ManageAccount />;
     case "#/shop":
       return <ShopExperience />;
+    case "#/shop/browse":
+      return <ShopExperience initialBrowse />;
 
     // Password reset
     case "#/forgot-password":

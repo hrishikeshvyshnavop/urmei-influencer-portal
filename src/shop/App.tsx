@@ -3,7 +3,7 @@ import { AddToShopModal } from './components/AddToShopModal'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
-import { searchProducts } from './data/catalogue'
+import { PRODUCTS, searchProducts } from './data/catalogue'
 import { PROFILE_COMPLETE, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
 import { BrowseOverlay } from './screens/BrowseOverlay'
 import { CatalogueHome } from './screens/CatalogueHome'
@@ -30,12 +30,18 @@ type ToastState = {
   action?: { label: string; onClick: () => void }
 }
 
-export default function App() {
+export default function App({ initialBrowse = false, initialProductId, initialAddProductId }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string }) {
   const [items, setItems] = useState<ShopItem[]>([])
   const [activeTab, setActiveTab] = useState('all')
-  const [overlay, setOverlay] = useState<OverlayView | null>(null)
+  const [overlay, setOverlay] = useState<OverlayView | null>(() => {
+    if (initialProductId) {
+      const product = PRODUCTS.find((item) => item.id === initialProductId)
+      if (product) return { kind: 'detail', query: '', product }
+    }
+    return initialBrowse ? { kind: 'catalogue' } : null
+  })
   const [query, setQuery] = useState('')
-  const [pendingProduct, setPendingProduct] = useState<Product | null>(null)
+  const [pendingProduct, setPendingProduct] = useState<Product | null>(() => initialAddProductId ? PRODUCTS.find((item) => item.id === initialAddProductId) ?? null : null)
   const [toast, setToast] = useState<ToastState | null>(null)
   const [nextId, setNextId] = useState(1)
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
