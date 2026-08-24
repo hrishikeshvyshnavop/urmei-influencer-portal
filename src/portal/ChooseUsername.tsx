@@ -1,5 +1,6 @@
 import { useState } from "react";
 import PortalLayout from "./components/PortalLayout";
+import { scrollToFirstError } from "@/lib/form-validation";
 
 /** Stand-in for the availability check the API will do. */
 const takenUsernames = ["charlotte", "urmei", "admin", "rachel"];
@@ -34,6 +35,10 @@ export default function ChooseUsername({
   return (
     <PortalLayout withPanel={false}>
       <form
+        onInvalidCapture={(event) => {
+          event.preventDefault();
+          scrollToFirstError(event.currentTarget);
+        }}
         className="flex w-full max-w-[380px] flex-col items-center gap-6"
         onSubmit={(event) => {
           event.preventDefault();

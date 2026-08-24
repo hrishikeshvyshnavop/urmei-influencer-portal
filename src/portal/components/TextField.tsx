@@ -1,11 +1,17 @@
 import { useId, useState } from "react";
-import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 /** The design writes birthdays as "15 Jan 1998". */
 const dateFormatter = new Intl.DateTimeFormat("en-GB", {
@@ -31,6 +37,8 @@ type TextFieldProps = {
   options?: string[];
   numericOnly?: boolean;
   maxLength?: number;
+  latestDate?: Date;
+  error?: string;
   /** Review Details renders identity fields as read-only, filled swatches. */
   locked?: boolean;
 };
@@ -46,10 +54,17 @@ export default function TextField({
   options,
   numericOnly = false,
   maxLength,
+  latestDate,
+  error,
   locked = false,
 }: TextFieldProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
+  const selectedDate = parseDate(value);
+  const calendarMonth =
+    selectedDate && (!latestDate || selectedDate <= latestDate)
+      ? selectedDate
+      : latestDate;
 
   return (
     <div className="flex w-full flex-col items-start gap-1">
@@ -64,36 +79,34 @@ export default function TextField({
         className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 focus-within:border-portal-dark focus-within:ring-2 focus-within:ring-portal-surface ${
           locked
             ? "border-portal-surface bg-portal-surface"
-            : "border-portal-border"
+            : error
+              ? "border-portal-alert"
+              : "border-portal-border"
         }`}
       >
         <div className="relative flex min-w-px flex-1 items-center gap-1">
           {options ? (
-            <>
-              <select
-              id={id}
+            <Select
               value={value}
-              onChange={(event) => onChange(event.target.value)}
-              autoComplete={autoComplete}
+              onValueChange={onChange}
               disabled={locked}
-              className={`w-full min-w-px cursor-pointer appearance-none bg-transparent pr-6 text-body-sm outline-none disabled:cursor-not-allowed ${
-                value ? "text-portal-text" : "text-portal-placeholder"
-              }`}
             >
-              <option value="" disabled>
-                {placeholder}
-              </option>
-              {options.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-              </select>
-              <ChevronDownIcon
-                aria-hidden="true"
-                className="pointer-events-none absolute right-0 size-4 text-portal-muted"
-              />
-            </>
+              <SelectTrigger
+                id={id}
+                aria-invalid={Boolean(error)}
+                aria-label={label}
+                className={value ? "text-portal-text" : "text-portal-placeholder"}
+              >
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           ) : (
             <input
               id={id}
@@ -120,6 +133,7 @@ export default function TextField({
               autoComplete={autoComplete}
               readOnly={locked}
               disabled={locked}
+              aria-invalid={Boolean(error)}
               className={`w-full min-w-px bg-transparent text-body-sm outline-none placeholder:text-portal-placeholder ${
                 locked
                   ? "cursor-not-allowed text-portal-placeholder"
@@ -154,10 +168,10 @@ export default function TextField({
                 mode="single"
                 captionLayout="dropdown"
                 startMonth={new Date(1920, 0)}
-                endMonth={new Date()}
-                disabled={{ after: new Date() }}
-                defaultMonth={parseDate(value)}
-                selected={parseDate(value)}
+                endMonth={latestDate ?? new Date()}
+                disabled={{ after: latestDate ?? new Date() }}
+                defaultMonth={calendarMonth}
+                selected={selectedDate}
                 onSelect={(date) => {
                   if (!date) return;
                   onChange(dateFormatter.format(date));
@@ -168,6 +182,11 @@ export default function TextField({
           </Popover>
         ) : null}
       </div>
+      {error ? (
+        <p className="text-body-xs text-portal-alert" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

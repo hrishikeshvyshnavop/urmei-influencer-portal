@@ -2,6 +2,7 @@ import { useState } from "react";
 import Button from "./components/Button";
 import PasswordField from "./components/PasswordField";
 import PortalLayout from "./components/PortalLayout";
+import { scrollToFirstError } from "@/lib/form-validation";
 
 const requirements = [
   {
@@ -143,6 +144,10 @@ export default function SetPassword({
         <SuccessContent copy={copy} onLogIn={onLogIn} />
       ) : (
         <form
+          onInvalidCapture={(event) => {
+            event.preventDefault();
+            scrollToFirstError(event.currentTarget);
+          }}
           className="flex w-full max-w-[500px] flex-col items-start gap-6"
           onSubmit={(event) => {
             event.preventDefault();

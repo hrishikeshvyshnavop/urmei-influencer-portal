@@ -15,20 +15,22 @@ export default function Checkbox({
   children,
 }: CheckboxProps) {
   const id = useId();
+  const labelId = `${id}-label`;
 
   return (
     <div className="flex w-full items-center gap-2">
       <ShadcnCheckbox
         id={id}
+        aria-labelledby={labelId}
         checked={checked}
         onCheckedChange={(value) => onChange(value === true)}
       />
-      <label
-        htmlFor={id}
-        className="cursor-pointer text-body-sm font-medium whitespace-nowrap text-portal-text"
+      <span
+        id={labelId}
+        className="text-body-sm font-medium whitespace-nowrap text-portal-text"
       >
         {children}
-      </label>
+      </span>
     </div>
   );
 }

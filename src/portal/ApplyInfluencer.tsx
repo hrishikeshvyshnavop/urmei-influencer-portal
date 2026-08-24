@@ -6,6 +6,7 @@ import SectionTitle from "./components/SectionTitle";
 import SocialAccountRow from "./components/SocialAccountRow";
 import type { SocialPlatform } from "./components/SocialAccountRow";
 import TextField from "./components/TextField";
+import { scrollToFirstError } from "@/lib/form-validation";
 
 type FieldSpec = {
   name: string;
@@ -17,7 +18,24 @@ type FieldSpec = {
   options?: string[];
   numericOnly?: boolean;
   maxLength?: number;
+  latestDate?: Date;
 };
+
+function getLatestEligibleBirthday() {
+  const date = new Date();
+  date.setHours(23, 59, 59, 999);
+  date.setFullYear(date.getFullYear() - 18);
+  return date;
+}
+
+const latestEligibleBirthday = getLatestEligibleBirthday();
+
+function isValidAdultBirthday(value: string) {
+  const birthday = new Date(value);
+  return (
+    !Number.isNaN(birthday.getTime()) && birthday <= latestEligibleBirthday
+  );
+}
 
 const personalFields: FieldSpec[] = [
   {
@@ -58,6 +76,7 @@ const personalFields: FieldSpec[] = [
     placeholder: "e.g. 15 Jan 1998",
     icon: "calendar",
     autoComplete: "bday",
+    latestDate: latestEligibleBirthday,
   },
 ];
 
@@ -70,7 +89,12 @@ const addressFields: FieldSpec[] = [
     numericOnly: true,
     maxLength: 6,
   },
-  { name: "blockNo", label: "Blk / House No", placeholder: "e.g. 12A" },
+  {
+    name: "blockNo",
+    label: "Blk / House No",
+    placeholder: "e.g. 12",
+    numericOnly: true,
+  },
   {
     name: "street",
     label: "Street Name",
@@ -83,7 +107,12 @@ const addressFields: FieldSpec[] = [
     placeholder: "e.g. Camden Medical Centre",
     autoComplete: "address-line2",
   },
-  { name: "floorNo", label: "Floor No.", placeholder: "e.g. 03" },
+  {
+    name: "floorNo",
+    label: "Floor No.",
+    placeholder: "e.g. 03",
+    numericOnly: true,
+  },
   {
     name: "unitNumber",
     label: "Unit Number",
@@ -109,10 +138,12 @@ const platforms: SocialPlatform[] = [
 function FieldGrid({
   fields,
   values,
+  showErrors,
   onChange,
 }: {
   fields: FieldSpec[];
   values: Record<string, string>;
+  showErrors: boolean;
   onChange: (name: string, value: string) => void;
 }) {
   return (
@@ -128,7 +159,20 @@ function FieldGrid({
           options={field.options}
           numericOnly={field.numericOnly}
           maxLength={field.maxLength}
+          latestDate={field.latestDate}
           value={values[field.name] ?? ""}
+          error={
+            showErrors && !(values[field.name] ?? "").trim()
+              ? `${field.label} is required.`
+              : showErrors &&
+                  field.name === "birthday" &&
+                  !isValidAdultBirthday(values[field.name] ?? "")
+                ? "You must be at least 18 years old to apply."
+              : showErrors && field.type === "email" &&
+                  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values[field.name] ?? "")
+                ? "Enter a valid email address."
+                : undefined
+          }
           onChange={(value) => onChange(field.name, value)}
         />
       ))}
@@ -149,6 +193,7 @@ export default function ApplyInfluencer({
   const [connected, setConnected] = useState<string[]>([]);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [consentedToData, setConsentedToData] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
 
   const setField = (name: string, value: string) =>
     setValues((current) => ({ ...current, [name]: value }));
@@ -160,14 +205,34 @@ export default function ApplyInfluencer({
         : [...current, id],
     );
 
-  const canContinue = connected.length > 0 && agreedToTerms && consentedToData;
+  const allFieldsComplete = [...personalFields, ...addressFields].every(
+    (field) => (values[field.name] ?? "").trim().length > 0,
+  );
+  const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email ?? "");
+  const isAdult = isValidAdultBirthday(values.birthday ?? "");
+  const canContinue =
+    allFieldsComplete &&
+    emailIsValid &&
+    isAdult &&
+    connected.length > 0 &&
+    agreedToTerms &&
+    consentedToData;
 
   return (
     <PortalFormLayout>
       <form
         className="flex w-full max-w-[940px] flex-col gap-6 px-6 pt-[96px] pb-16 sm:px-12 lg:px-[100px]"
+        onInvalidCapture={(event) => {
+          event.preventDefault();
+          scrollToFirstError(event.currentTarget);
+        }}
         onSubmit={(event) => {
           event.preventDefault();
+          setShowErrors(true);
+          if (!canContinue) {
+            scrollToFirstError(event.currentTarget);
+            return;
+          }
           onSubmit();
         }}
       >
@@ -187,6 +252,7 @@ export default function ApplyInfluencer({
             <FieldGrid
               fields={personalFields}
               values={values}
+              showErrors={showErrors}
               onChange={setField}
             />
           </section>
@@ -196,6 +262,7 @@ export default function ApplyInfluencer({
             <FieldGrid
               fields={addressFields}
               values={values}
+              showErrors={showErrors}
               onChange={setField}
             />
           </section>
@@ -223,6 +290,11 @@ export default function ApplyInfluencer({
                 />
               ))}
             </div>
+            {showErrors && connected.length === 0 ? (
+              <p className="text-body-xs text-portal-alert" role="alert" aria-invalid="true">
+                Connect at least one social account.
+              </p>
+            ) : null}
 
             <div className="flex w-full items-center gap-[10px]">
               <div className="flex size-[32px] shrink-0 flex-col items-center justify-center rounded-[10px] border border-solid border-portal-border bg-white">
@@ -258,6 +330,11 @@ export default function ApplyInfluencer({
               I consent to how my data is used as outlined in the{" "}
               <span className="underline">Privacy Policy</span>
             </Checkbox>
+            {showErrors && (!agreedToTerms || !consentedToData) ? (
+              <p className="text-body-xs text-portal-alert" role="alert" aria-invalid="true">
+                Accept both agreements to continue.
+              </p>
+            ) : null}
           </div>
 
           <div className="flex w-full items-start justify-end gap-3">
@@ -272,7 +349,7 @@ export default function ApplyInfluencer({
               type="submit"
               variant="portalLg"
               className="w-[120px]"
-              disabled={!canContinue}
+              disabled={!agreedToTerms || !consentedToData}
             >
               Continue
             </Button>

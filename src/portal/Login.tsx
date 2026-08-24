@@ -2,6 +2,7 @@ import { useState } from "react";
 import Button from "./components/Button";
 import EmailField from "./components/EmailField";
 import PortalLayout from "./components/PortalLayout";
+import { scrollToFirstError } from "@/lib/form-validation";
 
 type LoginProps = {
   onLogIn: () => void;
@@ -22,6 +23,10 @@ export default function Login({
   return (
     <PortalLayout>
       <form
+        onInvalidCapture={(event) => {
+          event.preventDefault();
+          scrollToFirstError(event.currentTarget);
+        }}
         className="flex w-full max-w-[500px] flex-col items-start gap-6"
         onSubmit={(event) => {
           event.preventDefault();
