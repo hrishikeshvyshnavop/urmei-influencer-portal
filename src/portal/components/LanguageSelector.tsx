@@ -100,9 +100,18 @@ export default function LanguageSelector() {
   useEffect(() => {
     if (!countryModalOpen) return;
     const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
+    const previousOverflowY = document.body.style.overflowY;
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+    const holdScrollPosition = () => window.scrollTo(scrollX, scrollY);
+
+    document.body.style.overflow = "";
+    document.body.style.overflowY = "scroll";
+    window.addEventListener("scroll", holdScrollPosition, { passive: true });
     return () => {
+      window.removeEventListener("scroll", holdScrollPosition);
       document.body.style.overflow = previousOverflow;
+      document.body.style.overflowY = previousOverflowY;
     };
   }, [countryModalOpen]);
 

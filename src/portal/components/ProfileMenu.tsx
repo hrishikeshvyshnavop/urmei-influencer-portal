@@ -75,7 +75,7 @@ export default function ProfileMenu({
             className="flex w-full cursor-pointer items-center gap-2 border-b border-portal-surface p-4 text-body-md font-medium text-portal-text"
           >
             <CircleHelp aria-hidden="true" className="size-[22px] shrink-0" strokeWidth={1.5} />
-            Resources/help
+            Help Center
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => setConfirmLogout(true)}

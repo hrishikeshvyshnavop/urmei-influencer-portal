@@ -40,9 +40,9 @@ const questions = [
 ];
 
 const footerSocials = [
-  { name: "facebook", iconClass: "h-[13.333px] w-[7.333px]" },
-  { name: "instagram", iconClass: "size-[14.663px]" },
-  { name: "twitter", iconClass: "h-[12.672px] w-[14.663px]" },
+  { name: "facebook", href: "https://www.facebook.com/", iconClass: "h-[13.333px] w-[7.333px]" },
+  { name: "instagram", href: "https://www.instagram.com/", iconClass: "size-[14.663px]" },
+  { name: "twitter", href: "https://x.com/", iconClass: "h-[12.672px] w-[14.663px]" },
 ];
 
 function hasCompletedAction(storageKey: string) {
@@ -226,7 +226,7 @@ export default function Home({
           <div className="flex min-h-[208px] flex-col gap-2.5 px-6 py-6 lg:px-8">
             <div className="flex items-center gap-4">
               <div className="relative size-16 shrink-0 overflow-hidden rounded-full">
-                <ProfilePhoto fallback="/urmei/home/avatar.png" alt="Charlotte" />
+                <ProfilePhoto fallback="/urmei/home/profile-dropdown-avatar.png" alt="Charlotte" />
               </div>
               <div>
                 <div className="flex items-end gap-1.5">
@@ -303,7 +303,7 @@ export default function Home({
         </section>
 
         <section id="help-center" className="scroll-mt-24 py-6">
-          <div className="flex items-center justify-between"><h2 className="track-section text-body-md font-medium uppercase">Help Center</h2><a href="#/help-center" className="flex items-center gap-2 text-body-sm font-medium">View all <ChevronRight size={16} /></a></div>
+          <div className="flex items-center justify-between"><h2 className="track-section text-body-md font-medium uppercase">Help Center</h2><a href="#/help-center" className="flex items-center gap-2 text-body-sm font-medium">View All <ChevronRight size={16} /></a></div>
           <div className="mt-2">
             {questions.map(([question, answer], index) => {
               const expanded = openQuestion === index;
@@ -316,10 +316,10 @@ export default function Home({
       <footer className="bg-[#2c2927] px-6 py-10 text-[#fdfdfd] lg:px-[120px]">
         <div className="mx-auto max-w-[1200px]">
           <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
-            {[ ["URMEI", "About Us"], ["Collaborate", "Top Brands"], ["Support", "FAQs", "Contact Us"], ["Legal", "Terms of Service", "Privacy Policy", "Cookies"] ].map(([title, ...links]) => <div key={title}><h3 className="track-section mb-3 text-body-md font-medium uppercase">{title}</h3>{links.map(link => <a key={link} href="#" className="block text-body-md">{link}</a>)}</div>)}
+            {[ ["URMEI", "About Us"], ["Collaborate", "Top Brands"], ["Support", "Help Center", "Contact Us"], ["Legal", "Terms of Service", "Privacy Policy", "Cookies"] ].map(([title, ...links]) => <div key={title}><h3 className="track-section mb-3 text-body-md font-medium uppercase">{title}</h3>{links.map(link => <a key={link} href={link === "Help Center" ? "#/help-center" : "#"} className="block text-body-md">{link}</a>)}</div>)}
           </div>
           <img src="/urmei/home/footer-wordmark.svg" alt="URMEI" className="my-16 w-full opacity-60" />
-          <div className="flex items-center justify-between"><p className="text-body-md">© 2025 URMEI ®</p><div className="flex gap-3">{footerSocials.map((social) => <button type="button" key={social.name} aria-label={social.name} className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#f2efed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-light"><span className="flex size-4 items-center justify-center"><img src={`/urmei/home/${social.name}.svg`} alt="" className={`block max-w-none ${social.iconClass}`} /></span></button>)}</div></div>
+          <div className="flex items-center justify-between"><p className="text-body-md">© 2025 URMEI ®</p><div className="flex gap-3">{footerSocials.map((social) => <a key={social.name} href={social.href} target="_blank" rel="noreferrer" aria-label={`Open URMEI on ${social.name}`} className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#f2efed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-light"><span className="flex size-4 items-center justify-center"><img src={`/urmei/home/${social.name}.svg`} alt="" className={`block max-w-none ${social.iconClass}`} /></span></a>)}</div></div>
         </div>
       </footer>
       {notificationsOpen ? (

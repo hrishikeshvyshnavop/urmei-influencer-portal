@@ -41,6 +41,9 @@ export default function RecentActivities() {
         </h2>
         <button
           type="button"
+          onClick={() => {
+            window.location.hash = "#/recent-activities";
+          }}
           className="flex shrink-0 cursor-pointer items-center gap-2 overflow-clip text-body-sm font-medium whitespace-nowrap text-portal-text"
         >
           View All

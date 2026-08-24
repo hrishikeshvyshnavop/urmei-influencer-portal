@@ -19,6 +19,7 @@ import ApprovalPreview from "./portal/ApprovalPreview";
 import ApprovalEmail from "./portal/ApprovalEmail";
 import { clearSetupRequired, markSetupRequired } from "./portal/setup-status";
 import HelpCenter from "./portal/HelpCenter";
+import RecentActivitiesPage from "./portal/RecentActivitiesPage";
 
 // This project has no router, so the portal screens are selected by hash.
 function subscribe(onChange: () => void) {
@@ -216,6 +217,8 @@ function screenFor(
       return <HomeScreen forceTour />;
     case "#/help-center":
       return <HelpCenter />;
+    case "#/recent-activities":
+      return <RecentActivitiesPage />;
 
     // Password reset
     case "#/forgot-password":
@@ -275,6 +278,10 @@ function screenFor(
 export default function App() {
   const hash = useSyncExternalStore(subscribe, () => window.location.hash);
   const [resetEmail, setResetEmail] = useState("reset@example.com");
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [hash]);
 
   // Keyed by route so each screen remounts on navigation. Without this React
   // reuses the instance when two routes render the same component (e.g. the
