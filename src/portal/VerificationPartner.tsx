@@ -2,6 +2,7 @@ import { useState } from "react";
 import Button from "./components/Button";
 
 export const VERIFICATION_STORAGE_KEY = "urmei:verification-result";
+export const VERIFICATION_MESSAGE_TYPE = "urmei:verification-complete";
 
 export default function VerificationPartner() {
   const [complete, setComplete] = useState(false);
@@ -12,7 +13,12 @@ export default function VerificationPartner() {
       JSON.stringify({ status: "complete", completedAt: Date.now() }),
     );
     setComplete(true);
+    window.opener?.postMessage(
+      { type: VERIFICATION_MESSAGE_TYPE, status: "complete" },
+      window.location.origin,
+    );
     window.opener?.focus();
+    window.setTimeout(() => window.close(), 350);
   };
 
   return (
@@ -27,14 +33,14 @@ export default function VerificationPartner() {
           </h1>
           <p className="text-body-sm text-portal-muted">
             {complete
-              ? "Your result was sent to URMEI. You can close this tab."
+              ? "Your result was sent to URMEI. This window will close automatically."
               : "This is a prototype. No documents or personal information will be collected."}
           </p>
         </div>
 
         {complete ? (
           <Button variant="portalOutlineLg" onClick={() => window.close()}>
-            Close tab
+            Close window
           </Button>
         ) : (
           <Button variant="portalLg" onClick={verify}>

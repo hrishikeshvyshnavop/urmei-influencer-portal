@@ -8,8 +8,11 @@ import {
   StepCard,
 } from "./components/StepAccordion";
 import type { StepStatus } from "./components/StepAccordion";
-import { VERIFICATION_STORAGE_KEY } from "./VerificationPartner";
-import { PAYMENT_STORAGE_KEY } from "./PaymentPartner";
+import {
+  VERIFICATION_MESSAGE_TYPE,
+  VERIFICATION_STORAGE_KEY,
+} from "./VerificationPartner";
+import { PAYMENT_MESSAGE_TYPE, PAYMENT_STORAGE_KEY } from "./PaymentPartner";
 
 const requirements = [
   {
@@ -95,39 +98,76 @@ export default function Onboarding({
     identityStatus === "complete" ? 2 : 1,
   );
   useEffect(() => {
+    const completeVerification = () => {
+      setIdentity("complete");
+      setOpen(1);
+    };
+
     const receiveVerification = (event: StorageEvent) => {
       if (event.key !== VERIFICATION_STORAGE_KEY || !event.newValue) return;
 
       try {
         const result = JSON.parse(event.newValue) as { status?: string };
         if (result.status === "complete") {
-          setIdentity("complete");
-          setOpen(1);
+          completeVerification();
         }
       } catch {
         // Ignore malformed prototype messages from local storage.
       }
     };
 
+    const receiveVerificationMessage = (event: MessageEvent) => {
+      if (
+        event.origin === window.location.origin &&
+        event.data?.type === VERIFICATION_MESSAGE_TYPE &&
+        event.data?.status === "complete"
+      ) {
+        completeVerification();
+      }
+    };
+
     window.addEventListener("storage", receiveVerification);
-    return () => window.removeEventListener("storage", receiveVerification);
+    window.addEventListener("message", receiveVerificationMessage);
+    return () => {
+      window.removeEventListener("storage", receiveVerification);
+      window.removeEventListener("message", receiveVerificationMessage);
+    };
   }, []);
 
   useEffect(() => {
+    const completePayment = () => {
+      setPayment("complete");
+      setOpen(2);
+    };
+
     const receivePayment = (event: StorageEvent) => {
       if (event.key !== PAYMENT_STORAGE_KEY || !event.newValue) return;
       try {
         const result = JSON.parse(event.newValue) as { status?: string };
         if (result.status === "complete") {
-          setPayment("complete");
-          setOpen(2);
+          completePayment();
         }
       } catch {
         // Ignore malformed prototype messages from local storage.
       }
     };
+
+    const receivePaymentMessage = (event: MessageEvent) => {
+      if (
+        event.origin === window.location.origin &&
+        event.data?.type === PAYMENT_MESSAGE_TYPE &&
+        event.data?.status === "complete"
+      ) {
+        completePayment();
+      }
+    };
+
     window.addEventListener("storage", receivePayment);
-    return () => window.removeEventListener("storage", receivePayment);
+    window.addEventListener("message", receivePaymentMessage);
+    return () => {
+      window.removeEventListener("storage", receivePayment);
+      window.removeEventListener("message", receivePaymentMessage);
+    };
   }, []);
 
   const allDone = identity === "complete" && payment === "complete";
@@ -139,7 +179,16 @@ export default function Onboarding({
     setOpen(2);
     const partnerUrl = new URL(window.location.href);
     partnerUrl.hash = "#/payment/partner";
-    window.open(partnerUrl, "urmei-payment-partner");
+    const width = 520;
+    const height = 720;
+    const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
+    const top = Math.max(0, window.screenY + (window.outerHeight - height) / 2);
+    const paymentWindow = window.open(
+      partnerUrl,
+      "urmei-payment-partner",
+      `popup=yes,width=${width},height=${height},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`,
+    );
+    paymentWindow?.focus();
   };
 
   const restartPayment = () => {
@@ -150,7 +199,16 @@ export default function Onboarding({
     setIdentity("pending");
     const partnerUrl = new URL(window.location.href);
     partnerUrl.hash = "#/verify/partner";
-    window.open(partnerUrl, "urmei-verification-partner");
+    const width = 520;
+    const height = 720;
+    const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
+    const top = Math.max(0, window.screenY + (window.outerHeight - height) / 2);
+    const verificationWindow = window.open(
+      partnerUrl,
+      "urmei-verification-partner",
+      `popup=yes,width=${width},height=${height},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`,
+    );
+    verificationWindow?.focus();
   };
 
   if (allDone) {
