@@ -11,10 +11,12 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export default function ProfileMenu({
+  onShowProfile,
   onShowTour,
   onShowHelp,
   onLogout,
 }: {
+  onShowProfile: () => void;
   onShowTour: () => void;
   onShowHelp: () => void;
   onLogout: () => void;
@@ -51,6 +53,7 @@ export default function ProfileMenu({
           className="w-[330px] max-w-[calc(100vw-32px)]"
         >
           <DropdownMenuItem
+            onSelect={onShowProfile}
             className="flex w-full cursor-pointer items-center gap-3 border-b border-portal-surface px-4 py-5 text-left"
           >
             <span className="relative size-[42px] shrink-0 overflow-hidden rounded-full">

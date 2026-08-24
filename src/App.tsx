@@ -20,6 +20,7 @@ import ApprovalEmail from "./portal/ApprovalEmail";
 import { clearSetupRequired, markSetupRequired } from "./portal/setup-status";
 import HelpCenter from "./portal/HelpCenter";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
+import ManageAccount from "./portal/ManageAccount";
 
 // This project has no router, so the portal screens are selected by hash.
 function subscribe(onChange: () => void) {
@@ -246,6 +247,8 @@ function screenFor(
       return <HelpCenter />;
     case "#/recent-activities":
       return <RecentActivitiesPage />;
+    case "#/manage-account":
+      return <ManageAccount />;
 
     // Password reset
     case "#/forgot-password":

@@ -36,7 +36,7 @@ type CropModalProps = {
   onApply: () => void;
 };
 
-function CropModal({
+export function CropModal({
   src,
   offset,
   onOffsetChange,
