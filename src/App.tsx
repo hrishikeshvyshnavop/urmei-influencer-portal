@@ -1,4 +1,4 @@
-import { Fragment, useState, useSyncExternalStore } from "react";
+import { Fragment, useEffect, useState, useSyncExternalStore } from "react";
 import ApplyInfluencer from "./portal/ApplyInfluencer";
 import ApplyLanding from "./portal/ApplyLanding";
 import ApplySuccess from "./portal/ApplySuccess";
@@ -32,39 +32,41 @@ function navigate(hash: string) {
 const toLogin = () => navigate("#/login");
 const toHome = () => navigate("#/home");
 
-/** Set once the creator has seen (or dismissed) the product tour. */
-const TOUR_SEEN_KEY = "urmei.product-tour-seen";
+/** Separates the empty first-arrival Home from the returning creator view. */
+const HOME_VISITED_KEY = "urmei.home-visited";
 
-function hasSeenTour() {
+function hasVisitedHome() {
   try {
-    return window.localStorage.getItem(TOUR_SEEN_KEY) === "1";
+    return window.localStorage.getItem(HOME_VISITED_KEY) === "1";
   } catch {
-    // Private-mode browsers can throw on storage access; show the tour rather
-    // than crash, it just will not be remembered.
     return false;
   }
 }
 
 /**
- * Home, with the product tour on first arrival. `#/home/tour` forces it so the
- * tour stays linkable after it has been dismissed.
+ * The first arrival uses the empty Home state from Figma. The product tour is
+ * opened explicitly from the profile menu; `#/home/tour` remains linkable.
  */
 function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
-  const [showTour, setShowTour] = useState(() => forceTour || !hasSeenTour());
+  const [showTour, setShowTour] = useState(forceTour);
+  const [firstVisit] = useState(() => !hasVisitedHome());
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(HOME_VISITED_KEY, "1");
+    } catch {
+      // Storage is optional; the first-arrival view is still fully usable.
+    }
+  }, []);
 
   const dismiss = () => {
-    try {
-      window.localStorage.setItem(TOUR_SEEN_KEY, "1");
-    } catch {
-      // Ignore: the tour simply reappears next visit.
-    }
     setShowTour(false);
     if (forceTour) navigate("#/home");
   };
 
   return (
     <>
-      <Home />
+      <Home firstVisit={firstVisit} onShowTour={() => setShowTour(true)} />
       {showTour ? <ProductTour onClose={dismiss} onFinish={dismiss} /> : null}
     </>
   );
@@ -106,7 +108,7 @@ function screenFor(
       return (
         <ApprovalEmail
           email="charlotte.tan@email.com"
-          onOpenPortal={toHome}
+          onOpenPortal={() => navigate("#/set-password")}
         />
       );
 

@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Button from "./components/Button";
 import PortalLayout from "./components/PortalLayout";
+import { PROFILE_PHOTO_KEY } from "./components/ProfilePhoto";
 
 const CROP_SIZE = 298;
 const CROP_BAND = 28;
@@ -218,9 +219,14 @@ export default function SetProfilePhoto({
   const onFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-    setPending(URL.createObjectURL(file));
-    setOffset(0);
-    setCropScale(1);
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      if (typeof reader.result !== "string") return;
+      setPending(reader.result);
+      setOffset(0);
+      setCropScale(1);
+    });
+    reader.readAsDataURL(file);
     event.target.value = "";
   };
 
@@ -345,7 +351,16 @@ export default function SetProfilePhoto({
               onCropScaleChange={setCropScale}
               onCancel={() => setPending(null)}
               onApply={() => {
-                setPhoto({ src: pending, offset, cropScale });
+                const nextPhoto = { src: pending, offset, cropScale };
+                setPhoto(nextPhoto);
+                try {
+                  window.localStorage.setItem(
+                    PROFILE_PHOTO_KEY,
+                    JSON.stringify(nextPhoto),
+                  );
+                } catch {
+                  // The preview still works when browser storage is unavailable.
+                }
                 setPending(null);
               }}
             />,

@@ -20,8 +20,8 @@ export default function ApprovalEmail({
           <div className="flex flex-col gap-3">
             <h1 className="text-body-xxl text-portal-text">Welcome to URMEI, Charlotte!</h1>
             <p className="text-body-md text-portal-muted">
-              Your creator application has been approved. You can now complete
-              your profile, build your shop, and start working with brands.
+              Your creator application has been approved. Open the creator
+              portal to set your password, log in, and complete your profile.
             </p>
           </div>
           <Button variant="portalLg" onClick={onOpenPortal}>

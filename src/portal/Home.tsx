@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bell,
   ChevronDown,
@@ -10,19 +10,34 @@ import Button from "./components/Button";
 import NotificationsDrawer from "./components/NotificationsDrawer";
 import RecentActivities from "./components/RecentActivities";
 import TopProducts from "./components/TopProducts";
+import ProfileMenu from "./components/ProfileMenu";
+import ProfilePhoto from "./components/ProfilePhoto";
 
-const products = [
+const productImages = [
   { image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
   { image: "/urmei/home/product-2.png", title: "Water Bank Blue Hyaluronic Cream" },
   { image: "/urmei/home/product-3.png", title: "Water Bank Blue Hyaluronic Cream" },
   { image: "/urmei/home/product-4.png", title: "Water Bank Blue Hyaluronic Cream" },
 ];
 
+const products = [0, 1].flatMap((page) =>
+  productImages.map((product, index) => ({
+    ...product,
+    id: `${page}-${index}`,
+  })),
+);
+
 const questions = [
   ["Can I upload tutorials and reviews?", "Yes. You can add tutorials and product reviews to content linked from your shop."],
   ["Can I track my campaign performance?", "Campaign reporting will show reach, engagement, clicks, and attributed sales."],
   ["How many campaigns can I run?", "You can participate in every campaign for which your profile is eligible."],
   ["Do I need design skills to start?", "No. URMEI provides product assets and guided tools to help you publish."],
+];
+
+const footerSocials = [
+  { name: "facebook", iconClass: "h-[13.333px] w-[7.333px]" },
+  { name: "instagram", iconClass: "size-[14.663px]" },
+  { name: "twitter", iconClass: "h-[12.672px] w-[14.663px]" },
 ];
 
 function ProductCard({ image, title }: { image: string; title: string }) {
@@ -47,19 +62,62 @@ function ProductCard({ image, title }: { image: string; title: string }) {
   );
 }
 
-export default function Home() {
+export default function Home({
+  firstVisit = false,
+  onShowTour,
+}: {
+  firstVisit?: boolean;
+  onShowTour?: () => void;
+}) {
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
+  const [canScrollBack, setCanScrollBack] = useState(false);
+  const [canScrollForward, setCanScrollForward] = useState(true);
   const productsRef = useRef<HTMLDivElement>(null);
 
-  const scrollProducts = (direction: number) =>
-    productsRef.current?.scrollBy({ left: direction * 305, behavior: "smooth" });
+  const updateCarouselControls = () => {
+    const carousel = productsRef.current;
+    if (!carousel) return;
+    setCanScrollBack(carousel.scrollLeft > 1);
+    setCanScrollForward(
+      carousel.scrollLeft + carousel.clientWidth < carousel.scrollWidth - 1,
+    );
+  };
+
+  useEffect(() => {
+    const carousel = productsRef.current;
+    if (!carousel) return;
+    updateCarouselControls();
+    const resizeObserver = new ResizeObserver(updateCarouselControls);
+    resizeObserver.observe(carousel);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  const scrollProducts = (direction: number) => {
+    const carousel = productsRef.current;
+    if (!carousel) return;
+    carousel.scrollBy({
+      left: direction * carousel.clientWidth,
+      behavior: "smooth",
+    });
+  };
 
   return (
     <div className="motion-page min-h-screen bg-[#fffefd] text-portal-text">
       <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[10px] bg-portal-surface px-6 shadow-[0_2px_10px_rgba(34,34,34,0.04)] lg:px-[120px]">
         <div className="flex items-center gap-8">
-          <img src="/urmei/home/logo.svg" alt="URMEI" className="h-4 w-[109px]" />
+          <a
+            href="#/home"
+            aria-label="URMEI home"
+            onClick={() => window.scrollTo(0, 0)}
+            className="block shrink-0 cursor-pointer rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-portal-dark"
+          >
+            <img
+              src="/urmei/home/logo.svg"
+              alt="URMEI"
+              className="h-4 w-[109px]"
+            />
+          </a>
           <nav className="hidden items-center gap-1 md:flex">
             <a href="#/home" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">Home</a>
             <button className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">My Shop</button>
@@ -90,7 +148,15 @@ export default function Home() {
             <Bell size={20} />
             <span className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" />
           </button>
-          <img src="/urmei/home/profile-menu.png" alt="Profile" className="size-9 rounded-full object-cover" />
+          <ProfileMenu
+            onShowTour={() => onShowTour?.()}
+            onShowHelp={() => {
+              document.getElementById("help-center")?.scrollIntoView({ behavior: "smooth" });
+            }}
+            onLogout={() => {
+              window.location.hash = "#/login";
+            }}
+          />
         </div>
       </header>
 
@@ -98,8 +164,8 @@ export default function Home() {
         <section className="overflow-hidden rounded-[10px] bg-portal-surface shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
           <div className="flex min-h-[208px] flex-col gap-2.5 px-6 py-6 lg:px-8">
             <div className="flex items-center gap-4">
-              <div className="size-16 shrink-0 overflow-hidden rounded-full">
-                <img src="/urmei/home/avatar.png" alt="Charlotte" className="h-[150%] w-full -translate-y-[16.6%] object-cover" />
+              <div className="relative size-16 shrink-0 overflow-hidden rounded-full">
+                <ProfilePhoto fallback="/urmei/home/avatar.png" alt="Charlotte" />
               </div>
               <div>
                 <div className="flex items-end gap-1.5">
@@ -127,21 +193,49 @@ export default function Home() {
           </div>
         </section>
 
-        <RecentActivities />
-
-        <TopProducts />
+        {!firstVisit ? (
+          <>
+            <RecentActivities />
+            <TopProducts />
+          </>
+        ) : null}
 
         <section className="py-7">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="track-section text-body-md font-medium uppercase">Recommended Products</h2>
-            <div className="flex gap-2"><Button variant="portalOutline" aria-label="Previous products" onClick={() => scrollProducts(-1)} className="size-10 px-0"><ChevronLeft size={16} /></Button><Button variant="portalOutline" aria-label="Next products" onClick={() => scrollProducts(1)} className="size-10 px-0"><ChevronRight size={16} /></Button></div>
+            <div className="flex gap-2">
+              <Button
+                variant="portalOutline"
+                aria-label="Previous products"
+                onClick={() => scrollProducts(-1)}
+                disabled={!canScrollBack}
+                className="!size-8 !p-0"
+              >
+                <ChevronLeft aria-hidden="true" className="size-4" strokeWidth={1.5} />
+              </Button>
+              <Button
+                variant="portalOutline"
+                aria-label="Next products"
+                onClick={() => scrollProducts(1)}
+                disabled={!canScrollForward}
+                className="!size-8 !p-0"
+              >
+                <ChevronRight aria-hidden="true" className="size-4" strokeWidth={1.5} />
+              </Button>
+            </div>
           </div>
-          <div ref={productsRef} className="flex snap-x gap-5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            {products.map((product) => <ProductCard key={product.image} {...product} />)}
+          <div
+            ref={productsRef}
+            role="region"
+            aria-label="Recommended products carousel"
+            onScroll={updateCarouselControls}
+            className="flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {products.map((product) => <ProductCard key={product.id} {...product} />)}
           </div>
         </section>
 
-        <section className="py-6">
+        <section id="help-center" className="scroll-mt-24 py-6">
           <div className="flex items-center justify-between"><h2 className="track-section text-body-md font-medium uppercase">Help Center</h2><button className="flex items-center gap-2 text-body-sm font-medium">View all <ChevronRight size={16} /></button></div>
           <div className="mt-2">
             {questions.map(([question, answer], index) => {
@@ -158,7 +252,7 @@ export default function Home() {
             {[ ["URMEI", "About Us"], ["Collaborate", "Top Brands"], ["Support", "FAQs", "Contact Us"], ["Legal", "Terms of Service", "Privacy Policy", "Cookies"] ].map(([title, ...links]) => <div key={title}><h3 className="track-section mb-3 text-body-md font-medium uppercase">{title}</h3>{links.map(link => <a key={link} href="#" className="block text-body-md">{link}</a>)}</div>)}
           </div>
           <img src="/urmei/home/footer-wordmark.svg" alt="URMEI" className="my-16 w-full opacity-60" />
-          <div className="flex items-center justify-between"><p className="text-body-md">© 2025 URMEI ®</p><div className="flex gap-3">{["facebook", "instagram", "twitter"].map((network) => <button key={network} aria-label={network} className="flex size-12 items-center justify-center rounded-full bg-[#f2efed]"><img src={`/urmei/home/${network}.svg`} alt="" className="size-4" /></button>)}</div></div>
+          <div className="flex items-center justify-between"><p className="text-body-md">© 2025 URMEI ®</p><div className="flex gap-3">{footerSocials.map((social) => <button type="button" key={social.name} aria-label={social.name} className="flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#f2efed] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-light"><span className="flex size-4 items-center justify-center"><img src={`/urmei/home/${social.name}.svg`} alt="" className={`block max-w-none ${social.iconClass}`} /></span></button>)}</div></div>
         </div>
       </footer>
       {notificationsOpen ? (
