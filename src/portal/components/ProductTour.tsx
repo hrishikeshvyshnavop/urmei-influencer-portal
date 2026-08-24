@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "./Button";
 
 type TourStep = {
@@ -7,8 +7,6 @@ type TourStep = {
   title: string;
   body: string;
   image: string;
-  /** Design uses a 440px text panel for the first two cards, 400px after. */
-  panel: "wide" | "narrow";
   back: string;
   next: string;
 };
@@ -18,7 +16,6 @@ const steps: TourStep[] = [
     title: "Welcome to Your Creative Stage",
     body: "We're so glad you're here. Let's take a moment to explore your new home.",
     image: "/urmei/tour/panel.jpg",
-    panel: "wide",
     back: "Skip Tour",
     next: "Get started",
   },
@@ -27,7 +24,6 @@ const steps: TourStep[] = [
     title: "Monitor Everything in Real-Time",
     body: "View detailed analytics on campaign performance, audience engagement, and earnings. All in one dashboard.",
     image: "/urmei/tour/panel.jpg",
-    panel: "wide",
     back: "Back",
     next: "Next",
   },
@@ -36,7 +32,6 @@ const steps: TourStep[] = [
     title: "Access Premium Brands",
     body: "Explore hand-picked products from top brands. Find items that match your style and audience.",
     image: "/urmei/tour/products.png",
-    panel: "narrow",
     back: "Back",
     next: "Next",
   },
@@ -45,7 +40,6 @@ const steps: TourStep[] = [
     title: "Start Your UREMI Store",
     body: "Create your personalized shop, add products you love, and start earning commissions with every sale.",
     image: "/urmei/tour/panel.jpg",
-    panel: "narrow",
     back: "Back",
     next: "set up Your Shop",
   },
@@ -59,11 +53,41 @@ type ProductTourProps = {
 
 export default function ProductTour({ onClose, onFinish }: ProductTourProps) {
   const [index, setIndex] = useState(0);
+  const [loadedImages, setLoadedImages] = useState(
+    () => new Set<string>([steps[0].image]),
+  );
   const step = steps[index];
   const isLast = index === steps.length - 1;
 
-  const back = () => (index === 0 ? onClose() : setIndex(index - 1));
-  const next = () => (isLast ? onFinish() : setIndex(index + 1));
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscroll;
+    };
+  }, []);
+
+  const showStep = async (nextIndex: number) => {
+    const source = steps[nextIndex].image;
+    if (!loadedImages.has(source)) {
+      const image = new Image();
+      image.src = source;
+      try {
+        await image.decode();
+      } catch {
+        // If decoding is unavailable, the mounted image can still render it.
+      }
+      setLoadedImages((current) => new Set(current).add(source));
+    }
+    setIndex(nextIndex);
+  };
+
+  const back = () => (index === 0 ? onClose() : void showStep(index - 1));
+  const next = () => (isLast ? onFinish() : void showStep(index + 1));
 
   return (
     <div
@@ -73,13 +97,7 @@ export default function ProductTour({ onClose, onFinish }: ProductTourProps) {
       aria-label="Product tour"
     >
       <div className="motion-modal-panel relative my-auto flex h-[450px] w-[800px] max-w-full shrink-0 items-stretch overflow-clip rounded-[10px]">
-        <div
-          className={`flex h-full flex-col items-start justify-between overflow-clip bg-white ${
-            step.panel === "wide"
-              ? "min-w-px flex-1 px-10 py-8"
-              : "w-[400px] shrink-0 p-8"
-          }`}
-        >
+        <div className="flex h-full min-w-0 basis-1/2 flex-col items-start justify-between overflow-clip bg-white p-8">
           {step.indicator ? (
             <p className="track-section text-body-md font-medium whitespace-nowrap uppercase text-portal-muted">
               {step.indicator}
@@ -124,12 +142,23 @@ export default function ProductTour({ onClose, onFinish }: ProductTourProps) {
           </div>
         </div>
 
-        <div className="relative h-full min-w-px flex-1 overflow-clip">
-          <img
-            src={step.image}
-            alt=""
-            className="pointer-events-none absolute inset-0 size-full max-w-none object-cover"
-          />
+        <div className="relative h-full min-w-0 basis-1/2 overflow-clip bg-portal-surface">
+          {steps.map((tourStep, stepIndex) => (
+            <img
+              key={`${tourStep.image}-${stepIndex}`}
+              src={tourStep.image}
+              alt=""
+              aria-hidden={stepIndex !== index}
+              onLoad={() =>
+                setLoadedImages((current) =>
+                  new Set(current).add(tourStep.image),
+                )
+              }
+              className={`pointer-events-none absolute inset-0 size-full max-w-none object-cover ${
+                stepIndex === index ? "opacity-100" : "opacity-0"
+              }`}
+            />
+          ))}
           <div className="absolute top-0 right-0 flex items-center gap-[10px] p-4">
             <button
               type="button"
