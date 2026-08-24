@@ -4,11 +4,16 @@ import EmailField from "./components/EmailField";
 import PortalLayout from "./components/PortalLayout";
 
 type LoginProps = {
+  onLogIn: () => void;
   onForgotPassword: () => void;
   onApply: () => void;
 };
 
-export default function Login({ onForgotPassword, onApply }: LoginProps) {
+export default function Login({
+  onLogIn,
+  onForgotPassword,
+  onApply,
+}: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -18,7 +23,10 @@ export default function Login({ onForgotPassword, onApply }: LoginProps) {
     <PortalLayout>
       <form
         className="flex w-full max-w-[500px] flex-col items-start gap-6"
-        onSubmit={(event) => event.preventDefault()}
+        onSubmit={(event) => {
+          event.preventDefault();
+          onLogIn();
+        }}
       >
         <div className="flex w-full flex-col items-start">
           <div className="flex w-full flex-col items-start gap-[6px]">

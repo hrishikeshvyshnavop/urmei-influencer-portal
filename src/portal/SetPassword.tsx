@@ -24,7 +24,7 @@ function PasswordRequirements({ password }: { password: string }) {
       {requirements.map(({ label, isMet }) => {
         const met = isMet(password);
         return (
-          <li key={label} className="flex items-start gap-1">
+          <li key={label} className="flex items-start gap-1 transition-colors duration-200">
             <span className="flex items-center pt-1">
               <span className="relative size-[11px] shrink-0 overflow-clip">
                 <span className="absolute inset-[8.33%]">
@@ -36,7 +36,7 @@ function PasswordRequirements({ password }: { password: string }) {
                           : "/urmei/icon-circle.svg"
                       }
                       alt=""
-                      className="block size-full max-w-none"
+                      className={`block size-full max-w-none transition-transform duration-200 ${met ? "scale-110" : "scale-100"}`}
                     />
                   </span>
                 </span>
@@ -92,7 +92,7 @@ function SuccessContent({
   onLogIn: () => void;
 }) {
   return (
-    <div className="flex w-full max-w-[600px] flex-col items-start justify-center gap-[14px]">
+    <div className="motion-page flex w-full max-w-[600px] flex-col items-start justify-center gap-[14px]">
       <div className="flex w-full flex-col items-start justify-center gap-[6px]">
         <div className="flex size-[48px] flex-col items-center justify-center">
           <span className="relative size-[40px] shrink-0 overflow-clip">

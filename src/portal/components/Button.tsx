@@ -6,6 +6,7 @@ type Variant =
   | "portalLg"
   | "portalOutline"
   | "portalOutlineLg"
+  | "portalGhost"
   | "portalGhostLg"
   | "portalMuted"
   | "portalLink";
@@ -26,6 +27,8 @@ const variantClasses: Record<Variant, string> = {
     "flex items-center justify-center gap-2 rounded-lg border border-solid border-portal-border px-4 py-2 text-body-sm text-portal-text cursor-pointer",
   portalOutlineLg:
     "flex items-center justify-center gap-2 rounded-lg border border-solid border-portal-border px-4 py-3 text-body-sm text-portal-text cursor-pointer",
+  portalGhost:
+    "flex items-center justify-center gap-2 rounded-lg border border-solid border-transparent px-4 py-2 text-body-sm capitalize text-portal-text cursor-pointer",
   portalGhostLg:
     "flex items-center justify-center gap-2 rounded-lg border border-solid border-transparent px-4 py-3 text-body-sm capitalize text-portal-text cursor-pointer",
   portalMuted:

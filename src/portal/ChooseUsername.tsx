@@ -52,7 +52,7 @@ export default function ChooseUsername({
         </div>
 
         <div
-          className={`flex w-full items-center gap-[18px] rounded-full border border-solid py-[10px] pr-[10px] pl-[13px] ${borderColor}`}
+          className={`flex w-full items-center gap-[18px] rounded-full border border-solid py-[10px] pr-[10px] pl-[13px] transition-[border-color,box-shadow] duration-200 focus-within:ring-2 focus-within:ring-portal-surface ${borderColor}`}
         >
           <div className="flex min-w-px flex-1 items-center gap-1 text-body-md">
             <span className="whitespace-nowrap text-portal-placeholder">
@@ -88,7 +88,7 @@ export default function ChooseUsername({
         </div>
 
         {checked === "available" ? (
-          <div className="flex items-center gap-2">
+          <div className="motion-feedback flex items-center gap-2">
             <span className="relative size-[16px] shrink-0 overflow-clip">
               <span className="absolute inset-[8.33%]">
                 <span className="absolute inset-[-4.99%]">
@@ -107,7 +107,7 @@ export default function ChooseUsername({
         ) : null}
 
         {checked === "taken" ? (
-          <div className="flex items-center gap-2">
+          <div className="motion-feedback flex items-center gap-2">
             <span className="relative size-[16px] shrink-0 overflow-clip">
               <span className="absolute inset-[8.33%]">
                 <span className="absolute inset-[-4.99%]">

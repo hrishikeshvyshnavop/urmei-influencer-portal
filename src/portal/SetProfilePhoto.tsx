@@ -1,11 +1,12 @@
 import { useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Button from "./components/Button";
 import PortalLayout from "./components/PortalLayout";
 
-const STACK_HEIGHT = 354;
 const CROP_SIZE = 298;
-/** The photo is taller than the 1:1 crop window, so it drags vertically. */
-const MAX_OFFSET = (STACK_HEIGHT - CROP_SIZE) / 2;
+const CROP_BAND = 28;
+const PREVIEW_SIZE = 160;
+const PREVIEW_BAND = (CROP_BAND / CROP_SIZE) * PREVIEW_SIZE;
 
 function CornerBracket({ position }: { position: string }) {
   return (
@@ -17,32 +18,34 @@ function CornerBracket({ position }: { position: string }) {
 
 type CropModalProps = {
   src: string;
-  offsetY: number;
-  onOffsetChange: (offsetY: number) => void;
+  offset: number;
+  onOffsetChange: (offset: number) => void;
   onCancel: () => void;
   onApply: () => void;
 };
 
 function CropModal({
   src,
-  offsetY,
+  offset,
   onOffsetChange,
   onCancel,
   onApply,
 }: CropModalProps) {
+  const cropArea = useRef<HTMLDivElement>(null);
   const drag = useRef<{ startY: number; startOffset: number } | null>(null);
 
-  const clamp = (value: number) =>
-    Math.max(-MAX_OFFSET, Math.min(MAX_OFFSET, value));
+  const clamp = (value: number) => Math.max(-1, Math.min(1, value));
+  const bandSize = () =>
+    ((cropArea.current?.clientWidth ?? CROP_SIZE) * CROP_BAND) / CROP_SIZE;
 
   return (
     <div
-      className="fixed inset-0 z-30 bg-[rgba(0,0,0,0.5)]"
+      className="motion-modal-backdrop fixed inset-0 z-30 flex items-center justify-center overflow-y-auto bg-[rgba(0,0,0,0.5)] p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Adjust crop area"
     >
-      <div className="absolute top-1/2 left-1/2 w-[500px] max-w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-[10px] bg-portal-light">
+      <div className="motion-modal-panel relative my-auto flex w-[500px] max-w-full shrink-0 flex-col items-center rounded-[10px] bg-portal-light">
         <div className="flex w-full flex-col items-start gap-6 p-6">
           <div className="flex w-full flex-col items-start gap-4">
             <div className="flex w-full items-center justify-between">
@@ -75,16 +78,18 @@ function CropModal({
             </div>
 
             <div
-              className="relative h-[354px] w-full overflow-hidden rounded-[4px] bg-[#b0ada9] select-none"
+              ref={cropArea}
+              className="relative h-[calc(min(298px,calc(100vw-80px))*354/298)] w-full overflow-hidden rounded-[4px] bg-[#b0ada9] select-none"
               onPointerDown={(event) => {
-                drag.current = { startY: event.clientY, startOffset: offsetY };
+                drag.current = { startY: event.clientY, startOffset: offset };
                 event.currentTarget.setPointerCapture(event.pointerId);
               }}
               onPointerMove={(event) => {
                 if (!drag.current) return;
                 onOffsetChange(
                   clamp(
-                    drag.current.startOffset + (event.clientY - drag.current.startY),
+                    drag.current.startOffset +
+                      (event.clientY - drag.current.startY) / bandSize(),
                   ),
                 );
               }}
@@ -92,20 +97,20 @@ function CropModal({
                 drag.current = null;
               }}
             >
-              <div className="absolute inset-y-0 left-1/2 w-[298px] -translate-x-1/2 cursor-grab active:cursor-grabbing">
+              <div className="absolute inset-y-0 left-1/2 aspect-[298/354] max-w-full -translate-x-1/2 cursor-grab active:cursor-grabbing">
                 <img
                   src={src}
                   alt="Selected profile photo"
                   draggable={false}
-                  style={{ transform: `translateY(${offsetY}px)` }}
-                  className="pointer-events-none size-full max-w-none object-cover"
+                  style={{ transform: `translateY(calc(${offset} * 28 / 354 * 100%))` }}
+                  className="pointer-events-none size-full max-w-none object-cover will-change-transform"
                 />
 
                 {/* Dimmed bands above and below the 1:1 crop window */}
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-[28px] bg-[rgba(34,34,34,0.28)]" />
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[28px] bg-[rgba(34,34,34,0.27)]" />
+                <div className="pointer-events-none absolute inset-x-0 top-0 h-[calc(28/354*100%)] bg-[rgba(34,34,34,0.28)]" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[calc(28/354*100%)] bg-[rgba(34,34,34,0.27)]" />
 
-                <div className="pointer-events-none absolute inset-x-0 top-[28px] size-[298px] border-2 border-solid border-portal-border">
+                <div className="pointer-events-none absolute inset-x-0 top-[calc(28/354*100%)] aspect-square border-2 border-solid border-portal-border">
                   <CornerBracket position="top-0 left-0 border-t-2 border-l-2" />
                   <CornerBracket position="top-0 right-0 border-t-2 border-r-2" />
                   <CornerBracket position="bottom-0 left-0 border-b-2 border-l-2" />
@@ -158,10 +163,10 @@ export default function SetProfilePhoto({
 }: SetProfilePhotoProps) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<string | null>(null);
-  const [photo, setPhoto] = useState<{ src: string; offsetY: number } | null>(
+  const [photo, setPhoto] = useState<{ src: string; offset: number } | null>(
     null,
   );
-  const [offsetY, setOffsetY] = useState(0);
+  const [offset, setOffset] = useState(0);
 
   const pickFile = () => fileInput.current?.click();
 
@@ -169,7 +174,7 @@ export default function SetProfilePhoto({
     const file = event.target.files?.[0];
     if (!file) return;
     setPending(URL.createObjectURL(file));
-    setOffsetY(0);
+    setOffset(0);
     event.target.value = "";
   };
 
@@ -197,14 +202,16 @@ export default function SetProfilePhoto({
         <div className="flex flex-col items-center gap-4">
           {photo ? (
             <>
-              <div className="size-[160px] shrink-0 overflow-hidden rounded-full">
+              <div className="motion-feedback relative size-[160px] shrink-0 overflow-hidden rounded-full">
                 <img
                   src={photo.src}
                   alt="Your profile photo"
                   style={{
-                    objectPosition: `50% ${50 - (photo.offsetY / STACK_HEIGHT) * 100}%`,
+                    height: PREVIEW_SIZE + PREVIEW_BAND * 2,
+                    top: -PREVIEW_BAND,
+                    transform: `translateY(${photo.offset * PREVIEW_BAND}px)`,
                   }}
-                  className="size-full max-w-none object-cover"
+                  className="absolute left-0 w-full max-w-none object-cover"
                 />
               </div>
               <button
@@ -273,18 +280,21 @@ export default function SetProfilePhoto({
         className="hidden"
       />
 
-      {pending ? (
-        <CropModal
-          src={pending}
-          offsetY={offsetY}
-          onOffsetChange={setOffsetY}
-          onCancel={() => setPending(null)}
-          onApply={() => {
-            setPhoto({ src: pending, offsetY });
-            setPending(null);
-          }}
-        />
-      ) : null}
+      {pending
+        ? createPortal(
+            <CropModal
+              src={pending}
+              offset={offset}
+              onOffsetChange={setOffset}
+              onCancel={() => setPending(null)}
+              onApply={() => {
+                setPhoto({ src: pending, offset });
+                setPending(null);
+              }}
+            />,
+            document.body,
+          )
+        : null}
     </PortalLayout>
   );
 }

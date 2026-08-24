@@ -7,7 +7,7 @@ type ApplyLandingProps = {
 
 export default function ApplyLanding({ onApply, onLogin }: ApplyLandingProps) {
   return (
-    <div className="flex min-h-screen w-full flex-col items-start bg-white">
+    <div className="motion-page flex min-h-screen w-full flex-col items-start bg-white">
       <div className="relative min-h-px w-full flex-1">
         <img
           src="/urmei/apply-hero.png"

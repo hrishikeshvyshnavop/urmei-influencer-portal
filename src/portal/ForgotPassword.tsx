@@ -6,7 +6,7 @@ import PortalLayout from "./components/PortalLayout";
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type ForgotPasswordProps = {
-  onSendResetLink: () => void;
+  onSendResetLink: (email: string) => void;
   onBackToLogIn: () => void;
 };
 
@@ -25,7 +25,7 @@ export default function ForgotPassword({
         className="flex w-full max-w-[500px] flex-col items-start gap-6"
         onSubmit={(event) => {
           event.preventDefault();
-          onSendResetLink();
+          if (isValid) onSendResetLink(email.trim());
         }}
       >
         <div className="flex w-full flex-col items-start gap-[6px]">

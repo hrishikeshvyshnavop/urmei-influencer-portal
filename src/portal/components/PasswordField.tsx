@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 type PasswordFieldProps = {
   label: string;
@@ -33,7 +34,7 @@ export default function PasswordField({
       </div>
 
       <div
-        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 ${
+        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 transition-[border-color,box-shadow] duration-200 focus-within:border-portal-dark focus-within:ring-2 focus-within:ring-portal-surface ${
           error ? "border-portal-alert" : "border-portal-border"
         }`}
       >
@@ -53,20 +54,19 @@ export default function PasswordField({
           type="button"
           onClick={() => setRevealed((shown) => !shown)}
           aria-label={revealed ? `Hide ${label}` : `Show ${label}`}
-          className={`relative size-[20px] shrink-0 cursor-pointer overflow-clip transition-opacity ${
-            revealed ? "opacity-100" : "opacity-60"
-          }`}
+          aria-pressed={revealed}
+          className="relative size-[20px] shrink-0 cursor-pointer overflow-hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
         >
-          <span className="absolute inset-[20.83%_8.33%]">
-            <span className="absolute inset-[-5.7%_-3.99%]">
-              <img src="/urmei/icon-eye.svg" alt="" className="block size-full max-w-none" />
-            </span>
-          </span>
+          {revealed ? (
+            <EyeOff aria-hidden="true" className="size-5" strokeWidth={1.5} />
+          ) : (
+            <Eye aria-hidden="true" className="size-5" strokeWidth={1.5} />
+          )}
         </button>
       </div>
 
       {error ? (
-        <div className="flex items-center gap-1">
+        <div className="motion-feedback flex items-center gap-1">
           <span className="relative size-[12px] shrink-0 overflow-clip">
             <span className="absolute inset-[8.33%]">
               <span className="absolute inset-[-6.65%]">

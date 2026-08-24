@@ -1,5 +1,6 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import type { ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 type EmailFieldProps = {
   label: string;
@@ -29,6 +30,8 @@ export default function EmailField({
   trailing,
 }: EmailFieldProps) {
   const id = useId();
+  const [revealed, setRevealed] = useState(false);
+  const isPassword = type === "password";
 
   return (
     <div className="flex w-full flex-col items-start gap-1">
@@ -50,14 +53,14 @@ export default function EmailField({
       </div>
 
       <div
-        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid p-4 ${
+        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid p-4 transition-[border-color,box-shadow] duration-200 focus-within:border-portal-dark focus-within:ring-2 focus-within:ring-portal-surface ${
           error ? "border-portal-alert" : "border-portal-border"
         }`}
       >
         <div className="flex min-w-px flex-1 items-center gap-1">
           <input
             id={id}
-            type={type}
+            type={isPassword && revealed ? "text" : type}
             value={value}
             onChange={(event) => onChange(event.target.value)}
             placeholder={placeholder}
@@ -66,10 +69,25 @@ export default function EmailField({
             className="w-full min-w-px bg-transparent text-body-md text-portal-text outline-none placeholder:text-portal-placeholder"
           />
         </div>
+        {isPassword ? (
+          <button
+            type="button"
+            onClick={() => setRevealed((shown) => !shown)}
+            aria-label={revealed ? `Hide ${label}` : `Show ${label}`}
+            aria-pressed={revealed}
+            className="relative size-[20px] shrink-0 cursor-pointer overflow-hidden rounded-sm text-portal-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
+          >
+            {revealed ? (
+              <EyeOff aria-hidden="true" className="size-5" strokeWidth={1.5} />
+            ) : (
+              <Eye aria-hidden="true" className="size-5" strokeWidth={1.5} />
+            )}
+          </button>
+        ) : null}
       </div>
 
       {error ? (
-        <div className="flex items-center gap-1">
+        <div className="motion-feedback flex items-center gap-1">
           <span className="relative size-[12px] shrink-0 overflow-clip">
             <span className="absolute inset-[8.33%]">
               <span className="absolute inset-[-5%]">

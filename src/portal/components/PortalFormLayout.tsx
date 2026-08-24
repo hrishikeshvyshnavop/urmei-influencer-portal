@@ -19,7 +19,7 @@ export default function PortalFormLayout({ children }: { children: ReactNode }) 
           </div>
         </div>
 
-        <div className="min-w-px flex-1">{children}</div>
+        <div className="motion-page min-w-px flex-1">{children}</div>
       </div>
     </div>
   );

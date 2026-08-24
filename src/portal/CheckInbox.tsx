@@ -2,10 +2,17 @@ import Button from "./components/Button";
 import PortalLayout from "./components/PortalLayout";
 
 export default function CheckInbox({
+  email,
+  onOpenEmail,
   onReturnToLogIn,
 }: {
+  email: string;
+  onOpenEmail: () => void;
   onReturnToLogIn: () => void;
 }) {
+  const [localPart, domain = "email.com"] = email.split("@");
+  const maskedEmail = `${localPart.slice(0, 2)}${"*".repeat(Math.max(3, localPart.length - 2))}@${domain}`;
+
   return (
     <PortalLayout>
       <div className="flex w-full max-w-[375px] flex-col items-start justify-center gap-[14px]">
@@ -27,7 +34,7 @@ export default function CheckInbox({
             Check your inbox
           </h1>
           <p className="w-full text-body-sm text-portal-muted">
-            We&#39;ve sent a password reset link to re*****@email.com. The link will
+            We&#39;ve sent a password reset link to {maskedEmail}. The link will
             expire in 24 hours.
           </p>
           <p className="w-full text-body-xs text-portal-muted">
@@ -35,13 +42,18 @@ export default function CheckInbox({
             entered the correct email address.
           </p>
         </div>
-        <Button
-          variant="portalOutlineLg"
-          className="bg-portal-light"
-          onClick={onReturnToLogIn}
-        >
-          Return to Log In
-        </Button>
+        <div className="flex flex-wrap gap-3">
+          <Button variant="portal" onClick={onOpenEmail}>
+            Open test email
+          </Button>
+          <Button
+            variant="portalOutlineLg"
+            className="bg-portal-light"
+            onClick={onReturnToLogIn}
+          >
+            Return to Log In
+          </Button>
+        </div>
       </div>
     </PortalLayout>
   );

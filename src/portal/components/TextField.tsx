@@ -1,4 +1,22 @@
-import { useId } from "react";
+import { useId, useState } from "react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+
+/** The design writes birthdays as "15 Jan 1998". */
+const dateFormatter = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+});
+
+function parseDate(value: string) {
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
 
 type TextFieldProps = {
   label: string;
@@ -24,6 +42,7 @@ export default function TextField({
   locked = false,
 }: TextFieldProps) {
   const id = useId();
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="flex w-full flex-col items-start gap-1">
@@ -35,7 +54,7 @@ export default function TextField({
       </label>
 
       <div
-        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 ${
+        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 focus-within:border-portal-dark focus-within:ring-2 focus-within:ring-portal-surface ${
           locked
             ? "border-portal-surface bg-portal-surface"
             : "border-portal-border"
@@ -46,7 +65,14 @@ export default function TextField({
             id={id}
             type={type}
             value={value}
-            onChange={(event) => onChange(event.target.value)}
+            inputMode={type === "tel" ? "tel" : undefined}
+            onChange={(event) =>
+              onChange(
+                type === "tel"
+                  ? event.target.value.replace(/[^\d+()\s-]/g, "")
+                  : event.target.value,
+              )
+            }
             placeholder={placeholder}
             autoComplete={autoComplete}
             readOnly={locked}
@@ -55,18 +81,44 @@ export default function TextField({
             }`}
           />
         </div>
+
         {icon === "calendar" ? (
-          <span className="relative size-[20px] shrink-0 overflow-clip">
-            <span className="absolute inset-[8.33%_12.5%]">
-              <span className="absolute inset-[-3.99%_-4.43%]">
-                <img
-                  src="/urmei/icon-calendar.svg"
-                  alt=""
-                  className="block size-full max-w-none"
-                />
-              </span>
-            </span>
-          </span>
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                disabled={locked}
+                aria-label={`Choose ${label}`}
+                className="relative size-[20px] shrink-0 cursor-pointer overflow-clip disabled:cursor-not-allowed"
+              >
+                <span className="absolute inset-[8.33%_12.5%]">
+                  <span className="absolute inset-[-3.99%_-4.43%]">
+                    <img
+                      src="/urmei/icon-calendar.svg"
+                      alt=""
+                      className="block size-full max-w-none"
+                    />
+                  </span>
+                </span>
+              </button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <Calendar
+                mode="single"
+                captionLayout="dropdown"
+                startMonth={new Date(1920, 0)}
+                endMonth={new Date()}
+                disabled={{ after: new Date() }}
+                defaultMonth={parseDate(value)}
+                selected={parseDate(value)}
+                onSelect={(date) => {
+                  if (!date) return;
+                  onChange(dateFormatter.format(date));
+                  setOpen(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
         ) : null}
       </div>
     </div>

@@ -41,7 +41,7 @@ export default function PortalLayout({
         ) : null}
 
         <div
-          className={`flex min-w-px flex-1 items-center px-6 py-[120px] sm:px-12 lg:p-[100px] ${
+          className={`motion-page flex min-w-px flex-1 items-center px-6 py-[120px] sm:px-12 lg:p-[100px] ${
             offsetHeader ? "lg:pt-[196px]" : ""
           } ${withPanel ? "" : "justify-center"}`}
         >
