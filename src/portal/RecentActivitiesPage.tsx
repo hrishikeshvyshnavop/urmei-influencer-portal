@@ -4,6 +4,7 @@ import LanguageSelector from "./components/LanguageSelector";
 import NotificationsDrawer from "./components/NotificationsDrawer";
 import ProfileMenu from "./components/ProfileMenu";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { markNotificationsAsRead, useHasUnreadNotifications } from "./notification-status";
 
 const activities = [
   { id: 1, type: "commission", title: "Commission Earned:", amount: "S$1.5", detail: "From ahc youth focus essence", time: "Today, 4:15 PM" },
@@ -20,6 +21,7 @@ const footerSocials = [
 ];
 
 export default function RecentActivitiesPage() {
+  const hasUnreadNotifications = useHasUnreadNotifications();
   const [period, setPeriod] = useState("7");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
@@ -39,9 +41,9 @@ export default function RecentActivitiesPage() {
             <input aria-label="Search products and brands" placeholder="Find products and brands" className="min-w-0 flex-1 bg-transparent text-body-sm outline-none placeholder:text-portal-muted" />
           </label>
           <LanguageSelector />
-          <button type="button" aria-label="Notifications" onClick={() => setNotificationsOpen(true)} className="relative flex size-12 cursor-pointer items-center justify-center">
+          <button type="button" aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"} onClick={() => { markNotificationsAsRead(); setNotificationsOpen(true); }} className="relative flex size-12 cursor-pointer items-center justify-center">
             <Bell aria-hidden="true" className="size-5" strokeWidth={1.5} />
-            <span className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" />
+            {hasUnreadNotifications ? <span aria-hidden="true" className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" /> : null}
           </button>
           <ProfileMenu onShowTour={() => { window.location.hash = "#/home/tour"; }} onShowHelp={() => { window.location.hash = "#/help-center"; }} onLogout={() => { window.location.hash = "#/login"; }} />
         </div>

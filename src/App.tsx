@@ -32,6 +32,33 @@ function navigate(hash: string) {
   window.scrollTo(0, 0);
 }
 
+function openFlowWindow(hash: string, name: string) {
+  const popupUrl = new URL(window.location.href);
+  popupUrl.hash = hash;
+  const width = 680;
+  const height = 760;
+  const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
+  const top = Math.max(0, window.screenY + (window.outerHeight - height) / 2);
+  const popup = window.open(
+    popupUrl,
+    name,
+    `popup=yes,width=${width},height=${height},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`,
+  );
+
+  if (popup) popup.focus();
+  else navigate(hash);
+}
+
+function continueInOpener(hash: string) {
+  if (window.opener && !window.opener.closed) {
+    window.opener.location.hash = hash;
+    window.opener.focus();
+    window.setTimeout(() => window.close(), 350);
+    return;
+  }
+  navigate(hash);
+}
+
 const toLogin = () => navigate("#/login");
 const toHome = () => navigate("#/home");
 const skipSetup = () => {
@@ -121,7 +148,7 @@ function screenFor(
       return (
         <ApplySuccess
           onBackToLogin={toLogin}
-          onPreviewApproval={() => navigate("#/approval-preview")}
+          onPreviewApproval={() => openFlowWindow("#/approval-preview", "urmei-application-review")}
         />
       );
     case "#/approval-preview":
@@ -132,7 +159,7 @@ function screenFor(
       return (
         <ApprovalEmail
           email="charlotte.tan@email.com"
-          onOpenPortal={() => navigate("#/set-password")}
+          onOpenPortal={() => continueInOpener("#/set-password")}
         />
       );
 
@@ -235,7 +262,14 @@ function screenFor(
       return (
         <CheckInbox
           email={resetEmail}
-          onOpenEmail={() => navigate("#/reset-email")}
+          onOpenEmail={() => {
+            try {
+              window.localStorage.setItem("urmei.reset-email", resetEmail);
+            } catch {
+              // The popup still opens with the prototype fallback address.
+            }
+            openFlowWindow("#/reset-email", "urmei-password-reset-email");
+          }}
           onReturnToLogIn={toLogin}
         />
       );
@@ -243,7 +277,7 @@ function screenFor(
       return (
         <ResetEmail
           email={resetEmail}
-          onResetPassword={() => navigate("#/reset-password")}
+          onResetPassword={() => continueInOpener("#/reset-password")}
         />
       );
     case "#/reset-password":
@@ -277,7 +311,13 @@ function screenFor(
 
 export default function App() {
   const hash = useSyncExternalStore(subscribe, () => window.location.hash);
-  const [resetEmail, setResetEmail] = useState("reset@example.com");
+  const [resetEmail, setResetEmail] = useState(() => {
+    try {
+      return window.localStorage.getItem("urmei.reset-email") ?? "reset@example.com";
+    } catch {
+      return "reset@example.com";
+    }
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);

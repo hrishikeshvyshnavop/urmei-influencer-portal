@@ -17,6 +17,7 @@ import { VERIFICATION_STORAGE_KEY } from "./VerificationPartner";
 import { PAYMENT_STORAGE_KEY } from "./PaymentPartner";
 import LanguageSelector from "./components/LanguageSelector";
 import { isSetupRequired } from "./setup-status";
+import { markNotificationsAsRead, useHasUnreadNotifications } from "./notification-status";
 
 const productImages = [
   { image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
@@ -84,6 +85,7 @@ export default function Home({
   firstVisit?: boolean;
   onShowTour?: () => void;
 }) {
+  const hasUnreadNotifications = useHasUnreadNotifications();
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
@@ -174,12 +176,15 @@ export default function Home({
           </label>
           <LanguageSelector />
           <button
-            aria-label="Notifications"
-            onClick={() => setNotificationsOpen(true)}
+            aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"}
+            onClick={() => {
+              markNotificationsAsRead();
+              setNotificationsOpen(true);
+            }}
             className="relative flex size-12 cursor-pointer items-center justify-center"
           >
             <Bell size={20} />
-            <span className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" />
+            {hasUnreadNotifications ? <span aria-hidden="true" className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" /> : null}
           </button>
           <ProfileMenu
             onShowTour={() => onShowTour?.()}

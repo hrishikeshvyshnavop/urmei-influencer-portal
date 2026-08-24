@@ -3,6 +3,7 @@ import { Bell, ChevronDown, ChevronRight, Search } from "lucide-react";
 import LanguageSelector from "./components/LanguageSelector";
 import NotificationsDrawer from "./components/NotificationsDrawer";
 import ProfileMenu from "./components/ProfileMenu";
+import { markNotificationsAsRead, useHasUnreadNotifications } from "./notification-status";
 
 const topics = [
   ["upload", "Can I upload tutorials and reviews?", "Yes. You can publish tutorials and product reviews through content linked from your shop. Use clear product information and disclose sponsored collaborations."],
@@ -22,6 +23,7 @@ const footerSocials = [
 ];
 
 export default function HelpCenter() {
+  const hasUnreadNotifications = useHasUnreadNotifications();
   const [openQuestion, setOpenQuestion] = useState<string | null>(topics[0][0]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
@@ -43,9 +45,9 @@ export default function HelpCenter() {
             <input aria-label="Search products and brands" placeholder="Find products and brands" className="min-w-0 flex-1 bg-transparent text-body-sm outline-none placeholder:text-portal-muted" />
           </label>
           <LanguageSelector />
-          <button type="button" aria-label="Notifications" onClick={() => setNotificationsOpen(true)} className="relative flex size-12 cursor-pointer items-center justify-center">
+          <button type="button" aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"} onClick={() => { markNotificationsAsRead(); setNotificationsOpen(true); }} className="relative flex size-12 cursor-pointer items-center justify-center">
             <Bell aria-hidden="true" className="size-5" strokeWidth={1.5} />
-            <span className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" />
+            {hasUnreadNotifications ? <span aria-hidden="true" className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" /> : null}
           </button>
           <ProfileMenu onShowTour={() => { window.location.hash = "#/home/tour"; }} onShowHelp={() => window.scrollTo({ top: 0, behavior: "smooth" })} onLogout={() => { window.location.hash = "#/login"; }} />
         </div>
