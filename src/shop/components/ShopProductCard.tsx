@@ -102,12 +102,9 @@ export function ShopProductCard({
             </div>
             <div className="flex w-full items-center gap-sm">
               <p className="text-body-md font-medium text-text-secondary-1000">{product.price}</p>
-              <div className="flex flex-1 items-center gap-[6px]">
-                <p className="text-body-sm font-medium text-text-secondary-600 line-through">
-                  {product.shopCompareAt}
-                </p>
-                <p className="text-body-xs font-medium text-text-success">{product.savePct}</p>
-              </div>
+              <span className="flex w-fit items-center justify-center gap-xs rounded-[24px] bg-surface-secondary-300 px-sm py-xs text-body-xs text-text-secondary-900">
+                <span className="font-medium text-text-secondary-1000">{product.commissionBadge}</span> Commission
+              </span>
             </div>
           </div>
           <p className="text-body-xs font-medium text-text-secondary-700">
