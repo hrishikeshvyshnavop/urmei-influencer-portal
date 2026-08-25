@@ -192,7 +192,7 @@ export default function ManageAccount() {
   };
 
   return (
-    <div className="motion-page min-h-screen bg-portal-light text-portal-text">
+    <div className="min-h-screen bg-portal-light text-portal-text">
       <AppHeader
         onShowTour={() => { window.location.hash = "#/home/tour"; }}
         onShowHelp={() => { window.location.hash = "#/help-center"; }}

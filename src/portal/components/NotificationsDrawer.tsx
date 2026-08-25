@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Bell, Percent, Receipt, Star, User, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -76,6 +77,14 @@ export default function NotificationsDrawer({
   groups = defaultGroups,
 }: NotificationsDrawerProps) {
   const isEmpty = groups.every((group) => group.items.length === 0);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, []);
 
   // Portalled to <body>: Home's page-enter animation leaves a transform on an
   // ancestor, which would otherwise become the containing block for `fixed`.
