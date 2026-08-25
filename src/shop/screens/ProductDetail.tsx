@@ -21,6 +21,8 @@ export type ShopMode = {
 
 type ProductDetailProps = {
   product: Product
+  /** Applies the subtle entry transition when this view opens inside a modal shell. */
+  animateOnMount?: boolean
   onBackToCatalogue?: () => void
   onBackToResults?: () => void
   onAddToShop?: () => void
@@ -47,6 +49,7 @@ function StatPair({ label, value }: { label: string; value: string }) {
 
 export function ProductDetail({
   product,
+  animateOnMount = false,
   onBackToCatalogue,
   onBackToResults,
   onAddToShop,
@@ -56,7 +59,7 @@ export function ProductDetail({
   shopMode,
 }: ProductDetailProps) {
   return (
-    <div className="flex w-full flex-col items-start">
+    <div className={`flex w-full flex-col items-start ${animateOnMount ? 'motion-product-detail' : ''}`}>
       <div className="w-full px-margin py-sm">
         <Breadcrumb
           items={

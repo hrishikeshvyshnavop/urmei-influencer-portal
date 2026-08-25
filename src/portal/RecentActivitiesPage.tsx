@@ -3,13 +3,19 @@ import { ChevronRight, Megaphone } from "lucide-react";
 import AppShell from "./components/AppShell";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../shop/activity-log";
+import Pagination from "@/components/Pagination";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const PAGE_SIZE = 8;
 
 export default function RecentActivitiesPage() {
   const [period, setPeriod] = useState("7");
+  const [page, setPage] = useState(1);
   const cutoff = Date.now() - Number(period) * DAY_MS;
   const activities = loadShopActivities().filter((activity) => activity.at >= cutoff);
+  const pageCount = Math.max(1, Math.ceil(activities.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const visibleActivities = activities.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <AppShell
@@ -23,7 +29,7 @@ export default function RecentActivitiesPage() {
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
             <a href="#/home">Home</a><ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} /><span className="text-portal-muted">Recent Activities</span>
           </nav>
-          <Select value={period} onValueChange={setPeriod}>
+          <Select value={period} onValueChange={(value) => { setPeriod(value); setPage(1); }}>
             <SelectTrigger aria-label="Activity period" className="w-[128px] whitespace-nowrap text-portal-text"><SelectValue /></SelectTrigger>
             <SelectContent>
               <SelectItem value="7">Last 7 Days</SelectItem>
@@ -39,8 +45,8 @@ export default function RecentActivitiesPage() {
             <p className="py-4 text-body-sm text-portal-muted">Nothing here yet — actions like adding a product or publishing your shop will show up here.</p>
           ) : (
             <div>
-              {activities.map((activity, index) => (
-                <article key={activity.id} className={`flex items-start gap-2.5 py-4 ${index < activities.length - 1 ? "border-b border-portal-border" : ""}`}>
+              {visibleActivities.map((activity, index) => (
+                <article key={activity.id} className={`flex items-start gap-2.5 py-4 ${index < visibleActivities.length - 1 ? "border-b border-portal-border" : ""}`}>
                   <div className="flex min-w-0 flex-1 items-start gap-3">
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-portal-tint">
                       <Megaphone aria-hidden="true" className="size-4" strokeWidth={1.5} />
@@ -53,6 +59,7 @@ export default function RecentActivitiesPage() {
                   <time className="shrink-0 text-body-xs text-portal-muted">{formatActivityTime(activity.at)}</time>
                 </article>
               ))}
+              {pageCount > 1 ? <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} /> : null}
             </div>
           )}
         </section>

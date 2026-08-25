@@ -3,6 +3,7 @@ import { Breadcrumb } from '../components/Breadcrumb'
 import { CatalogueSearch } from '../components/CatalogueSearch'
 import { FiltersSidebar } from '../components/FiltersSidebar'
 import { Icon } from '../components/Icon'
+import Pagination from '../../components/Pagination'
 import { SortDropdown } from '../components/SortDropdown'
 import { EMPTY_FILTERS, applyFilters, sortProducts, type SortId } from '../data/catalogue'
 import { useFitScale } from '../hooks/useFitScale'
@@ -149,55 +150,6 @@ function NoResults() {
 
 /** Cards per page — also the threshold above which pagination appears at all. */
 const PAGE_SIZE = 8
-
-function Pagination({
-  page,
-  pageCount,
-  onChange,
-}: {
-  page: number
-  pageCount: number
-  onChange: (page: number) => void
-}) {
-  return (
-    <div className="flex w-full items-center justify-center gap-sm overflow-clip pt-md">
-      <button
-        type="button"
-        aria-label="Previous page"
-        disabled={page === 1}
-        onClick={() => onChange(page - 1)}
-        className="size-[38px] disabled:opacity-40"
-      >
-        <img src="/assets/icons/page-prev.svg" alt="" className="size-full" />
-      </button>
-      {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
-        <button
-          key={pageNumber}
-          type="button"
-          aria-current={pageNumber === page ? 'page' : undefined}
-          onClick={() => onChange(pageNumber)}
-          className={[
-            'flex size-[38px] items-center justify-center overflow-clip rounded-md text-body-sm leading-[1.4] font-medium',
-            pageNumber === page
-              ? 'bg-surface-primary-500 text-text-secondary-100'
-              : 'border border-border-default bg-surface-secondary-100 text-text-secondary-1000',
-          ].join(' ')}
-        >
-          {pageNumber}
-        </button>
-      ))}
-      <button
-        type="button"
-        aria-label="Next page"
-        disabled={page === pageCount}
-        onClick={() => onChange(page + 1)}
-        className="size-[38px] disabled:opacity-40"
-      >
-        <img src="/assets/icons/page-next.svg" alt="" className="size-full" />
-      </button>
-    </div>
-  )
-}
 
 export function SearchResults({
   query,

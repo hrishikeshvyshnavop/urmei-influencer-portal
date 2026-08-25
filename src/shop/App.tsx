@@ -300,6 +300,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
               return (
                 <ProductDetail
                   product={overlay.product}
+                  animateOnMount
                   onBackToCatalogue={openCatalogue}
                   onBackToResults={() => setOverlay({ kind: 'results', query: overlay.query })}
                   onAddToShop={() => setPendingProduct(overlay.product)}

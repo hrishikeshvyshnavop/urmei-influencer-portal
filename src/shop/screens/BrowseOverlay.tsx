@@ -33,9 +33,15 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
   }, [])
 
   return (
-    <div className="fixed inset-0 z-30 flex flex-col bg-scrim" style={{ paddingTop: 88 }}>
+    <div
+      className="fixed inset-0 z-30 flex flex-col bg-scrim"
+      style={{ paddingTop: 88 }}
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+    >
       <div className="flex w-full justify-center overflow-x-hidden" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-        <ScaledBox width={1440} className="shrink-0 rounded-t-lg bg-surface-secondary-100">
+        <ScaledBox width={1440} className="shrink-0 overflow-clip rounded-t-[10px] bg-surface-secondary-100">
           <header className="flex w-full items-center justify-between border-b border-border-default bg-surface-secondary-100 px-margin py-[20px]">
             <div className="flex items-center gap-md-2">
               <img src="/assets/img/urmei-mark.svg" alt="" className="h-[15.999px] w-[29.573px]" />
