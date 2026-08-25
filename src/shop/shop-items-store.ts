@@ -5,16 +5,17 @@ const ITEMS_KEY = 'urmei.shop-items'
 const PUBLISHED_AT_KEY = 'urmei.shop-published-at'
 const UNPUBLISHED_CHANGES_KEY = 'urmei.shop-has-unpublished-changes'
 
-type PersistedShopItem = { id: string; productId: string; featured: boolean }
+type PersistedShopItem = { id: string; productId: string; featured: boolean; variant: string }
 
 /**
  * `src/App.tsx` fully remounts the shop screen on every hash change (`Fragment
  * key={hash}`), which would otherwise wipe `shop/App.tsx`'s in-memory item
  * list whenever the user navigates to Home and back. Persisting here keeps
  * added products, publish state, and unpublished-changes across that
- * remount. Only the product id + featured flag are stored; the product
- * itself is always looked up fresh from the catalogue, so a persisted entry
- * for a product that no longer exists is dropped instead of crashing.
+ * remount. Only the product id + featured flag + chosen variant are stored;
+ * the product itself is always looked up fresh from the catalogue, so a
+ * persisted entry for a product that no longer exists is dropped instead of
+ * crashing.
  */
 export function loadShopItems(): ShopItem[] {
   try {
@@ -24,7 +25,11 @@ export function loadShopItems(): ShopItem[] {
     return parsed
       .map((entry) => {
         const product = PRODUCTS.find((item) => item.id === entry.productId)
-        return product ? { id: entry.id, product, featured: entry.featured } : null
+        // `variant` predates this field — fall back to the product's default
+        // so shop items persisted before it shipped still load correctly.
+        return product
+          ? { id: entry.id, product, featured: entry.featured, variant: entry.variant ?? product.variant }
+          : null
       })
       .filter((item): item is ShopItem => item !== null)
   } catch {
@@ -38,6 +43,7 @@ export function saveShopItems(items: ShopItem[]) {
       id: item.id,
       productId: item.product.id,
       featured: item.featured,
+      variant: item.variant,
     }))
     window.localStorage.setItem(ITEMS_KEY, JSON.stringify(persisted))
   } catch {
