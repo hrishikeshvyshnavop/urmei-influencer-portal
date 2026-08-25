@@ -102,9 +102,14 @@ export default function Brands() {
                 key={`${tile.name}-${index}`}
                 href={`#/shop/brand/${encodeURIComponent(tile.name)}`}
                 aria-label={`View products from ${tile.name}`}
-                className="aspect-[224/172] overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
+                className="group relative aspect-[224/172] overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
               >
                 <img src={tile.image} alt={tile.name} className="size-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center bg-[rgba(34,34,34,0.45)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <span className="rounded-md border border-portal-light bg-portal-light px-4 py-2 text-body-sm font-medium text-portal-text">
+                    View Products
+                  </span>
+                </div>
               </a>
             ),
           )}
