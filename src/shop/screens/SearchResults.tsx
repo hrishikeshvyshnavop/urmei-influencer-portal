@@ -171,6 +171,23 @@ export function SearchResults({
   const [sortBy, setSortBy] = useState<SortId>('relevance')
   const [page, setPage] = useState(1)
 
+  // Owned here, not inside `FiltersSidebar`: that component gets re-parented
+  // into `document.body` via a portal once scrolling makes it "stick" (see
+  // `useStickyOnScroll` below), and React remounts a portal's subtree when
+  // its target container changes — which would otherwise reset local state
+  // there and collapse every open filter group.
+  const [openFilterGroups, setOpenFilterGroups] = useState<Set<string>>(new Set())
+  const [brandSearch, setBrandSearch] = useState('')
+
+  function toggleFilterGroup(label: string) {
+    setOpenFilterGroups((current) => {
+      const next = new Set(current)
+      if (next.has(label)) next.delete(label)
+      else next.add(label)
+      return next
+    })
+  }
+
   const visibleResults = useMemo(
     () => sortProducts(applyFilters(results, filters), sortBy),
     [results, filters, sortBy],
@@ -288,7 +305,14 @@ export function SearchResults({
             }
             className={sticky.stuck ? '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden' : undefined}
           >
-            <FiltersSidebar filters={filters} onChange={setFilters} />
+            <FiltersSidebar
+              filters={filters}
+              onChange={setFilters}
+              openGroups={openFilterGroups}
+              onToggleGroup={toggleFilterGroup}
+              brandSearch={brandSearch}
+              onBrandSearchChange={setBrandSearch}
+            />
           </div>,
           filtersTarget,
         )}

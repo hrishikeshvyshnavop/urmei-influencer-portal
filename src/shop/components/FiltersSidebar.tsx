@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import {
   CATEGORIES,
   FILTER_BRANDS,
@@ -13,6 +13,19 @@ import { Icon } from './Icon'
 type FiltersSidebarProps = {
   filters: ProductFilters
   onChange: (next: ProductFilters) => void
+  /** Which accordion groups are expanded, and the Brand search box's text —
+   *  owned by the caller (`SearchResults`) rather than local state here. This
+   *  sidebar gets re-parented into `document.body` via a portal once the
+   *  scroll position makes it "stick" (see `useStickyOnScroll`), and React
+   *  treats a portal's target-container change as a different portal
+   *  identity — it remounts the portaled subtree rather than updating it in
+   *  place. Local state here would reset (collapsing every open group) the
+   *  instant that happens; state that lives in the never-unmounting caller
+   *  survives it. */
+  openGroups: Set<string>
+  onToggleGroup: (label: string) => void
+  brandSearch: string
+  onBrandSearchChange: (value: string) => void
 }
 
 function toggleInList(list: string[], value: string): string[] {
@@ -113,19 +126,14 @@ function FilterGroup({
  * the values are this catalogue's real brands, categories and ingredients so
  * every filter actually narrows real results.
  */
-export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
-  const [openGroups, setOpenGroups] = useState<Set<string>>(new Set())
-  const [brandSearch, setBrandSearch] = useState('')
-
-  function toggleGroup(label: string) {
-    setOpenGroups((current) => {
-      const next = new Set(current)
-      if (next.has(label)) next.delete(label)
-      else next.add(label)
-      return next
-    })
-  }
-
+export function FiltersSidebar({
+  filters,
+  onChange,
+  openGroups,
+  onToggleGroup,
+  brandSearch,
+  onBrandSearchChange,
+}: FiltersSidebarProps) {
   const visibleBrands = FILTER_BRANDS.filter((brand) =>
     brand.toLowerCase().includes(brandSearch.toLowerCase()),
   )
@@ -135,7 +143,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
       <FilterGroup
         label="Brand"
         open={openGroups.has('Brand')}
-        onToggle={() => toggleGroup('Brand')}
+        onToggle={() => onToggleGroup('Brand')}
         selected={filters.brands.map((brand) => ({ value: brand, label: toTitleCase(brand) }))}
         onRemoveSelected={(brand) => onChange({ ...filters, brands: toggleInList(filters.brands, brand) })}
       >
@@ -144,7 +152,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
           <input
             type="text"
             value={brandSearch}
-            onChange={(event) => setBrandSearch(event.target.value)}
+            onChange={(event) => onBrandSearchChange(event.target.value)}
             placeholder="Search brands"
             className="w-full text-body-sm text-text-secondary-1000 placeholder:text-text-secondary-700 focus:outline-none"
           />
@@ -162,7 +170,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
       <FilterGroup
         label="Price"
         open={openGroups.has('Price')}
-        onToggle={() => toggleGroup('Price')}
+        onToggle={() => onToggleGroup('Price')}
         selected={filters.priceBuckets.map((id) => ({
           value: id,
           label: PRICE_BUCKETS.find((bucket) => bucket.id === id)?.label ?? id,
@@ -186,7 +194,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
       <FilterGroup
         label="Rating"
         open={openGroups.has('Rating')}
-        onToggle={() => toggleGroup('Rating')}
+        onToggle={() => onToggleGroup('Rating')}
         selected={filters.ratingThresholds.map((min) => ({
           value: String(min),
           label: RATING_THRESHOLDS.find((threshold) => threshold.min === min)?.label ?? `${min}★ & up`,
@@ -220,7 +228,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
       <FilterGroup
         label="Category"
         open={openGroups.has('Category')}
-        onToggle={() => toggleGroup('Category')}
+        onToggle={() => onToggleGroup('Category')}
         selected={filters.categories.map((category) => ({ value: category, label: category }))}
         onRemoveSelected={(category) =>
           onChange({ ...filters, categories: toggleInList(filters.categories, category) })
@@ -241,7 +249,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
       <FilterGroup
         label="Ingredients"
         open={openGroups.has('Ingredients')}
-        onToggle={() => toggleGroup('Ingredients')}
+        onToggle={() => onToggleGroup('Ingredients')}
         selected={filters.ingredients.map((ingredient) => ({ value: ingredient, label: ingredient }))}
         onRemoveSelected={(ingredient) =>
           onChange({ ...filters, ingredients: toggleInList(filters.ingredients, ingredient) })
