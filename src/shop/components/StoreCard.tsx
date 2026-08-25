@@ -33,8 +33,8 @@ export function StoreCard({
   return (
     <div
       className={[
-        'flex w-full flex-col items-start bg-surface-secondary-300 px-[28px] py-xxl',
-        attachedBelow ? '' : 'rounded-lg drop-shadow-[0_4px_10px_rgba(0,0,0,0.03)]',
+        'flex w-full flex-col items-start bg-surface-secondary-300 px-[28px] py-xxl drop-shadow-[0_4px_10px_rgba(0,0,0,0.03)]',
+        attachedBelow ? '' : 'rounded-lg',
       ].join(' ')}
     >
       <div className="flex w-full items-start justify-between">
@@ -58,7 +58,7 @@ export function StoreCard({
                 Preview Storefront
               </Button>
             ) : (
-              <Button variant="ghost" disabled leftIcon={<Icon name="eye" />}>
+              <Button variant="ghost" disabled leftIcon={<Icon name="eye" />} className="font-normal">
                 Preview Storefront
               </Button>
             )}
@@ -72,7 +72,7 @@ export function StoreCard({
             ) : canPublish ? (
               <Button onClick={onPublish}>Publish shop</Button>
             ) : (
-              <Button variant="ghost" disabled>
+              <Button variant="ghost" disabled className="font-normal">
                 Publish shop
               </Button>
             )}
