@@ -41,6 +41,12 @@ type ProductDetailProps = {
   shopMode?: ShopMode
 }
 
+/** "50 ML | Blue gel cream" -> "50ml" — the size suffix Figma appends to the
+ *  product title once a specific variant is in the shop (`980:25543`). */
+function variantSizeSuffix(variant: string): string {
+  return variant.split('|')[0]!.trim().replace(/\s+/g, '').toLowerCase()
+}
+
 function StatPair({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-1 flex-col gap-xs">
@@ -142,6 +148,7 @@ export function ProductDetail({
                   </p>
                   <p className="w-[481px] text-body-xl font-medium text-text-secondary-1000">
                     {product.name}
+                    {shopMode && ` (${variantSizeSuffix(shopMode.variant)})`}
                   </p>
                   {shopMode && (
                     <p className="text-body-md text-text-secondary-700">{shopMode.variant}</p>
