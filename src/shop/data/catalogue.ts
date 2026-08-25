@@ -215,7 +215,7 @@ export const PRODUCTS: Product[] = [
     heroImage: '/assets/img/featured-somebymi.png',
     thumbnails: Array(5).fill('/assets/img/featured-somebymi.png'),
     shopCardImage: '/assets/img/featured-somebymi.png',
-    keywords: ['some', 'by', 'mi', 'aha', 'bha', 'pha', 'miracle', 'toner', 'cleanser'],
+    keywords: ['some', 'by', 'mi', 'aha', 'bha', 'pha', 'glycolic', 'acid', 'miracle', 'toner', 'cleanser'],
     details: PLACEHOLDER_DETAILS,
     performance: PLACEHOLDER_PERFORMANCE,
   },
@@ -465,18 +465,166 @@ export const PRODUCTS: Product[] = [
     details: PLACEHOLDER_DETAILS,
     performance: PLACEHOLDER_PERFORMANCE,
   },
+  {
+    /* No product in the catalogue matched the "SUNCARE" category tile before this. */
+    id: 'cosrx-aloe-sun-cream',
+    brand: 'COSRX',
+    name: 'Aloe Soothing Sun Cream SPF50',
+    variant: '50 ML | Light cream',
+    variantOptions: ['50 ML | Light cream'],
+    shopVariant: '50 ML | Light cream',
+    priceRange: 'S$21 - S$25',
+    price: 'S$21',
+    modalCompareAt: 'S$25',
+    shopCompareAt: 'S$25',
+    savePct: 'SAVE 16%',
+    commissionBadge: '15%',
+    commissionPerSale: '15% Per Sale',
+    regions: ['Singapore', 'Malaysia'],
+    rating: 4.4,
+    reviewCount: 176,
+    oneTimePurchase: 'S$21.00 Pay once',
+    subscription: 'Get product for S$19/Month',
+    listImage: '/assets/img/featured-cosrx.png',
+    heroImage: '/assets/img/featured-cosrx.png',
+    thumbnails: Array(5).fill('/assets/img/featured-cosrx.png'),
+    shopCardImage: '/assets/img/featured-cosrx.png',
+    keywords: ['cosrx', 'aloe', 'soothing', 'sun', 'suncare', 'sunscreen', 'spf'],
+    details: PLACEHOLDER_DETAILS,
+    performance: PLACEHOLDER_PERFORMANCE,
+  },
+  {
+    /* No product in the catalogue matched the "LOTION" category tile before this. */
+    id: 'laneige-water-bank-lotion',
+    brand: 'LANEIGE',
+    name: 'Water Bank Blue Hyaluronic Lotion',
+    variant: '120 ML | Clear lotion',
+    variantOptions: ['120 ML | Clear lotion'],
+    shopVariant: '120 ML | Clear lotion',
+    priceRange: 'S$48 - S$55',
+    price: 'S$48',
+    modalCompareAt: 'S$55',
+    shopCompareAt: 'S$55',
+    savePct: 'SAVE 13%',
+    commissionBadge: '12%',
+    commissionPerSale: '12% Per Sale',
+    regions: ['Singapore', 'Malaysia'],
+    rating: 4.3,
+    reviewCount: 310,
+    oneTimePurchase: 'S$48.00 Pay once',
+    subscription: 'Get product for S$43/Month',
+    listImage: '/assets/img/featured-laneige.png',
+    heroImage: '/assets/img/featured-laneige.png',
+    thumbnails: Array(5).fill('/assets/img/featured-laneige.png'),
+    shopCardImage: '/assets/img/featured-laneige.png',
+    keywords: ['laneige', 'water', 'bank', 'blue', 'hyaluronic', 'lotion', 'moisturizer'],
+    details: PLACEHOLDER_DETAILS,
+    performance: PLACEHOLDER_PERFORMANCE,
+  },
+  {
+    /* "EYE CREAM" previously only "matched" by accident, via the unrelated
+     * word "cream" shared with several face-cream products. */
+    id: 'etudehouse-soonjung-eye-cream',
+    brand: 'ETUDE HOUSE',
+    name: 'SoonJung Barrier Repair Eye Cream',
+    variant: '25 ML | White cream',
+    variantOptions: ['25 ML | White cream'],
+    shopVariant: '25 ML | White cream',
+    priceRange: 'S$19 - S$23',
+    price: 'S$19',
+    modalCompareAt: 'S$23',
+    shopCompareAt: 'S$23',
+    savePct: 'SAVE 17%',
+    commissionBadge: '12%',
+    commissionPerSale: '12% Per Sale',
+    regions: ['Singapore'],
+    rating: 4.2,
+    reviewCount: 64,
+    oneTimePurchase: 'S$19.00 Pay once',
+    subscription: 'Get product for S$17/Month',
+    listImage: '/assets/img/featured-etudehouse.png',
+    heroImage: '/assets/img/featured-etudehouse.png',
+    thumbnails: Array(5).fill('/assets/img/featured-etudehouse.png'),
+    shopCardImage: '/assets/img/featured-etudehouse.png',
+    keywords: ['etude', 'house', 'soonjung', 'barrier', 'repair', 'eye', 'cream'],
+    details: PLACEHOLDER_DETAILS,
+    performance: PLACEHOLDER_PERFORMANCE,
+  },
+  {
+    /* No product in the catalogue matched the "Niacinamide" ingredient tile before this. */
+    id: 'cosrx-niacinamide-serum',
+    brand: 'COSRX',
+    name: 'Niacinamide 15 Glow Targeting Serum',
+    variant: '20 ML | Clear serum',
+    variantOptions: ['20 ML | Clear serum'],
+    shopVariant: '20 ML | Clear serum',
+    priceRange: 'S$23 - S$27',
+    price: 'S$23',
+    modalCompareAt: 'S$27',
+    shopCompareAt: 'S$27',
+    savePct: 'SAVE 15%',
+    commissionBadge: '15%',
+    commissionPerSale: '15% Per Sale',
+    regions: ['Singapore', 'Malaysia'],
+    rating: 4.5,
+    reviewCount: 198,
+    oneTimePurchase: 'S$23.00 Pay once',
+    subscription: 'Get product for S$20/Month',
+    listImage: '/assets/img/featured-cosrx.png',
+    heroImage: '/assets/img/featured-cosrx.png',
+    thumbnails: Array(5).fill('/assets/img/featured-cosrx.png'),
+    shopCardImage: '/assets/img/featured-cosrx.png',
+    keywords: ['cosrx', 'niacinamide', 'glow', 'targeting', 'serum', 'brightening'],
+    details: PLACEHOLDER_DETAILS,
+    performance: PLACEHOLDER_PERFORMANCE,
+  },
+  {
+    /* "Vitamin C" previously only "matched" by accident — its second search
+     * term, the single letter "c", is a substring of nearly every product. */
+    id: 'somebymi-vitamin-c-serum',
+    brand: 'SOME BY MI',
+    name: 'Galactomyces Pure Vitamin C Glow Serum',
+    variant: '50 ML | Amber serum',
+    variantOptions: ['50 ML | Amber serum'],
+    shopVariant: '50 ML | Amber serum',
+    priceRange: 'S$20 - S$24',
+    price: 'S$20',
+    modalCompareAt: 'S$24',
+    shopCompareAt: 'S$24',
+    savePct: 'SAVE 17%',
+    commissionBadge: '14%',
+    commissionPerSale: '14% Per Sale',
+    regions: ['Singapore', 'Malaysia'],
+    rating: 4.4,
+    reviewCount: 152,
+    oneTimePurchase: 'S$20.00 Pay once',
+    subscription: 'Get product for S$18/Month',
+    listImage: '/assets/img/featured-somebymi.png',
+    heroImage: '/assets/img/featured-somebymi.png',
+    thumbnails: Array(5).fill('/assets/img/featured-somebymi.png'),
+    shopCardImage: '/assets/img/featured-somebymi.png',
+    keywords: ['some', 'by', 'mi', 'galactomyces', 'pure', 'vitamin', 'c', 'vitamin-c', 'glow', 'serum'],
+    details: PLACEHOLDER_DETAILS,
+    performance: PLACEHOLDER_PERFORMANCE,
+  },
 ]
 
 /**
  * Case-insensitive match across brand, name and keywords. The literal query
  * "All" (any case) bypasses matching entirely and returns the full catalogue —
  * used by the catalogue's "View All" action alongside the regular per-term search.
+ * An empty (or whitespace-only) query means the same thing: with the search
+ * box cleared there's no active term to narrow by, so show everything rather
+ * than nothing — that's what lets clearing the box fall straight back to the
+ * full catalogue instead of flashing an empty-results state.
  */
 export function searchProducts(query: string): Product[] {
   const trimmed = query.trim()
-  if (trimmed.toLowerCase() === 'all') return PRODUCTS
+  if (trimmed === '' || trimmed.toLowerCase() === 'all') return PRODUCTS
 
-  const terms = trimmed.toLowerCase().split(/\s+/).filter(Boolean)
+  // Single-character terms (e.g. the "C" in "Vitamin C") are a substring of
+  // almost every product and would swamp real matches with noise.
+  const terms = trimmed.toLowerCase().split(/\s+/).filter((term) => term.length > 1)
   if (terms.length === 0) return []
   return PRODUCTS.filter((product) => {
     const haystack = [product.brand, product.name, ...product.keywords].join(' ').toLowerCase()

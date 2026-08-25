@@ -33,15 +33,18 @@ export function SortDropdown({ value, onChange }: SortDropdownProps) {
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
-        className="flex w-[285px] items-center justify-between rounded-sm border border-border-default bg-surface-secondary-100 px-md py-ten"
+        className="flex w-[285px] items-center justify-between gap-sm rounded-sm border border-border-default bg-surface-secondary-100 px-md py-ten"
       >
-        <span className="text-body-md font-medium text-text-secondary-1000">
+        <span className="min-w-0 truncate text-body-md font-medium text-text-secondary-1000">
           Sort By: {selected.label}
         </span>
         <Icon
           name="chevron-down"
           srcSize={24}
-          className={open ? 'rotate-180 transition-transform' : 'transition-transform'}
+          className={[
+            'shrink-0',
+            open ? 'rotate-180 transition-transform' : 'transition-transform',
+          ].join(' ')}
         />
       </button>
 

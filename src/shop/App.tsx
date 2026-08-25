@@ -196,7 +196,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setToast({ message: 'Shop link copied to clipboard' })
   }
 
-  const results = overlay?.kind === 'results' ? searchProducts(overlay.query) : []
+  // Derived from the live `query` (not `overlay.query`, frozen at the last
+  // Enter/suggestion submit) so results/empty-vs-all track every keystroke,
+  // including clearing the box back down to nothing.
+  const results = overlay?.kind === 'results' ? searchProducts(query) : []
 
   /** Builds the featured/remove/affiliate-link controls shared by both places
    *  ProductDetail is reused for an item that's already in the shop. */

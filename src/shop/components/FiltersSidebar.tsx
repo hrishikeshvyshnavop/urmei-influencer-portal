@@ -21,12 +21,27 @@ function toggleInList(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((entry) => entry !== value) : [...list, value]
 }
 
+type SelectedTag = { value: string; label: string }
+
+function Tag({ label, onRemove }: { label: string; onRemove: () => void }) {
+  return (
+    <span className="flex shrink-0 items-center justify-center gap-xs rounded-sm bg-surface-tertiary-500 px-sm py-xs">
+      <span className="text-body-sm font-medium whitespace-nowrap text-text-secondary-1000">{label}</span>
+      <button type="button" aria-label={`Remove ${label} filter`} onClick={onRemove}>
+        <Icon name="x" srcSize={24} />
+      </button>
+    </span>
+  )
+}
+
 function FilterGroup({
   label,
   open,
   onToggle,
   children,
   last = false,
+  selected = [],
+  onRemoveSelected,
 }: {
   label: string
   open: boolean
@@ -34,7 +49,14 @@ function FilterGroup({
   children: ReactNode
   /** The design omits the bottom border on the last (Ingredients) group. */
   last?: boolean
+  /** Currently-applied values for this group, shown as removable chips
+   *  whenever the group is collapsed — so a filter stays visible and
+   *  editable without needing to reopen the checkbox list. */
+  selected?: SelectedTag[]
+  onRemoveSelected?: (value: string) => void
 }) {
+  const showSelected = !open && selected.length > 0
+
   return (
     <div
       className={[
@@ -55,6 +77,13 @@ function FilterGroup({
           className={open ? 'rotate-180 transition-transform' : 'transition-transform'}
         />
       </button>
+      {showSelected && (
+        <div className="flex w-full flex-wrap items-start gap-sm px-md pb-lg">
+          {selected.map((tag) => (
+            <Tag key={tag.value} label={tag.label} onRemove={() => onRemoveSelected?.(tag.value)} />
+          ))}
+        </div>
+      )}
       {open && <div className="flex w-full flex-col items-start gap-md-sm px-md pb-lg">{children}</div>}
     </div>
   )
@@ -105,7 +134,13 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
         </button>
       </div>
 
-      <FilterGroup label="Brand" open={openGroups.has('Brand')} onToggle={() => toggleGroup('Brand')}>
+      <FilterGroup
+        label="Brand"
+        open={openGroups.has('Brand')}
+        onToggle={() => toggleGroup('Brand')}
+        selected={filters.brands.map((brand) => ({ value: brand, label: brand }))}
+        onRemoveSelected={(brand) => onChange({ ...filters, brands: toggleInList(filters.brands, brand) })}
+      >
         <div className="flex w-full items-center gap-sm rounded-sm border border-border-default px-md-sm py-sm">
           <Icon name="search" />
           <input
@@ -126,7 +161,18 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
         ))}
       </FilterGroup>
 
-      <FilterGroup label="Price" open={openGroups.has('Price')} onToggle={() => toggleGroup('Price')}>
+      <FilterGroup
+        label="Price"
+        open={openGroups.has('Price')}
+        onToggle={() => toggleGroup('Price')}
+        selected={filters.priceBuckets.map((id) => ({
+          value: id,
+          label: PRICE_BUCKETS.find((bucket) => bucket.id === id)?.label ?? id,
+        }))}
+        onRemoveSelected={(id) =>
+          onChange({ ...filters, priceBuckets: toggleInList(filters.priceBuckets, id) })
+        }
+      >
         {PRICE_BUCKETS.map((bucket) => (
           <Checkbox
             key={bucket.id}
@@ -139,7 +185,22 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
         ))}
       </FilterGroup>
 
-      <FilterGroup label="Rating" open={openGroups.has('Rating')} onToggle={() => toggleGroup('Rating')}>
+      <FilterGroup
+        label="Rating"
+        open={openGroups.has('Rating')}
+        onToggle={() => toggleGroup('Rating')}
+        selected={filters.ratingThresholds.map((min) => ({
+          value: String(min),
+          label: RATING_THRESHOLDS.find((threshold) => threshold.min === min)?.label ?? `${min}★ & up`,
+        }))}
+        onRemoveSelected={(value) => {
+          const min = Number(value)
+          onChange({
+            ...filters,
+            ratingThresholds: filters.ratingThresholds.filter((threshold) => threshold !== min),
+          })
+        }}
+      >
         {RATING_THRESHOLDS.map((threshold) => (
           <Checkbox
             key={threshold.min}
@@ -158,7 +219,15 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
         ))}
       </FilterGroup>
 
-      <FilterGroup label="Category" open={openGroups.has('Category')} onToggle={() => toggleGroup('Category')}>
+      <FilterGroup
+        label="Category"
+        open={openGroups.has('Category')}
+        onToggle={() => toggleGroup('Category')}
+        selected={filters.categories.map((category) => ({ value: category, label: category }))}
+        onRemoveSelected={(category) =>
+          onChange({ ...filters, categories: toggleInList(filters.categories, category) })
+        }
+      >
         {CATEGORIES.map((category) => (
           <Checkbox
             key={category.label}
@@ -175,6 +244,10 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
         label="Ingredients"
         open={openGroups.has('Ingredients')}
         onToggle={() => toggleGroup('Ingredients')}
+        selected={filters.ingredients.map((ingredient) => ({ value: ingredient, label: ingredient }))}
+        onRemoveSelected={(ingredient) =>
+          onChange({ ...filters, ingredients: toggleInList(filters.ingredients, ingredient) })
+        }
         last
       >
         {INGREDIENTS.map((ingredient) => (
