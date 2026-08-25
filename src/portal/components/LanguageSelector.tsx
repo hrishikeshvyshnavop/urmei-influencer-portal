@@ -146,7 +146,7 @@ export default function LanguageSelector() {
           ))}
           <div className="flex flex-col items-start gap-3 p-4">
             <p className="text-body-sm text-portal-text">
-              You are shopping on {selectedCountry.host}
+              Your storefront region is {selectedCountry.host}
             </p>
             <Button variant="portalOutline" onClick={() => setCountryModalOpen(true)}>
               Change Country
@@ -207,7 +207,7 @@ export default function LanguageSelector() {
                     ))}
                   </div>
                   <div className="rounded-lg bg-portal-surface p-4 text-body-sm text-portal-muted">
-                    You are shopping on {selectedCountry.host}
+                    Your storefront region is {selectedCountry.host}
                   </div>
                 </div>
               </section>
