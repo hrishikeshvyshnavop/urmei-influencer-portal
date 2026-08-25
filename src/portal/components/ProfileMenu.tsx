@@ -39,12 +39,14 @@ export default function ProfileMenu({
           <button
             type="button"
             aria-label="Open profile menu"
-            className="relative block size-9 cursor-pointer overflow-hidden rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
+            className="flex size-12 shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
           >
-            <ProfilePhoto
-              fallback="/urmei/home/profile-dropdown-avatar.png"
-              alt="Tan Ah Beng"
-            />
+            <span className="relative block size-9 shrink-0 overflow-hidden rounded-full">
+              <ProfilePhoto
+                fallback="/urmei/home/profile-dropdown-avatar.png"
+                alt="Tan Ah Beng"
+              />
+            </span>
           </button>
         </DropdownMenuTrigger>
 

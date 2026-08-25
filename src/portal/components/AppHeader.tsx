@@ -52,7 +52,7 @@ export default function AppHeader({
 
   return (
     <>
-      <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[16px] bg-portal-surface px-6 lg:px-[120px]">
+      <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[10px] bg-portal-surface px-6 lg:px-[120px]">
         <div className="flex items-center gap-8">
           <a
             href="#/home"
@@ -62,7 +62,7 @@ export default function AppHeader({
           >
             <img src="/urmei/home/logo.svg" alt="URMEI" className="h-4 w-[109px]" />
           </a>
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-4 md:flex">
             <a href="#/home" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">Home</a>
             <a href="#/shop" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">My Shop</a>
           </nav>
@@ -70,7 +70,7 @@ export default function AppHeader({
         <div className="flex items-center gap-3 lg:gap-6">
           <div className="relative hidden w-[300px] lg:block">
             <form onSubmit={(event) => { event.preventDefault(); submitSearch(); }} className="flex items-center gap-2 rounded-[6px] border border-portal-border px-3 py-2 focus-within:border-portal-dark" role="search">
-              <Search size={16} />
+              <Search size={16} className="shrink-0 text-portal-muted" />
               <input
                 type="search"
                 value={searchQuery}
@@ -106,25 +106,27 @@ export default function AppHeader({
               </li>)}
             </ul> : null}
           </div>
-          <LanguageSelector />
-          <button
-            type="button"
-            aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"}
-            onClick={() => {
-              markNotificationsAsRead();
-              setNotificationsOpen(true);
-            }}
-            className="relative flex size-12 cursor-pointer items-center justify-center"
-          >
-            <Bell size={20} />
-            {hasUnreadNotifications ? <span aria-hidden="true" className="absolute top-[9px] right-[12px] size-[5px] rounded-full bg-portal-alert" /> : null}
-          </button>
-          <ProfileMenu
-            onShowProfile={() => { window.location.hash = "#/manage-account"; }}
-            onShowTour={onShowTour}
-            onShowHelp={onShowHelp}
-            onLogout={() => { window.location.hash = "#/login"; }}
-          />
+          <div className="flex items-center justify-center">
+            <LanguageSelector />
+            <button
+              type="button"
+              aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"}
+              onClick={() => {
+                markNotificationsAsRead();
+                setNotificationsOpen(true);
+              }}
+              className="relative flex size-12 cursor-pointer items-center justify-center overflow-clip rounded-[6px]"
+            >
+              <Bell size={20} className="text-portal-text" />
+              {hasUnreadNotifications ? <span aria-hidden="true" className="absolute top-[9px] right-[15px] size-[5px] rounded-full bg-portal-alert" /> : null}
+            </button>
+            <ProfileMenu
+              onShowProfile={() => { window.location.hash = "#/manage-account"; }}
+              onShowTour={onShowTour}
+              onShowHelp={onShowHelp}
+              onLogout={() => { window.location.hash = "#/login"; }}
+            />
+          </div>
         </div>
       </header>
 
