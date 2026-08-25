@@ -3,7 +3,6 @@ import { AddProductTile } from '../components/AddProductTile'
 import { Button } from '../components/Button'
 import { EmptyShop } from '../components/EmptyShop'
 import { Icon } from '../components/Icon'
-import { ScaledBox } from '../components/ScaledBox'
 import { ShopProductCard } from '../components/ShopProductCard'
 import { StatsRow } from '../components/StatsRow'
 import { StoreCard } from '../components/StoreCard'
@@ -74,9 +73,7 @@ export function MyShop({
       onShowTour={() => { window.location.hash = '#/home/tour' }}
       onShowHelp={() => { window.location.hash = '#/help-center' }}
     >
-      <div className="flex min-h-[calc(100vh-88px)] w-full flex-none justify-center">
-      <ScaledBox width={1440} className="flex flex-col items-start">
-      <main className="flex w-full flex-col items-start gap-3xl px-margin pt-xxl pb-5xl">
+      <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-8 pb-16 lg:px-[120px]">
         <section className="flex w-full flex-col items-start gap-xl">
           <div className="flex flex-col gap-xs">
             <h1 className="text-h6 font-semibold text-text-secondary-1000 uppercase">My Shop</h1>
@@ -167,8 +164,6 @@ export function MyShop({
           </div>
         </section>
       </main>
-      </ScaledBox>
-      </div>
     </AppShell>
   )
 }

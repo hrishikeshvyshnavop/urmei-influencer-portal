@@ -55,7 +55,7 @@ export default function AppHeader({
   return (
     <>
       <header
-        className={`sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[10px] bg-portal-surface px-6 lg:px-[120px] ${
+        className={`sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[16px] bg-portal-surface px-6 lg:px-[120px] ${
           shadow ? "shadow-[0_2px_10px_rgba(34,34,34,0.04)]" : ""
         }`}
       >

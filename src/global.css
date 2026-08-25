@@ -131,6 +131,14 @@ body {
   overflow-x: hidden;
 }
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 /* Radix Select locks page scrolling while open. The document already reserves
    its scrollbar gutter, so react-remove-scroll-bar's extra margin causes a
    horizontal layout shift. Keep the lock, but remove duplicate compensation. */
