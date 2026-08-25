@@ -9,10 +9,11 @@ type StorefrontProfileCardProps = {
 }
 
 /**
- * The influencer card at the top of the storefront preview (Figma `917:53442`,
- * frame `970:79779`) — avatar, name/handle, follower counts across URMEI/TikTok/
- * Instagram, a "Follow" button (decorative — this is a preview, not the live
- * public storefront, so there's no real follow action), and a copy-link button.
+ * The influencer card at the top of the storefront preview (Figma `917:53526`,
+ * frame `1211:72383`) — avatar, name/handle, follower counts across URMEI/TikTok/
+ * Instagram, "Follow"/"Read bio" buttons (decorative — this is a preview, not
+ * the live public storefront, so neither has a real action), and a copy-link
+ * button.
  */
 export function StorefrontProfileCard({ onCopyLink }: StorefrontProfileCardProps) {
   return (
@@ -27,37 +28,37 @@ export function StorefrontProfileCard({ onCopyLink }: StorefrontProfileCardProps
               <p className="text-body-xxl font-semibold text-text-secondary-1000">{getSavedDisplayName('Charlotte')}</p>
               <p className="text-body-md font-medium text-text-secondary-700">@charlotte</p>
             </div>
-            <div className="flex items-center gap-xs">
-              <img src="/assets/img/urmei-mark.svg" alt="" className="h-[9px] w-[16.633px]" />
+            <div className="flex items-center gap-sm">
+              <img src="/urmei/home/follower.svg" alt="URMEI" className="h-[14px] w-[26px]" />
               <p className="text-body-sm font-medium text-text-secondary-700">
                 {FOLLOWER_STATS.urmei} Followers
               </p>
             </div>
             <div className="flex items-center gap-md">
               <div className="flex items-center gap-xs">
-                <Icon name="tiktok" srcSize={12} />
-                <p className="text-body-sm font-medium text-text-secondary-700">
-                  {FOLLOWER_STATS.tiktok} Followers
-                </p>
+                <Icon name="tiktok" size={12} />
+                <p className="text-body-sm font-medium text-text-secondary-700">{FOLLOWER_STATS.tiktok}</p>
               </div>
               <div className="flex items-center gap-xs">
-                <Icon name="instagram" srcSize={16} />
-                <p className="text-body-sm font-medium text-text-secondary-700">
-                  {FOLLOWER_STATS.instagram} Followers
-                </p>
+                <Icon name="instagram" size={16} />
+                <p className="text-body-sm font-medium text-text-secondary-700">{FOLLOWER_STATS.instagram}</p>
               </div>
             </div>
           </div>
-          <Button className="w-[132px]">Follow</Button>
+          <div className="flex items-start gap-ten">
+            <Button className="w-[132px]">Follow</Button>
+            <Button variant="outline" className="w-[132px]">Read bio</Button>
+          </div>
         </div>
       </div>
 
       <button
         type="button"
         onClick={onCopyLink}
-        className="flex shrink-0 items-center gap-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
+        className="flex shrink-0 items-center gap-sm rounded-md px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
       >
-        Copy Share Link
+        Copy shop Link
+        <Icon name="copy" />
       </button>
     </div>
   )

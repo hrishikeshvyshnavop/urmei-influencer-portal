@@ -1,0 +1,80 @@
+import { PRODUCTS } from './data/catalogue'
+import type { ShopItem } from './types'
+
+const ITEMS_KEY = 'urmei.shop-items'
+const PUBLISHED_AT_KEY = 'urmei.shop-published-at'
+const UNPUBLISHED_CHANGES_KEY = 'urmei.shop-has-unpublished-changes'
+
+type PersistedShopItem = { id: string; productId: string; featured: boolean }
+
+/**
+ * `src/App.tsx` fully remounts the shop screen on every hash change (`Fragment
+ * key={hash}`), which would otherwise wipe `shop/App.tsx`'s in-memory item
+ * list whenever the user navigates to Home and back. Persisting here keeps
+ * added products, publish state, and unpublished-changes across that
+ * remount. Only the product id + featured flag are stored; the product
+ * itself is always looked up fresh from the catalogue, so a persisted entry
+ * for a product that no longer exists is dropped instead of crashing.
+ */
+export function loadShopItems(): ShopItem[] {
+  try {
+    const raw = window.localStorage.getItem(ITEMS_KEY)
+    if (!raw) return []
+    const parsed = JSON.parse(raw) as PersistedShopItem[]
+    return parsed
+      .map((entry) => {
+        const product = PRODUCTS.find((item) => item.id === entry.productId)
+        return product ? { id: entry.id, product, featured: entry.featured } : null
+      })
+      .filter((item): item is ShopItem => item !== null)
+  } catch {
+    return []
+  }
+}
+
+export function saveShopItems(items: ShopItem[]) {
+  try {
+    const persisted: PersistedShopItem[] = items.map((item) => ({
+      id: item.id,
+      productId: item.product.id,
+      featured: item.featured,
+    }))
+    window.localStorage.setItem(ITEMS_KEY, JSON.stringify(persisted))
+  } catch {
+    // The current session still works when storage is unavailable.
+  }
+}
+
+export function loadPublishedAt(): string | null {
+  try {
+    return window.localStorage.getItem(PUBLISHED_AT_KEY)
+  } catch {
+    return null
+  }
+}
+
+export function savePublishedAt(value: string | null) {
+  try {
+    if (value === null) window.localStorage.removeItem(PUBLISHED_AT_KEY)
+    else window.localStorage.setItem(PUBLISHED_AT_KEY, value)
+  } catch {
+    // The current session still works when storage is unavailable.
+  }
+}
+
+export function loadHasUnpublishedChanges(): boolean {
+  try {
+    return window.localStorage.getItem(UNPUBLISHED_CHANGES_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function saveHasUnpublishedChanges(value: boolean) {
+  try {
+    if (value) window.localStorage.setItem(UNPUBLISHED_CHANGES_KEY, '1')
+    else window.localStorage.removeItem(UNPUBLISHED_CHANGES_KEY)
+  } catch {
+    // The current session still works when storage is unavailable.
+  }
+}

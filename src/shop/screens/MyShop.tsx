@@ -1,4 +1,5 @@
 import AppShell from '../../portal/components/AppShell'
+import SetupBanner from '../../portal/components/SetupBanner'
 import { AddProductTile } from '../components/AddProductTile'
 import { Button } from '../components/Button'
 import { EmptyShop } from '../components/EmptyShop'
@@ -73,6 +74,7 @@ export function MyShop({
       onShowTour={() => { window.location.hash = '#/home/tour' }}
       onShowHelp={() => { window.location.hash = '#/help-center' }}
     >
+      <SetupBanner />
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-8 pb-16 lg:px-[120px]">
         <section className="flex w-full flex-col items-start gap-xl">
           <div className="flex flex-col gap-xs">

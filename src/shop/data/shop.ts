@@ -4,20 +4,11 @@
 
 export const SHOP_URL = 'urmei.com/shop/charlotte'
 
-/**
- * Publishing is blocked until the influencer's profile is complete — frame
- * `04 publish-shop / my-shop / Publish Failed-dialog`. The section documents the
- * blocked dialog but not the profile form itself, so this seeds the state:
- * leave it `true` for the happy path (frames 01 → 02 → 03), set it `false` to
- * start blocked and see frame 04.
- */
-export const PROFILE_COMPLETE = true
-
-/** Follower counts shown on the influencer profile card (Shop Preview, `917:53442`). */
+/** Follower counts shown on the influencer profile card (Shop Preview, `917:53526`). */
 export const FOLLOWER_STATS = {
-  urmei: 203,
-  tiktok: 445,
-  instagram: 375,
+  urmei: 445,
+  tiktok: '1.5k',
+  instagram: 200,
 }
 
 /**
