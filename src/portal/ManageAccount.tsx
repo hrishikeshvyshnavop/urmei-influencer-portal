@@ -63,7 +63,13 @@ function isPaymentConnected() {
   }
 }
 
-export default function ManageAccount() {
+export type ManageAccountSection = "Profile" | "Social accounts" | "Identity" | "Payouts" | "Shipping addresses";
+
+export default function ManageAccount({
+  initialSection = "Profile",
+}: {
+  initialSection?: ManageAccountSection;
+} = {}) {
   const photoInput = useRef<HTMLInputElement>(null);
   const [photoVersion, setPhotoVersion] = useState(0);
   const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
@@ -75,7 +81,7 @@ export default function ManageAccount() {
   const [dob, setDob] = useState(initialProfile.dob);
   const [savedProfile, setSavedProfile] = useState(initialProfile);
   const [saved, setSaved] = useState(false);
-  const [activeSection, setActiveSection] = useState<"Profile" | "Social accounts" | "Identity" | "Payouts" | "Shipping addresses">("Profile");
+  const [activeSection, setActiveSection] = useState<ManageAccountSection>(initialSection);
   const [connectedSocials, setConnectedSocials] = useState(["instagram", "tiktok"]);
   const [identityVerified, setIdentityVerified] = useState(isIdentityVerified);
   const [identityPending, setIdentityPending] = useState(false);

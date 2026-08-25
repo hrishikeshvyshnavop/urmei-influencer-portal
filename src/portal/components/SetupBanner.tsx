@@ -24,9 +24,14 @@ export function isProfileSetupComplete(): boolean {
 }
 
 /** Where "Complete action"/"Complete profile" should send the user: identity
- *  first, then payment, matching the order `Onboarding.tsx` presents them in. */
-export function getSetupNextRoute(): string {
-  return hasCompletedAction(VERIFICATION_STORAGE_KEY) ? "#/payment" : "#/verify";
+ *  first, then payment, matching the order `Onboarding.tsx` presents them in.
+ *  Deep-links into Manage Account's matching section rather than the
+ *  standalone onboarding accordion, so verifying happens from the user's
+ *  profile. */
+export function getSetupManageAccountRoute(): string {
+  return hasCompletedAction(VERIFICATION_STORAGE_KEY)
+    ? "#/manage-account/payouts"
+    : "#/manage-account/identity";
 }
 
 /**
@@ -58,7 +63,7 @@ export default function SetupBanner() {
         variant="portalOutline"
         className="shrink-0 bg-[#fffefd]"
         onClick={() => {
-          window.location.hash = getSetupNextRoute();
+          window.location.hash = getSetupManageAccountRoute();
         }}
       >
         Complete action

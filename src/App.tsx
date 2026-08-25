@@ -265,6 +265,10 @@ function screenFor(
       return <RecentActivitiesPage />;
     case "#/manage-account":
       return <ManageAccount />;
+    case "#/manage-account/identity":
+      return <ManageAccount initialSection="Identity" />;
+    case "#/manage-account/payouts":
+      return <ManageAccount initialSection="Payouts" />;
     case "#/shop":
       return <ShopExperience />;
     case "#/shop/browse":
