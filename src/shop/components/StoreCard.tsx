@@ -33,7 +33,6 @@ export function StoreCard({
   onPreview,
   onViewShop,
 }: StoreCardProps) {
-  const previewEnabled = published || publishBlocked
   return (
     <div
       className={[
@@ -61,8 +60,20 @@ export function StoreCard({
 
         <div className="flex flex-col items-end justify-center gap-[15px]">
           <div className="flex items-center gap-md-sm">
-            {previewEnabled ? (
+            {published ? (
               <Button variant="outline" onClick={onPreview} leftIcon={<Icon name="eye-enabled" />}>
+                Preview Storefront
+              </Button>
+            ) : publishBlocked ? (
+              // Clickable, but still rendered muted — the shop never
+              // actually went live, so the button looks the same as the
+              // disabled case even though Preview works (Figma `1362:73958`).
+              <Button
+                variant="ghost"
+                onClick={onPreview}
+                leftIcon={<Icon name="eye" />}
+                className="font-normal text-text-secondary-500"
+              >
                 Preview Storefront
               </Button>
             ) : (
