@@ -27,12 +27,14 @@ const productImages = [
   { productId: "sulwhasoo-first-care", image: "/urmei/home/product-4.png", title: "First Care Activating Serum" },
 ];
 
-const products = [0, 1].flatMap((page) =>
-  productImages.map((product, index) => ({
-    ...product,
-    id: `${page}-${index}`,
-  })),
-);
+// Backfills the carousel once a curated product above has been added to the
+// shop (and so is filtered out of "Recommended") — pulled from the wider
+// catalogue so the section always has 4 items to show.
+const recommendedFallbacks = PRODUCTS.filter(
+  (product) => !productImages.some((item) => item.productId === product.id),
+).map((product) => ({ productId: product.id, image: product.shopCardImage, title: product.name }));
+
+const recommendedPool = [...productImages, ...recommendedFallbacks];
 
 const questions = [
   ["Can I upload tutorials and reviews?", "Yes. You can add tutorials and product reviews to content linked from your shop."],
@@ -242,9 +244,12 @@ export default function Home({
             onScroll={updateCarouselControls}
             className="flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {products.map((product) => (
+            {recommendedPool
+              .filter((product) => !shopItems.some((item) => item.product.id === product.productId))
+              .slice(0, 4)
+              .map((product) => (
               <ProductCard
-                key={product.id}
+                key={product.productId}
                 {...product}
                 onAdd={(productId) => setPendingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
                 onViewDetails={(productId) => setViewingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
