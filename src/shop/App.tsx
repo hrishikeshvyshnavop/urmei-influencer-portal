@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
+import { logShopActivity } from './activity-log'
 import { AddToShopModal } from './components/AddToShopModal'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
-import { getSetupNextRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
+import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { PRODUCTS, searchProducts } from './data/catalogue'
-import { SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
+import { DEPLOYED_APP_URL, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
 import { BrowseOverlay } from './screens/BrowseOverlay'
 import { CatalogueHome } from './screens/CatalogueHome'
 import { MyShop } from './screens/MyShop'
@@ -128,6 +129,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     } else {
       setToast({ message: 'Product added to your shop' })
     }
+    logShopActivity('product-added', `${pendingProduct.brand} ${pendingProduct.name}`)
     markChanged()
   }
 
@@ -138,6 +140,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setHasUnpublishedChanges(false)
     setShopPublished(true)
     setToast({ message: 'Your shop published successfully' })
+    logShopActivity('shop-published')
   }
 
   function toggleFeatured(item: ShopItem) {
@@ -146,6 +149,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
         current.map((row) => (row.id === item.id ? { ...row, featured: false } : row)),
       )
       setToast({ message: 'Product Removed From Featured' })
+      logShopActivity('product-unfeatured', `${item.product.brand} ${item.product.name}`)
       markChanged()
       return
     }
@@ -157,6 +161,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
 
     setItems((current) => current.map((row) => (row.id === item.id ? { ...row, featured: true } : row)))
     setToast({ message: 'Product Added to Featured' })
+    logShopActivity('product-featured', `${item.product.brand} ${item.product.name}`)
     markChanged()
   }
 
@@ -166,6 +171,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setViewingItemId((current) => (current === item.id ? null : current))
     setRemovalCandidate(null)
     setToast({ message: 'Product removed from your shop' })
+    logShopActivity('product-removed', `${item.product.brand} ${item.product.name}`)
     markChanged()
   }
 
@@ -253,6 +259,9 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onTabChange={setActiveTab}
           onBrowse={openCatalogue}
           onPreview={() => setPreviewOpen(true)}
+          onViewShop={() => {
+            window.open(`${DEPLOYED_APP_URL}/#/shop/view`, '_blank')
+          }}
           published={publishedAt !== null}
           publishedAt={publishedAt}
           hasUnpublishedChanges={hasUnpublishedChanges}
@@ -317,7 +326,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           profileComplete={profileComplete}
           onClose={() => setPublishOpen(false)}
           onPublish={confirmPublish}
-          onCompleteProfile={() => { window.location.hash = getSetupNextRoute() }}
+          onCompleteProfile={() => { window.location.hash = getSetupManageAccountRoute() }}
         />
       )}
 

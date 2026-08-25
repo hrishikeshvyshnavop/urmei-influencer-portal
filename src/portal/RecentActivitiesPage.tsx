@@ -1,18 +1,15 @@
 import { useState } from "react";
-import { ChevronRight, DollarSign, Megaphone } from "lucide-react";
+import { ChevronRight, Megaphone } from "lucide-react";
 import AppShell from "./components/AppShell";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../shop/activity-log";
 
-const activities = [
-  { id: 1, type: "commission", title: "Commission Earned:", amount: "S$1.5", detail: "From ahc youth focus essence", time: "Today, 4:15 PM" },
-  { id: 2, type: "commission", title: "Commission Earned:", amount: "S$1", detail: "From ahc youth focus essence", time: "Today, 4:12 PM" },
-  { id: 3, type: "commission", title: "Commission Earned:", amount: "S$1", detail: "From ahc youth focus essence", time: "Today, 4:00 PM" },
-  { id: 4, type: "commission", title: "Commission Earned:", amount: "S$1", detail: "From ahc youth focus essence", time: "Today, 3:56 PM" },
-  { id: 5, type: "campaign", title: "Campaign Created", detail: "Mamonde rose water toner", time: "Yesterday, 5:55 PM" },
-] as const;
+const DAY_MS = 24 * 60 * 60 * 1000;
 
 export default function RecentActivitiesPage() {
   const [period, setPeriod] = useState("7");
+  const cutoff = Date.now() - Number(period) * DAY_MS;
+  const activities = loadShopActivities().filter((activity) => activity.at >= cutoff);
 
   return (
     <AppShell
@@ -38,22 +35,26 @@ export default function RecentActivitiesPage() {
 
         <section className="pt-2">
           <h1 className="track-section pb-4 text-body-md font-medium uppercase">Recent Activities</h1>
-          <div>
-            {activities.map((activity, index) => (
-              <article key={activity.id} className={`flex items-start gap-2.5 py-4 ${index < activities.length - 1 ? "border-b border-portal-border" : ""}`}>
-                <div className="flex min-w-0 flex-1 items-start gap-3">
-                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-portal-tint">
-                    {activity.type === "commission" ? <DollarSign aria-hidden="true" className="size-4" strokeWidth={1.5} /> : <Megaphone aria-hidden="true" className="size-4" strokeWidth={1.5} />}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center gap-1 text-body-md"><span className="font-medium">{activity.title}</span>{"amount" in activity ? <span className="font-semibold">{activity.amount}</span> : null}</span>
-                    <span className="block text-body-sm text-portal-muted">{activity.detail}</span>
-                  </span>
-                </div>
-                <time className="shrink-0 text-body-xs text-portal-muted">{activity.time}</time>
-              </article>
-            ))}
-          </div>
+          {activities.length === 0 ? (
+            <p className="py-4 text-body-sm text-portal-muted">Nothing here yet — actions like adding a product or publishing your shop will show up here.</p>
+          ) : (
+            <div>
+              {activities.map((activity, index) => (
+                <article key={activity.id} className={`flex items-start gap-2.5 py-4 ${index < activities.length - 1 ? "border-b border-portal-border" : ""}`}>
+                  <div className="flex min-w-0 flex-1 items-start gap-3">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-portal-tint">
+                      <Megaphone aria-hidden="true" className="size-4" strokeWidth={1.5} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-body-md font-medium">{ACTIVITY_LABELS[activity.type]}</span>
+                      {activity.detail ? <span className="block text-body-sm text-portal-muted">{activity.detail}</span> : null}
+                    </span>
+                  </div>
+                  <time className="shrink-0 text-body-xs text-portal-muted">{formatActivityTime(activity.at)}</time>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
       </main>
 

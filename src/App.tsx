@@ -22,6 +22,7 @@ import HelpCenter from "./portal/HelpCenter";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
 import ManageAccount from "./portal/ManageAccount";
 import ShopExperience from "./shop/App";
+import { StandaloneStorefront } from "./shop/screens/StandaloneStorefront";
 
 // This project has no router, so the portal screens are selected by hash.
 function subscribe(onChange: () => void) {
@@ -273,6 +274,8 @@ function screenFor(
       return <ShopExperience />;
     case "#/shop/browse":
       return <ShopExperience initialBrowse />;
+    case "#/shop/view":
+      return <StandaloneStorefront />;
 
     // Password reset
     case "#/forgot-password":

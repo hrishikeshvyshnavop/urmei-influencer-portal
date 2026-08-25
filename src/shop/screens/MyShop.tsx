@@ -17,6 +17,7 @@ type MyShopProps = {
   onTabChange: (id: string) => void
   onBrowse: () => void
   onPreview: () => void
+  onViewShop: () => void
   published: boolean
   publishedAt: string | null
   hasUnpublishedChanges: boolean
@@ -35,6 +36,7 @@ export function MyShop({
   onTabChange,
   onBrowse,
   onPreview,
+  onViewShop,
   published,
   publishedAt,
   hasUnpublishedChanges,
@@ -94,6 +96,7 @@ export function MyShop({
                 hasUnpublishedChanges={hasUnpublishedChanges}
                 onPublish={onPublish}
                 onPreview={onPreview}
+                onViewShop={onViewShop}
               />
               {published && (
                 <StatsRow
