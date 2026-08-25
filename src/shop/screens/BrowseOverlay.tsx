@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { ScaledBox } from '../components/ScaledBox'
 import { Icon } from '../components/Icon'
 
@@ -7,6 +7,11 @@ type BrowseOverlayProps = {
   children: ReactNode
   /** Defaults to the catalogue-browse heading; overridden for other reuses of this shell. */
   title?: string
+  /** Identifies which view is showing (catalogue/results/detail, plus the
+   *  product id for detail) — changing it resets the body's scroll to the
+   *  top, since navigating between views swaps `children` in place rather
+   *  than remounting this overlay or its scrolling container. */
+  scrollKey?: string
 }
 
 /**
@@ -23,14 +28,33 @@ type BrowseOverlayProps = {
  * inside it could never actually stick. Keeping it outside the scrolling body
  * entirely sidesteps that rather than fighting it.
  */
-export function BrowseOverlay({ onClose, children, title = 'Browse and find products to add' }: BrowseOverlayProps) {
+export function BrowseOverlay({ onClose, children, title = 'Browse and find products to add', scrollKey }: BrowseOverlayProps) {
+  const bodyRef = useRef<HTMLDivElement>(null)
+
+  // `html { scrollbar-gutter: stable }` (global.css) permanently reserves the
+  // scrollbar's width so toggling scroll elsewhere in the app never shifts
+  // layout — but that reservation also caps `vw`/`fixed inset-0` a scrollbar's
+  // width short of the true window edge, so the scrim's right side never
+  // reaches it, leaving a sliver of the page showing through undimmed. Safe
+  // to lift only while this fully covers the screen: nothing behind it can
+  // shift layout since it's hidden, and scrolling is locked below anyway.
   useEffect(() => {
-    const previous = document.body.style.overflow
+    const previousBody = document.body.style.overflow
+    const previousHtml = document.documentElement.style.overflow
+    const previousGutter = document.documentElement.style.scrollbarGutter
     document.body.style.overflow = 'hidden'
+    document.documentElement.style.overflow = 'hidden'
+    document.documentElement.style.scrollbarGutter = 'auto'
     return () => {
-      document.body.style.overflow = previous
+      document.body.style.overflow = previousBody
+      document.documentElement.style.overflow = previousHtml
+      document.documentElement.style.scrollbarGutter = previousGutter
     }
   }, [])
+
+  useEffect(() => {
+    bodyRef.current?.scrollTo(0, 0)
+  }, [scrollKey])
 
   return (
     <div
@@ -59,7 +83,7 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
         </ScaledBox>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-surface-secondary-100">
+      <div ref={bodyRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-surface-secondary-100">
         <div className="flex min-h-full w-full justify-center" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
           <ScaledBox width={1440} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">
             {children}

@@ -98,7 +98,7 @@ export function ShopProductCard({
               <p className="truncate text-body-md font-medium text-text-secondary-1000">
                 {product.name}
               </p>
-              <p className="text-body-xs text-text-secondary-700">{product.shopVariant}</p>
+              <p className="text-body-xs text-text-secondary-700">{item.variant}</p>
             </div>
             <div className="flex w-full items-center gap-sm">
               <p className="text-body-md font-medium text-text-secondary-1000">{product.price}</p>

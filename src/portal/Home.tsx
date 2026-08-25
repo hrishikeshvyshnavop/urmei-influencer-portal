@@ -144,6 +144,7 @@ export default function Home({
     if (!item) return undefined;
     return {
       featured: item.featured,
+      variant: item.variant,
       onToggleFeatured: () => toggleFeaturedFromHome(item),
       onRemoveFromShop: () => removeFromShopFromHome(item),
       affiliateLink: affiliateLinkFor(item.product),

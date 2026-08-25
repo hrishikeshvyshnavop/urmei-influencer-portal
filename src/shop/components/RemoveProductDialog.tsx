@@ -3,6 +3,9 @@ import { Icon } from './Icon'
 
 type RemoveProductDialogProps = {
   product: Product
+  /** The variant actually chosen when this item was added to the shop —
+   *  distinct from the product's catalogue-wide default `product.variant`. */
+  variant: string
   onClose: () => void
   onConfirm: () => void
 }
@@ -12,7 +15,7 @@ type RemoveProductDialogProps = {
  * same info-card layout as `AddToShopModal` (image, availability banner,
  * price + commission badge), just for the opposite action.
  */
-export function RemoveProductDialog({ product, onClose, onConfirm }: RemoveProductDialogProps) {
+export function RemoveProductDialog({ product, variant, onClose, onConfirm }: RemoveProductDialogProps) {
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-scrim" role="presentation">
       <div
@@ -58,7 +61,7 @@ export function RemoveProductDialog({ product, onClose, onConfirm }: RemoveProdu
                     </p>
                     <p className="text-body-sm text-text-secondary-1000">{product.name}</p>
                   </div>
-                  <p className="text-body-xs text-text-secondary-700">{product.variant}</p>
+                  <p className="text-body-xs text-text-secondary-700">{variant}</p>
                 </div>
 
                 <div className="flex w-full items-center gap-[6px]">

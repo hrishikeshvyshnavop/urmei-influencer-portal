@@ -31,8 +31,8 @@ export default function TopProducts({ items }: { items: ShopItem[] }) {
   const topProducts = Array.from(
     new Map(
       items.map((item) => [
-        `${item.product.name.trim().toLocaleLowerCase()}::${item.product.shopVariant.trim().toLocaleLowerCase()}`,
-        item.product,
+        `${item.product.name.trim().toLocaleLowerCase()}::${item.variant.trim().toLocaleLowerCase()}`,
+        item,
       ]),
     ).values(),
   ).slice(0, 4);
@@ -47,9 +47,9 @@ export default function TopProducts({ items }: { items: ShopItem[] }) {
         </h2>
 
         <div className="grid w-full grid-cols-2 items-start gap-4 lg:grid-cols-4">
-          {topProducts.map((product) => (
+          {topProducts.map(({ product, variant }) => (
             <div
-              key={`${product.id}-${product.shopVariant}`}
+              key={`${product.id}-${variant}`}
               className="flex min-w-px flex-col items-start"
             >
               <div className="relative aspect-[1080/1350] w-full shrink-0 overflow-hidden rounded-[6px]">

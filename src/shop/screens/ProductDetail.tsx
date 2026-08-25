@@ -8,6 +8,9 @@ type BreadcrumbItem = { label: string; onClick?: () => void }
 
 export type ShopMode = {
   featured: boolean
+  /** The variant actually chosen when this item was added to the shop —
+   *  distinct from the product's catalogue-wide `variant`/`variantOptions`. */
+  variant: string
   onToggleFeatured: () => void
   onRemoveFromShop: () => void
   affiliateLink: string
@@ -141,7 +144,7 @@ export function ProductDetail({
                     {product.name}
                   </p>
                   {shopMode && (
-                    <p className="text-body-md text-text-secondary-700">{product.shopVariant}</p>
+                    <p className="text-body-md text-text-secondary-700">{shopMode.variant}</p>
                   )}
                 </div>
                 <div className="flex w-full items-center gap-[6px]">

@@ -223,11 +223,12 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   // including clearing the box back down to nothing.
   const results = overlay?.kind === 'results' ? searchProducts(query) : []
 
-  /** Builds the featured/remove/affiliate-link controls shared by both places
-   *  ProductDetail is reused for an item that's already in the shop. */
+  /** Builds the featured/remove/affiliate-link controls for the standalone
+   *  Product Detail page of an item already in the shop. */
   function shopModeFor(item: ShopItem, showPerformance: boolean) {
     return {
       featured: item.featured,
+      variant: item.variant,
       onToggleFeatured: () => toggleFeatured(item),
       onRemoveFromShop: () => setRemovalCandidate(item),
       affiliateLink: affiliateLinkFor(item.product),
@@ -275,7 +276,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       )}
 
       {overlay && (
-        <BrowseOverlay onClose={() => setOverlay(null)}>
+        <BrowseOverlay
+          onClose={() => setOverlay(null)}
+          scrollKey={overlay.kind === 'detail' ? `detail:${overlay.product.id}` : overlay.kind}
+        >
           {overlay.kind === 'catalogue' && (
             <CatalogueHome query={query} onQueryChange={setQuery} onSearch={runSearch} />
           )}
@@ -294,20 +298,15 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
             />
           )}
 
-          {overlay.kind === 'detail' &&
-            (() => {
-              const shopItem = items.find((item) => item.product.id === overlay.product.id)
-              return (
-                <ProductDetail
-                  product={overlay.product}
-                  animateOnMount
-                  onBackToCatalogue={openCatalogue}
-                  onBackToResults={() => setOverlay({ kind: 'results', query: overlay.query })}
-                  onAddToShop={() => setPendingProduct(overlay.product)}
-                  shopMode={shopItem ? shopModeFor(shopItem, false) : undefined}
-                />
-              )
-            })()}
+          {overlay.kind === 'detail' && (
+            <ProductDetail
+              product={overlay.product}
+              animateOnMount
+              onBackToCatalogue={openCatalogue}
+              onBackToResults={() => setOverlay({ kind: 'results', query: overlay.query })}
+              onAddToShop={() => setPendingProduct(overlay.product)}
+            />
+          )}
         </BrowseOverlay>
       )}
 
@@ -337,6 +336,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       {removalCandidate && (
         <RemoveProductDialog
           product={removalCandidate.product}
+          variant={removalCandidate.variant}
           onClose={() => setRemovalCandidate(null)}
           onConfirm={() => performRemoveFromShop(removalCandidate)}
         />
