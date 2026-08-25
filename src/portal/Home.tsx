@@ -5,9 +5,7 @@ import Button from "./components/Button";
 import RecentActivities from "./components/RecentActivities";
 import TopProducts from "./components/TopProducts";
 import ProfilePhoto from "./components/ProfilePhoto";
-import { VERIFICATION_STORAGE_KEY } from "./VerificationPartner";
-import { PAYMENT_STORAGE_KEY } from "./PaymentPartner";
-import { isSetupRequired } from "./setup-status";
+import SetupBanner from "./components/SetupBanner";
 import { useHasShopItems, useIsShopPublished } from "../shop/shop-status";
 import ShopUrl from "./components/ShopUrl";
 import { PRODUCTS } from "../shop/data/catalogue";
@@ -36,16 +34,6 @@ const questions = [
   ["How many campaigns can I run?", "You can participate in every campaign for which your profile is eligible."],
   ["Do I need design skills to start?", "No. URMEI provides product assets and guided tools to help you publish."],
 ];
-
-function hasCompletedAction(storageKey: string) {
-  try {
-    const value = window.localStorage.getItem(storageKey);
-    if (!value) return false;
-    return (JSON.parse(value) as { status?: string }).status === "complete";
-  } catch {
-    return false;
-  }
-}
 
 function ProductCard({ productId, image, title, onAdd }: { productId: string; image: string; title: string; onAdd: (productId: string) => void }) {
   return (
@@ -83,16 +71,7 @@ export default function Home({
   const [showAddedToast, setShowAddedToast] = useState(false);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
-  const [identityComplete] = useState(() =>
-    hasCompletedAction(VERIFICATION_STORAGE_KEY),
-  );
-  const [paymentComplete] = useState(() =>
-    hasCompletedAction(PAYMENT_STORAGE_KEY),
-  );
-  const [setupWasSkipped] = useState(isSetupRequired);
   const productsRef = useRef<HTMLDivElement>(null);
-  const setupComplete =
-    identityComplete && paymentComplete && !setupWasSkipped;
 
   const updateCarouselControls = () => {
     const carousel = productsRef.current;
@@ -134,33 +113,7 @@ export default function Home({
       onShowHelp={() => { window.location.hash = "#/help-center"; }}
     >
 
-      {!setupComplete ? (
-        <aside
-          className="flex w-full flex-col items-start justify-between gap-3 border-b border-[#e6e5e4] bg-[#fffefd] px-6 py-3 sm:flex-row sm:items-center lg:px-[120px]"
-          aria-label="Account setup required"
-        >
-          <div className="flex min-w-0 items-start gap-3 sm:items-center">
-            <img
-              src="/urmei/icon-triangle-alert.svg"
-              alt=""
-              className="mt-px size-5 shrink-0 sm:mt-0"
-            />
-            <p className="text-body-md font-medium text-[#2d2305]">
-              To publish your shop, you need to verify your identity and connect
-              a payment method.
-            </p>
-          </div>
-          <Button
-            variant="portalOutline"
-            className="shrink-0 bg-[#fffefd]"
-            onClick={() => {
-              window.location.hash = identityComplete ? "#/payment" : "#/verify";
-            }}
-          >
-            Complete action
-          </Button>
-        </aside>
-      ) : null}
+      <SetupBanner />
 
       <main className="mx-auto flex w-full max-w-[1440px] flex-col px-6 py-8 lg:px-[120px]">
         <section className="overflow-hidden rounded-[10px] bg-portal-surface shadow-[0_4px_10px_rgba(0,0,0,0.03)]">

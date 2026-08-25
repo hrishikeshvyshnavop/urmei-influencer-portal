@@ -3,8 +3,9 @@ import { AddToShopModal } from './components/AddToShopModal'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
+import { getSetupNextRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { PRODUCTS, searchProducts } from './data/catalogue'
-import { PROFILE_COMPLETE, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
+import { SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
 import { BrowseOverlay } from './screens/BrowseOverlay'
 import { CatalogueHome } from './screens/CatalogueHome'
 import { MyShop } from './screens/MyShop'
@@ -12,6 +13,14 @@ import { ProductDetail } from './screens/ProductDetail'
 import { ProductDetailPage } from './screens/ProductDetailPage'
 import { SearchResults } from './screens/SearchResults'
 import { StorefrontPreview } from './screens/StorefrontPreview'
+import {
+  loadHasUnpublishedChanges,
+  loadPublishedAt,
+  loadShopItems,
+  saveHasUnpublishedChanges,
+  savePublishedAt,
+  saveShopItems,
+} from './shop-items-store'
 import { setShopItemCount, setShopPublished } from './shop-status'
 import type { OverlayView, Product, ShopItem } from './types'
 
@@ -30,7 +39,7 @@ type ToastState = {
 }
 
 export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string }) {
-  const [items, setItems] = useState<ShopItem[]>([])
+  const [items, setItems] = useState<ShopItem[]>(loadShopItems)
   const [activeTab, setActiveTab] = useState('all')
   const [overlay, setOverlay] = useState<OverlayView | null>(() => {
     if (initialProductId) {
@@ -43,19 +52,27 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [query, setQuery] = useState(initialSearch ?? '')
   const [pendingProduct, setPendingProduct] = useState<Product | null>(() => initialAddProductId ? PRODUCTS.find((item) => item.id === initialAddProductId) ?? null : null)
   const [toast, setToast] = useState<ToastState | null>(null)
-  const [nextId, setNextId] = useState(1)
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
   const [removalCandidate, setRemovalCandidate] = useState<ShopItem | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
 
   const [publishOpen, setPublishOpen] = useState(false)
-  const [profileComplete, setProfileComplete] = useState(PROFILE_COMPLETE)
-  const [publishedAt, setPublishedAt] = useState<string | null>(null)
-  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false)
+  const [profileComplete] = useState(isProfileSetupComplete)
+  const [publishedAt, setPublishedAt] = useState<string | null>(loadPublishedAt)
+  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(loadHasUnpublishedChanges)
 
   useEffect(() => {
     setShopItemCount(items.length)
-  }, [items.length])
+    saveShopItems(items)
+  }, [items])
+
+  useEffect(() => {
+    savePublishedAt(publishedAt)
+  }, [publishedAt])
+
+  useEffect(() => {
+    saveHasUnpublishedChanges(hasUnpublishedChanges)
+  }, [hasUnpublishedChanges])
 
   useEffect(() => {
     if (!toast) return
@@ -103,9 +120,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     const slotsFull = featured && featuredCount >= MAX_FEATURED
     setItems((current) => [
       ...current,
-      { id: `shop-item-${nextId}`, product: pendingProduct, featured: featured && !slotsFull },
+      { id: crypto.randomUUID(), product: pendingProduct, featured: featured && !slotsFull },
     ])
-    setNextId((current) => current + 1)
     setPendingProduct(null)
     if (slotsFull) {
       showFeaturedSlotsFullToast()
@@ -301,8 +317,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           profileComplete={profileComplete}
           onClose={() => setPublishOpen(false)}
           onPublish={confirmPublish}
-          /* Stands in for navigating to profile settings, which this section does not cover. */
-          onCompleteProfile={() => setProfileComplete(true)}
+          onCompleteProfile={() => { window.location.hash = getSetupNextRoute() }}
         />
       )}
 

@@ -127,7 +127,7 @@ export function AddToShopModal({
             <div className="flex w-full items-center justify-between rounded-[12px] bg-surface-secondary-300 p-md-sm">
               <div className="flex flex-col justify-center gap-[2px]">
                 <p className="text-body-sm text-surface-secondary-1000">Feature on home storefront</p>
-                <p className="text-body-xxs font-medium text-text-secondary-700">
+                <p className="text-body-xs font-medium text-text-secondary-700">
                   {nextFeaturedCount}/{featuredLimit} Featured products added
                 </p>
               </div>
