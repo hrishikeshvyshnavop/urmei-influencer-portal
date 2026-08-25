@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
+import { getSavedDisplayName } from '../../portal/profile-status'
 import { Icon } from '../components/Icon'
 import { ScaledBox } from '../components/ScaledBox'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
@@ -90,7 +91,7 @@ function AllPicks({ items }: { items: ShopItem[] }) {
   return (
     <section className="flex w-full flex-col items-center gap-md-2 px-margin py-3xl">
       <p className="w-full max-w-[1200px] text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
-        All picks by Charlotte
+        All picks by {getSavedDisplayName('Charlotte')}
       </p>
       <div className="grid w-full max-w-[1200px] grid-cols-4 gap-lg">
         {visible.map((item) => (

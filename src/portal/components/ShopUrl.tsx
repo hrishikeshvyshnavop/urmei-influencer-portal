@@ -40,16 +40,32 @@ export default function ShopUrl({
     </>
   );
 
-  const classes = variant === "field"
-    ? "flex w-full items-center rounded-[6px] bg-[#f8f8f8] px-4 py-3 text-left font-normal"
-    : variant === "shop"
-      ? "flex w-[297px] max-w-full items-center justify-between rounded-md border border-portal-border bg-portal-light px-3 py-1.5 text-left"
-      : "flex w-[297px] max-w-full items-center justify-between rounded-lg border border-portal-border bg-[#fffefd] px-3 py-1.5 text-left";
+  const classes = variant === "shop"
+    ? "flex w-[297px] max-w-full items-center justify-between rounded-md border border-portal-border bg-portal-light px-3 py-1.5 text-left"
+    : "flex w-[297px] max-w-full items-center justify-between rounded-lg border border-portal-border bg-[#fffefd] px-3 py-1.5 text-left";
 
   const control = published ? <button type="button" onClick={() => void copy()} aria-label="Copy shop URL" className={classes}>{content}</button> : <div aria-label="Shop URL: publish shop to get your URL" className={classes}>{content}</div>;
 
   if (variant === "field") {
-    return <div className="flex flex-col gap-1.5 text-body-sm font-medium"><span>Storefront link</span>{control}{copied ? <span className="font-normal text-portal-success-text">Copied to clipboard</span> : null}</div>;
+    return (
+      <div className="flex flex-col gap-1.5 text-body-sm font-medium">
+        <span>Storefront link</span>
+        <div aria-disabled="true" className="flex w-full items-center gap-2 rounded-[6px] bg-[#f8f8f8] px-4 py-3 text-left font-normal text-portal-muted">
+          <span className="min-w-0 flex-1 truncate">{published ? SHOP_URL : "Publish shop to get your URL"}</span>
+          {published ? (
+            <button
+              type="button"
+              onClick={() => void copy()}
+              aria-label="Copy shop URL"
+              className="flex shrink-0 cursor-pointer items-center justify-center rounded-md p-1 text-portal-text"
+            >
+              {copied ? <Check aria-hidden="true" className="size-4 text-portal-success-text" strokeWidth={2} /> : <Copy aria-hidden="true" className="size-4" strokeWidth={1.5} />}
+            </button>
+          ) : null}
+        </div>
+        {copied ? <span className="font-normal text-portal-success-text">Copied to clipboard</span> : null}
+      </div>
+    );
   }
   return control;
 }

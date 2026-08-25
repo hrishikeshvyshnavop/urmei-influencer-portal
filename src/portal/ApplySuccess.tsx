@@ -39,7 +39,7 @@ export default function ApplySuccess({
           <Button variant="portal" onClick={onPreviewApproval}>
             Preview approval
           </Button>
-          <Button variant="portalOutlineLg" onClick={onBackToLogin}>
+          <Button variant="portalLg" onClick={onBackToLogin}>
             Back to Login
           </Button>
         </div>
