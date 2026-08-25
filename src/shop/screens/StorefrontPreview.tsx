@@ -12,7 +12,9 @@ type StorefrontPreviewProps = {
   onCopyShopLink: () => void
 }
 
-const PICKS_PER_PAGE = 4
+/** Also the threshold above which pagination appears at all — 8 or fewer
+ *  picks all fit on one page, so the controls stay hidden. */
+const PICKS_PER_PAGE = 8
 /** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
 const FEATURED_SCROLL_STEP = 280 + 16
 
@@ -92,9 +94,9 @@ function AllPicks({ items }: { items: ShopItem[] }) {
       <p className="w-full max-w-[1200px] text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
         All Picks
       </p>
-      <div className="grid w-full max-w-[1200px] grid-cols-4 gap-lg">
+      <div className="grid w-full max-w-[1200px] grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-lg">
         {visible.map((item) => (
-          <StorefrontProductCard key={item.id} product={item.product} />
+          <StorefrontProductCard key={item.id} product={item.product} className="w-full" />
         ))}
       </div>
 

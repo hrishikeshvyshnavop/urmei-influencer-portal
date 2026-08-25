@@ -64,9 +64,7 @@ export function MyShop({
   const heading = isFeaturedTab ? `Featured products (${featuredItems.length}/${featuredLimit})` : 'Your Picks '
   const subtitle = isFeaturedTab
     ? 'Products here appears first in your storefront'
-    : isEmpty
-      ? 'Everything you add appears here'
-      : `${featuredItems.length} of ${featuredLimit} slots filled  ·  featured picks lead your storefront`
+    : 'Everything you add appears here'
 
   const visibleItems = isFeaturedTab ? featuredItems : items
 
