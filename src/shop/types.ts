@@ -48,5 +48,6 @@ export type ShopItem = {
 
 export type OverlayView =
   | { kind: 'catalogue' }
+  | { kind: 'brands' }
   | { kind: 'results'; query: string }
   | { kind: 'detail'; query: string; product: Product }

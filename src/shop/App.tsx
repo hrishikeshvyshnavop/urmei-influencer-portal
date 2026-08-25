@@ -7,6 +7,7 @@ import { Toast } from './components/Toast'
 import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
 import { DEPLOYED_APP_URL, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
+import { BrandsList } from './screens/BrandsList'
 import { BrowseOverlay } from './screens/BrowseOverlay'
 import { CatalogueHome } from './screens/CatalogueHome'
 import { MyShop } from './screens/MyShop'
@@ -57,7 +58,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     return initialBrowse ? { kind: 'catalogue' } : null
   })
   const [query, setQuery] = useState(initialSearch ?? '')
-  const [initialFilters] = useState<ProductFilters>(() =>
+  const [initialFilters, setInitialFilters] = useState<ProductFilters>(() =>
     initialBrandFilter ? { ...EMPTY_FILTERS, brands: [initialBrandFilter] } : EMPTY_FILTERS,
   )
   const [pendingProduct, setPendingProduct] = useState<Product | null>(() => initialAddProductId ? PRODUCTS.find((item) => item.id === initialAddProductId) ?? null : null)
@@ -113,6 +114,15 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   function runSearch(nextQuery: string) {
     setQuery(nextQuery)
     setOverlay({ kind: 'results', query: nextQuery })
+  }
+
+  /** Selecting a brand pre-checks it in the Filters panel instead of typing
+   *  it into the search box — matches the standalone Brands page's own
+   *  `#/shop/brand/:name` entry point (see `initialBrandFilter` above). */
+  function selectBrand(name: string) {
+    setInitialFilters({ ...EMPTY_FILTERS, brands: [name] })
+    setQuery('')
+    setOverlay({ kind: 'results', query: '' })
   }
 
   /** Shown wherever a "feature this" action can't be satisfied because all
@@ -311,7 +321,16 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           scrollKey={overlay.kind === 'detail' ? `detail:${overlay.product.id}` : overlay.kind}
         >
           {overlay.kind === 'catalogue' && (
-            <CatalogueHome query={query} onQueryChange={setQuery} onSearch={runSearch} />
+            <CatalogueHome
+              query={query}
+              onQueryChange={setQuery}
+              onSearch={runSearch}
+              onViewAllBrands={() => setOverlay({ kind: 'brands' })}
+            />
+          )}
+
+          {overlay.kind === 'brands' && (
+            <BrandsList onBackToCatalogue={openCatalogue} onSelectBrand={selectBrand} />
           )}
 
           {overlay.kind === 'results' && (
