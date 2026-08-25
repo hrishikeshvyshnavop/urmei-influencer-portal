@@ -207,6 +207,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       onRemoveFromShop: () => setRemovalCandidate(item),
       affiliateLink: affiliateLinkFor(item.product),
       onCopyLink: () => copyAffiliateLink(item),
+      published: publishedAt !== null,
       showPerformance,
     }
   }

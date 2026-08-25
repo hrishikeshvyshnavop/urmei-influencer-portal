@@ -12,6 +12,9 @@ export type ShopMode = {
   onRemoveFromShop: () => void
   affiliateLink: string
   onCopyLink: () => void
+  /** The link only resolves once the shop is live — shows a "publish first"
+   *  placeholder instead, matching the Shop URL field's own state. */
+  published: boolean
   /** Only the My Shop "view details" reuse shows the PERFORMACE block. */
   showPerformance?: boolean
 }
@@ -238,13 +241,23 @@ export function ProductDetail({
                       <p className="mb-[-2px] text-body-xxs text-text-secondary-700">
                         Product affiliate link
                       </p>
-                      <p className="truncate text-body-sm font-medium text-text-secondary-900">
-                        {shopMode.affiliateLink}
-                      </p>
+                      {shopMode.published ? (
+                        <p className="truncate text-body-sm font-medium text-text-secondary-900">
+                          {shopMode.affiliateLink}
+                        </p>
+                      ) : (
+                        <p className="truncate text-body-sm font-medium text-text-secondary-600">
+                          Publish shop to get your product URL
+                        </p>
+                      )}
                     </div>
-                    <button type="button" aria-label="Copy affiliate link" onClick={shopMode.onCopyLink}>
+                    {shopMode.published ? (
+                      <button type="button" aria-label="Copy affiliate link" onClick={shopMode.onCopyLink}>
+                        <Icon name="copy" />
+                      </button>
+                    ) : (
                       <Icon name="copy" />
-                    </button>
+                    )}
                   </div>
                 </>
               ) : (

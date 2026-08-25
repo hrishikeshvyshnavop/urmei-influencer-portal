@@ -96,15 +96,17 @@ export function MyShop({
                 onPublish={onPublish}
                 onPreview={onPreview}
               />
-              <StatsRow
-                stats={[
-                  { label: 'TOTAL PRODUCTS', value: String(items.length) },
-                  { label: 'FEATURED PRODUCTS', value: String(featuredItems.length) },
-                  { label: 'CLICKS', value: '0%' },
-                  { label: 'SALES', value: '0' },
-                  { label: 'COMMISSION EARNED', value: 'S$0' },
-                ]}
-              />
+              {published && (
+                <StatsRow
+                  stats={[
+                    { label: 'TOTAL PRODUCTS', value: String(items.length) },
+                    { label: 'FEATURED PRODUCTS', value: String(featuredItems.length) },
+                    { label: 'CLICKS', value: '0%' },
+                    { label: 'SALES', value: '0' },
+                    { label: 'COMMISSION EARNED', value: 'S$0' },
+                  ]}
+                />
+              )}
             </div>
           )}
         </section>

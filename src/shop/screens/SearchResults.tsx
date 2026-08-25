@@ -254,11 +254,11 @@ export function SearchResults({
             style={paneHeight ? { height: paneHeight } : undefined}
             className="flex min-w-0 flex-1 flex-col items-end gap-3xl overflow-y-auto"
           >
-            <div className="flex h-[74px] w-full flex-col items-end justify-center border-b border-border-default pt-xs pb-md-sm">
+            <div className="flex h-[74px] w-full shrink-0 flex-col items-end justify-center border-b border-border-default pt-xs pb-md-sm">
               <SortDropdown value={sortBy} onChange={setSortBy} />
             </div>
 
-            <div className="flex w-full flex-col items-start gap-md-sm pl-xxl">
+            <div className="flex w-full shrink-0 flex-col items-start gap-md-sm pl-xxl">
               {visibleResults.length === 0 ? (
                 <NoResults />
               ) : (
