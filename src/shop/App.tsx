@@ -143,11 +143,16 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   function confirmPublish() {
     if (!profileComplete) return
     setPublishOpen(false)
-    // Publishing with nothing in the shop doesn't actually go live — it just
-    // records the attempt so the page can show the blocked-publish state
-    // (Figma `1362:73958`) until a product is added.
+    // Publishing with nothing in the shop doesn't go live — per the warning
+    // copy ("Publishing with no products will unpublish your shop"), it
+    // actively reverts an already-published shop back to unpublished, not
+    // just a no-op, so the page shows the blocked-publish state (Figma
+    // `1362:73958`) until a product is added and it's published again.
     if (items.length === 0) {
+      setPublishedAt(null)
+      setHasUnpublishedChanges(false)
       setPublishBlocked(true)
+      setShopPublished(false)
       return
     }
     setPublishedAt(formatPublishedAt(new Date()))
