@@ -7,6 +7,7 @@ type CatalogueHomeProps = {
   query: string
   onQueryChange: (value: string) => void
   onSearch: (query: string) => void
+  onViewAllBrands: () => void
 }
 
 function SectionHeading({ children }: { children: string }) {
@@ -17,7 +18,7 @@ function SectionHeading({ children }: { children: string }) {
   )
 }
 
-export function CatalogueHome({ query, onQueryChange, onSearch }: CatalogueHomeProps) {
+export function CatalogueHome({ query, onQueryChange, onSearch, onViewAllBrands }: CatalogueHomeProps) {
   return (
     <div className="flex w-full flex-col items-center pt-4xl-1 pb-4xl-2">
       <div className="flex h-[70px] w-full items-start justify-center px-[323px] py-md">
@@ -88,10 +89,14 @@ export function CatalogueHome({ query, onQueryChange, onSearch }: CatalogueHomeP
           <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
             Brands
           </p>
-          <a href="#/brands" className="flex items-center gap-sm overflow-clip">
+          <button
+            type="button"
+            onClick={onViewAllBrands}
+            className="flex items-center gap-sm overflow-clip"
+          >
             <span className="text-body-sm font-medium text-text-secondary-1000">View All</span>
             <Icon name="chevron-right" />
-          </a>
+          </button>
         </div>
         <div className="flex w-full items-center gap-[19.95px]">
           {BRAND_LOGOS.map((brand) => (

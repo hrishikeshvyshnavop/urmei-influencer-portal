@@ -1,57 +1,35 @@
 import { useState } from "react";
 import { ChevronRight, Search } from "lucide-react";
 import AppShell from "./components/AppShell";
+import { BRAND_DIRECTORY_TILES } from "../shop/data/brand-directory";
 
-/** Every tile links out; the "cta" tile reuses the Etude logo but always
- *  points at the general catalogue instead of Etude's brand page. */
-type BrandTile =
-  | { kind: "logo"; name: string; image: string }
-  | { kind: "cta" };
+/** Every tile links out; this one (Etude's logo, matching Figma 1364:16002's
+ *  5th grid slot) always points at the general catalogue instead of Etude's
+ *  own brand page. */
+const CTA_TILE_INDEX = 4;
 
-const brands = {
-  etude: { name: "ETUDE", image: "/urmei/brands/brand-01.png" },
-  alliesOfSkin: { name: "Allies of Skin", image: "/urmei/brands/brand-02.png" },
-  rae: { name: "rae Cosmetics", image: "/urmei/brands/brand-03.png" },
-  porcelain: { name: "Porcelain Skincare", image: "/urmei/brands/brand-04.png" },
-  klavuu: { name: "KLAVUU", image: "/urmei/brands/brand-05.png" },
-  browhaus: { name: "Browhaus", image: "/urmei/brands/brand-06.png" },
-  btf: { name: "BTF", image: "/urmei/brands/brand-07.png" },
-  sigiSkin: { name: "SIGI SKIN", image: "/urmei/brands/brand-08.png" },
-  liht: { name: "Liht", image: "/urmei/brands/brand-09.png" },
-  mudoLabs: { name: "MUDO LABS", image: "/urmei/brands/brand-10.png" },
-  boundary: { name: "BOUNDARY", image: "/urmei/brands/brand-11.png" },
-} as const;
-
-// Reproduces the exact 5x4 grid from Figma, repeats and all — several
-// brands recur across rows there rather than each tile being unique.
-const tiles: BrandTile[] = [
-  { kind: "logo", ...brands.alliesOfSkin },
-  { kind: "logo", ...brands.rae },
-  { kind: "logo", ...brands.porcelain },
-  { kind: "logo", ...brands.klavuu },
-  { kind: "cta" },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.browhaus },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.btf },
-  { kind: "logo", ...brands.sigiSkin },
-  { kind: "logo", ...brands.liht },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.mudoLabs },
-  { kind: "logo", ...brands.boundary },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.boundary },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.btf },
-  { kind: "logo", ...brands.sigiSkin },
-  { kind: "logo", ...brands.boundary },
-];
+function BrandTileLink({ href, label, image }: { href: string; label: string; image: string }) {
+  return (
+    <a
+      href={href}
+      aria-label={label}
+      className="group relative aspect-[224/172] overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
+    >
+      <img src={image} alt="" className="size-full object-cover" />
+      <div className="absolute inset-0 flex items-center justify-center bg-[rgba(34,34,34,0.45)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+        <span className="rounded-md border border-portal-light bg-portal-light px-4 py-2 text-body-sm font-medium text-portal-text">
+          View Products
+        </span>
+      </div>
+    </a>
+  );
+}
 
 export default function Brands() {
   const [query, setQuery] = useState("");
 
-  const visibleTiles = tiles.filter(
-    (tile) => tile.kind === "cta" || tile.name.toLowerCase().includes(query.trim().toLowerCase()),
+  const visibleTiles = BRAND_DIRECTORY_TILES.map((tile, index) => ({ ...tile, index })).filter(
+    (tile) => tile.index === CTA_TILE_INDEX || tile.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
 
   return (
@@ -83,35 +61,16 @@ export default function Brands() {
         </div>
 
         <div className="grid w-full grid-cols-2 gap-x-5 gap-y-6 py-6 sm:grid-cols-3 lg:grid-cols-5">
-          {visibleTiles.map((tile, index) =>
-            tile.kind === "cta" ? (
-              <a
-                key="cta"
-                href="#/shop/browse"
-                aria-label="Browse all products"
-                className="group relative aspect-[224/172] overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
-              >
-                <img src={brands.etude.image} alt="" className="size-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center bg-[rgba(34,34,34,0.45)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <span className="rounded-md border border-portal-light bg-portal-light px-4 py-2 text-body-sm font-medium text-portal-text">
-                    View Products
-                  </span>
-                </div>
-              </a>
+          {visibleTiles.map((tile) =>
+            tile.index === CTA_TILE_INDEX ? (
+              <BrandTileLink key="cta" href="#/shop/browse" label="Browse all products" image={tile.image} />
             ) : (
-              <a
-                key={`${tile.name}-${index}`}
+              <BrandTileLink
+                key={`${tile.name}-${tile.index}`}
                 href={`#/shop/brand/${encodeURIComponent(tile.name)}`}
-                aria-label={`View products from ${tile.name}`}
-                className="group relative aspect-[224/172] overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
-              >
-                <img src={tile.image} alt={tile.name} className="size-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center bg-[rgba(34,34,34,0.45)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <span className="rounded-md border border-portal-light bg-portal-light px-4 py-2 text-body-sm font-medium text-portal-text">
-                    View Products
-                  </span>
-                </div>
-              </a>
+                label={`View products from ${tile.name}`}
+                image={tile.image}
+              />
             ),
           )}
         </div>

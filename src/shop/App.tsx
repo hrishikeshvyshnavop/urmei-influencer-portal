@@ -7,6 +7,7 @@ import { Toast } from './components/Toast'
 import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
 import { DEPLOYED_APP_URL, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
+import { BrandsList } from './screens/BrandsList'
 import { BrowseOverlay } from './screens/BrowseOverlay'
 import { CatalogueHome } from './screens/CatalogueHome'
 import { MyShop } from './screens/MyShop'
@@ -309,7 +310,16 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           scrollKey={overlay.kind === 'detail' ? `detail:${overlay.product.id}` : overlay.kind}
         >
           {overlay.kind === 'catalogue' && (
-            <CatalogueHome query={query} onQueryChange={setQuery} onSearch={runSearch} />
+            <CatalogueHome
+              query={query}
+              onQueryChange={setQuery}
+              onSearch={runSearch}
+              onViewAllBrands={() => setOverlay({ kind: 'brands' })}
+            />
+          )}
+
+          {overlay.kind === 'brands' && (
+            <BrandsList onBackToCatalogue={openCatalogue} onSelectBrand={runSearch} />
           )}
 
           {overlay.kind === 'results' && (
