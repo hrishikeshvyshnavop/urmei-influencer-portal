@@ -162,8 +162,8 @@ export default function Home({
       <SetupBanner />
 
       <main className="mx-auto flex w-full max-w-[1440px] flex-col px-6 py-8 lg:px-[120px]">
-        <section className="overflow-hidden rounded-[10px] bg-portal-surface shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
-          <div className="flex min-h-[208px] flex-col gap-2.5 px-6 py-6 lg:px-8">
+        <section className="overflow-hidden rounded-lg bg-portal-surface shadow-store-card">
+          <div className="flex min-h-[208px] flex-col gap-2.5 bg-portal-surface px-6 py-6 drop-shadow-[0_4px_10px_rgba(0,0,0,0.03)] lg:px-8">
             <div className="flex items-center gap-4">
               <div className="relative size-16 shrink-0 overflow-hidden rounded-full">
                 <ProfilePhoto fallback="/urmei/home/profile-dropdown-avatar.png" alt="Charlotte" />
@@ -188,10 +188,7 @@ export default function Home({
               <Button variant="portal" onClick={() => { window.location.hash = "#/shop"; }}>Set Up Shop</Button>
             </div>
           ) : null}
-        </section>
-
-        {hasShopItems && isShopPublished ? (
-          <div className="py-7">
+          {hasShopItems && isShopPublished ? (
             <StatsRow
               stats={[
                 { label: "TOTAL PRODUCTS", value: String(shopItems.length) },
@@ -201,13 +198,13 @@ export default function Home({
                 { label: "COMMISSION EARNED", value: "S$0" },
               ]}
             />
-          </div>
-        ) : null}
+          ) : null}
+        </section>
 
         {!firstVisit && hasShopItems ? (
           <>
             <RecentActivities />
-            <TopProducts />
+            {shopItems.length >= 4 ? <TopProducts items={shopItems} /> : null}
           </>
         ) : null}
 
