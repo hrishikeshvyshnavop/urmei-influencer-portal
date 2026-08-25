@@ -5,9 +5,14 @@ import { SHOP_URL } from "../../shop/data/shop";
 export default function ShopUrl({
   published = true,
   variant = "compact",
+  unpublishedLabel = "Publish shop to get your URL",
 }: {
   published?: boolean;
   variant?: "compact" | "field" | "shop";
+  /** Shown in place of the URL while `published` is false — overridden when
+   *  a publish attempt was blocked (e.g. no products) rather than never
+   *  having happened at all. */
+  unpublishedLabel?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -33,7 +38,7 @@ export default function ShopUrl({
       <span className="min-w-0 flex-1">
         {variant !== "field" ? <span className="block text-[10px] leading-4 text-portal-muted">Shop URL</span> : null}
         <span className={`block truncate text-body-sm font-medium ${published ? "text-portal-text" : "text-portal-placeholder"}`}>
-          {published ? (copied ? "Copied" : SHOP_URL) : "Publish shop to get your URL"}
+          {published ? (copied ? "Copied" : SHOP_URL) : unpublishedLabel}
         </span>
       </span>
       {published ? (copied ? <Check aria-hidden="true" className="size-4 shrink-0 text-portal-success-text" strokeWidth={2} /> : <Copy aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.5} />) : null}
@@ -44,7 +49,7 @@ export default function ShopUrl({
     ? "flex w-[297px] max-w-full items-center justify-between rounded-md border border-portal-border bg-portal-light px-3 py-1.5 text-left"
     : "flex w-[297px] max-w-full items-center justify-between rounded-lg border border-portal-border bg-[#fffefd] px-3 py-1.5 text-left";
 
-  const control = published ? <button type="button" onClick={() => void copy()} aria-label="Copy shop URL" className={classes}>{content}</button> : <div aria-label="Shop URL: publish shop to get your URL" className={classes}>{content}</div>;
+  const control = published ? <button type="button" onClick={() => void copy()} aria-label="Copy shop URL" className={classes}>{content}</button> : <div aria-label={`Shop URL: ${unpublishedLabel}`} className={classes}>{content}</div>;
 
   if (variant === "field") {
     return (

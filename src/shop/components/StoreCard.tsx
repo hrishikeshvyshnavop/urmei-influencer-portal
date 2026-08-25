@@ -7,14 +7,17 @@ import { Icon } from './Icon'
 type StoreCardProps = {
   /** Rounds only the top when the KPI strip sits directly underneath. */
   attachedBelow?: boolean
-  /** Publishing needs at least one product in the shop. */
-  canPublish?: boolean
   published?: boolean
   /** Formatted timestamp shown under the actions once published. */
   publishedAt?: string | null
   /** True once something (reordering, adding, removing, featuring) has changed
    *  since the last publish — swaps "View Shop" for "Publish changes". */
   hasUnpublishedChanges?: boolean
+  /** Set after publishing was attempted with zero products — the shop never
+   *  went live, but Preview still works and the Shop URL/Publish button
+   *  reflect the blocked attempt (Figma `1362:73958`) until a product is
+   *  added or a real publish succeeds. */
+  publishBlocked?: boolean
   onPublish?: () => void
   onPreview?: () => void
   onViewShop?: () => void
@@ -22,10 +25,10 @@ type StoreCardProps = {
 
 export function StoreCard({
   attachedBelow = false,
-  canPublish = false,
   published = false,
   publishedAt = null,
   hasUnpublishedChanges = false,
+  publishBlocked = false,
   onPublish,
   onPreview,
   onViewShop,
@@ -47,7 +50,11 @@ export function StoreCard({
               <p className="text-body-xxl font-semibold text-text-secondary-1000">{getSavedDisplayName('Charlotte')}</p>
               <p className="text-body-md font-medium text-text-secondary-700">@charlotte</p>
             </div>
-            <ShopUrl published={published} variant="shop" />
+            <ShopUrl
+              published={published}
+              variant="shop"
+              unpublishedLabel={publishBlocked ? 'Your store URL is currently disabled.' : undefined}
+            />
           </div>
         </div>
 
@@ -55,6 +62,18 @@ export function StoreCard({
           <div className="flex items-center gap-md-sm">
             {published ? (
               <Button variant="outline" onClick={onPreview} leftIcon={<Icon name="eye-enabled" />}>
+                Preview Storefront
+              </Button>
+            ) : publishBlocked ? (
+              // Clickable, but still rendered muted — the shop never
+              // actually went live, so the button looks the same as the
+              // disabled case even though Preview works (Figma `1362:73958`).
+              <Button
+                variant="ghost"
+                onClick={onPreview}
+                leftIcon={<Icon name="eye" />}
+                className="font-normal text-text-secondary-500"
+              >
                 Preview Storefront
               </Button>
             ) : (
@@ -69,10 +88,8 @@ export function StoreCard({
               ) : (
                 <Button onClick={onViewShop}>View Shop</Button>
               )
-            ) : canPublish ? (
-              <Button onClick={onPublish}>Publish shop</Button>
             ) : (
-              <Button variant="ghost" disabled className="font-normal">
+              <Button onClick={onPublish} disabled={publishBlocked}>
                 Publish shop
               </Button>
             )}

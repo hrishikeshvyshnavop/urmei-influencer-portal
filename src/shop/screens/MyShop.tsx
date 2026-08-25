@@ -2,6 +2,7 @@ import AppShell from '../../portal/components/AppShell'
 import SetupBanner from '../../portal/components/SetupBanner'
 import { AddProductTile } from '../components/AddProductTile'
 import { Button } from '../components/Button'
+import { EmptyFeatured } from '../components/EmptyFeatured'
 import { EmptyShop } from '../components/EmptyShop'
 import { Icon } from '../components/Icon'
 import { ShopProductCard } from '../components/ShopProductCard'
@@ -21,6 +22,8 @@ type MyShopProps = {
   published: boolean
   publishedAt: string | null
   hasUnpublishedChanges: boolean
+  /** Set after publishing was attempted with zero products — see `StoreCard`. */
+  publishBlocked: boolean
   onPublish: () => void
   onViewDetails: (item: ShopItem) => void
   onCopyLink: (item: ShopItem) => void
@@ -40,6 +43,7 @@ export function MyShop({
   published,
   publishedAt,
   hasUnpublishedChanges,
+  publishBlocked,
   onPublish,
   onViewDetails,
   onCopyLink,
@@ -49,6 +53,9 @@ export function MyShop({
 }: MyShopProps) {
   const featuredItems = items.filter((item) => item.featured)
   const isEmpty = items.length === 0
+  // Adding a product resolves a blocked publish attempt immediately, even
+  // before the user publishes again.
+  const blocked = publishBlocked && isEmpty
   const isFeaturedTab = activeTab === 'featured'
 
   const tabs = isEmpty
@@ -83,20 +90,17 @@ export function MyShop({
           </div>
 
           <div className="flex w-full flex-col items-center overflow-clip rounded-lg bg-surface-secondary-300 shadow-store-card">
-            {/* `canPublish` only gates the very first publish (no products yet
-                to show); once `published` is true, Preview/Publish stay live
-                even if every product was since removed. */}
             <StoreCard
               attachedBelow
-              canPublish={items.length > 0}
               published={published}
               publishedAt={publishedAt}
               hasUnpublishedChanges={hasUnpublishedChanges}
+              publishBlocked={blocked}
               onPublish={onPublish}
               onPreview={onPreview}
               onViewShop={onViewShop}
             />
-            {published && (
+            {(published || blocked) && (
               <StatsRow
                 stats={[
                   { label: 'TOTAL PRODUCTS', value: String(items.length) },
@@ -127,7 +131,12 @@ export function MyShop({
             </div>
 
             <div className="flex w-full flex-col items-start bg-surface-secondary-100">
-              {isEmpty ? (
+              {/* Checked before `isEmpty` so the Featured tab always shows its
+                  own empty state — including when the shop has no products
+                  at all — rather than falling back to `EmptyShop`. */}
+              {isFeaturedTab && featuredItems.length === 0 ? (
+                <EmptyFeatured onGoToAllPicks={() => onTabChange('all')} />
+              ) : isEmpty ? (
                 <EmptyShop onBrowse={onBrowse} />
               ) : (
                 <div className="grid w-full grid-cols-4 gap-lg">
@@ -155,13 +164,9 @@ export function MyShop({
                       }
                     />
                   ))}
-                  {/* All Picks has no cap, so its "add" tile always trails the grid. The
-                      Featured tab caps at `featuredLimit` — one trailing tile to add the
-                      next one while there's room, none once full. */}
+                  {/* Only All Picks gets a trailing "add" tile — the Featured
+                      tab manages its slots via each card's own menu instead. */}
                   {!isFeaturedTab && <AddProductTile onClick={onBrowse} />}
-                  {isFeaturedTab && featuredItems.length < featuredLimit && (
-                    <AddProductTile onClick={onBrowse} height={468} />
-                  )}
                 </div>
               )}
             </div>

@@ -4,6 +4,7 @@ import type { ShopItem } from './types'
 const ITEMS_KEY = 'urmei.shop-items'
 const PUBLISHED_AT_KEY = 'urmei.shop-published-at'
 const UNPUBLISHED_CHANGES_KEY = 'urmei.shop-has-unpublished-changes'
+const PUBLISH_BLOCKED_KEY = 'urmei.shop-publish-blocked'
 
 type PersistedShopItem = { id: string; productId: string; featured: boolean; variant: string }
 
@@ -80,6 +81,26 @@ export function saveHasUnpublishedChanges(value: boolean) {
   try {
     if (value) window.localStorage.setItem(UNPUBLISHED_CHANGES_KEY, '1')
     else window.localStorage.removeItem(UNPUBLISHED_CHANGES_KEY)
+  } catch {
+    // The current session still works when storage is unavailable.
+  }
+}
+
+/** Set when a publish was attempted with zero products — the shop never
+ *  actually goes live, but the page reflects the attempt (disabled Shop URL,
+ *  working Preview) until either a product is added or publish succeeds. */
+export function loadPublishBlocked(): boolean {
+  try {
+    return window.localStorage.getItem(PUBLISH_BLOCKED_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+export function savePublishBlocked(value: boolean) {
+  try {
+    if (value) window.localStorage.setItem(PUBLISH_BLOCKED_KEY, '1')
+    else window.localStorage.removeItem(PUBLISH_BLOCKED_KEY)
   } catch {
     // The current session still works when storage is unavailable.
   }

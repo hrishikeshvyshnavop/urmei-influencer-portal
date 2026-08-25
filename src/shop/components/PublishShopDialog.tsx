@@ -3,6 +3,10 @@ import { Icon } from './Icon'
 type PublishShopDialogProps = {
   /** When false the dialog shows the blocking banner and Publish is disabled. */
   profileComplete: boolean
+  /** When false (no products in the shop) the dialog shows a warning banner —
+   *  Publish stays clickable, but confirming leads to the blocked-publish
+   *  outcome instead of a real publish (Figma `1362:73671`/`1362:73958`). */
+  hasProducts: boolean
   onClose: () => void
   onPublish: () => void
   onCompleteProfile: () => void
@@ -10,10 +14,12 @@ type PublishShopDialogProps = {
 
 export function PublishShopDialog({
   profileComplete,
+  hasProducts,
   onClose,
   onPublish,
   onCompleteProfile,
 }: PublishShopDialogProps) {
+  const canPublish = profileComplete
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-scrim" role="presentation">
       <div
@@ -60,6 +66,23 @@ export function PublishShopDialog({
             </div>
           )}
 
+          {!hasProducts && (
+            <div className="flex w-full items-start overflow-clip rounded-md bg-surface-alert-tint px-md-sm py-sm">
+              <div className="flex items-start gap-ten">
+                <Icon name="alert-circle" className="mt-[2px]" />
+                <div className="flex flex-col gap-xs">
+                  <p className="text-body-xs font-semibold text-surface-tertiary-1000">
+                    This takes your shop offline
+                  </p>
+                  <p className="text-body-xs text-text-tertiary-800">
+                    It won't show as your storefront on ecom until you add products and publish
+                    again.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex w-full items-center gap-sm">
             <button
               type="button"
@@ -71,10 +94,10 @@ export function PublishShopDialog({
             <button
               type="button"
               onClick={onPublish}
-              disabled={!profileComplete}
+              disabled={!canPublish}
               className={[
                 'flex flex-1 items-center justify-center gap-sm rounded-md px-md py-sm text-body-sm font-medium',
-                profileComplete
+                canPublish
                   ? 'bg-surface-primary-500 text-text-secondary-100'
                   : 'cursor-default bg-surface-secondary-300 text-text-secondary-500',
               ].join(' ')}
