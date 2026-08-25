@@ -18,7 +18,7 @@ export default function HelpCenter() {
 
   return (
     <AppShell
-      className="motion-page bg-portal-surface text-portal-text"
+      className="bg-portal-light text-portal-text"
       onShowTour={() => { window.location.hash = "#/home/tour"; }}
       onShowHelp={() => window.scrollTo({ top: 0, behavior: "smooth" })}
     >
