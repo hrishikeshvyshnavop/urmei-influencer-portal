@@ -182,7 +182,7 @@ export default function Home({
             <div className="flex gap-4 text-body-sm font-medium text-portal-muted">
               <span className="flex items-center gap-1"><img src="/urmei/home/tiktok-stat.svg" alt="TikTok" className="size-[14px]" />112.2K</span><span className="flex items-center gap-1"><img src="/urmei/home/instagram-stat.svg" alt="Instagram" className="size-[14px]" />15.4K</span>
             </div>
-            <ShopUrl published={isShopPublished} />
+            <ShopUrl published={isShopPublished} variant="shop" />
           </div>
           {!hasShopItems ? (
             <div className="flex min-h-[128px] flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-[#f2efed] p-6 sm:flex-row sm:items-center lg:gap-10 lg:p-8">
@@ -290,9 +290,10 @@ export default function Home({
       ) : null}
 
       {viewingProduct ? (
-        <BrowseOverlay onClose={() => setViewingProduct(null)} title="Product details">
+        <BrowseOverlay onClose={() => setViewingProduct(null)} title="Product Details">
           <ProductDetail
             product={viewingProduct}
+            hideBreadcrumb
             onAddToShop={() => { setPendingProduct(viewingProduct); setViewingProduct(null); }}
             shopMode={shopModeFor(viewingProduct)}
           />

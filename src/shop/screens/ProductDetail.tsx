@@ -32,7 +32,9 @@ type ProductDetailProps = {
   /** Overrides the default Catalogue › Search › name trail — used when this
    *  screen is reused from My Shop's "View product details" menu action. */
   breadcrumbItems?: BreadcrumbItem[]
-  /** Replaces the "Add product to my shop" CTA, e.g. for an item already in the shop. */
+  /** Hides the trail when the detail view is opened directly from Home. */
+  hideBreadcrumb?: boolean
+  /** Replaces the "Add product to shop" CTA, e.g. for an item already in the shop. */
   ctaLabel?: string
   ctaDisabled?: boolean
   /** Set when viewing an item already in the shop: swaps the single CTA for
@@ -63,25 +65,33 @@ export function ProductDetail({
   onBackToResults,
   onAddToShop,
   breadcrumbItems,
-  ctaLabel = 'Add product to my shop',
+  hideBreadcrumb = false,
+  ctaLabel = 'Add product to shop',
   ctaDisabled = false,
   shopMode,
 }: ProductDetailProps) {
+  // Not-yet-added products have no chosen variant, so fall back to the
+  // catalogue's default — Figma (980:25543) shows the size on this page
+  // whether or not the item is in the shop.
+  const displayVariant = shopMode ? shopMode.variant : product.variant
+
   return (
     <div className={`flex w-full flex-col items-start ${animateOnMount ? 'motion-product-detail' : ''}`}>
-      <div className="w-full px-margin py-sm">
-        <Breadcrumb
-          items={
-            breadcrumbItems ?? [
-              { label: 'Catalogue', onClick: onBackToCatalogue },
-              { label: 'Search', onClick: onBackToResults },
-              { label: product.name },
-            ]
-          }
-        />
-      </div>
+      {!hideBreadcrumb && (
+        <div className="w-full px-margin py-sm">
+          <Breadcrumb
+            items={
+              breadcrumbItems ?? [
+                { label: 'Catalogue', onClick: onBackToCatalogue },
+                { label: 'Search', onClick: onBackToResults },
+                { label: product.name },
+              ]
+            }
+          />
+        </div>
+      )}
 
-      <div className="flex w-full items-start gap-5xl px-margin pb-5xl">
+      <div className={`flex w-full items-start gap-5xl px-margin pb-5xl ${hideBreadcrumb ? 'pt-lg' : ''}`}>
         {/* Image gallery */}
         <div className="flex min-w-0 flex-1 flex-col items-start gap-md-sm">
           <div className="relative aspect-[533/531.45] w-full overflow-clip rounded-lg">
@@ -147,12 +157,9 @@ export function ProductDetail({
                     {product.brand}
                   </p>
                   <p className="w-[481px] text-body-xl font-medium text-text-secondary-1000">
-                    {product.name}
-                    {shopMode && ` (${variantSizeSuffix(shopMode.variant)})`}
+                    {product.name} ({variantSizeSuffix(displayVariant)})
                   </p>
-                  {shopMode && (
-                    <p className="text-body-md text-text-secondary-700">{shopMode.variant}</p>
-                  )}
+                  <p className="text-body-md text-text-secondary-700">{displayVariant}</p>
                 </div>
                 <div className="flex w-full items-center gap-[6px]">
                   <span className="flex w-[46px] items-center gap-[6px]">
