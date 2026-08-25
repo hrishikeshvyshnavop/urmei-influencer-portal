@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { Product } from '../types'
 import { Icon } from './Icon'
@@ -36,6 +36,41 @@ export function AddToShopModal({
   const nextFeaturedCount = featured ? featuredCount + 1 : featuredCount
   const alreadyAdded = existingVariants.includes(selectedVariant)
 
+  // The modal only actually unmounts once the parent clears `pendingProduct`,
+  // so closing (either way) first plays the exit animation via `data-state`
+  // and defers the real callback instead of firing it — and unmounting the
+  // panel — immediately.
+  const [closing, setClosing] = useState<false | 'cancel' | 'confirm'>(false)
+  const closeTimeoutRef = useRef<number | null>(null)
+
+  function finishClose(kind: 'cancel' | 'confirm') {
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
+    if (kind === 'confirm') onConfirm(featured, selectedVariant)
+    else onClose()
+  }
+
+  function requestClose(kind: 'cancel' | 'confirm') {
+    // Ignore a second trigger once the exit animation is already underway —
+    // otherwise a rapid double-click could swap the pending action mid-close.
+    if (closing) return
+    setClosing(kind)
+    // `onAnimationEnd` normally finishes the close, but CSS animations can
+    // stall while the tab is backgrounded (or never start under
+    // prefers-reduced-motion edge cases) — this guarantees it still closes.
+    closeTimeoutRef.current = window.setTimeout(() => finishClose(kind), 300)
+  }
+
+  function handleExitAnimationEnd() {
+    if (closing) finishClose(closing)
+  }
+
+  useEffect(() => () => {
+    if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current)
+  }, [])
+
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
     const previousOverscroll = document.body.style.overscrollBehavior
@@ -57,13 +92,20 @@ export function AddToShopModal({
   }
 
   return createPortal(
-    <div className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-scrim p-4" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
+    <div
+      className="motion-modal-backdrop fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-scrim p-4"
+      data-state={closing ? 'closed' : 'open'}
+      role="presentation"
+      onMouseDown={(event) => { if (event.target === event.currentTarget) requestClose('cancel') }}
+    >
       <div
         onMouseDown={(event) => event.stopPropagation()}
+        onAnimationEnd={handleExitAnimationEnd}
         role="dialog"
         aria-modal="true"
         aria-label="Add this product to your shop?"
-        className="my-auto flex w-[525px] max-w-full shrink-0 flex-col items-center overflow-clip rounded-lg border border-border-default bg-surface-secondary-100"
+        data-state={closing ? 'closed' : 'open'}
+        className="motion-modal-panel my-auto flex w-[525px] max-w-full shrink-0 flex-col items-center overflow-clip rounded-lg border border-border-default bg-surface-secondary-100"
       >
         <div className="flex w-full items-center justify-between border-b border-border-default px-lg py-md">
           <p className="flex-1 text-body-xl font-semibold text-text-secondary-1000">
@@ -72,7 +114,7 @@ export function AddToShopModal({
           <button
             type="button"
             aria-label="Close"
-            onClick={onClose}
+            onClick={() => requestClose('cancel')}
             className="flex w-[40px] items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
           >
             <Icon name="x" srcSize={24} />
@@ -155,7 +197,7 @@ export function AddToShopModal({
 
           <button
             type="button"
-            onClick={() => onConfirm(featured, selectedVariant)}
+            onClick={() => requestClose('confirm')}
             disabled={alreadyAdded}
             className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500"
           >
