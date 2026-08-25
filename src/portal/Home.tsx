@@ -44,20 +44,22 @@ const questions = [
 function ProductCard({ productId, image, title, onAdd, onViewDetails }: { productId: string; image: string; title: string; onAdd: (productId: string) => void; onViewDetails: (productId: string) => void }) {
   return (
     <article className="min-w-[260px] flex-1 snap-start sm:min-w-[285px]">
-      <button type="button" onClick={() => onViewDetails(productId)} aria-label={`View details for ${title}`} className="block w-full cursor-pointer overflow-hidden rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"><img src={image} alt={title} className="aspect-square w-full object-cover" /></button>
-      <div className="flex flex-col gap-3 pt-3">
-        <div>
-          <p className="text-[10px] leading-4 text-portal-muted">LANEIGE</p>
-          <h3 className="text-body-sm text-portal-text">{title}</h3>
-          <p className="text-[10px] leading-4 text-portal-muted">50 ML | Blue gel cream</p>
-          <div className="flex items-center gap-2 text-body-sm">
-            <span className="font-medium text-portal-text">S$45</span>
-            <span className="text-[11px] text-portal-placeholder line-through">S$52</span>
-            <span className="text-[11px] text-portal-success">SAVE 13%</span>
+      <button type="button" onClick={() => onViewDetails(productId)} aria-label={`View details for ${title}`} className="block w-full cursor-pointer overflow-hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"><img src={image} alt={title} className="aspect-square w-full object-cover" /></button>
+      <div className="flex flex-col gap-[6px] pt-[14px] pb-[14px]">
+        <div className="flex flex-col gap-[2px] border-b border-portal-border pb-[10px]">
+          <p className="text-body-xs font-medium text-portal-placeholder">LANEIGE</p>
+          <h3 className="truncate text-body-md font-medium text-portal-text">{title}</h3>
+          <p className="text-body-xs text-portal-muted">50 ML | Blue gel cream</p>
+          <div className="flex items-center gap-2 pt-1 text-body-md font-medium">
+            <span className="text-portal-text">S$45</span>
+            <span className="flex flex-1 items-center gap-1.5">
+              <span className="text-body-sm text-portal-placeholder line-through">S$52</span>
+              <span className="text-body-xs text-portal-success">SAVE 13%</span>
+            </span>
           </div>
         </div>
-        <p className="text-[10px] leading-4 text-portal-muted">Singapore&nbsp;&nbsp;•&nbsp;&nbsp;Malaysia</p>
-        <Button variant="portalOutline" className="w-full" onClick={() => onAdd(productId)}>Add to Shop</Button>
+        <p className="text-body-xs font-medium text-portal-muted">Singapore&nbsp;&nbsp;•&nbsp;&nbsp;Malaysia</p>
+        <Button variant="portalOutline" className="w-full !rounded-md !border-border-outlined" onClick={() => onAdd(productId)}>Add to Shop</Button>
       </div>
     </article>
   );
@@ -218,7 +220,7 @@ export default function Home({
                 aria-label="Previous products"
                 onClick={() => scrollProducts(-1)}
                 disabled={!canScrollBack}
-                className="!size-8 !p-0 disabled:!border-portal-surface disabled:!bg-portal-light disabled:!text-portal-disabled disabled:!opacity-100"
+                className="!size-10 !rounded-md !p-0 disabled:!border-portal-surface disabled:!bg-portal-light disabled:!text-portal-disabled disabled:!opacity-100"
               >
                 <ChevronLeft aria-hidden="true" className="size-4" strokeWidth={1.5} />
               </Button>
@@ -227,7 +229,7 @@ export default function Home({
                 aria-label="Next products"
                 onClick={() => scrollProducts(1)}
                 disabled={!canScrollForward}
-                className="!size-8 !p-0 disabled:!border-portal-surface disabled:!bg-portal-light disabled:!text-portal-disabled disabled:!opacity-100"
+                className="!size-10 !rounded-md !p-0 disabled:!border-portal-surface disabled:!bg-portal-light disabled:!text-portal-disabled disabled:!opacity-100"
               >
                 <ChevronRight aria-hidden="true" className="size-4" strokeWidth={1.5} />
               </Button>
