@@ -129,8 +129,7 @@ export default function Home({
 
   return (
     <AppShell
-      className="motion-page bg-[#fffefd] text-portal-text"
-      shadow
+      className="bg-[#fffefd] text-portal-text"
       onShowTour={() => onShowTour?.()}
       onShowHelp={() => { window.location.hash = "#/help-center"; }}
     >

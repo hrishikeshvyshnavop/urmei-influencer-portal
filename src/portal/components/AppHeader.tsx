@@ -11,11 +11,9 @@ import { PRODUCTS } from "../../shop/data/catalogue";
  *  profile menu. `onShowTour`/`onShowHelp` vary by screen (e.g. Help Center
  *  scrolls to top instead of navigating there), so those stay as props. */
 export default function AppHeader({
-  shadow = false,
   onShowTour,
   onShowHelp,
 }: {
-  shadow?: boolean;
   onShowTour: () => void;
   onShowHelp: () => void;
 }) {
@@ -54,11 +52,7 @@ export default function AppHeader({
 
   return (
     <>
-      <header
-        className={`sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[16px] bg-portal-surface px-6 lg:px-[120px] ${
-          shadow ? "shadow-[0_2px_10px_rgba(34,34,34,0.04)]" : ""
-        }`}
-      >
+      <header className="sticky top-0 z-30 flex h-[88px] items-center justify-between rounded-b-[16px] bg-portal-surface px-6 lg:px-[120px]">
         <div className="flex items-center gap-8">
           <a
             href="#/home"

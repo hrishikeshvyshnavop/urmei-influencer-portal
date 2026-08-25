@@ -9,19 +9,17 @@ import AppHeader from "./AppHeader";
 export default function AppShell({
   children,
   className = "",
-  shadow = false,
   onShowTour,
   onShowHelp,
 }: {
   children: ReactNode;
   className?: string;
-  shadow?: boolean;
   onShowTour: () => void;
   onShowHelp: () => void;
 }) {
   return (
     <div className={`flex min-h-screen w-full flex-col ${className}`}>
-      <AppHeader shadow={shadow} onShowTour={onShowTour} onShowHelp={onShowHelp} />
+      <AppHeader onShowTour={onShowTour} onShowHelp={onShowHelp} />
       {children}
       <AppFooter />
     </div>
