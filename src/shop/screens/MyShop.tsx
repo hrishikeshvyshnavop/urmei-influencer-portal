@@ -164,13 +164,9 @@ export function MyShop({
                       }
                     />
                   ))}
-                  {/* All Picks has no cap, so its "add" tile always trails the grid. The
-                      Featured tab caps at `featuredLimit` — one trailing tile to add the
-                      next one while there's room, none once full. */}
+                  {/* Only All Picks gets a trailing "add" tile — the Featured
+                      tab manages its slots via each card's own menu instead. */}
                   {!isFeaturedTab && <AddProductTile onClick={onBrowse} />}
-                  {isFeaturedTab && featuredItems.length < featuredLimit && (
-                    <AddProductTile onClick={onBrowse} height={468} />
-                  )}
                 </div>
               )}
             </div>
