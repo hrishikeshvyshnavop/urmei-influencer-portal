@@ -37,7 +37,7 @@ export default function TopProducts({ items }: { items: ShopItem[] }) {
     ).values(),
   ).slice(0, 4);
 
-  if (topProducts.length < 4) return null;
+  if (topProducts.length < 2) return null;
 
   return (
     <section className="flex w-full flex-col items-start justify-center py-5">

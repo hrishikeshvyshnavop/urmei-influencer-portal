@@ -81,7 +81,7 @@ export default function NotificationsDrawer({
       <aside
         role="dialog"
         aria-label="Notifications"
-        className="absolute top-0 right-0 flex h-full w-[440px] max-w-full flex-col items-start border-l border-solid border-portal-border bg-portal-light"
+        className="motion-drawer-right absolute top-0 right-0 flex h-full w-[440px] max-w-full flex-col items-start border-l border-solid border-portal-border bg-portal-light"
       >
         <div className="flex h-[72px] w-full shrink-0 items-center justify-between overflow-clip border-b border-solid border-portal-border bg-portal-light p-4">
           <p className="min-w-px flex-1 text-body-md font-medium tracking-[1px] uppercase text-portal-text">

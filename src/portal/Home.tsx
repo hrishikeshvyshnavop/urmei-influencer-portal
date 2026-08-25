@@ -78,6 +78,9 @@ export default function Home({
   const isShopPublished = useIsShopPublished();
   const [shopItems, setShopItems] = useState(loadShopItems);
   const featuredShopItemCount = shopItems.filter((item) => item.featured).length;
+  const recommendedProducts = recommendedPool
+    .filter((product) => !shopItems.some((item) => item.product.id === product.productId))
+    .slice(0, 4);
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
@@ -209,7 +212,7 @@ export default function Home({
         {!firstVisit && hasShopItems ? (
           <>
             <RecentActivities />
-            {shopItems.length >= 4 ? <TopProducts items={shopItems} /> : null}
+            {shopItems.length >= 2 ? <TopProducts items={shopItems} /> : null}
           </>
         ) : null}
 
@@ -244,17 +247,16 @@ export default function Home({
             onScroll={updateCarouselControls}
             className="flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {recommendedPool
-              .filter((product) => !shopItems.some((item) => item.product.id === product.productId))
-              .slice(0, 4)
-              .map((product) => (
-              <ProductCard
-                key={product.productId}
-                {...product}
-                onAdd={(productId) => setPendingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
-                onViewDetails={(productId) => setViewingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
-              />
-            ))}
+            {[0, 1].flatMap((page) =>
+              recommendedProducts.map((product) => (
+                <ProductCard
+                  key={`${page}-${product.productId}`}
+                  {...product}
+                  onAdd={(productId) => setPendingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
+                  onViewDetails={(productId) => setViewingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
+                />
+              )),
+            )}
           </div>
         </section>
 

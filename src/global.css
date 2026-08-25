@@ -177,6 +177,11 @@ html body[data-scroll-locked] {
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes portal-drawer-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+
 @keyframes portal-spin {
   to { transform: rotate(360deg); }
 }
@@ -215,6 +220,7 @@ html body[data-scroll-locked] {
 .motion-feedback { animation: portal-pop var(--motion-fast) var(--ease-portal) both; }
 .motion-modal-backdrop { animation: portal-backdrop var(--motion-fast) ease-out both; }
 .motion-modal-panel { animation: portal-modal var(--motion-base) var(--ease-portal) both; }
+.motion-drawer-right { animation: portal-drawer-right var(--motion-base) var(--ease-portal) both; }
 .motion-spin-soft { animation: portal-spin 1.6s linear infinite; }
 .motion-success-tick { animation: portal-success-tick 480ms cubic-bezier(0.22, 1, 0.36, 1) 120ms both; }
 .motion-popover[data-state="open"] { animation: portal-popover-in var(--motion-fast) var(--ease-portal) both; }
