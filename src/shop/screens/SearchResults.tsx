@@ -318,20 +318,21 @@ export function SearchResults({
       {filtersTarget &&
         createPortal(
           <div
-            style={
-              sticky.stuck
-                ? {
-                    position: 'fixed',
-                    top: sticky.top + TOOLBAR_HEIGHT,
-                    left: sticky.left,
-                    width: SIDEBAR_WIDTH,
-                    maxHeight: stuckFiltersHeight,
-                    overflowY: 'auto',
-                    zIndex: 39,
-                  }
-                : undefined
-            }
-            className={sticky.stuck ? '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden' : undefined}
+            // `maxHeight`/`overflowY` apply unconditionally, not just once
+            // stuck: capping the Filters list to one viewport's worth (with
+            // its own scrollbar) whether stuck or not keeps its rendered
+            // height identical across the transition — so there's nothing
+            // for the reserved placeholder above to reconcile — and keeps
+            // the product listing's own scroll range from ballooning to
+            // match however many filter groups happen to be expanded.
+            style={{
+              maxHeight: stuckFiltersHeight,
+              overflowY: 'auto',
+              ...(sticky.stuck
+                ? { position: 'fixed', top: sticky.top + TOOLBAR_HEIGHT, left: sticky.left, width: SIDEBAR_WIDTH, zIndex: 39 }
+                : undefined),
+            }}
+            className="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <FiltersSidebar
               filters={filters}
