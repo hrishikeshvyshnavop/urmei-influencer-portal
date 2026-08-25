@@ -62,7 +62,7 @@ export function CatalogueHome({ query, onQueryChange, onSearch }: CatalogueHomeP
               className="absolute inset-0 size-full object-cover"
             />
           </div>
-          <div className="flex min-w-0 flex-1 flex-col items-center gap-md bg-surface-secondary-100">
+          <div className="flex min-w-0 flex-1 flex-col items-center gap-md bg-surface-secondary-300">
             <div className="flex w-full flex-col items-center gap-sm">
               <div className="h-[24px] w-[82px] overflow-hidden">
                 <img
