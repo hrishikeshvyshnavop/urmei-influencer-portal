@@ -1,4 +1,4 @@
-import { useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CatalogueSearch } from '../components/CatalogueSearch'
@@ -230,24 +230,18 @@ export function SearchResults({
   // beside the results column) empty — collapsing to zero height. With only
   // a handful of results the row, and so the whole scrollable overlay body,
   // would then shrink to barely more than the toolbar, capping how far the
-  // page can scroll and permanently trapping the fixed panel wherever it
-  // happened to stick — never far enough to bring its own lower groups (e.g.
-  // Ingredients) into its own internal scroll range. Reserving the sidebar's
-  // real content height on the anchor's wrapper keeps the row (and the
-  // page's scrollable range) exactly as tall as it would be if the sidebar
-  // were still sitting there normally.
-  const filtersWrapperRef = useRef<HTMLDivElement>(null)
-  const [filtersHeight, setFiltersHeight] = useState(0)
-  // Deliberately no dependency array: re-measures after every render so a
-  // change to the sidebar's own content (opening a group, typing a brand
-  // search, an applied filter's chip row appearing) is caught too, not just
-  // the stuck/unstuck transition. The `height !== filtersHeight` guard is
-  // what keeps this from looping.
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useLayoutEffect(() => {
-    const height = filtersWrapperRef.current?.scrollHeight
-    if (height && height !== filtersHeight) setFiltersHeight(height)
-  })
+  // page can scroll — which clamps `scrollTop` back down, which un-crosses
+  // the sentinel, flipping `stuck` back to false, right back to the tall
+  // inline layout, re-crossing the sentinel, flipping stuck true again...
+  // The anchor's wrapper reserves just enough height to break that loop:
+  // exactly what the fixed panel itself occupies on screen (the same bound
+  // its own `maxHeight` below is clipped to), not the sidebar's full
+  // (possibly much taller, all-groups-open) content height — reserving the
+  // real content height kept the page scrollable, but also meant scrolling
+  // that far past a short results list, with nothing else on screen, read
+  // as scrolling into dead space. The fixed panel itself is already fully
+  // reachable within this smaller bound via its own internal scroll.
+  const stuckFiltersHeight = sticky.bottom - (sticky.top + TOOLBAR_HEIGHT)
 
   return (
     <div className="flex w-full flex-col items-start">
@@ -277,7 +271,7 @@ export function SearchResults({
           <div
             style={
               sticky.stuck
-                ? { width: SIDEBAR_WIDTH, flexShrink: 0, minHeight: filtersHeight }
+                ? { width: SIDEBAR_WIDTH, flexShrink: 0, minHeight: stuckFiltersHeight }
                 : undefined
             }
           >
@@ -324,21 +318,21 @@ export function SearchResults({
       {filtersTarget &&
         createPortal(
           <div
-            ref={filtersWrapperRef}
-            style={
-              sticky.stuck
-                ? {
-                    position: 'fixed',
-                    top: sticky.top + TOOLBAR_HEIGHT,
-                    left: sticky.left,
-                    width: SIDEBAR_WIDTH,
-                    maxHeight: sticky.bottom - (sticky.top + TOOLBAR_HEIGHT),
-                    overflowY: 'auto',
-                    zIndex: 39,
-                  }
-                : undefined
-            }
-            className={sticky.stuck ? '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden' : undefined}
+            // `maxHeight`/`overflowY` apply unconditionally, not just once
+            // stuck: capping the Filters list to one viewport's worth (with
+            // its own scrollbar) whether stuck or not keeps its rendered
+            // height identical across the transition — so there's nothing
+            // for the reserved placeholder above to reconcile — and keeps
+            // the product listing's own scroll range from ballooning to
+            // match however many filter groups happen to be expanded.
+            style={{
+              maxHeight: stuckFiltersHeight,
+              overflowY: 'auto',
+              ...(sticky.stuck
+                ? { position: 'fixed', top: sticky.top + TOOLBAR_HEIGHT, left: sticky.left, width: SIDEBAR_WIDTH, zIndex: 39 }
+                : undefined),
+            }}
+            className="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
             <FiltersSidebar
               filters={filters}
