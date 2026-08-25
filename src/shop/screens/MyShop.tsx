@@ -2,6 +2,7 @@ import AppShell from '../../portal/components/AppShell'
 import SetupBanner from '../../portal/components/SetupBanner'
 import { AddProductTile } from '../components/AddProductTile'
 import { Button } from '../components/Button'
+import { EmptyFeatured } from '../components/EmptyFeatured'
 import { EmptyShop } from '../components/EmptyShop'
 import { Icon } from '../components/Icon'
 import { ShopProductCard } from '../components/ShopProductCard'
@@ -132,6 +133,8 @@ export function MyShop({
             <div className="flex w-full flex-col items-start bg-surface-secondary-100">
               {isEmpty ? (
                 <EmptyShop onBrowse={onBrowse} />
+              ) : isFeaturedTab && featuredItems.length === 0 ? (
+                <EmptyFeatured onGoToAllPicks={() => onTabChange('all')} />
               ) : (
                 <div className="grid w-full grid-cols-4 gap-lg">
                   {visibleItems.map((item) => (
