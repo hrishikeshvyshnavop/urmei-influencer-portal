@@ -67,12 +67,18 @@ export function PublishShopDialog({
           )}
 
           {!hasProducts && (
-            <div className="flex w-full items-center overflow-clip rounded-md bg-surface-alert-tint px-md-sm py-[6px]">
-              <div className="flex items-center gap-ten">
-                <Icon name="alert-circle" />
-                <p className="text-body-xs text-surface-tertiary-1000">
-                  Publishing with no products will unpublish your shop.
-                </p>
+            <div className="flex w-full items-start overflow-clip rounded-md bg-surface-alert-tint px-md-sm py-sm">
+              <div className="flex items-start gap-ten">
+                <Icon name="alert-circle" className="mt-[2px]" />
+                <div className="flex flex-col gap-xs">
+                  <p className="text-body-xs font-semibold text-surface-tertiary-1000">
+                    This takes your shop offline
+                  </p>
+                  <p className="text-body-xs text-text-tertiary-800">
+                    It won't show as your storefront on ecom until you add products and publish
+                    again.
+                  </p>
+                </div>
               </div>
             </div>
           )}
