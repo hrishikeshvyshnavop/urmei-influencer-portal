@@ -31,22 +31,24 @@ type BrowseOverlayProps = {
 export function BrowseOverlay({ onClose, children, title = 'Browse and find products to add', scrollKey }: BrowseOverlayProps) {
   const bodyRef = useRef<HTMLDivElement>(null)
 
-  // Deliberately leaves `html`'s `scrollbar-gutter: stable` (global.css)
-  // alone: overriding it made the scrim reach the true window edge, but
-  // since that's a property of `html` it also resized every other
-  // descendant — including the site header sitting behind this (only
-  // 50%-opaque) scrim — producing a visible width jump when the overlay
-  // opened. The header, and everything else on the page, already respects
-  // that same reserved gutter, so the scrim matching it too leaves nothing
-  // mismatched to leak through on the right edge.
+  // `html { scrollbar-gutter: stable }` (global.css) permanently reserves the
+  // scrollbar's width so toggling scroll elsewhere in the app never shifts
+  // layout — but that reservation also caps `vw`/`fixed inset-0` a scrollbar's
+  // width short of the true window edge, so the scrim's right side never
+  // reaches it, leaving a sliver of the page showing through undimmed. Safe
+  // to lift only while this fully covers the screen: nothing behind it can
+  // shift layout since it's hidden, and scrolling is locked below anyway.
   useEffect(() => {
     const previousBody = document.body.style.overflow
     const previousHtml = document.documentElement.style.overflow
+    const previousGutter = document.documentElement.style.scrollbarGutter
     document.body.style.overflow = 'hidden'
     document.documentElement.style.overflow = 'hidden'
+    document.documentElement.style.scrollbarGutter = 'auto'
     return () => {
       document.body.style.overflow = previousBody
       document.documentElement.style.overflow = previousHtml
+      document.documentElement.style.scrollbarGutter = previousGutter
     }
   }, [])
 
