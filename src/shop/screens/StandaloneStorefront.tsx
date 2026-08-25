@@ -73,9 +73,9 @@ function AllPicks({ items }: { items: ReturnType<typeof loadShopItems> }) {
       <p className="w-full max-w-[1200px] text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
         All Picks
       </p>
-      <div className="grid w-full max-w-[1200px] grid-cols-4 gap-lg">
+      <div className="grid w-full max-w-[1200px] grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-lg">
         {visible.map((item) => (
-          <StorefrontProductCard key={item.id} product={item.product} />
+          <StorefrontProductCard key={item.id} product={item.product} className="w-full" />
         ))}
       </div>
 
