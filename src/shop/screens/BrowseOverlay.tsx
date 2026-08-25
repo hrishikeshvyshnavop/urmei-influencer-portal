@@ -58,12 +58,8 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
 
   return (
     <div
-      // `top: 88` (not `inset-0` + padding) so the scrim's own dark
-      // background stops short of the site header instead of painting over
-      // it — with equal z-index and later DOM order, a full-height scrim
-      // would otherwise darken the header instead of leaving it visible.
-      className="fixed inset-x-0 bottom-0 z-30 flex flex-col bg-scrim"
-      style={{ top: 88 }}
+      className="fixed inset-0 z-30 flex flex-col bg-scrim"
+      style={{ paddingTop: 88 }}
       onMouseDown={(event) => {
         if (event.target === event.currentTarget) onClose()
       }}
