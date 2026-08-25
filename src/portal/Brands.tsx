@@ -2,9 +2,8 @@ import { useState } from "react";
 import { ChevronRight, Search } from "lucide-react";
 import AppShell from "./components/AppShell";
 
-/** One tile is a real destination link, everything else is a decorative
- *  brand logo card (matches Figma 1364:16002 — none of the logo tiles are
- *  interactive there, only this one "View Products" card is). */
+/** Every tile links out; the "cta" tile reuses the Etude logo but always
+ *  points at the general catalogue instead of Etude's brand page. */
 type BrandTile =
   | { kind: "logo"; name: string; image: string }
   | { kind: "cta" };
@@ -86,17 +85,19 @@ export default function Brands() {
         <div className="grid w-full grid-cols-2 gap-x-5 gap-y-6 py-6 sm:grid-cols-3 lg:grid-cols-5">
           {visibleTiles.map((tile, index) =>
             tile.kind === "cta" ? (
-              <div key="cta" className="flex aspect-[224/172] flex-col gap-2">
-                <div className="min-h-0 flex-1 overflow-hidden rounded-lg">
-                  <img src={brands.etude.image} alt="" className="size-full object-cover" />
+              <a
+                key="cta"
+                href="#/shop/browse"
+                aria-label="Browse all products"
+                className="group relative aspect-[224/172] overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
+              >
+                <img src={brands.etude.image} alt="" className="size-full object-cover" />
+                <div className="absolute inset-0 flex items-center justify-center bg-[rgba(34,34,34,0.45)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                  <span className="rounded-md border border-portal-light bg-portal-light px-4 py-2 text-body-sm font-medium text-portal-text">
+                    View Products
+                  </span>
                 </div>
-                <a
-                  href="#/shop/browse"
-                  className="flex shrink-0 items-center justify-center gap-2 rounded-md border border-portal-border px-4 py-2 text-body-sm font-medium text-portal-text"
-                >
-                  View Products
-                </a>
-              </div>
+              </a>
             ) : (
               <a
                 key={`${tile.name}-${index}`}
