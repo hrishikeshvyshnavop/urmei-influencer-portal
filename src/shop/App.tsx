@@ -24,7 +24,7 @@ import {
   savePublishedAt,
   saveShopItems,
 } from './shop-items-store'
-import { setShopItemCount, setShopPublished } from './shop-status'
+import { setPublishBlocked as setPublishBlockedShared, setShopItemCount, setShopPublished } from './shop-status'
 import type { OverlayView, Product, ShopItem } from './types'
 
 /** Business rules confirmed for the shop flow. */
@@ -159,12 +159,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       setPublishedAt(null)
       setHasUnpublishedChanges(false)
       setPublishBlocked(true)
+      setPublishBlockedShared(true)
       setShopPublished(false)
       return
     }
     setPublishedAt(formatPublishedAt(new Date()))
     setHasUnpublishedChanges(false)
     setPublishBlocked(false)
+    setPublishBlockedShared(false)
     setShopPublished(true)
     setToast({ message: 'Your shop published successfully' })
     logShopActivity('shop-published')

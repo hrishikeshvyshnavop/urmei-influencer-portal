@@ -6,7 +6,7 @@ import RecentActivities from "./components/RecentActivities";
 import TopProducts from "./components/TopProducts";
 import ProfilePhoto from "./components/ProfilePhoto";
 import SetupBanner from "./components/SetupBanner";
-import { useHasShopItems, useIsShopPublished } from "../shop/shop-status";
+import { useHasShopItems, useIsPublishBlocked, useIsShopPublished } from "../shop/shop-status";
 import { loadShopItems, saveShopItems } from "../shop/shop-items-store";
 import { logShopActivity } from "../shop/activity-log";
 import { StatsRow } from "../shop/components/StatsRow";
@@ -76,6 +76,7 @@ export default function Home({
 }) {
   const hasShopItems = useHasShopItems();
   const isShopPublished = useIsShopPublished();
+  const isPublishBlocked = useIsPublishBlocked();
   const [shopItems, setShopItems] = useState(loadShopItems);
   const featuredShopItemCount = shopItems.filter((item) => item.featured).length;
   const recommendedProducts = recommendedPool
@@ -187,7 +188,11 @@ export default function Home({
             <div className="flex gap-4 text-body-sm font-medium text-portal-muted">
               <span className="flex items-center gap-1"><img src="/urmei/home/tiktok-stat.svg" alt="TikTok" className="size-[14px]" />112.2K</span><span className="flex items-center gap-1"><img src="/urmei/home/instagram-stat.svg" alt="Instagram" className="size-[14px]" />15.4K</span>
             </div>
-            <ShopUrl published={isShopPublished} variant="shop" />
+            <ShopUrl
+              published={isShopPublished}
+              variant="shop"
+              unpublishedLabel={isPublishBlocked ? "Your store URL is currently disabled." : undefined}
+            />
           </div>
           {!hasShopItems ? (
             <div className="flex min-h-[128px] flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-[#f2efed] p-6 sm:flex-row sm:items-center lg:gap-10 lg:p-8">

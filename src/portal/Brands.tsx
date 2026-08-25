@@ -2,12 +2,7 @@ import { useState } from "react";
 import { ChevronRight, Search } from "lucide-react";
 import AppShell from "./components/AppShell";
 
-/** One tile is a real destination link, everything else is a decorative
- *  brand logo card (matches Figma 1364:16002 — none of the logo tiles are
- *  interactive there, only this one "View Products" card is). */
-type BrandTile =
-  | { kind: "logo"; name: string; image: string }
-  | { kind: "cta" };
+type BrandTile = { name: string; image: string };
 
 const brands = {
   etude: { name: "ETUDE", image: "/urmei/brands/brand-01.png" },
@@ -21,38 +16,40 @@ const brands = {
   liht: { name: "Liht", image: "/urmei/brands/brand-09.png" },
   mudoLabs: { name: "MUDO LABS", image: "/urmei/brands/brand-10.png" },
   boundary: { name: "BOUNDARY", image: "/urmei/brands/brand-11.png" },
-} as const;
+} as const satisfies Record<string, BrandTile>;
 
 // Reproduces the exact 5x4 grid from Figma, repeats and all — several
-// brands recur across rows there rather than each tile being unique.
+// brands recur across rows there rather than each tile being unique. Every
+// tile shares one interactive component (Figma 1364:16017 documents its
+// hover state — image gives way to a "View Products" button).
 const tiles: BrandTile[] = [
-  { kind: "logo", ...brands.alliesOfSkin },
-  { kind: "logo", ...brands.rae },
-  { kind: "logo", ...brands.porcelain },
-  { kind: "logo", ...brands.klavuu },
-  { kind: "cta" },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.browhaus },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.btf },
-  { kind: "logo", ...brands.sigiSkin },
-  { kind: "logo", ...brands.liht },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.mudoLabs },
-  { kind: "logo", ...brands.boundary },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.boundary },
-  { kind: "logo", ...brands.etude },
-  { kind: "logo", ...brands.btf },
-  { kind: "logo", ...brands.sigiSkin },
-  { kind: "logo", ...brands.boundary },
+  brands.alliesOfSkin,
+  brands.rae,
+  brands.porcelain,
+  brands.klavuu,
+  brands.etude,
+  brands.etude,
+  brands.browhaus,
+  brands.etude,
+  brands.btf,
+  brands.sigiSkin,
+  brands.liht,
+  brands.etude,
+  brands.mudoLabs,
+  brands.boundary,
+  brands.etude,
+  brands.boundary,
+  brands.etude,
+  brands.btf,
+  brands.sigiSkin,
+  brands.boundary,
 ];
 
 export default function Brands() {
   const [query, setQuery] = useState("");
 
-  const visibleTiles = tiles.filter(
-    (tile) => tile.kind === "cta" || tile.name.toLowerCase().includes(query.trim().toLowerCase()),
+  const visibleTiles = tiles.filter((tile) =>
+    tile.name.toLowerCase().includes(query.trim().toLowerCase()),
   );
 
   return (
@@ -84,35 +81,25 @@ export default function Brands() {
         </div>
 
         <div className="grid w-full grid-cols-2 gap-x-5 gap-y-6 py-6 sm:grid-cols-3 lg:grid-cols-5">
-          {visibleTiles.map((tile, index) =>
-            tile.kind === "cta" ? (
-              <div key="cta" className="flex aspect-[224/172] flex-col gap-2">
-                <div className="min-h-0 flex-1 overflow-hidden rounded-lg">
-                  <img src={brands.etude.image} alt="" className="size-full object-cover" />
-                </div>
-                <a
-                  href="#/shop/browse"
-                  className="flex shrink-0 items-center justify-center gap-2 rounded-md border border-portal-border px-4 py-2 text-body-sm font-medium text-portal-text"
-                >
-                  View Products
-                </a>
-              </div>
-            ) : (
-              <a
-                key={`${tile.name}-${index}`}
-                href={`#/shop/brand/${encodeURIComponent(tile.name)}`}
-                aria-label={`View products from ${tile.name}`}
-                className="group relative aspect-[224/172] overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
-              >
+          {visibleTiles.map((tile, index) => (
+            <a
+              key={`${tile.name}-${index}`}
+              href={`#/shop/brand/${encodeURIComponent(tile.name)}`}
+              aria-label={`View products from ${tile.name}`}
+              className="group flex aspect-[224/172] flex-col gap-2 overflow-hidden rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"
+            >
+              <div className="min-h-0 flex-1 overflow-hidden rounded-lg">
                 <img src={tile.image} alt={tile.name} className="size-full object-cover" />
-                <div className="absolute inset-0 flex items-center justify-center bg-[rgba(34,34,34,0.45)] opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-                  <span className="rounded-md border border-portal-light bg-portal-light px-4 py-2 text-body-sm font-medium text-portal-text">
+              </div>
+              <div className="grid shrink-0 grid-rows-[0fr] transition-[grid-template-rows] duration-200 group-hover:grid-rows-[1fr] group-focus-visible:grid-rows-[1fr]">
+                <div className="overflow-hidden">
+                  <div className="flex items-center justify-center gap-2 rounded-md border border-portal-border px-4 py-2 text-body-sm font-medium text-portal-text">
                     View Products
-                  </span>
+                  </div>
                 </div>
-              </a>
-            ),
-          )}
+              </div>
+            </a>
+          ))}
         </div>
       </main>
     </AppShell>
