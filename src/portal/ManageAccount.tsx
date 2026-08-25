@@ -11,7 +11,7 @@ import AppHeader from "./components/AppHeader";
 import { CropModal } from "./SetProfilePhoto";
 import ShopUrl from "./components/ShopUrl";
 import TextField from "./components/TextField";
-import { isSetupRequired } from "./setup-status";
+import { clearSetupRequired, isSetupRequired } from "./setup-status";
 
 const socialPlatforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
@@ -80,12 +80,19 @@ export default function ManageAccount() {
   const [identityPending, setIdentityPending] = useState(false);
   const [paymentConnected, setPaymentConnected] = useState(isPaymentConnected);
   const [paymentPending, setPaymentPending] = useState(false);
-  const [setupRequired] = useState(isSetupRequired);
+  const [setupRequired, setSetupRequired] = useState(isSetupRequired);
   const [shippingAddresses, setShippingAddresses] = useState(initialAddresses);
   const [addressDraft, setAddressDraft] = useState<ShippingAddress>(emptyAddress);
   const [editingAddress, setEditingAddress] = useState(false);
   const [addressErrors, setAddressErrors] = useState<Partial<Record<AddressField, string>>>({});
   const profileDirty = displayName !== savedProfile.displayName || bio !== savedProfile.bio || phone !== savedProfile.phone || dob !== savedProfile.dob;
+
+  useEffect(() => {
+    if (setupRequired && identityVerified && paymentConnected) {
+      clearSetupRequired();
+      setSetupRequired(false);
+    }
+  }, [setupRequired, identityVerified, paymentConnected]);
 
   useEffect(() => {
     const syncIdentity = () => {
@@ -249,7 +256,7 @@ export default function ManageAccount() {
                     <div className="grid gap-3 text-body-sm"><div className="flex justify-between"><span className="text-portal-muted">Account Name</span><span className="font-medium">Sophia Parker</span></div><div className="flex justify-between"><span className="text-portal-muted">Currency</span><span className="font-medium">SGD (Singapore Dollar)</span></div><div className="flex justify-between"><span className="text-portal-muted">Account Number</span><span className="font-medium">•••• •••• 4829</span></div><div className="flex justify-between"><span className="text-portal-muted">Payment Provider</span><span className="font-medium">HitPay</span></div></div>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6"><div className="flex flex-col gap-3 rounded-[10px] bg-[#eaf6fd] p-4"><img src="/urmei/hitpay-logo.png" alt="HitPay" className="h-6 w-auto self-start" /><p className="text-body-sm text-portal-muted">Get your earnings deposited straight into your bank account for easy access.</p></div><div className="grid gap-3 text-body-sm"><div className="flex justify-between"><span className="text-portal-muted">What you&#39;ll set up</span><span className="font-medium">Payout bank details</span></div><div className="flex justify-between"><span className="text-portal-muted">Payout currency</span><span className="font-medium">Based on your primary market</span></div><div className="flex justify-between"><span className="text-portal-muted">Platform fees</span><span className="font-medium">None — payouts are free</span></div></div><div><Button variant="portal" disabled={paymentPending} onClick={identityVerified ? openPayoutPartner : startIdentityVerification}>{paymentPending ? "Connecting…" : identityVerified ? "Connect with HitPay" : "Verify identity first"}</Button><p className="mt-2 text-body-xs text-portal-muted">You&#39;ll be redirected to HitPay to complete setup.</p></div></div>
+                  <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6"><div className="flex flex-col gap-3 rounded-[10px] bg-[#eaf6fd] p-4"><img src="/urmei/hitpay-logo.png" alt="HitPay" className="h-6 w-auto self-start" /><p className="text-body-sm text-portal-muted">Get your earnings deposited straight into your bank account for easy access.</p></div><div className="grid gap-3 text-body-sm"><div className="flex justify-between"><span className="text-portal-muted">What you&#39;ll set up</span><span className="font-medium">Payout bank details</span></div><div className="flex justify-between"><span className="text-portal-muted">Payout currency</span><span className="font-medium">Based on your primary market</span></div><div className="flex justify-between"><span className="text-portal-muted">Platform fees</span><span className="font-medium">None — payouts are free</span></div></div><div><Button variant="portal" disabled={paymentPending || identityPending} onClick={identityVerified ? openPayoutPartner : startIdentityVerification}>{paymentPending ? "Connecting…" : identityPending ? "Verifying…" : identityVerified ? "Connect with HitPay" : "Verify identity first"}</Button><p className="mt-2 text-body-xs text-portal-muted">You&#39;ll be redirected to HitPay to complete setup.</p></div></div>
                 )}
               </>
             ) : activeSection === "Shipping addresses" ? (
