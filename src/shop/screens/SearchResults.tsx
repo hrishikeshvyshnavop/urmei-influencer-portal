@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CatalogueSearch } from '../components/CatalogueSearch'
@@ -225,6 +225,30 @@ export function SearchResults({
   const toolbarTarget = sticky.stuck ? document.body : toolbarAnchor
   const filtersTarget = sticky.stuck ? document.body : filtersAnchor
 
+  // While stuck, the Filters list moves out of `filtersAnchor` and into a
+  // `position: fixed` box, leaving the anchor (still sitting in the row,
+  // beside the results column) empty — collapsing to zero height. With only
+  // a handful of results the row, and so the whole scrollable overlay body,
+  // would then shrink to barely more than the toolbar, capping how far the
+  // page can scroll and permanently trapping the fixed panel wherever it
+  // happened to stick — never far enough to bring its own lower groups (e.g.
+  // Ingredients) into its own internal scroll range. Reserving the sidebar's
+  // real content height on the anchor's wrapper keeps the row (and the
+  // page's scrollable range) exactly as tall as it would be if the sidebar
+  // were still sitting there normally.
+  const filtersWrapperRef = useRef<HTMLDivElement>(null)
+  const [filtersHeight, setFiltersHeight] = useState(0)
+  // Deliberately no dependency array: re-measures after every render so a
+  // change to the sidebar's own content (opening a group, typing a brand
+  // search, an applied filter's chip row appearing) is caught too, not just
+  // the stuck/unstuck transition. The `height !== filtersHeight` guard is
+  // what keeps this from looping.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useLayoutEffect(() => {
+    const height = filtersWrapperRef.current?.scrollHeight
+    if (height && height !== filtersHeight) setFiltersHeight(height)
+  })
+
   return (
     <div className="flex w-full flex-col items-start">
       <div className="w-full px-margin py-sm">
@@ -250,7 +274,13 @@ export function SearchResults({
         </div>
 
         <div ref={rowRef} className="flex w-full items-start">
-          <div style={sticky.stuck ? { width: SIDEBAR_WIDTH, flexShrink: 0 } : undefined}>
+          <div
+            style={
+              sticky.stuck
+                ? { width: SIDEBAR_WIDTH, flexShrink: 0, minHeight: filtersHeight }
+                : undefined
+            }
+          >
             <div ref={setFiltersAnchor} />
           </div>
 
@@ -294,6 +324,7 @@ export function SearchResults({
       {filtersTarget &&
         createPortal(
           <div
+            ref={filtersWrapperRef}
             style={
               sticky.stuck
                 ? {
