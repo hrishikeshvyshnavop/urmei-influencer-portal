@@ -7,10 +7,16 @@ import TopProducts from "./components/TopProducts";
 import ProfilePhoto from "./components/ProfilePhoto";
 import SetupBanner from "./components/SetupBanner";
 import { useHasShopItems, useIsShopPublished } from "../shop/shop-status";
+import { loadShopItems, saveShopItems } from "../shop/shop-items-store";
+import { logShopActivity } from "../shop/activity-log";
+import { StatsRow } from "../shop/components/StatsRow";
 import ShopUrl from "./components/ShopUrl";
 import { PRODUCTS } from "../shop/data/catalogue";
-import type { Product } from "../shop/types";
+import { affiliateLinkFor } from "../shop/data/shop";
+import type { Product, ShopItem } from "../shop/types";
 import { AddToShopModal } from "../shop/components/AddToShopModal";
+import { BrowseOverlay } from "../shop/screens/BrowseOverlay";
+import { ProductDetail, type ShopMode } from "../shop/screens/ProductDetail";
 import { setShopItemCount } from "../shop/shop-status";
 import { Toast } from "../shop/components/Toast";
 
@@ -35,10 +41,10 @@ const questions = [
   ["Do I need design skills to start?", "No. URMEI provides product assets and guided tools to help you publish."],
 ];
 
-function ProductCard({ productId, image, title, onAdd }: { productId: string; image: string; title: string; onAdd: (productId: string) => void }) {
+function ProductCard({ productId, image, title, onAdd, onViewDetails }: { productId: string; image: string; title: string; onAdd: (productId: string) => void; onViewDetails: (productId: string) => void }) {
   return (
     <article className="min-w-[260px] flex-1 snap-start sm:min-w-[285px]">
-      <button type="button" onClick={() => { window.location.hash = `#/shop/product/${productId}`; }} aria-label={`View details for ${title}`} className="block w-full cursor-pointer overflow-hidden rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"><img src={image} alt={title} className="aspect-square w-full object-cover" /></button>
+      <button type="button" onClick={() => onViewDetails(productId)} aria-label={`View details for ${title}`} className="block w-full cursor-pointer overflow-hidden rounded-[6px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"><img src={image} alt={title} className="aspect-square w-full object-cover" /></button>
       <div className="flex flex-col gap-3 pt-3">
         <div>
           <p className="text-[10px] leading-4 text-portal-muted">LANEIGE</p>
@@ -66,9 +72,12 @@ export default function Home({
 }) {
   const hasShopItems = useHasShopItems();
   const isShopPublished = useIsShopPublished();
+  const [shopItems, setShopItems] = useState(loadShopItems);
+  const featuredShopItemCount = shopItems.filter((item) => item.featured).length;
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
-  const [showAddedToast, setShowAddedToast] = useState(false);
+  const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
   const productsRef = useRef<HTMLDivElement>(null);
@@ -92,10 +101,10 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    if (!showAddedToast) return;
-    const timer = window.setTimeout(() => setShowAddedToast(false), 3200);
+    if (!toastMessage) return;
+    const timer = window.setTimeout(() => setToastMessage(null), 3200);
     return () => window.clearTimeout(timer);
-  }, [showAddedToast]);
+  }, [toastMessage]);
 
   const scrollProducts = (direction: number) => {
     const carousel = productsRef.current;
@@ -104,6 +113,43 @@ export default function Home({
       left: direction * carousel.clientWidth,
       behavior: "smooth",
     });
+  };
+
+  /** Real shop-management actions for the product-detail overlay opened from
+   *  this page's "Recommended Products" carousel — mirrors `shop/App.tsx`'s
+   *  own toggle/remove/add-to-shop logic so the two entry points stay
+   *  consistent, without navigating away from Home to reach them. */
+  const toggleFeaturedFromHome = (item: ShopItem) => {
+    setShopItems((current) => {
+      const next = current.map((row) => (row.id === item.id ? { ...row, featured: !row.featured } : row));
+      saveShopItems(next);
+      return next;
+    });
+    logShopActivity(item.featured ? "product-unfeatured" : "product-featured", `${item.product.brand} ${item.product.name}`);
+  };
+
+  const removeFromShopFromHome = (item: ShopItem) => {
+    setShopItems((current) => {
+      const next = current.filter((row) => row.id !== item.id);
+      saveShopItems(next);
+      setShopItemCount(next.length);
+      return next;
+    });
+    logShopActivity("product-removed", `${item.product.brand} ${item.product.name}`);
+    setViewingProduct(null);
+  };
+
+  const shopModeFor = (product: Product): ShopMode | undefined => {
+    const item = shopItems.find((row) => row.product.id === product.id);
+    if (!item) return undefined;
+    return {
+      featured: item.featured,
+      onToggleFeatured: () => toggleFeaturedFromHome(item),
+      onRemoveFromShop: () => removeFromShopFromHome(item),
+      affiliateLink: affiliateLinkFor(item.product),
+      onCopyLink: () => { navigator.clipboard?.writeText(affiliateLinkFor(item.product)).catch(() => {}); },
+      published: isShopPublished,
+    };
   };
 
   return (
@@ -144,6 +190,20 @@ export default function Home({
           ) : null}
         </section>
 
+        {hasShopItems && isShopPublished ? (
+          <div className="py-7">
+            <StatsRow
+              stats={[
+                { label: "TOTAL PRODUCTS", value: String(shopItems.length) },
+                { label: "FEATURED PRODUCTS", value: String(featuredShopItemCount) },
+                { label: "CLICKS", value: "0%" },
+                { label: "SALES", value: "0" },
+                { label: "COMMISSION EARNED", value: "S$0" },
+              ]}
+            />
+          </div>
+        ) : null}
+
         {!firstVisit && hasShopItems ? (
           <>
             <RecentActivities />
@@ -182,7 +242,14 @@ export default function Home({
             onScroll={updateCarouselControls}
             className="flex snap-x snap-mandatory gap-5 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           >
-            {products.map((product) => <ProductCard key={product.id} {...product} onAdd={(productId) => setPendingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)} />)}
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                {...product}
+                onAdd={(productId) => setPendingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
+                onViewDetails={(productId) => setViewingProduct(PRODUCTS.find((item) => item.id === productId) ?? null)}
+              />
+            ))}
           </div>
         </section>
 
@@ -200,18 +267,36 @@ export default function Home({
       {pendingProduct ? (
         <AddToShopModal
           product={pendingProduct}
-          featuredCount={0}
+          featuredCount={featuredShopItemCount}
           featuredLimit={6}
           onClose={() => setPendingProduct(null)}
-          onFeatureBlocked={() => {}}
-          onConfirm={() => {
-            setShopItemCount(1);
+          onFeatureBlocked={() => setToastMessage("Product failed to add as featured")}
+          onConfirm={(featured) => {
+            const newItem: ShopItem = { id: crypto.randomUUID(), product: pendingProduct, featured };
+            setShopItems((current) => {
+              const next = [...current, newItem];
+              saveShopItems(next);
+              setShopItemCount(next.length);
+              return next;
+            });
+            logShopActivity("product-added", `${pendingProduct.brand} ${pendingProduct.name}`);
             setPendingProduct(null);
-            setShowAddedToast(true);
+            setToastMessage("Product added to your shop");
           }}
         />
       ) : null}
-      {showAddedToast ? <Toast message="Product added to your shop" /> : null}
+
+      {viewingProduct ? (
+        <BrowseOverlay onClose={() => setViewingProduct(null)} title="Product details">
+          <ProductDetail
+            product={viewingProduct}
+            onAddToShop={() => { setPendingProduct(viewingProduct); setViewingProduct(null); }}
+            shopMode={shopModeFor(viewingProduct)}
+          />
+        </BrowseOverlay>
+      ) : null}
+
+      {toastMessage ? <Toast message={toastMessage} /> : null}
     </AppShell>
   );
 }
