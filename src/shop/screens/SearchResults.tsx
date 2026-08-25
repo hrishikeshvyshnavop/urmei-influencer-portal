@@ -1,60 +1,20 @@
-import { useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CatalogueSearch } from '../components/CatalogueSearch'
 import { FiltersSidebar } from '../components/FiltersSidebar'
 import { Icon } from '../components/Icon'
 import { SortDropdown } from '../components/SortDropdown'
-import { EMPTY_FILTERS, applyFilters, sortProducts, type SortId } from '../data/catalogue'
-import { useFitScale } from '../hooks/useFitScale'
+import {
+  EMPTY_FILTERS,
+  applyFilters,
+  hasActiveFilters,
+  sortProducts,
+  type ProductFilters,
+  type SortId,
+} from '../data/catalogue'
+import { useStickyOnScroll } from '../hooks/useStickyOnScroll'
 import type { Product } from '../types'
-
-function findScrollAncestor(node: HTMLElement): HTMLElement | null {
-  let current = node.parentElement
-  while (current) {
-    if (getComputedStyle(current).overflowY === 'auto') return current
-    current = current.parentElement
-  }
-  return null
-}
-
-/**
- * Height (in this screen's 1440-wide design space) for the results column so
- * it scrolls in its own pane, ending flush with the bottom of the overlay's
- * real scroll viewport. `position: sticky` on the Filters sidebar can't be
- * used instead — `ScaledBox`'s `transform: scale()` ancestor makes sticky
- * degrade to static (see `BrowseOverlay`'s header comment for the same
- * issue) — so the sidebar sticks by simply never being part of a scrolling
- * region: only its sibling column scrolls, in a pane sized to fit exactly.
- */
-function useResultsPaneHeight(rowRef: RefObject<HTMLDivElement | null>) {
-  const scale = useFitScale(1440)
-  const [height, setHeight] = useState<number>()
-
-  useLayoutEffect(() => {
-    const row = rowRef.current
-    if (!row) return
-    const scrollParent = findScrollAncestor(row)
-    if (!scrollParent) return
-
-    function measure() {
-      if (!row || !scrollParent) return
-      // Measure as if unscrolled, so an in-progress scroll doesn't skew the result.
-      const savedScrollTop = scrollParent.scrollTop
-      scrollParent.scrollTop = 0
-      const rowTop = row.getBoundingClientRect().top
-      const containerBottom = scrollParent.getBoundingClientRect().bottom
-      scrollParent.scrollTop = savedScrollTop
-
-      setHeight(Math.max(400, (containerBottom - rowTop) / scale))
-    }
-
-    measure()
-    window.addEventListener('resize', measure)
-    return () => window.removeEventListener('resize', measure)
-  }, [rowRef, scale])
-
-  return height
-}
 
 type SearchResultsProps = {
   query: string
@@ -150,6 +110,12 @@ function NoResults() {
 /** Cards per page — also the threshold above which pagination appears at all. */
 const PAGE_SIZE = 8
 
+/** Design-space width of the Filters column and the toolbar's height, shared
+ *  by the inline layout, the sticky-toolbar portal, and the sticky-Filters
+ *  portal so all three stay pixel-aligned. */
+const SIDEBAR_WIDTH = 285
+const TOOLBAR_HEIGHT = 74
+
 function Pagination({
   page,
   pageCount,
@@ -199,6 +165,47 @@ function Pagination({
   )
 }
 
+/**
+ * The "Filters"/"Clear All" + "Sort By" bar, spanning the same 285px-sidebar
+ * + flex-1-results split as the row below it. Hoisted out of both columns so
+ * it can be pulled out of the scrolling flow as one unit (see
+ * `useStickyOnScroll`) instead of the two columns' headers drifting apart.
+ */
+function FiltersSortToolbar({
+  filters,
+  onChange,
+  sortBy,
+  onSortChange,
+}: {
+  filters: ProductFilters
+  onChange: (next: ProductFilters) => void
+  sortBy: SortId
+  onSortChange: (id: SortId) => void
+}) {
+  return (
+    <div className="flex h-[74px] w-full shrink-0 border-b border-border-default bg-surface-secondary-100">
+      <div className="flex w-[285px] shrink-0 items-center justify-between px-md py-md-2">
+        <p className="text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
+          Filters
+        </p>
+        <button
+          type="button"
+          onClick={() => onChange(EMPTY_FILTERS)}
+          className={[
+            'text-body-xs font-medium tracking-[1.6px] text-text-secondary-1000 uppercase',
+            hasActiveFilters(filters) ? '' : 'invisible',
+          ].join(' ')}
+        >
+          Clear All
+        </button>
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col items-end justify-center pt-xs pb-md-sm">
+        <SortDropdown value={sortBy} onChange={onSortChange} />
+      </div>
+    </div>
+  )
+}
+
 export function SearchResults({
   query,
   results,
@@ -229,7 +236,21 @@ export function SearchResults({
   const pagedResults = visibleResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   const rowRef = useRef<HTMLDivElement>(null)
-  const paneHeight = useResultsPaneHeight(rowRef)
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const sticky = useStickyOnScroll(sentinelRef, rowRef)
+
+  // Portal targets for the toolbar and Filters list: a local anchor (normal
+  // flow) while not stuck, `document.body` (fixed position) once stuck.
+  // Always going through the same `createPortal` call site either way — as
+  // opposed to conditionally rendering the content inline OR in a portal —
+  // is what keeps each component's own state (open accordions, an open Sort
+  // dropdown) alive across the transition: React remounts a component
+  // whenever it disappears from one spot in the tree and appears in another,
+  // but treats a portal's target change as an update, not a remount.
+  const [toolbarAnchor, setToolbarAnchor] = useState<HTMLDivElement | null>(null)
+  const [filtersAnchor, setFiltersAnchor] = useState<HTMLDivElement | null>(null)
+  const toolbarTarget = sticky.stuck ? document.body : toolbarAnchor
+  const filtersTarget = sticky.stuck ? document.body : filtersAnchor
 
   return (
     <div className="flex w-full flex-col items-start">
@@ -247,17 +268,20 @@ export function SearchResults({
           onSubmit={onSearch}
         />
 
+        <div
+          ref={sentinelRef}
+          className="w-full"
+          style={sticky.stuck ? { height: TOOLBAR_HEIGHT } : undefined}
+        >
+          <div ref={setToolbarAnchor} className="w-full" />
+        </div>
+
         <div ref={rowRef} className="flex w-full items-start">
-          <FiltersSidebar filters={filters} onChange={setFilters} />
+          <div style={sticky.stuck ? { width: SIDEBAR_WIDTH, flexShrink: 0 } : undefined}>
+            <div ref={setFiltersAnchor} />
+          </div>
 
-          <div
-            style={paneHeight ? { height: paneHeight } : undefined}
-            className="flex min-w-0 flex-1 flex-col items-end gap-3xl overflow-y-auto"
-          >
-            <div className="flex h-[74px] w-full shrink-0 flex-col items-end justify-center border-b border-border-default pt-xs pb-md-sm">
-              <SortDropdown value={sortBy} onChange={setSortBy} />
-            </div>
-
+          <div className="flex min-w-0 flex-1 flex-col items-end gap-3xl">
             <div className="flex w-full shrink-0 flex-col items-start gap-md-sm pl-xxl">
               {visibleResults.length === 0 ? (
                 <NoResults />
@@ -279,6 +303,43 @@ export function SearchResults({
           </div>
         </div>
       </div>
+
+      {toolbarTarget &&
+        createPortal(
+          <div
+            style={
+              sticky.stuck
+                ? { position: 'fixed', top: sticky.top, left: sticky.left, width: sticky.width, zIndex: 40 }
+                : undefined
+            }
+          >
+            <FiltersSortToolbar filters={filters} onChange={setFilters} sortBy={sortBy} onSortChange={setSortBy} />
+          </div>,
+          toolbarTarget,
+        )}
+
+      {filtersTarget &&
+        createPortal(
+          <div
+            style={
+              sticky.stuck
+                ? {
+                    position: 'fixed',
+                    top: sticky.top + TOOLBAR_HEIGHT,
+                    left: sticky.left,
+                    width: SIDEBAR_WIDTH,
+                    maxHeight: sticky.bottom - (sticky.top + TOOLBAR_HEIGHT),
+                    overflowY: 'auto',
+                    zIndex: 39,
+                  }
+                : undefined
+            }
+            className={sticky.stuck ? '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden' : undefined}
+          >
+            <FiltersSidebar filters={filters} onChange={setFilters} />
+          </div>,
+          filtersTarget,
+        )}
     </div>
   )
 }

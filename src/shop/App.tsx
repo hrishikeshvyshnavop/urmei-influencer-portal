@@ -112,7 +112,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     })
   }
 
-  function confirmAdd(featured: boolean) {
+  function confirmAdd(featured: boolean, variant: string) {
     if (!pendingProduct) return
     if (items.length >= MAX_PRODUCTS) {
       setPendingProduct(null)
@@ -121,7 +121,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     const slotsFull = featured && featuredCount >= MAX_FEATURED
     setItems((current) => [
       ...current,
-      { id: crypto.randomUUID(), product: pendingProduct, featured: featured && !slotsFull },
+      { id: crypto.randomUUID(), product: pendingProduct, featured: featured && !slotsFull, variant },
     ])
     setPendingProduct(null)
     if (slotsFull) {
@@ -315,6 +315,9 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           product={pendingProduct}
           featuredCount={featuredCount}
           featuredLimit={MAX_FEATURED}
+          existingVariants={items
+            .filter((item) => item.product.id === pendingProduct.id)
+            .map((item) => item.variant)}
           onClose={() => setPendingProduct(null)}
           onConfirm={confirmAdd}
           onFeatureBlocked={() => showFeaturedSlotsFullToast()}

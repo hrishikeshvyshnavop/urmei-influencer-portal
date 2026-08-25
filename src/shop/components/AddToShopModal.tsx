@@ -9,8 +9,13 @@ type AddToShopModalProps = {
   product: Product
   featuredCount: number
   featuredLimit: number
+  /** Variants of this same product already in the shop — including when
+   *  there's only one variant to begin with, which makes the product itself
+   *  the thing that's already added. Re-adding one is blocked rather than
+   *  creating an indistinguishable duplicate row. */
+  existingVariants: string[]
   onClose: () => void
-  onConfirm: (featured: boolean) => void
+  onConfirm: (featured: boolean, variant: string) => void
   /** Called instead of enabling the toggle when all `featuredLimit` slots are
    *  already taken — the caller shows the 6/6 limit toast. */
   onFeatureBlocked: () => void
@@ -20,6 +25,7 @@ export function AddToShopModal({
   product,
   featuredCount,
   featuredLimit,
+  existingVariants,
   onClose,
   onConfirm,
   onFeatureBlocked,
@@ -28,6 +34,7 @@ export function AddToShopModal({
   const [selectedVariant, setSelectedVariant] = useState(product.variant)
   const atLimit = featuredCount >= featuredLimit
   const nextFeaturedCount = featured ? featuredCount + 1 : featuredCount
+  const alreadyAdded = existingVariants.includes(selectedVariant)
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow
@@ -41,6 +48,7 @@ export function AddToShopModal({
   }, [])
 
   function handleFeatureToggle(next: boolean) {
+    if (alreadyAdded) return
     if (next && atLimit) {
       onFeatureBlocked()
       return
@@ -102,6 +110,11 @@ export function AddToShopModal({
                       value={selectedVariant}
                       onChange={setSelectedVariant}
                     />
+                    {alreadyAdded && (
+                      <p className="text-body-xs font-medium text-surface-other-alert">
+                        This variant is already in your shop
+                      </p>
+                    )}
                   </div>
 
                   <div className="flex w-full items-center gap-[6px]">
@@ -135,15 +148,16 @@ export function AddToShopModal({
                 checked={featured}
                 onChange={handleFeatureToggle}
                 label="Feature on home storefront"
-                disabled={atLimit}
+                disabled={atLimit || alreadyAdded}
               />
             </div>
           </div>
 
           <button
             type="button"
-            onClick={() => onConfirm(featured)}
-            className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100"
+            onClick={() => onConfirm(featured, selectedVariant)}
+            disabled={alreadyAdded}
+            className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500"
           >
             Confirm
           </button>

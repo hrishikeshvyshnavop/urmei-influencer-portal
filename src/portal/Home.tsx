@@ -269,10 +269,13 @@ export default function Home({
           product={pendingProduct}
           featuredCount={featuredShopItemCount}
           featuredLimit={6}
+          existingVariants={loadShopItems()
+            .filter((item) => item.product.id === pendingProduct.id)
+            .map((item) => item.variant)}
           onClose={() => setPendingProduct(null)}
           onFeatureBlocked={() => setToastMessage("Product failed to add as featured")}
-          onConfirm={(featured) => {
-            const newItem: ShopItem = { id: crypto.randomUUID(), product: pendingProduct, featured };
+          onConfirm={(featured, variant) => {
+            const newItem: ShopItem = { id: crypto.randomUUID(), product: pendingProduct, featured, variant };
             setShopItems((current) => {
               const next = [...current, newItem];
               saveShopItems(next);

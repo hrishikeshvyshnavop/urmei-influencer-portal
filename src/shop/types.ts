@@ -39,10 +39,13 @@ export type Product = {
 }
 
 export type ShopItem = {
-  /** Unique per added row — the same product can be added more than once. */
+  /** Unique per added row — the same product can be added more than once,
+   *  provided each addition is for a different variant (see
+   *  `AddToShopModal`, which blocks re-adding one already in `variant`). */
   id: string
   product: Product
   featured: boolean
+  variant: string
 }
 
 export type OverlayView =

@@ -1,12 +1,10 @@
 import { useState, type ReactNode } from 'react'
 import {
   CATEGORIES,
-  EMPTY_FILTERS,
   FILTER_BRANDS,
   INGREDIENTS,
   PRICE_BUCKETS,
   RATING_THRESHOLDS,
-  hasActiveFilters,
   type ProductFilters,
 } from '../data/catalogue'
 import { Checkbox } from './Checkbox'
@@ -21,13 +19,29 @@ function toggleInList(list: string[], value: string): string[] {
   return list.includes(value) ? list.filter((entry) => entry !== value) : [...list, value]
 }
 
+/** Brand values are stored upper-case (matching how the catalogue displays
+ *  them elsewhere), but Figma's Brand filter shows them in title case —
+ *  display-only, so filtering still matches on the real, stored value. */
+function toTitleCase(value: string): string {
+  return value
+    .toLowerCase()
+    .split(' ')
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ')
+}
+
 type SelectedTag = { value: string; label: string }
 
 function Tag({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
     <span className="flex shrink-0 items-center justify-center gap-xs rounded-sm bg-surface-tertiary-500 px-sm py-xs">
       <span className="text-body-sm font-medium whitespace-nowrap text-text-secondary-1000">{label}</span>
-      <button type="button" aria-label={`Remove ${label} filter`} onClick={onRemove}>
+      <button
+        type="button"
+        aria-label={`Remove ${label} filter`}
+        onClick={onRemove}
+        className="flex items-center justify-center"
+      >
         <Icon name="x" srcSize={24} />
       </button>
     </span>
@@ -60,8 +74,8 @@ function FilterGroup({
   return (
     <div
       className={[
-        'flex w-full flex-col items-start border-r border-border-default',
-        last ? '' : 'border-b',
+        'flex w-full flex-col items-start',
+        last ? '' : 'border-b border-border-default',
       ].join(' ')}
     >
       <button
@@ -118,27 +132,11 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
 
   return (
     <aside className="flex w-[285px] flex-col items-start self-start bg-surface-secondary-100">
-      <div className="flex h-[74px] w-full items-center justify-between border-r border-b border-border-default px-md py-md-2">
-        <p className="text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
-          Filters
-        </p>
-        <button
-          type="button"
-          onClick={() => onChange(EMPTY_FILTERS)}
-          className={[
-            'text-body-xs font-medium tracking-[1.6px] text-text-secondary-1000 uppercase',
-            hasActiveFilters(filters) ? '' : 'invisible',
-          ].join(' ')}
-        >
-          Clear All
-        </button>
-      </div>
-
       <FilterGroup
         label="Brand"
         open={openGroups.has('Brand')}
         onToggle={() => toggleGroup('Brand')}
-        selected={filters.brands.map((brand) => ({ value: brand, label: brand }))}
+        selected={filters.brands.map((brand) => ({ value: brand, label: toTitleCase(brand) }))}
         onRemoveSelected={(brand) => onChange({ ...filters, brands: toggleInList(filters.brands, brand) })}
       >
         <div className="flex w-full items-center gap-sm rounded-sm border border-border-default px-md-sm py-sm">
@@ -154,7 +152,7 @@ export function FiltersSidebar({ filters, onChange }: FiltersSidebarProps) {
         {visibleBrands.map((brand) => (
           <Checkbox
             key={brand}
-            label={brand}
+            label={toTitleCase(brand)}
             checked={filters.brands.includes(brand)}
             onChange={() => onChange({ ...filters, brands: toggleInList(filters.brands, brand) })}
           />
