@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
-import { Bell, Percent, Receipt, Star, User, X } from "lucide-react";
+import { Bell, Star, User, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 type Notification = {
@@ -16,25 +16,6 @@ type Notification = {
 type NotificationGroup = { date: string; items: Notification[] };
 
 const defaultGroups: NotificationGroup[] = [
-  {
-    date: "Today",
-    items: [
-      {
-        icon: Percent,
-        title: "Sale on your shop",
-        body: "Resurrection renew radiance eye cream sold — you earned S$4.05.",
-        time: "2m",
-        unread: true,
-      },
-      {
-        icon: Receipt,
-        title: "Payout sent",
-        body: "Payout sent from URMEI it is on its way to your bank. Expect it in 2–3 working days.",
-        time: "1h",
-        unread: true,
-      },
-    ],
-  },
   {
     date: "Yesterday",
     items: [
