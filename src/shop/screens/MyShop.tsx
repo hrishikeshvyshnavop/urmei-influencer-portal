@@ -131,10 +131,13 @@ export function MyShop({
             </div>
 
             <div className="flex w-full flex-col items-start bg-surface-secondary-100">
-              {isEmpty ? (
-                <EmptyShop onBrowse={onBrowse} />
-              ) : isFeaturedTab && featuredItems.length === 0 ? (
+              {/* Checked before `isEmpty` so the Featured tab always shows its
+                  own empty state — including when the shop has no products
+                  at all — rather than falling back to `EmptyShop`. */}
+              {isFeaturedTab && featuredItems.length === 0 ? (
                 <EmptyFeatured onGoToAllPicks={() => onTabChange('all')} />
+              ) : isEmpty ? (
+                <EmptyShop onBrowse={onBrowse} />
               ) : (
                 <div className="grid w-full grid-cols-4 gap-lg">
                   {visibleItems.map((item) => (
