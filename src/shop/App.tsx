@@ -228,6 +228,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   function shopModeFor(item: ShopItem, showPerformance: boolean) {
     return {
       featured: item.featured,
+      variant: item.variant,
       onToggleFeatured: () => toggleFeatured(item),
       onRemoveFromShop: () => setRemovalCandidate(item),
       affiliateLink: affiliateLinkFor(item.product),
