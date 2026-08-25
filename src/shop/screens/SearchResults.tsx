@@ -1,11 +1,60 @@
-import { useMemo, useState } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState, type RefObject } from 'react'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CatalogueSearch } from '../components/CatalogueSearch'
 import { FiltersSidebar } from '../components/FiltersSidebar'
 import { Icon } from '../components/Icon'
 import { SortDropdown } from '../components/SortDropdown'
 import { EMPTY_FILTERS, applyFilters, sortProducts, type SortId } from '../data/catalogue'
+import { useFitScale } from '../hooks/useFitScale'
 import type { Product } from '../types'
+
+function findScrollAncestor(node: HTMLElement): HTMLElement | null {
+  let current = node.parentElement
+  while (current) {
+    if (getComputedStyle(current).overflowY === 'auto') return current
+    current = current.parentElement
+  }
+  return null
+}
+
+/**
+ * Height (in this screen's 1440-wide design space) for the results column so
+ * it scrolls in its own pane, ending flush with the bottom of the overlay's
+ * real scroll viewport. `position: sticky` on the Filters sidebar can't be
+ * used instead — `ScaledBox`'s `transform: scale()` ancestor makes sticky
+ * degrade to static (see `BrowseOverlay`'s header comment for the same
+ * issue) — so the sidebar sticks by simply never being part of a scrolling
+ * region: only its sibling column scrolls, in a pane sized to fit exactly.
+ */
+function useResultsPaneHeight(rowRef: RefObject<HTMLDivElement | null>) {
+  const scale = useFitScale(1440)
+  const [height, setHeight] = useState<number>()
+
+  useLayoutEffect(() => {
+    const row = rowRef.current
+    if (!row) return
+    const scrollParent = findScrollAncestor(row)
+    if (!scrollParent) return
+
+    function measure() {
+      if (!row || !scrollParent) return
+      // Measure as if unscrolled, so an in-progress scroll doesn't skew the result.
+      const savedScrollTop = scrollParent.scrollTop
+      scrollParent.scrollTop = 0
+      const rowTop = row.getBoundingClientRect().top
+      const containerBottom = scrollParent.getBoundingClientRect().bottom
+      scrollParent.scrollTop = savedScrollTop
+
+      setHeight(Math.max(400, (containerBottom - rowTop) / scale))
+    }
+
+    measure()
+    window.addEventListener('resize', measure)
+    return () => window.removeEventListener('resize', measure)
+  }, [rowRef, scale])
+
+  return height
+}
 
 type SearchResultsProps = {
   query: string
@@ -98,28 +147,52 @@ function NoResults() {
   )
 }
 
-function Pagination() {
+/** Cards per page — also the threshold above which pagination appears at all. */
+const PAGE_SIZE = 8
+
+function Pagination({
+  page,
+  pageCount,
+  onChange,
+}: {
+  page: number
+  pageCount: number
+  onChange: (page: number) => void
+}) {
   return (
     <div className="flex w-full items-center justify-center gap-sm overflow-clip pt-md">
-      <button type="button" aria-label="Previous page" className="size-[38px]">
+      <button
+        type="button"
+        aria-label="Previous page"
+        disabled={page === 1}
+        onClick={() => onChange(page - 1)}
+        className="size-[38px] disabled:opacity-40"
+      >
         <img src="/assets/icons/page-prev.svg" alt="" className="size-full" />
       </button>
-      {[1, 2, 3, 4].map((page) => (
+      {Array.from({ length: pageCount }, (_, index) => index + 1).map((pageNumber) => (
         <button
-          key={page}
+          key={pageNumber}
           type="button"
-          aria-current={page === 1 ? 'page' : undefined}
+          aria-current={pageNumber === page ? 'page' : undefined}
+          onClick={() => onChange(pageNumber)}
           className={[
             'flex size-[38px] items-center justify-center overflow-clip rounded-md text-body-sm leading-[1.4] font-medium',
-            page === 1
+            pageNumber === page
               ? 'bg-surface-primary-500 text-text-secondary-100'
               : 'border border-border-default bg-surface-secondary-100 text-text-secondary-1000',
           ].join(' ')}
         >
-          {page}
+          {pageNumber}
         </button>
       ))}
-      <button type="button" aria-label="Next page" className="size-[38px]">
+      <button
+        type="button"
+        aria-label="Next page"
+        disabled={page === pageCount}
+        onClick={() => onChange(page + 1)}
+        className="size-[38px] disabled:opacity-40"
+      >
         <img src="/assets/icons/page-next.svg" alt="" className="size-full" />
       </button>
     </div>
@@ -137,11 +210,26 @@ export function SearchResults({
 }: SearchResultsProps) {
   const [filters, setFilters] = useState(EMPTY_FILTERS)
   const [sortBy, setSortBy] = useState<SortId>('relevance')
+  const [page, setPage] = useState(1)
 
   const visibleResults = useMemo(
     () => sortProducts(applyFilters(results, filters), sortBy),
     [results, filters, sortBy],
   )
+
+  // A new search, filter, or sort invalidates whatever page we were on — reset
+  // during render (React's documented pattern) rather than in an effect.
+  const [resultsForPageReset, setResultsForPageReset] = useState(visibleResults)
+  if (visibleResults !== resultsForPageReset) {
+    setResultsForPageReset(visibleResults)
+    setPage(1)
+  }
+
+  const pageCount = Math.max(1, Math.ceil(visibleResults.length / PAGE_SIZE))
+  const pagedResults = visibleResults.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  const rowRef = useRef<HTMLDivElement>(null)
+  const paneHeight = useResultsPaneHeight(rowRef)
 
   return (
     <div className="flex w-full flex-col items-start">
@@ -151,7 +239,7 @@ export function SearchResults({
         />
       </div>
 
-      <div className="flex w-full flex-col items-start px-margin pt-md-2">
+      <div className="flex w-full flex-col items-start gap-fourteen px-margin pt-md-2 pb-5xl">
         <CatalogueSearch
           className="w-[384px]"
           value={query}
@@ -159,10 +247,13 @@ export function SearchResults({
           onSubmit={onSearch}
         />
 
-        <div className="mt-[34px] flex w-full items-start">
+        <div ref={rowRef} className="flex w-full items-start">
           <FiltersSidebar filters={filters} onChange={setFilters} />
 
-          <div className="flex min-w-0 flex-1 flex-col items-end gap-3xl">
+          <div
+            style={paneHeight ? { height: paneHeight } : undefined}
+            className="flex min-w-0 flex-1 flex-col items-end gap-3xl overflow-y-auto"
+          >
             <div className="flex h-[74px] w-full flex-col items-end justify-center border-b border-border-default pt-xs pb-md-sm">
               <SortDropdown value={sortBy} onChange={setSortBy} />
             </div>
@@ -171,7 +262,7 @@ export function SearchResults({
               {visibleResults.length === 0 ? (
                 <NoResults />
               ) : (
-                visibleResults.map((product, index) => (
+                pagedResults.map((product, index) => (
                   <ResultCard
                     key={`${product.id}-${index}`}
                     product={product}
@@ -182,7 +273,9 @@ export function SearchResults({
               )}
             </div>
 
-            {visibleResults.length > 0 && <Pagination />}
+            {visibleResults.length > PAGE_SIZE && (
+              <Pagination page={page} pageCount={pageCount} onChange={setPage} />
+            )}
           </div>
         </div>
       </div>

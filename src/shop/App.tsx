@@ -25,7 +25,6 @@ const REORDER_FAILURE_RATE = 0.2
 
 type ToastState = {
   message: string
-  top: number
   variant?: 'success' | 'error'
   action?: { label: string; onClick: () => void }
 }
@@ -87,10 +86,9 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   /** Shown wherever a "feature this" action can't be satisfied because all
    *  `MAX_FEATURED` slots are already taken — the Shop's "⋮" menu, the Add to
    *  Shop modal's feature toggle, and the Product Detail page all hit this. */
-  function showFeaturedSlotsFullToast(top: number) {
+  function showFeaturedSlotsFullToast() {
     setToast({
       message: 'Product failed to add as featured',
-      top,
       variant: 'error',
       action: { label: 'Manage Slot', onClick: () => setActiveTab('featured') },
     })
@@ -110,9 +108,9 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setNextId((current) => current + 1)
     setPendingProduct(null)
     if (slotsFull) {
-      showFeaturedSlotsFullToast(92)
+      showFeaturedSlotsFullToast()
     } else {
-      setToast({ message: 'Product added to your shop', top: 92 })
+      setToast({ message: 'Product added to your shop' })
     }
     markChanged()
   }
@@ -123,7 +121,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setPublishOpen(false)
     setHasUnpublishedChanges(false)
     setShopPublished(true)
-    setToast({ message: 'Your shop published successfully', top: 150 })
+    setToast({ message: 'Your shop published successfully' })
   }
 
   function toggleFeatured(item: ShopItem) {
@@ -131,18 +129,18 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       setItems((current) =>
         current.map((row) => (row.id === item.id ? { ...row, featured: false } : row)),
       )
-      setToast({ message: 'Product Removed From Featured', top: 150 })
+      setToast({ message: 'Product Removed From Featured' })
       markChanged()
       return
     }
 
     if (featuredCount >= MAX_FEATURED) {
-      showFeaturedSlotsFullToast(150)
+      showFeaturedSlotsFullToast()
       return
     }
 
     setItems((current) => current.map((row) => (row.id === item.id ? { ...row, featured: true } : row)))
-    setToast({ message: 'Product Added to Featured', top: 150 })
+    setToast({ message: 'Product Added to Featured' })
     markChanged()
   }
 
@@ -151,7 +149,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setItems((current) => current.filter((row) => row.id !== item.id))
     setViewingItemId((current) => (current === item.id ? null : current))
     setRemovalCandidate(null)
-    setToast({ message: 'Product removed from your shop', top: 150 })
+    setToast({ message: 'Product removed from your shop' })
     markChanged()
   }
 
@@ -160,7 +158,6 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     if (Math.random() < REORDER_FAILURE_RATE) {
       setToast({
         message: "Couldn't save the new order, we put it back the way it was",
-        top: 150,
         variant: 'error',
       })
       return
@@ -191,12 +188,12 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
 
   function copyAffiliateLink(item: ShopItem) {
     navigator.clipboard?.writeText(affiliateLinkFor(item.product)).catch(() => {})
-    setToast({ message: 'Affiliate link copied to clipboard', top: 150 })
+    setToast({ message: 'Affiliate link copied to clipboard' })
   }
 
   function copyShopLink() {
     navigator.clipboard?.writeText(SHOP_URL).catch(() => {})
-    setToast({ message: 'Shop link copied to clipboard', top: 150 })
+    setToast({ message: 'Shop link copied to clipboard' })
   }
 
   const results = overlay?.kind === 'results' ? searchProducts(overlay.query) : []
@@ -291,7 +288,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           featuredLimit={MAX_FEATURED}
           onClose={() => setPendingProduct(null)}
           onConfirm={confirmAdd}
-          onFeatureBlocked={() => showFeaturedSlotsFullToast(92)}
+          onFeatureBlocked={() => showFeaturedSlotsFullToast()}
         />
       )}
 
@@ -314,12 +311,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       )}
 
       {toast && (
-        <Toast
-          message={toast.message}
-          top={toast.top}
-          variant={toast.variant}
-          action={toast.action}
-        />
+        <Toast message={toast.message} variant={toast.variant} action={toast.action} />
       )}
     </>
   )
