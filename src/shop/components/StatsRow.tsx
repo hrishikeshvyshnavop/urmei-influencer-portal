@@ -2,7 +2,7 @@ type Stat = { label: string; value: string }
 
 export function StatsRow({ stats }: { stats: Stat[] }) {
   return (
-    <div className="flex w-full flex-col items-center rounded-lg border border-border-muted bg-surface-secondary-100 px-[28px] py-xxl drop-shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
+    <div className="flex w-full flex-col items-center rounded-lg border border-border-default bg-surface-secondary-100 px-[28px] py-xxl drop-shadow-[0_4px_10px_rgba(0,0,0,0.03)]">
       <div className="flex h-[83px] w-full items-center gap-lg">
         {stats.map((stat, index) => (
           <div key={stat.label} className="flex h-full flex-1 items-center gap-lg">
