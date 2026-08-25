@@ -16,9 +16,11 @@ import { SearchResults } from './screens/SearchResults'
 import { StorefrontPreview } from './screens/StorefrontPreview'
 import {
   loadHasUnpublishedChanges,
+  loadPublishBlocked,
   loadPublishedAt,
   loadShopItems,
   saveHasUnpublishedChanges,
+  savePublishBlocked,
   savePublishedAt,
   saveShopItems,
 } from './shop-items-store'
@@ -61,6 +63,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [profileComplete] = useState(isProfileSetupComplete)
   const [publishedAt, setPublishedAt] = useState<string | null>(loadPublishedAt)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(loadHasUnpublishedChanges)
+  const [publishBlocked, setPublishBlocked] = useState(loadPublishBlocked)
 
   useEffect(() => {
     setShopItemCount(items.length)
@@ -74,6 +77,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   useEffect(() => {
     saveHasUnpublishedChanges(hasUnpublishedChanges)
   }, [hasUnpublishedChanges])
+
+  useEffect(() => {
+    savePublishBlocked(publishBlocked)
+  }, [publishBlocked])
 
   useEffect(() => {
     if (!toast) return
@@ -135,9 +142,17 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
 
   function confirmPublish() {
     if (!profileComplete) return
-    setPublishedAt(formatPublishedAt(new Date()))
     setPublishOpen(false)
+    // Publishing with nothing in the shop doesn't actually go live — it just
+    // records the attempt so the page can show the blocked-publish state
+    // (Figma `1362:73958`) until a product is added.
+    if (items.length === 0) {
+      setPublishBlocked(true)
+      return
+    }
+    setPublishedAt(formatPublishedAt(new Date()))
     setHasUnpublishedChanges(false)
+    setPublishBlocked(false)
     setShopPublished(true)
     setToast({ message: 'Your shop published successfully' })
     logShopActivity('shop-published')
@@ -266,6 +281,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           published={publishedAt !== null}
           publishedAt={publishedAt}
           hasUnpublishedChanges={hasUnpublishedChanges}
+          publishBlocked={publishBlocked}
           onPublish={() => setPublishOpen(true)}
           onViewDetails={(item) => setViewingItemId(item.id)}
           onCopyLink={copyAffiliateLink}
@@ -327,6 +343,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       {publishOpen && (
         <PublishShopDialog
           profileComplete={profileComplete}
+          hasProducts={items.length > 0}
           onClose={() => setPublishOpen(false)}
           onPublish={confirmPublish}
           onCompleteProfile={() => { window.location.hash = getSetupManageAccountRoute() }}

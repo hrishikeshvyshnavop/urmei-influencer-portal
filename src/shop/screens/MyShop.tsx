@@ -21,6 +21,8 @@ type MyShopProps = {
   published: boolean
   publishedAt: string | null
   hasUnpublishedChanges: boolean
+  /** Set after publishing was attempted with zero products — see `StoreCard`. */
+  publishBlocked: boolean
   onPublish: () => void
   onViewDetails: (item: ShopItem) => void
   onCopyLink: (item: ShopItem) => void
@@ -40,6 +42,7 @@ export function MyShop({
   published,
   publishedAt,
   hasUnpublishedChanges,
+  publishBlocked,
   onPublish,
   onViewDetails,
   onCopyLink,
@@ -49,6 +52,9 @@ export function MyShop({
 }: MyShopProps) {
   const featuredItems = items.filter((item) => item.featured)
   const isEmpty = items.length === 0
+  // Adding a product resolves a blocked publish attempt immediately, even
+  // before the user publishes again.
+  const blocked = publishBlocked && isEmpty
   const isFeaturedTab = activeTab === 'featured'
 
   const tabs = isEmpty
@@ -83,20 +89,17 @@ export function MyShop({
           </div>
 
           <div className="flex w-full flex-col items-center overflow-clip rounded-lg bg-surface-secondary-300 shadow-store-card">
-            {/* `canPublish` only gates the very first publish (no products yet
-                to show); once `published` is true, Preview/Publish stay live
-                even if every product was since removed. */}
             <StoreCard
               attachedBelow
-              canPublish={items.length > 0}
               published={published}
               publishedAt={publishedAt}
               hasUnpublishedChanges={hasUnpublishedChanges}
+              publishBlocked={blocked}
               onPublish={onPublish}
               onPreview={onPreview}
               onViewShop={onViewShop}
             />
-            {published && (
+            {(published || blocked) && (
               <StatsRow
                 stats={[
                   { label: 'TOTAL PRODUCTS', value: String(items.length) },
