@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
+import { getSavedDisplayName } from '../../portal/profile-status'
+import { EmptyStorefront } from '../components/EmptyStorefront'
 import { Icon } from '../components/Icon'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
@@ -130,6 +132,7 @@ function AllPicks({ items }: { items: ReturnType<typeof loadShopItems> }) {
 export function StandaloneStorefront() {
   const items = loadShopItems()
   const featuredItems = items.filter((item) => item.featured)
+  const name = getSavedDisplayName('Charlotte')
 
   const copyShopLink = () => {
     navigator.clipboard?.writeText(SHOP_URL).catch(() => {})
@@ -146,9 +149,14 @@ export function StandaloneStorefront() {
           <StorefrontProfileCard onCopyLink={copyShopLink} />
         </div>
 
-        {featuredItems.length > 0 && <TopFeaturedProducts items={featuredItems} />}
-
-        <AllPicks items={items} />
+        {items.length === 0 ? (
+          <EmptyStorefront name={name} />
+        ) : (
+          <>
+            {featuredItems.length > 0 && <TopFeaturedProducts items={featuredItems} />}
+            <AllPicks items={items} />
+          </>
+        )}
       </main>
 
       <AppFooter />

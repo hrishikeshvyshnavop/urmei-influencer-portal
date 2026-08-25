@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
+import { getSavedDisplayName } from '../../portal/profile-status'
+import { EmptyStorefront } from '../components/EmptyStorefront'
 import { Icon } from '../components/Icon'
 import { ScaledBox } from '../components/ScaledBox'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
@@ -148,10 +150,13 @@ function AllPicks({ items }: { items: ShopItem[] }) {
  * (enabled only once the shop is published). Shows the real shop contents
  * rather than the section's placeholder products — "Top Featured Products"
  * mirrors the Featured tab and is omitted entirely when nothing is featured,
- * since the Figma frames never show that empty case.
+ * since the Figma frames never show that empty case. With no products at
+ * all (e.g. everything removed after publishing), swaps both product
+ * sections for the dedicated empty state.
  */
 export function StorefrontPreview({ items, onClose, onCopyShopLink }: StorefrontPreviewProps) {
   const featuredItems = items.filter((item) => item.featured)
+  const name = getSavedDisplayName('Charlotte')
 
   return (
     <div className="flex min-h-screen w-full justify-center">
@@ -163,9 +168,14 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
             <StorefrontProfileCard onCopyLink={onCopyShopLink} />
           </div>
 
-          {featuredItems.length > 0 && <TopFeaturedProducts items={featuredItems} />}
-
-          <AllPicks items={items} />
+          {items.length === 0 ? (
+            <EmptyStorefront name={name} />
+          ) : (
+            <>
+              {featuredItems.length > 0 && <TopFeaturedProducts items={featuredItems} />}
+              <AllPicks items={items} />
+            </>
+          )}
         </main>
 
         <AppFooter />

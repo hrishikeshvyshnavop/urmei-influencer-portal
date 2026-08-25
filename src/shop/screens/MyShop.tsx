@@ -82,33 +82,32 @@ export function MyShop({
             <p className="text-body-md text-text-secondary-700">Your curated URMEI storefront.</p>
           </div>
 
-          {isEmpty ? (
-            <StoreCard />
-          ) : (
-            <div className="flex w-full flex-col items-center overflow-clip rounded-lg bg-surface-secondary-300 shadow-store-card">
-              <StoreCard
-                attachedBelow
-                canPublish
-                published={published}
-                publishedAt={publishedAt}
-                hasUnpublishedChanges={hasUnpublishedChanges}
-                onPublish={onPublish}
-                onPreview={onPreview}
-                onViewShop={onViewShop}
+          <div className="flex w-full flex-col items-center overflow-clip rounded-lg bg-surface-secondary-300 shadow-store-card">
+            {/* `canPublish` only gates the very first publish (no products yet
+                to show); once `published` is true, Preview/Publish stay live
+                even if every product was since removed. */}
+            <StoreCard
+              attachedBelow
+              canPublish={items.length > 0}
+              published={published}
+              publishedAt={publishedAt}
+              hasUnpublishedChanges={hasUnpublishedChanges}
+              onPublish={onPublish}
+              onPreview={onPreview}
+              onViewShop={onViewShop}
+            />
+            {published && (
+              <StatsRow
+                stats={[
+                  { label: 'TOTAL PRODUCTS', value: String(items.length) },
+                  { label: 'FEATURED PRODUCTS', value: String(featuredItems.length) },
+                  { label: 'CLICKS', value: '0%' },
+                  { label: 'SALES', value: '0' },
+                  { label: 'COMMISSION EARNED', value: 'S$0' },
+                ]}
               />
-              {published && (
-                <StatsRow
-                  stats={[
-                    { label: 'TOTAL PRODUCTS', value: String(items.length) },
-                    { label: 'FEATURED PRODUCTS', value: String(featuredItems.length) },
-                    { label: 'CLICKS', value: '0%' },
-                    { label: 'SALES', value: '0' },
-                    { label: 'COMMISSION EARNED', value: 'S$0' },
-                  ]}
-                />
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </section>
 
         <section className="flex w-full flex-col items-center gap-3xl">
