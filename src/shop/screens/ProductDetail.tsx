@@ -9,7 +9,7 @@ type BreadcrumbItem = { label: string; onClick?: () => void }
 export type ShopMode = {
   featured: boolean
   /** The variant actually chosen when this item was added to the shop —
-   *  distinct from `product.shopVariant`, which is just the catalogue default. */
+   *  distinct from the product's catalogue-wide `variant`/`variantOptions`. */
   variant: string
   onToggleFeatured: () => void
   onRemoveFromShop: () => void

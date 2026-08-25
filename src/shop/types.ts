@@ -7,8 +7,6 @@ export type Product = {
   variant: string
   /** Choices offered by the modal's size dropdown; always includes `variant`. */
   variantOptions: string[]
-  /** Variant shown on the shop card, e.g. "50 ML | Blue gel cream" */
-  shopVariant: string
   /** Range shown in search results and on the detail page */
   priceRange: string
   /** Single price shown in the modal and on the shop card */
