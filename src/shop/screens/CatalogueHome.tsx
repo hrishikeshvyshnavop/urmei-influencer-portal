@@ -88,14 +88,10 @@ export function CatalogueHome({ query, onQueryChange, onSearch }: CatalogueHomeP
           <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
             Brands
           </p>
-          <button
-            type="button"
-            onClick={() => onSearch('All')}
-            className="flex items-center gap-sm overflow-clip"
-          >
+          <a href="#/brands" className="flex items-center gap-sm overflow-clip">
             <span className="text-body-sm font-medium text-text-secondary-1000">View All</span>
             <Icon name="chevron-right" />
-          </button>
+          </a>
         </div>
         <div className="flex w-full items-center gap-[19.95px]">
           {BRAND_LOGOS.map((brand) => (

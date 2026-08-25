@@ -25,6 +25,9 @@ type SearchResultsProps = {
   onBackToCatalogue: () => void
   onOpenProduct: (product: Product) => void
   onAddToShop: (product: Product) => void
+  /** Seeds the Filters panel — e.g. a brand card's "View Products" link
+   *  arrives with that brand pre-checked instead of typed into the search box. */
+  initialFilters?: ProductFilters
 }
 
 function ResultCard({
@@ -166,8 +169,9 @@ export function SearchResults({
   onBackToCatalogue,
   onOpenProduct,
   onAddToShop,
+  initialFilters = EMPTY_FILTERS,
 }: SearchResultsProps) {
-  const [filters, setFilters] = useState(EMPTY_FILTERS)
+  const [filters, setFilters] = useState(initialFilters)
   const [sortBy, setSortBy] = useState<SortId>('relevance')
   const [page, setPage] = useState(1)
 

@@ -5,7 +5,7 @@ import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
 import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
-import { PRODUCTS, searchProducts } from './data/catalogue'
+import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
 import { DEPLOYED_APP_URL, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
 import { BrowseOverlay } from './screens/BrowseOverlay'
 import { CatalogueHome } from './screens/CatalogueHome'
@@ -39,7 +39,7 @@ type ToastState = {
   action?: { label: string; onClick: () => void }
 }
 
-export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string }) {
+export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string }) {
   const [items, setItems] = useState<ShopItem[]>(loadShopItems)
   const [activeTab, setActiveTab] = useState('all')
   const [overlay, setOverlay] = useState<OverlayView | null>(() => {
@@ -48,9 +48,16 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       if (product) return { kind: 'detail', query: '', product }
     }
     if (initialSearch) return { kind: 'results', query: initialSearch }
+    // The brand filter goes into the Filters panel, not the search box — the
+    // results view still opens with an empty query, matching the header
+    // search's `initialSearch` entry point.
+    if (initialBrandFilter) return { kind: 'results', query: '' }
     return initialBrowse ? { kind: 'catalogue' } : null
   })
   const [query, setQuery] = useState(initialSearch ?? '')
+  const [initialFilters] = useState<ProductFilters>(() =>
+    initialBrandFilter ? { ...EMPTY_FILTERS, brands: [initialBrandFilter] } : EMPTY_FILTERS,
+  )
   const [pendingProduct, setPendingProduct] = useState<Product | null>(() => initialAddProductId ? PRODUCTS.find((item) => item.id === initialAddProductId) ?? null : null)
   const [toast, setToast] = useState<ToastState | null>(null)
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
@@ -288,6 +295,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
             <SearchResults
               query={query}
               results={results}
+              initialFilters={initialFilters}
               onQueryChange={setQuery}
               onSearch={runSearch}
               onBackToCatalogue={openCatalogue}

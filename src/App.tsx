@@ -19,6 +19,7 @@ import ApprovalPreview from "./portal/ApprovalPreview";
 import ApprovalEmail from "./portal/ApprovalEmail";
 import { clearSetupRequired, markSetupRequired } from "./portal/setup-status";
 import HelpCenter from "./portal/HelpCenter";
+import Brands from "./portal/Brands";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
 import ManageAccount from "./portal/ManageAccount";
 import ShopExperience from "./shop/App";
@@ -138,6 +139,9 @@ function screenFor(
 ) {
   if (hash.startsWith("#/shop/search/")) {
     return <ShopExperience initialSearch={decodeURIComponent(hash.slice("#/shop/search/".length))} />;
+  }
+  if (hash.startsWith("#/shop/brand/")) {
+    return <ShopExperience initialBrandFilter={decodeURIComponent(hash.slice("#/shop/brand/".length))} />;
   }
   if (hash.startsWith("#/shop/add/")) {
     return <ShopExperience initialAddProductId={decodeURIComponent(hash.slice("#/shop/add/".length))} />;
@@ -262,6 +266,8 @@ function screenFor(
       return <HomeScreen forceTour />;
     case "#/help-center":
       return <HelpCenter />;
+    case "#/brands":
+      return <Brands />;
     case "#/recent-activities":
       return <RecentActivitiesPage />;
     case "#/manage-account":

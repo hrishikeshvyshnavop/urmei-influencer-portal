@@ -2,7 +2,7 @@ const linkColumns = [
   ["URMEI", "About Us"],
   ["Collaborate", "Top Brands"],
   ["Support", "Help Center", "Contact Us"],
-  ["Legal", "Terms of Service", "Privacy Policy", "Cookies"],
+  ["Legal", "Terms of Service", "Privacy Policy"],
 ];
 
 const socials = [
@@ -24,7 +24,7 @@ export default function AppFooter() {
               {links.map((link) => (
                 <a
                   key={link}
-                  href={link === "Help Center" ? "#/help-center" : "#"}
+                  href={link === "Help Center" ? "#/help-center" : link === "Top Brands" ? "#/brands" : "#"}
                   className="block text-body-md"
                 >
                   {link}
