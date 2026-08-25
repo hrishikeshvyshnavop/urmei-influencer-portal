@@ -1,3 +1,5 @@
+import ProfilePhoto from '../../portal/components/ProfilePhoto'
+import { getSavedDisplayName } from '../../portal/profile-status'
 import { FOLLOWER_STATS } from '../data/shop'
 import { Button } from './Button'
 import { Icon } from './Icon'
@@ -16,15 +18,13 @@ export function StorefrontProfileCard({ onCopyLink }: StorefrontProfileCardProps
   return (
     <div className="flex w-full items-start justify-between gap-md rounded-lg bg-surface-secondary-300 px-lg py-xxl">
       <div className="flex flex-1 items-center gap-4xl-1">
-        <img
-          src="/assets/img/charlotte-avatar.png"
-          alt=""
-          className="size-[126px] rounded-full object-cover"
-        />
+        <span className="relative size-[126px] shrink-0 overflow-hidden rounded-full">
+          <ProfilePhoto fallback="/urmei/home/profile-dropdown-avatar.png" alt="" />
+        </span>
         <div className="flex flex-1 flex-col items-start gap-ten">
           <div className="flex w-full flex-col items-start gap-xs">
             <div className="flex items-center gap-[6px]">
-              <p className="text-body-xxl font-semibold text-text-secondary-1000">Charlotte</p>
+              <p className="text-body-xxl font-semibold text-text-secondary-1000">{getSavedDisplayName('Charlotte')}</p>
               <p className="text-body-md font-medium text-text-secondary-700">@charlotte</p>
             </div>
             <div className="flex items-center gap-xs">

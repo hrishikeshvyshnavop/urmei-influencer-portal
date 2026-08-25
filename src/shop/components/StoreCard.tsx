@@ -1,4 +1,6 @@
+import ProfilePhoto from '../../portal/components/ProfilePhoto'
 import ShopUrl from '../../portal/components/ShopUrl'
+import { getSavedDisplayName } from '../../portal/profile-status'
 import { Button } from './Button'
 import { Icon } from './Icon'
 
@@ -37,14 +39,12 @@ export function StoreCard({
     >
       <div className="flex w-full items-start justify-between">
         <div className="flex items-center gap-[26px]">
-          <img
-            src="/assets/img/charlotte-avatar.png"
-            alt=""
-            className="size-[84px] rounded-full object-cover"
-          />
+          <span className="relative size-[84px] shrink-0 overflow-hidden rounded-full">
+            <ProfilePhoto fallback="/urmei/home/profile-dropdown-avatar.png" alt="" />
+          </span>
           <div className="flex w-[297px] flex-col gap-sm">
             <div className="flex items-center gap-[6px]">
-              <p className="text-body-xxl font-semibold text-text-secondary-1000">Charlotte</p>
+              <p className="text-body-xxl font-semibold text-text-secondary-1000">{getSavedDisplayName('Charlotte')}</p>
               <p className="text-body-md font-medium text-text-secondary-700">@charlotte</p>
             </div>
             <ShopUrl published={published} variant="shop" />

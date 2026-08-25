@@ -12,6 +12,7 @@ import { CropModal } from "./SetProfilePhoto";
 import ShopUrl from "./components/ShopUrl";
 import TextField from "./components/TextField";
 import { clearSetupRequired, isSetupRequired } from "./setup-status";
+import { getSavedDisplayName, saveDisplayName } from "./profile-status";
 
 const socialPlatforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
@@ -21,7 +22,7 @@ const socialPlatforms: SocialPlatform[] = [
 ];
 
 const initialProfile = {
-  displayName: "Charlotte",
+  displayName: getSavedDisplayName("Charlotte"),
   bio: "Sharing the products I love, use and recommend. Discover my curated favorites and shop them all in one place.",
   phone: "+65 9123 4567",
   dob: "1998-01-15",
@@ -290,7 +291,7 @@ export default function ManageAccount() {
             </div>
             <div><h2 className="track-section text-body-md font-medium uppercase">Personal Information</h2><p className="text-body-sm text-portal-muted">Used to verify you and to pay you. None of this appears on your storefront.</p></div>
             <div className="grid gap-5 rounded-[10px] border border-portal-border bg-white p-6 sm:grid-cols-2"><label className="flex flex-col gap-1.5 text-body-sm font-medium">Legal first name<input value="Charlotte" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /></label><label className="flex flex-col gap-1.5 text-body-sm font-medium">Legal last name<input value="Tan" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /></label><label className="flex flex-col gap-1.5 text-body-sm font-medium sm:col-span-2">Email address<input value="charlotte.tan@email.com" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /><span className="font-normal text-portal-muted">Changing your email sends a confirmation link to both the old and new address.</span></label><label className="flex flex-col gap-1.5 text-body-sm font-medium">Phone number<input type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setSaved(false); }} className="rounded-[6px] border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label><TextField label="Date of birth" placeholder="DD MMM YYYY" value={dob} icon="calendar" latestDate={latestEligibleBirthday} onChange={(value) => { setDob(value); setSaved(false); }} /></div>
-            <div className="flex justify-end"><Button variant="portal" disabled={!profileDirty || saved} onClick={() => { setSavedProfile({ displayName, bio, phone, dob }); setSaved(true); }}>{saved ? "Saved" : "Save Changes"}</Button></div>
+            <div className="flex justify-end"><Button variant="portal" disabled={!profileDirty || saved} onClick={() => { saveDisplayName(displayName); setSavedProfile({ displayName, bio, phone, dob }); setSaved(true); }}>{saved ? "Saved" : "Save Changes"}</Button></div>
               </>
             )}
           </section>
