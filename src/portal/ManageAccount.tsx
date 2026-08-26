@@ -231,8 +231,8 @@ export default function ManageAccount({
 
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col gap-9 px-6 py-8 lg:px-[120px]">
         <h1 className="text-body-xxl">Manage Your Account</h1>
-        <div className="flex flex-col items-start gap-10 md:flex-row">
-          <nav aria-label="Account settings" className="flex w-full shrink-0 gap-[2px] overflow-x-auto md:sticky md:top-[104px] md:w-[260px] md:flex-col md:self-start">{NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`track-section flex h-12 shrink-0 items-center gap-2 rounded-lg px-3 text-left text-body-sm uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{(key === "Profile" && (setupRequired || !identityVerified)) || (key === "Payouts" && (setupRequired || !paymentConnected)) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}</nav>
+        <div className="flex flex-col items-start gap-10 sm:flex-row">
+          <nav aria-label="Account settings" className="flex w-full shrink-0 gap-[2px] overflow-x-auto sm:sticky sm:top-[104px] sm:w-[260px] sm:flex-col sm:self-start">{NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`track-section flex h-12 shrink-0 items-center gap-2 rounded-lg px-3 text-left text-body-sm uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{(key === "Profile" && (setupRequired || !identityVerified)) || (key === "Payouts" && (setupRequired || !paymentConnected)) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}</nav>
           <section className="flex min-w-0 flex-1 flex-col gap-5">
             {activeSection === "Social accounts" ? (
               <>
