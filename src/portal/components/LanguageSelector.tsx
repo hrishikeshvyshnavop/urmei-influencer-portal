@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import {
@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getSelectedCountry, setSelectedCountry, subscribeToSelectedCountry } from "../country-status";
 import Button from "./Button";
 
 const languages = [
@@ -93,9 +94,11 @@ function CountryFlag({ country, size = 32 }: { country: CountryId; size?: number
 
 export default function LanguageSelector() {
   const [language, setLanguage] = useState("EN");
-  const [country, setCountry] = useState<CountryId>("singapore");
+  const selectedCountryName = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
-  const selectedCountry = countries.find((item) => item.id === country)!;
+  const selectedCountry =
+    countries.find((item) => item.name === selectedCountryName) ?? countries[0];
+  const country = selectedCountry.id;
 
   useEffect(() => {
     if (!countryModalOpen) return;
@@ -189,7 +192,7 @@ export default function LanguageSelector() {
                         type="button"
                         aria-pressed={country === item.id}
                         onClick={() => {
-                          setCountry(item.id);
+                          setSelectedCountry(item.name);
                           setCountryModalOpen(false);
                         }}
                         className={`flex h-16 cursor-pointer items-center gap-2.5 rounded-lg border px-4 py-2.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-portal-dark focus-visible:ring-offset-2 ${

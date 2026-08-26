@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Button from "./components/Button";
 import Checkbox from "./components/Checkbox";
 import PortalFormLayout from "./components/PortalFormLayout";
@@ -6,6 +6,7 @@ import SectionTitle from "./components/SectionTitle";
 import SocialAccountRow from "./components/SocialAccountRow";
 import type { SocialPlatform } from "./components/SocialAccountRow";
 import TextField from "./components/TextField";
+import { getSelectedCountry, subscribeToSelectedCountry } from "./country-status";
 import { scrollToFirstError } from "@/lib/form-validation";
 
 type FieldSpec = {
@@ -19,6 +20,7 @@ type FieldSpec = {
   numericOnly?: boolean;
   maxLength?: number;
   latestDate?: Date;
+  locked?: boolean;
 };
 
 function getLatestEligibleBirthday() {
@@ -125,6 +127,7 @@ const addressFields: FieldSpec[] = [
     placeholder: "Select",
     autoComplete: "country-name",
     options: ["Singapore", "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam"],
+    locked: true,
   },
 ];
 
@@ -160,6 +163,7 @@ function FieldGrid({
           numericOnly={field.numericOnly}
           maxLength={field.maxLength}
           latestDate={field.latestDate}
+          locked={field.locked}
           value={values[field.name] ?? ""}
           error={
             showErrors && !(values[field.name] ?? "").trim()
@@ -189,11 +193,16 @@ export default function ApplyInfluencer({
   onBack,
   onSubmit,
 }: ApplyInfluencerProps) {
-  const [values, setValues] = useState<Record<string, string>>({});
+  const selectedCountry = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry);
+  const [values, setValues] = useState<Record<string, string>>({ country: selectedCountry });
   const [connected, setConnected] = useState<string[]>([]);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [consentedToData, setConsentedToData] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
+
+  useEffect(() => {
+    setValues((current) => ({ ...current, country: selectedCountry }));
+  }, [selectedCountry]);
 
   const setField = (name: string, value: string) =>
     setValues((current) => ({ ...current, [name]: value }));
