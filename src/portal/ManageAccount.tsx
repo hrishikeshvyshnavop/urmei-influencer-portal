@@ -100,9 +100,7 @@ export default function ManageAccount({
   const [editingAddress, setEditingAddress] = useState(false);
   const [addressErrors, setAddressErrors] = useState<Partial<Record<AddressField, string>>>({});
   const bannerRef = useRef<HTMLElement>(null);
-  const rowRef = useRef<HTMLDivElement>(null);
-  const [stickyOffset, setStickyOffset] = useState(104);
-  const [railMaxHeight, setRailMaxHeight] = useState(0);
+  const [stickyOffset, setStickyOffset] = useState(120);
   const profileDirty = displayName !== savedProfile.displayName || bio !== savedProfile.bio || phone !== savedProfile.phone || dob !== savedProfile.dob;
 
   useEffect(() => {
@@ -147,32 +145,16 @@ export default function ManageAccount({
   useEffect(() => {
     const bannerEl = bannerRef.current;
     const updateOffset = () => {
-      setStickyOffset(88 + (bannerEl?.offsetHeight ?? 0) + 16);
+      // Must equal the row's actual rest position (header/banner bottom +
+      // `main`'s py-8) so the sticky rail is already at its stuck offset on
+      // first paint — any mismatch shows up as a catch-up hop at scroll start.
+      setStickyOffset(88 + (bannerEl?.offsetHeight ?? 0) + 32);
     };
     updateOffset();
     const observer = new ResizeObserver(updateOffset);
     if (bannerEl) observer.observe(bannerEl);
     return () => observer.disconnect();
   }, [setupRequired, identityVerified, paymentConnected]);
-
-  // The rail is `position: sticky`, so it never renders past the bottom of
-  // `rowRef` on its own — but a tall footer can eat enough of the viewport
-  // near the end of scroll that there isn't room left for the whole rail
-  // above the header. Clip the rail's own bottom in that case instead of
-  // letting sticky's containment push its top under the header.
-  useEffect(() => {
-    const updateRailMaxHeight = () => {
-      const rowBottom = rowRef.current?.getBoundingClientRect().bottom ?? 0;
-      setRailMaxHeight(Math.max(0, Math.floor(rowBottom) - stickyOffset));
-    };
-    updateRailMaxHeight();
-    window.addEventListener("scroll", updateRailMaxHeight, { passive: true });
-    window.addEventListener("resize", updateRailMaxHeight);
-    return () => {
-      window.removeEventListener("scroll", updateRailMaxHeight);
-      window.removeEventListener("resize", updateRailMaxHeight);
-    };
-  }, [stickyOffset]);
 
   useEffect(() => {
     const syncPayment = () => {
@@ -271,16 +253,28 @@ export default function ManageAccount({
       ) : null}
 
       <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-9 px-6 py-8 lg:px-[120px]">
-        <div ref={rowRef} className="flex flex-col items-start gap-10 sm:flex-row">
-          <div className="flex w-full shrink-0 flex-col gap-9 sm:hidden">
+        <div className="flex flex-col items-start gap-10 sm:flex-row">
+          <div className="flex w-full shrink-0 flex-col gap-xl sm:hidden">
             <h1 className="text-body-xxl">Manage Your Account</h1>
             {railNav}
           </div>
-          <div style={{ top: stickyOffset, maxHeight: railMaxHeight }} className="hidden w-[260px] shrink-0 flex-col gap-9 overflow-hidden sm:sticky sm:flex">
+          {/* pb-[74px]: the max breathing room below the pills that still
+              keeps all 4 fully visible at true max scroll — the sticky box's
+              bottom edge is pinned at a fixed point once released, so any
+              taller box pushes its top up by the same amount; past ~74px the
+              pills themselves start sliding under the header (title already
+              does, right at this value, which is accepted). */}
+          <div style={{ top: stickyOffset }} className="z-10 hidden w-[260px] shrink-0 flex-col gap-xl pb-[74px] sm:sticky sm:flex">
             <h1 className="text-body-xxl whitespace-nowrap">Manage Your Account</h1>
             {railNav}
           </div>
-          <section style={{ "--section-h": `calc(100vh - ${stickyOffset}px - 32px)` } as React.CSSProperties} className="flex min-w-0 flex-1 flex-col gap-5 sm:h-[var(--section-h)] sm:overflow-y-auto">
+          {/* min-height guarantees the row is always at least a viewport tall,
+              regardless of which tab's content is active — so the sticky rail
+              always has room to sit still and, only in the row's final
+              stretch, release and slide up with the page. Sticky containment
+              then makes footer overlap impossible: the rail can never render
+              past this section's own bottom edge. */}
+          <section style={{ minHeight: `calc(100vh - ${stickyOffset}px)` } as React.CSSProperties} className="flex min-w-0 flex-1 flex-col gap-5">
             {activeSection === "Social accounts" ? (
               <>
                 <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Connected socials</h2><p className="text-body-sm text-portal-muted">Your connected accounts help brands see your social reach and engagement.</p></div>
