@@ -100,10 +100,15 @@ function consumeTourAfterLogin() {
  * The first arrival uses the empty Home state from Figma. The product tour is
  * opened explicitly from the profile menu; `#/home/tour` remains linkable.
  */
+/** Beat before the tour fades in after profile setup, so it reads as a
+ *  deliberate welcome rather than popping in over Home's own entrance. */
+const TOUR_AFTER_LOGIN_DELAY_MS = 450;
+
 function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
-  const [showTour, setShowTour] = useState(
-    () => forceTour || consumeTourAfterLogin(),
+  const [pendingTourAfterLogin] = useState(
+    () => !forceTour && consumeTourAfterLogin(),
   );
+  const [showTour, setShowTour] = useState(forceTour);
   const [firstVisit] = useState(() => !hasVisitedHome());
 
   useEffect(() => {
@@ -113,6 +118,12 @@ function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
       // Storage is optional; the first-arrival view is still fully usable.
     }
   }, []);
+
+  useEffect(() => {
+    if (!pendingTourAfterLogin) return;
+    const timer = window.setTimeout(() => setShowTour(true), TOUR_AFTER_LOGIN_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [pendingTourAfterLogin]);
 
   const dismiss = () => {
     setShowTour(false);

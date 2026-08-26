@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "./Button";
 
 type TourStep = {
@@ -56,8 +56,41 @@ export default function ProductTour({ onClose, onFinish }: ProductTourProps) {
   const [loadedImages, setLoadedImages] = useState(
     () => new Set<string>([steps[0].image]),
   );
+  // Closing (either way) plays the exit animation via `data-state` first and
+  // defers the real callback — and the unmount it triggers — instead of
+  // firing it immediately, so the modal fades out instead of vanishing.
+  const [closing, setClosing] = useState<false | "close" | "finish">(false);
+  const closeTimeoutRef = useRef<number | null>(null);
   const step = steps[index];
   const isLast = index === steps.length - 1;
+
+  function finishClose(kind: "close" | "finish") {
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    if (kind === "finish") onFinish();
+    else onClose();
+  }
+
+  function requestClose(kind: "close" | "finish") {
+    if (closing) return;
+    setClosing(kind);
+    // `onAnimationEnd` normally finishes the close, but CSS animations can
+    // stall while the tab is backgrounded — this guarantees it still closes.
+    closeTimeoutRef.current = window.setTimeout(() => finishClose(kind), 300);
+  }
+
+  function handleExitAnimationEnd() {
+    if (closing) finishClose(closing);
+  }
+
+  useEffect(
+    () => () => {
+      if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
@@ -86,17 +119,22 @@ export default function ProductTour({ onClose, onFinish }: ProductTourProps) {
     setIndex(nextIndex);
   };
 
-  const back = () => (index === 0 ? onClose() : void showStep(index - 1));
-  const next = () => (isLast ? onFinish() : void showStep(index + 1));
+  const back = () => (index === 0 ? requestClose("close") : void showStep(index - 1));
+  const next = () => (isLast ? requestClose("finish") : void showStep(index + 1));
 
   return (
     <div
       className="motion-modal-backdrop fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-[rgba(0,0,0,0.5)] p-4"
+      data-state={closing ? "closed" : "open"}
       role="dialog"
       aria-modal="true"
       aria-label="Product tour"
     >
-      <div className="motion-modal-panel relative my-auto flex h-[450px] w-[800px] max-w-full shrink-0 items-stretch overflow-clip rounded-[10px]">
+      <div
+        onAnimationEnd={handleExitAnimationEnd}
+        data-state={closing ? "closed" : "open"}
+        className="motion-modal-panel relative my-auto flex h-[450px] w-[800px] max-w-full shrink-0 items-stretch overflow-clip rounded-[10px]"
+      >
         <div className="flex h-full min-w-0 basis-1/2 flex-col items-start justify-between overflow-clip bg-white p-8">
           {step.indicator ? (
             <p className="track-section text-body-md font-medium whitespace-nowrap uppercase text-portal-muted">
@@ -162,7 +200,7 @@ export default function ProductTour({ onClose, onFinish }: ProductTourProps) {
           <div className="absolute top-0 right-0 flex items-center gap-[10px] p-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={() => requestClose("close")}
               aria-label="Close tour"
               className="flex cursor-pointer items-center justify-center overflow-clip rounded-lg bg-portal-light p-3"
             >
