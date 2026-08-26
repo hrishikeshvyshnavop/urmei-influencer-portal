@@ -213,7 +213,7 @@ export default function ManageAccount({
 
       {setupRequired || !identityVerified || !paymentConnected ? (
         <aside
-          className="flex w-full items-center justify-center gap-3 border-b border-[#e6e5e4] bg-portal-light px-6 py-3 lg:px-[120px]"
+          className="sticky top-[88px] z-20 flex w-full items-center justify-center gap-3 border-b border-[#e6e5e4] bg-portal-light px-6 py-3 lg:px-[120px]"
           aria-label="Account setup required"
         >
           <div className="flex items-center gap-3">

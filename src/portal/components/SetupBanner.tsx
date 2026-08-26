@@ -45,7 +45,7 @@ export default function SetupBanner() {
 
   return (
     <aside
-      className="flex w-full flex-col items-start justify-between gap-3 border-b border-[#e6e5e4] bg-[#fffefd] px-6 py-3 sm:flex-row sm:items-center lg:px-[120px]"
+      className="sticky top-[88px] z-20 flex w-full flex-col items-start justify-between gap-3 border-b border-[#e6e5e4] bg-[#fffefd] px-6 py-3 sm:flex-row sm:items-center lg:px-[120px]"
       aria-label="Account setup required"
     >
       <div className="flex min-w-0 items-start gap-3 sm:items-center">
