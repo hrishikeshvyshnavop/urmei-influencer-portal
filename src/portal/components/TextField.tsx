@@ -95,9 +95,10 @@ export default function TextField({
                 id={id}
                 aria-invalid={Boolean(error)}
                 aria-label={label}
-                className={value ? "text-portal-text" : "text-portal-placeholder"}
               >
-                <SelectValue placeholder={placeholder} />
+                <span className={value ? "text-portal-text" : "text-portal-placeholder"}>
+                  <SelectValue placeholder={placeholder} />
+                </span>
               </SelectTrigger>
               <SelectContent>
                 {options.map((option) => (

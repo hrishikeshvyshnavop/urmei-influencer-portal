@@ -41,39 +41,39 @@ const personalFields: FieldSpec[] = [
   {
     name: "firstName",
     label: "Legal First Name",
-    placeholder: "e.g. Charlotte",
+    placeholder: "",
     autoComplete: "given-name",
   },
   {
     name: "lastName",
     label: "Legal Last Name",
-    placeholder: "e.g. Charlotte",
+    placeholder: "",
     autoComplete: "family-name",
   },
   {
     name: "displayName",
     label: "Display name",
-    placeholder: "e.g. Charlotte Tan",
+    placeholder: "",
     autoComplete: "nickname",
   },
   {
     name: "email",
     label: "Email",
-    placeholder: "e.g. charlotte@email.com",
+    placeholder: "",
     type: "email",
     autoComplete: "email",
   },
   {
     name: "phone",
     label: "Phone number",
-    placeholder: "e.g. +65 9123 4567",
+    placeholder: "",
     type: "tel",
     autoComplete: "tel",
   },
   {
     name: "birthday",
     label: "Birthday",
-    placeholder: "e.g. 15 Jan 1998",
+    placeholder: "Select",
     icon: "calendar",
     autoComplete: "bday",
     latestDate: latestEligibleBirthday,
@@ -84,7 +84,7 @@ const addressFields: FieldSpec[] = [
   {
     name: "postalCode",
     label: "Postal Code",
-    placeholder: "e.g. 520101",
+    placeholder: "",
     autoComplete: "postal-code",
     numericOnly: true,
     maxLength: 6,
@@ -92,37 +92,37 @@ const addressFields: FieldSpec[] = [
   {
     name: "blockNo",
     label: "Blk / House No",
-    placeholder: "e.g. 12",
+    placeholder: "",
     numericOnly: true,
   },
   {
     name: "street",
     label: "Street Name",
-    placeholder: "e.g. Orchard Boulevard",
+    placeholder: "",
     autoComplete: "address-line1",
   },
   {
     name: "building",
     label: "Building Name",
-    placeholder: "e.g. Camden Medical Centre",
+    placeholder: "",
     autoComplete: "address-line2",
   },
   {
     name: "floorNo",
     label: "Floor No.",
-    placeholder: "e.g. 03",
+    placeholder: "",
     numericOnly: true,
   },
   {
     name: "unitNumber",
     label: "Unit Number",
-    placeholder: "e.g. 28",
+    placeholder: "",
     numericOnly: true,
   },
   {
     name: "country",
     label: "Country",
-    placeholder: "e.g. Singapore",
+    placeholder: "Select",
     autoComplete: "country-name",
     options: ["Singapore", "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam"],
   },
@@ -296,8 +296,8 @@ export default function ApplyInfluencer({
               </p>
             ) : null}
 
-            <div className="flex w-full items-center gap-[10px]">
-              <div className="flex size-[32px] shrink-0 flex-col items-center justify-center rounded-[10px] border border-solid border-portal-border bg-white">
+            <div className="flex w-full items-start gap-[2px]">
+              <div className="flex size-[24px] shrink-0 flex-col items-center justify-center rounded-[10px] bg-white">
                 <span className="relative size-[16px] shrink-0 overflow-clip">
                   <span className="absolute inset-[8.33%_16.67%]">
                     <span className="absolute inset-[-4.99%_-6.23%]">
