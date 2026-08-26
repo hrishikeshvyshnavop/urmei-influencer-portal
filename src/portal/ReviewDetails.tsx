@@ -69,6 +69,7 @@ const addressFields: ReviewField[] = [
     label: "Country",
     value: "Singapore",
     options: ["Singapore", "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam"],
+    locked: true,
   },
 ];
 
@@ -128,7 +129,7 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
     );
 
   return (
-    <PortalFormLayout>
+    <PortalFormLayout hideLanguageSelector>
       <form
         className="flex w-full max-w-[940px] flex-col gap-6 px-6 pt-[96px] pb-16 sm:px-12 lg:px-[100px]"
         onInvalidCapture={(event) => {

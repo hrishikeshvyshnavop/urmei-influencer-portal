@@ -213,7 +213,7 @@ export default function Onboarding({
 
   if (allDone) {
     return (
-      <PortalLayout>
+      <PortalLayout hideLanguageSelector>
         <div className="motion-feedback flex w-full max-w-[375px] flex-col items-start justify-center gap-[14px]">
           <div className="flex w-full flex-col items-start justify-center gap-[6px]">
             <div className="flex size-[48px] items-center justify-center">
@@ -252,6 +252,7 @@ export default function Onboarding({
 
   return (
     <PortalLayout
+      hideLanguageSelector
       headerAction={
         <Button variant="portalOutlineLg" className="w-[60px]" onClick={onSkip}>
           Skip

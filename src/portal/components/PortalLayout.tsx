@@ -13,6 +13,8 @@ type PortalLayoutProps = {
    * are not. The value is the 100px page padding plus the 96px header.
    */
   offsetHeader?: boolean;
+  /** Profile setup screens don't offer a region switch mid-flow. */
+  hideLanguageSelector?: boolean;
 };
 
 /** Shared chrome for the influencer portal auth screens: sticky side accent
@@ -22,10 +24,11 @@ export default function PortalLayout({
   withPanel = true,
   headerAction,
   offsetHeader = false,
+  hideLanguageSelector = false,
 }: PortalLayoutProps) {
   return (
     <div className="relative min-h-screen w-full bg-white">
-      <PortalHeader action={headerAction} />
+      <PortalHeader action={headerAction} hideLanguageSelector={hideLanguageSelector} />
 
       <div className="flex min-h-screen items-stretch bg-white">
         {withPanel ? (

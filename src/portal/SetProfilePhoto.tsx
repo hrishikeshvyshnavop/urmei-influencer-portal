@@ -234,6 +234,7 @@ export default function SetProfilePhoto({
     <PortalLayout
       withPanel
       offsetHeader
+      hideLanguageSelector
       headerAction={
         <Button variant="portalOutlineLg" className="w-[60px]" onClick={onSkip}>
           Skip

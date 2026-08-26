@@ -21,7 +21,14 @@ const logoLetters = [
   },
 ];
 
-export default function PortalHeader({ action }: { action?: ReactNode }) {
+export default function PortalHeader({
+  action,
+  hideLanguageSelector = false,
+}: {
+  action?: ReactNode;
+  /** Profile setup screens don't offer a region switch mid-flow. */
+  hideLanguageSelector?: boolean;
+}) {
   return (
     <div className="sticky top-0 z-20 h-0">
       <div className="relative h-[96px]">
@@ -48,7 +55,7 @@ export default function PortalHeader({ action }: { action?: ReactNode }) {
           </div>
           <div className="flex min-w-px flex-1 items-center justify-end gap-[10px]">
             {action}
-            <LanguageSelector />
+            {hideLanguageSelector ? null : <LanguageSelector />}
           </div>
         </header>
       </div>

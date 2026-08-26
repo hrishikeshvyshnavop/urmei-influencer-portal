@@ -3,10 +3,17 @@ import PortalHeader from "./PortalHeader";
 
 /** Chrome for the long, scrolling portal forms (Apply, Review Details): the
  *  accent photo sticks to the viewport while the form column scrolls. */
-export default function PortalFormLayout({ children }: { children: ReactNode }) {
+export default function PortalFormLayout({
+  children,
+  hideLanguageSelector = false,
+}: {
+  children: ReactNode;
+  /** Profile setup screens don't offer a region switch mid-flow. */
+  hideLanguageSelector?: boolean;
+}) {
   return (
     <div className="relative min-h-screen w-full bg-white">
-      <PortalHeader />
+      <PortalHeader hideLanguageSelector={hideLanguageSelector} />
 
       <div className="flex min-h-screen items-stretch">
         <div className="hidden w-[35%] shrink-0 lg:block">

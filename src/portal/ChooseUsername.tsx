@@ -33,7 +33,7 @@ export default function ChooseUsername({
         : "border-portal-border";
 
   return (
-    <PortalLayout withPanel={false}>
+    <PortalLayout withPanel={false} hideLanguageSelector>
       <form
         onInvalidCapture={(event) => {
           event.preventDefault();

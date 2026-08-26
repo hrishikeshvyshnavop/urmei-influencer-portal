@@ -198,7 +198,7 @@ function screenFor(
       return (
         <SetProfilePhoto
           onContinue={() => navigate("#/verify")}
-          onSkip={toHome}
+          onSkip={() => navigate("#/verify")}
         />
       );
 
