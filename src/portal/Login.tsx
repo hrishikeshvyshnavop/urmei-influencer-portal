@@ -19,10 +19,19 @@ export default function Login({
 }: LoginProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showErrors, setShowErrors] = useState(false);
 
   const isEmailValid = emailPattern.test(email.trim());
-  const showEmailError = email.trim().length > 0 && !isEmailValid;
   const canSubmit = isEmailValid && password.length > 0;
+
+  const emailError =
+    showErrors && email.trim().length === 0
+      ? "Email is required."
+      : email.trim().length > 0 && !isEmailValid
+        ? "Please enter a valid email address"
+        : undefined;
+  const passwordError =
+    showErrors && password.length === 0 ? "Password is required." : undefined;
 
   return (
     <PortalLayout>
@@ -34,7 +43,12 @@ export default function Login({
         className="flex w-full max-w-[500px] flex-col items-start gap-6"
         onSubmit={(event) => {
           event.preventDefault();
-          if (canSubmit) onLogIn();
+          setShowErrors(true);
+          if (!canSubmit) {
+            scrollToFirstError(event.currentTarget);
+            return;
+          }
+          onLogIn();
         }}
       >
         <div className="flex w-full flex-col items-start">
@@ -55,7 +69,7 @@ export default function Login({
               value={email}
               onChange={setEmail}
               autoComplete="email"
-              error={showEmailError ? "Please enter a valid email address" : undefined}
+              error={emailError}
             />
             <EmailField
               label="Password"
@@ -64,6 +78,7 @@ export default function Login({
               value={password}
               onChange={setPassword}
               autoComplete="current-password"
+              error={passwordError}
               trailing={
                 <button
                   type="button"
@@ -77,7 +92,7 @@ export default function Login({
           </div>
 
           <div className="flex w-full flex-col items-center gap-4">
-            <Button type="submit" variant="portalBlock" disabled={!canSubmit}>
+            <Button type="submit" variant="portalBlock">
               Log In
             </Button>
 
