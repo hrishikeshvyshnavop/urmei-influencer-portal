@@ -21,7 +21,27 @@ type FieldSpec = {
   maxLength?: number;
   latestDate?: Date;
   locked?: boolean;
+  optional?: boolean;
 };
+
+const MALAYSIA_STATES = [
+  "Johor",
+  "Kedah",
+  "Kelantan",
+  "Melaka",
+  "Negeri Sembilan",
+  "Pahang",
+  "Pulau Pinang",
+  "Perak",
+  "Perlis",
+  "Sabah",
+  "Sarawak",
+  "Selangor",
+  "Terengganu",
+  "Kuala Lumpur",
+  "Labuan",
+  "Putrajaya",
+];
 
 function getLatestEligibleBirthday() {
   const date = new Date();
@@ -82,54 +102,248 @@ const personalFields: FieldSpec[] = [
   },
 ];
 
-const addressFields: FieldSpec[] = [
-  {
-    name: "postalCode",
-    label: "Postal Code",
-    placeholder: "",
-    autoComplete: "postal-code",
-    numericOnly: true,
-    maxLength: 6,
-  },
-  {
-    name: "blockNo",
-    label: "Blk / House No",
-    placeholder: "",
-    numericOnly: true,
-  },
-  {
-    name: "street",
-    label: "Street Name",
-    placeholder: "",
-    autoComplete: "address-line1",
-  },
-  {
-    name: "building",
-    label: "Building Name",
-    placeholder: "",
-    autoComplete: "address-line2",
-  },
-  {
-    name: "floorNo",
-    label: "Floor No.",
-    placeholder: "",
-    numericOnly: true,
-  },
-  {
-    name: "unitNumber",
-    label: "Unit Number",
-    placeholder: "",
-    numericOnly: true,
-  },
-  {
-    name: "country",
-    label: "Country",
-    placeholder: "Select",
-    autoComplete: "country-name",
-    options: ["Singapore", "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam"],
-    locked: true,
-  },
-];
+/** Always the last field in every country's address section — driven by the
+ *  header's country selector rather than typed in, so it's locked here and
+ *  synced from `country-status` in the component below. */
+const COUNTRY_FIELD: FieldSpec = {
+  name: "country",
+  label: "Country",
+  placeholder: "Select",
+  autoComplete: "country-name",
+  options: ["Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam"],
+  locked: true,
+};
+
+/** Each country's address form asks for different administrative levels, so
+ *  the field set itself — not just validation — changes with the header's
+ *  selected country. Field names are unique per country (no shared "street"
+ *  etc.) so a value typed for one country's field never bleeds into another
+ *  country's field of a similar name after switching back and forth. */
+const ADDRESS_FIELDS_BY_COUNTRY: Record<string, FieldSpec[]> = {
+  Singapore: [
+    {
+      name: "postalCode",
+      label: "Postal Code",
+      placeholder: "",
+      autoComplete: "postal-code",
+      numericOnly: true,
+      maxLength: 6,
+    },
+    {
+      name: "blockNo",
+      label: "Blk / House No",
+      placeholder: "",
+      numericOnly: true,
+    },
+    {
+      name: "street",
+      label: "Street Name",
+      placeholder: "",
+      autoComplete: "address-line1",
+    },
+    {
+      name: "building",
+      label: "Building Name",
+      placeholder: "",
+      autoComplete: "address-line2",
+      optional: true,
+    },
+    {
+      name: "floorNo",
+      label: "Floor No.",
+      placeholder: "",
+      numericOnly: true,
+    },
+    {
+      name: "unitNumber",
+      label: "Unit Number",
+      placeholder: "",
+      numericOnly: true,
+    },
+  ],
+  Malaysia: [
+    {
+      name: "myPostcode",
+      label: "Postcode",
+      placeholder: "",
+      autoComplete: "postal-code",
+      numericOnly: true,
+      maxLength: 5,
+    },
+    {
+      name: "myBlockNo",
+      label: "Blk / House / Lot No",
+      placeholder: "",
+    },
+    {
+      name: "myStreet",
+      label: "Street Name (Jalan)",
+      placeholder: "",
+      autoComplete: "address-line1",
+    },
+    {
+      name: "myBuilding",
+      label: "Building / Taman",
+      placeholder: "",
+      autoComplete: "address-line2",
+    },
+    {
+      name: "myFloorNo",
+      label: "Floor No.",
+      placeholder: "",
+      numericOnly: true,
+      optional: true,
+    },
+    {
+      name: "myUnitNumber",
+      label: "Unit Number",
+      placeholder: "",
+      numericOnly: true,
+      optional: true,
+    },
+    {
+      name: "myCity",
+      label: "City",
+      placeholder: "",
+      autoComplete: "address-level2",
+    },
+    {
+      name: "myState",
+      label: "State",
+      placeholder: "Select",
+      options: MALAYSIA_STATES,
+      autoComplete: "address-level1",
+    },
+  ],
+  Thailand: [
+    {
+      name: "thHouseNo",
+      label: "House / Plot No",
+      placeholder: "",
+    },
+    {
+      name: "thMoo",
+      label: "Moo / Village / Building",
+      placeholder: "",
+      autoComplete: "address-line2",
+    },
+    {
+      name: "thRoad",
+      label: "Road / Alley (Thanon / Soi)",
+      placeholder: "",
+      autoComplete: "address-line1",
+    },
+    {
+      name: "thSubDistrict",
+      label: "Sub-district (Tambon / Khwaeng)",
+      placeholder: "",
+    },
+    {
+      name: "thDistrict",
+      label: "District (Amphoe / Khet)",
+      placeholder: "",
+    },
+    {
+      name: "thProvince",
+      label: "Province (Changwat)",
+      placeholder: "",
+      autoComplete: "address-level1",
+    },
+    {
+      name: "thPostalCode",
+      label: "Postal Code",
+      placeholder: "",
+      autoComplete: "postal-code",
+      numericOnly: true,
+      maxLength: 5,
+    },
+  ],
+  Vietnam: [
+    {
+      name: "vnHouseNo",
+      label: "House / Alley / Building No",
+      placeholder: "",
+    },
+    {
+      name: "vnStreet",
+      label: "Street Name",
+      placeholder: "",
+      autoComplete: "address-line1",
+    },
+    {
+      name: "vnWard",
+      label: "Ward / Commune (Phường / Xã)",
+      placeholder: "",
+    },
+    {
+      name: "vnDistrict",
+      label: "District (Quận / Huyện)",
+      placeholder: "",
+    },
+    {
+      name: "vnProvince",
+      label: "Province / City (Tỉnh / Thành phố)",
+      placeholder: "",
+      autoComplete: "address-level1",
+    },
+    {
+      name: "vnPostalCode",
+      label: "Postal Code",
+      placeholder: "",
+      autoComplete: "postal-code",
+      numericOnly: true,
+      maxLength: 5,
+    },
+  ],
+  Indonesia: [
+    {
+      name: "idHouseNo",
+      label: "House / Blk No",
+      placeholder: "",
+    },
+    {
+      name: "idStreet",
+      label: "Street Name",
+      placeholder: "",
+      autoComplete: "address-line1",
+    },
+    {
+      name: "idRtRw",
+      label: "RT / RW",
+      placeholder: "",
+    },
+    {
+      name: "idVillage",
+      label: "Village / Sub-district (Kelurahan / Desa)",
+      placeholder: "",
+    },
+    {
+      name: "idDistrict",
+      label: "District (Kecamatan)",
+      placeholder: "",
+    },
+    {
+      name: "idCity",
+      label: "City / Regency (Kota / Kabupaten)",
+      placeholder: "",
+      autoComplete: "address-level2",
+    },
+    {
+      name: "idProvince",
+      label: "Province",
+      placeholder: "",
+      autoComplete: "address-level1",
+    },
+    {
+      name: "idPostalCode",
+      label: "Postal Code",
+      placeholder: "",
+      autoComplete: "postal-code",
+      numericOnly: true,
+      maxLength: 5,
+    },
+  ],
+};
 
 const platforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
@@ -166,7 +380,7 @@ function FieldGrid({
           locked={field.locked}
           value={values[field.name] ?? ""}
           error={
-            showErrors && !(values[field.name] ?? "").trim()
+            showErrors && !field.optional && !(values[field.name] ?? "").trim()
               ? `${field.label} is required.`
               : showErrors &&
                   field.name === "birthday" &&
@@ -194,6 +408,10 @@ export default function ApplyInfluencer({
   onSubmit,
 }: ApplyInfluencerProps) {
   const selectedCountry = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry);
+  const addressFields = [
+    ...(ADDRESS_FIELDS_BY_COUNTRY[selectedCountry] ?? ADDRESS_FIELDS_BY_COUNTRY.Singapore),
+    COUNTRY_FIELD,
+  ];
   const [values, setValues] = useState<Record<string, string>>({ country: selectedCountry });
   const [connected, setConnected] = useState<string[]>([]);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -214,9 +432,9 @@ export default function ApplyInfluencer({
         : [...current, id],
     );
 
-  const allFieldsComplete = [...personalFields, ...addressFields].every(
-    (field) => (values[field.name] ?? "").trim().length > 0,
-  );
+  const allFieldsComplete = [...personalFields, ...addressFields]
+    .filter((field) => !field.optional)
+    .every((field) => (values[field.name] ?? "").trim().length > 0);
   const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email ?? "");
   const isAdult = isValidAdultBirthday(values.birthday ?? "");
   const canContinue =
