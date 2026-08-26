@@ -575,10 +575,9 @@ export default function ApplyInfluencer({
             <Button
               type="submit"
               variant="portalLg"
-              className="w-[120px]"
               disabled={!agreedToTerms || !consentedToData}
             >
-              Continue
+              Submit Application
             </Button>
           </div>
         </div>
