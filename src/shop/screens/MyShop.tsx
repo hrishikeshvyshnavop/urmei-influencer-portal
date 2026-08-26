@@ -96,6 +96,7 @@ export function MyShop({
               publishedAt={publishedAt}
               hasUnpublishedChanges={hasUnpublishedChanges}
               publishBlocked={blocked}
+              hasProducts={!isEmpty}
               onPublish={onPublish}
               onPreview={onPreview}
               onViewShop={onViewShop}

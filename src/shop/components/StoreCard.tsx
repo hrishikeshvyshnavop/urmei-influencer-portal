@@ -18,6 +18,10 @@ type StoreCardProps = {
    *  reflect the blocked attempt (Figma `1362:73958`) until a product is
    *  added or a real publish succeeds. */
   publishBlocked?: boolean
+  /** False before the shop has ever had a product added — the initial
+   *  "Publish shop" button stays disabled outright rather than opening the
+   *  confirmation dialog, since there's nothing yet to publish. */
+  hasProducts?: boolean
   onPublish?: () => void
   onPreview?: () => void
   onViewShop?: () => void
@@ -29,6 +33,7 @@ export function StoreCard({
   publishedAt = null,
   hasUnpublishedChanges = false,
   publishBlocked = false,
+  hasProducts = false,
   onPublish,
   onPreview,
   onViewShop,
@@ -76,6 +81,13 @@ export function StoreCard({
               >
                 Preview Storefront
               </Button>
+            ) : hasProducts ? (
+              // Once there's at least one product, previewing the (still
+              // unpublished) picks is meaningful — enable it ahead of the
+              // first publish, distinguished from the live-site label.
+              <Button variant="outline" onClick={onPreview} leftIcon={<Icon name="eye-enabled" />}>
+                Preview Shop
+              </Button>
             ) : (
               <Button variant="ghost" disabled leftIcon={<Icon name="eye" />} className="font-normal">
                 Preview Storefront
@@ -89,7 +101,7 @@ export function StoreCard({
                 <Button onClick={onViewShop}>View Shop</Button>
               )
             ) : (
-              <Button onClick={onPublish} disabled={publishBlocked}>
+              <Button onClick={onPublish} disabled={publishBlocked || !hasProducts}>
                 Publish shop
               </Button>
             )}
