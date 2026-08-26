@@ -99,6 +99,10 @@ export default function ManageAccount({
   const [addressDraft, setAddressDraft] = useState<ShippingAddress>(emptyAddress);
   const [editingAddress, setEditingAddress] = useState(false);
   const [addressErrors, setAddressErrors] = useState<Partial<Record<AddressField, string>>>({});
+  const bannerRef = useRef<HTMLElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const [stickyOffset, setStickyOffset] = useState(104);
+  const [railMaxHeight, setRailMaxHeight] = useState(0);
   const profileDirty = displayName !== savedProfile.displayName || bio !== savedProfile.bio || phone !== savedProfile.phone || dob !== savedProfile.dob;
 
   useEffect(() => {
@@ -139,6 +143,36 @@ export default function ManageAccount({
       window.removeEventListener("keydown", closeOnEscape);
     };
   }, [editingAddress]);
+
+  useEffect(() => {
+    const bannerEl = bannerRef.current;
+    const updateOffset = () => {
+      setStickyOffset(88 + (bannerEl?.offsetHeight ?? 0) + 16);
+    };
+    updateOffset();
+    const observer = new ResizeObserver(updateOffset);
+    if (bannerEl) observer.observe(bannerEl);
+    return () => observer.disconnect();
+  }, [setupRequired, identityVerified, paymentConnected]);
+
+  // The rail is `position: sticky`, so it never renders past the bottom of
+  // `rowRef` on its own — but a tall footer can eat enough of the viewport
+  // near the end of scroll that there isn't room left for the whole rail
+  // above the header. Clip the rail's own bottom in that case instead of
+  // letting sticky's containment push its top under the header.
+  useEffect(() => {
+    const updateRailMaxHeight = () => {
+      const rowBottom = rowRef.current?.getBoundingClientRect().bottom ?? 0;
+      setRailMaxHeight(Math.max(0, Math.floor(rowBottom) - stickyOffset));
+    };
+    updateRailMaxHeight();
+    window.addEventListener("scroll", updateRailMaxHeight, { passive: true });
+    window.addEventListener("resize", updateRailMaxHeight);
+    return () => {
+      window.removeEventListener("scroll", updateRailMaxHeight);
+      window.removeEventListener("resize", updateRailMaxHeight);
+    };
+  }, [stickyOffset]);
 
   useEffect(() => {
     const syncPayment = () => {
@@ -204,6 +238,12 @@ export default function ManageAccount({
     event.target.value = "";
   };
 
+  const railNav = (
+    <nav aria-label="Account settings" className="flex w-full shrink-0 gap-[2px] overflow-x-auto sm:flex-col">
+      {NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`track-section flex h-12 shrink-0 items-center gap-2 rounded-lg px-3 text-left text-body-sm uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{(key === "Profile" && (setupRequired || !identityVerified)) || (key === "Payouts" && (setupRequired || !paymentConnected)) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}
+    </nav>
+  );
+
   return (
     <div className="min-h-screen bg-portal-light text-portal-text">
       <AppHeader
@@ -213,6 +253,7 @@ export default function ManageAccount({
 
       {setupRequired || !identityVerified || !paymentConnected ? (
         <aside
+          ref={bannerRef}
           className="sticky top-[88px] z-20 flex w-full items-center justify-center gap-3 border-b border-[#e6e5e4] bg-portal-light px-6 py-3 lg:px-[120px]"
           aria-label="Account setup required"
         >
@@ -229,11 +270,17 @@ export default function ManageAccount({
         </aside>
       ) : null}
 
-      <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col gap-9 px-6 py-8 lg:px-[120px]">
-        <h1 className="text-body-xxl">Manage Your Account</h1>
-        <div className="flex flex-col items-start gap-10 sm:flex-row">
-          <nav aria-label="Account settings" className="flex w-full shrink-0 gap-[2px] overflow-x-auto sm:sticky sm:top-[104px] sm:w-[260px] sm:flex-col sm:self-start">{NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`track-section flex h-12 shrink-0 items-center gap-2 rounded-lg px-3 text-left text-body-sm uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{(key === "Profile" && (setupRequired || !identityVerified)) || (key === "Payouts" && (setupRequired || !paymentConnected)) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}</nav>
-          <section className="flex min-w-0 flex-1 flex-col gap-5">
+      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-9 px-6 py-8 lg:px-[120px]">
+        <div ref={rowRef} className="flex flex-col items-start gap-10 sm:flex-row">
+          <div className="flex w-full shrink-0 flex-col gap-9 sm:hidden">
+            <h1 className="text-body-xxl">Manage Your Account</h1>
+            {railNav}
+          </div>
+          <div style={{ top: stickyOffset, maxHeight: railMaxHeight }} className="hidden w-[260px] shrink-0 flex-col gap-9 overflow-hidden sm:sticky sm:flex">
+            <h1 className="text-body-xxl whitespace-nowrap">Manage Your Account</h1>
+            {railNav}
+          </div>
+          <section style={{ "--section-h": `calc(100vh - ${stickyOffset}px - 32px)` } as React.CSSProperties} className="flex min-w-0 flex-1 flex-col gap-5 sm:h-[var(--section-h)] sm:overflow-y-auto">
             {activeSection === "Social accounts" ? (
               <>
                 <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Connected socials</h2><p className="text-body-sm text-portal-muted">Your connected accounts help brands see your social reach and engagement.</p></div>
