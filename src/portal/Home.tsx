@@ -195,10 +195,12 @@ export default function Home({
             />
           </div>
           {!hasShopItems ? (
-            <div className="flex min-h-[128px] flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-[#f2efed] p-6 sm:flex-row sm:items-center lg:gap-10 lg:p-8">
-              <img src="/urmei/home/store.svg" alt="" className="size-16" />
-              <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Set Up Your Shop</h2><p className="text-body-sm text-portal-muted">Curate your product collection and publish your shop to start earning</p></div>
-              <Button variant="portal" onClick={() => { window.location.hash = "#/shop"; }}>Set Up Shop</Button>
+            <div className="flex flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-portal-light p-6 sm:flex-row sm:items-center sm:gap-10 lg:p-8">
+              <div className="flex min-w-0 flex-1 items-center gap-6">
+                <img src="/urmei/home/store.svg" alt="" className="size-16 shrink-0" />
+                <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Create online shop</h2><p className="text-body-md text-portal-muted">Curate your products and publish your shop to start earning.</p></div>
+              </div>
+              <Button variant="portal" className="w-full sm:w-auto" onClick={() => { window.location.hash = "#/shop"; }}>Set Up Shop</Button>
             </div>
           ) : null}
           {hasShopItems && isShopPublished ? (
