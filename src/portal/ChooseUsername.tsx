@@ -1,9 +1,16 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2 } from "lucide-react";
 import PortalLayout from "./components/PortalLayout";
 import { scrollToFirstError } from "@/lib/form-validation";
 
 /** Stand-in for the availability check the API will do. */
 const takenUsernames = ["charlotte", "urmei", "admin", "rachel"];
+
+/** Fake latency so the availability check reads as real work (a "labor
+ *  illusion") instead of an instant client-side lookup. */
+const CHECK_DELAY_MS = 700;
+/** Give the user a moment to read the success message before advancing. */
+const SUCCESS_READ_DELAY_MS = 1100;
 
 export default function ChooseUsername({
   onSubmit,
@@ -12,6 +19,18 @@ export default function ChooseUsername({
 }) {
   const [username, setUsername] = useState("rachel012");
   const [checked, setChecked] = useState<"available" | "taken" | "empty" | null>(null);
+  const [checking, setChecking] = useState(false);
+  const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  const clearPendingTimers = () => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+  };
 
   const isTaken = takenUsernames.includes(username.trim().toLowerCase());
 
@@ -20,12 +39,20 @@ export default function ChooseUsername({
       setChecked("empty");
       return;
     }
-    if (isTaken) {
-      setChecked("taken");
-      return;
-    }
-    setChecked("available");
-    onSubmit(username.trim());
+    const value = username.trim();
+    setChecked(null);
+    setChecking(true);
+    timersRef.current.push(
+      setTimeout(() => {
+        setChecking(false);
+        if (isTaken) {
+          setChecked("taken");
+          return;
+        }
+        setChecked("available");
+        timersRef.current.push(setTimeout(() => onSubmit(value), SUCCESS_READ_DELAY_MS));
+      }, CHECK_DELAY_MS),
+    );
   };
 
   const borderColor =
@@ -73,6 +100,8 @@ export default function ChooseUsername({
               <input
                 value={username}
                 onChange={(event) => {
+                  clearPendingTimers();
+                  setChecking(false);
                   setUsername(event.target.value);
                   setChecked(null);
                 }}
@@ -83,20 +112,25 @@ export default function ChooseUsername({
             </div>
             <button
               type="submit"
-              aria-label="Check username"
-              className="flex shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full bg-portal-dark p-3 transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px hover:opacity-90 active:translate-y-0 active:scale-95"
+              disabled={checking}
+              aria-label={checking ? "Checking username availability" : "Check username"}
+              className="flex shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-full bg-portal-dark p-3 transition-[opacity,transform] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-px hover:opacity-90 active:translate-y-0 active:scale-95 disabled:cursor-not-allowed disabled:opacity-80 disabled:hover:translate-y-0"
             >
-              <span className="relative size-[16px] shrink-0 overflow-clip">
-                <span className="absolute top-1/4 bottom-1/4 left-[37.5%] right-[37.5%]">
-                  <span className="absolute inset-[-8.31%_-16.62%_-8.31%_-16.63%]">
-                    <img
-                      src="/urmei/icon-chevron-right.svg"
-                      alt=""
-                      className="block size-full max-w-none"
-                    />
+              {checking ? (
+                <Loader2 aria-hidden="true" className="size-4 shrink-0 animate-spin text-white" />
+              ) : (
+                <span className="relative size-[16px] shrink-0 overflow-clip">
+                  <span className="absolute top-1/4 bottom-1/4 left-[37.5%] right-[37.5%]">
+                    <span className="absolute inset-[-8.31%_-16.62%_-8.31%_-16.63%]">
+                      <img
+                        src="/urmei/icon-chevron-right.svg"
+                        alt=""
+                        className="block size-full max-w-none"
+                      />
+                    </span>
                   </span>
                 </span>
-              </span>
+              )}
             </button>
           </div>
 
