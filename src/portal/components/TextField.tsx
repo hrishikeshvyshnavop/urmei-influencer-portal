@@ -135,10 +135,8 @@ export default function TextField({
               readOnly={locked}
               disabled={locked}
               aria-invalid={Boolean(error)}
-              className={`w-full min-w-px bg-transparent text-body-sm outline-none placeholder:text-portal-placeholder ${
-                locked
-                  ? "cursor-not-allowed text-portal-placeholder"
-                  : "text-portal-text"
+              className={`w-full min-w-px bg-transparent text-body-sm text-portal-text outline-none placeholder:text-portal-placeholder ${
+                locked ? "cursor-not-allowed" : ""
               }`}
             />
           )}
