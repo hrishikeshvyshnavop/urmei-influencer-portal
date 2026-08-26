@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Camera, CheckCircle2, IdCard, Landmark, MapPin, Shield, ShieldCheck, TriangleAlert, X } from "lucide-react";
+import { Camera, CheckCircle2, IdCard, Landmark, MapPin, ShieldCheck, TriangleAlert, X } from "lucide-react";
 import Button from "./components/Button";
 import ProfilePhoto, { PROFILE_PHOTO_KEY } from "./components/ProfilePhoto";
 import SocialAccountRow, { type SocialPlatform } from "./components/SocialAccountRow";
@@ -63,7 +63,14 @@ function isPaymentConnected() {
   }
 }
 
-export type ManageAccountSection = "Profile" | "Social accounts" | "Identity" | "Payouts" | "Shipping addresses";
+export type ManageAccountSection = "Profile" | "Social accounts" | "Payouts" | "Shipping addresses";
+
+const NAV_ITEMS: { key: ManageAccountSection; label: string }[] = [
+  { key: "Profile", label: "Profile" },
+  { key: "Shipping addresses", label: "Addresses" },
+  { key: "Social accounts", label: "Social Accounts" },
+  { key: "Payouts", label: "Payout" },
+];
 
 export default function ManageAccount({
   initialSection = "Profile",
@@ -211,19 +218,25 @@ export default function ManageAccount({
         >
           <div className="flex items-center gap-3">
             <img src="/urmei/icon-triangle-alert.svg" alt="" aria-hidden="true" className="size-5 shrink-0" />
-            <p className="text-body-md font-medium text-[#2d2305]">To publish your shop, you need to verify your identity and connect a payment method.</p>
+            <p className="text-body-md font-medium text-[#2d2305]">
+              {!identityVerified && !paymentConnected
+                ? "To publish your shop, you need to verify your identity and connect a payment method."
+                : !identityVerified
+                  ? "To publish your shop, you need to verify your identity."
+                  : "To publish your shop, you need to connect a payment method."}
+            </p>
           </div>
         </aside>
       ) : null}
 
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col gap-9 px-6 py-8 lg:px-[120px]">
-        <div><h1 className="text-body-xxl font-medium">Manage Account</h1><p className="text-body-sm text-portal-muted">Your profile, payouts and connected accounts.</p></div>
+        <h1 className="text-body-xxl">Manage Your Account</h1>
         <div className="flex flex-col items-start gap-10 md:flex-row">
-          <nav aria-label="Account settings" className="flex w-full shrink-0 gap-1 overflow-x-auto md:sticky md:top-[104px] md:w-[260px] md:flex-col md:self-start">{(["Profile", "Social accounts", "Identity", "Payouts", "Shipping addresses"] as const).map((item) => <button key={item} type="button" onClick={() => setActiveSection(item)} className={`flex shrink-0 items-center gap-2 rounded-lg px-3 py-2.5 text-left text-body-sm ${item === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{item}</span>{(item === "Identity" && (setupRequired || !identityVerified)) || (item === "Payouts" && (setupRequired || !paymentConnected)) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}</nav>
+          <nav aria-label="Account settings" className="flex w-full shrink-0 gap-[2px] overflow-x-auto md:sticky md:top-[104px] md:w-[260px] md:flex-col md:self-start">{NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`track-section flex h-12 shrink-0 items-center gap-2 rounded-lg px-3 text-left text-body-sm uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{(key === "Profile" && (setupRequired || !identityVerified)) || (key === "Payouts" && (setupRequired || !paymentConnected)) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}</nav>
           <section className="flex min-w-0 flex-1 flex-col gap-5">
             {activeSection === "Social accounts" ? (
               <>
-                <div><h2 className="track-section text-body-md font-medium uppercase">Connected Socials</h2><p className="text-body-sm text-portal-muted">Your connected accounts help brands verify your reach. You can manage connections anytime in Settings.</p></div>
+                <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Connected socials</h2><p className="text-body-sm text-portal-muted">Your connected accounts help brands see your social reach and engagement.</p></div>
                 <div className="overflow-hidden rounded-[10px] border border-portal-border bg-white divide-y divide-portal-border">
                   {socialPlatforms.map((platform) => (
                     <SocialAccountRow
@@ -234,41 +247,36 @@ export default function ManageAccount({
                     />
                   ))}
                 </div>
-                <div className="flex items-start gap-3 text-body-sm text-portal-muted"><span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-full border border-portal-border bg-white"><Shield className="size-4" strokeWidth={1.5} /></span><p>We keep your accounts safe and secure. We&#39;ll never post anything on your behalf or look at your private messages. You can disconnect anytime from Settings.</p></div>
-              </>
-            ) : activeSection === "Identity" ? (
-              <>
-                <div><h2 className="track-section text-body-md font-medium uppercase">Identity Verification</h2><p className="text-body-sm text-portal-muted">Verify your identity to complete your shop setup and enable payouts.</p></div>
-                {identityVerified ? (
-                  <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6">
-                    <div className="flex items-center gap-3"><span className="flex size-8 items-center justify-center rounded-full bg-portal-ok-bg text-[#16a34a]"><CheckCircle2 className="size-4" strokeWidth={1.75} /></span><h3 className="text-body-md font-medium">Identity verified</h3></div>
-                    <p className="max-w-[520px] text-body-sm text-portal-muted">Your identity has been successfully verified. You can now proceed to connect your payment method.</p>
+                <div className="flex w-full items-start gap-[2px] text-body-sm text-portal-muted">
+                  <div className="flex size-[24px] shrink-0 flex-col items-center justify-center rounded-[10px] bg-white">
+                    <span className="relative size-[16px] shrink-0 overflow-clip">
+                      <span className="absolute inset-[8.33%_16.67%]">
+                        <span className="absolute inset-[-4.99%_-6.23%]">
+                          <img src="/urmei/icon-shield.svg" alt="" className="block size-full max-w-none" />
+                        </span>
+                      </span>
+                    </span>
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6">
-                    <p className="text-body-sm text-portal-muted">You&#39;ll need the following</p>
-                    <div className="flex flex-col gap-2 text-body-sm text-portal-muted"><p className="flex items-center gap-2"><IdCard className="size-4" strokeWidth={1.5} />Government-issued photo ID</p><p className="flex items-center gap-2"><Camera className="size-4" strokeWidth={1.5} />Camera-enabled device</p><p className="flex items-center gap-2"><ShieldCheck className="size-4" strokeWidth={1.5} />Personal details matching your account</p></div>
-                    <div className="flex items-center gap-3"><Button variant="portal" disabled={identityPending} onClick={startIdentityVerification}>{identityPending ? "Verifying…" : "Start secure verification"}</Button><span className="text-body-xs text-portal-muted">Usually takes 3–5 minutes</span></div>
-                    <p className="text-body-xs text-portal-muted opacity-80">Your documents are processed securely by our verification partner. URMEI only receives the verification result and required identity data.</p>
-                  </div>
-                )}
+                  <p>We keep your accounts safe and secure. We&#39;ll never post anything on your behalf or look at your private messages. You can disconnect anytime from Settings.</p>
+                </div>
               </>
             ) : activeSection === "Payouts" ? (
               <>
-                <div><h2 className="track-section text-body-md font-medium uppercase">Connect Your Payment</h2><p className="text-body-sm text-portal-muted">Connect your bank account to receive your earnings.</p></div>
+                <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Payout</h2><p className="text-body-sm text-portal-muted">To receive your earnings.</p></div>
                 {paymentConnected ? (
-                  <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6">
+                  <div className="flex flex-col gap-4 rounded-[10px] border border-portal-border bg-white p-5">
                     <div className="flex flex-col gap-3 rounded-[10px] bg-[#eaf6fd] p-4"><img src="/urmei/hitpay-logo.png" alt="HitPay" className="h-6 w-auto self-start" /><p className="text-body-sm text-portal-muted">Get your earnings deposited straight into your bank account for easy access.</p></div>
-                    <div className="flex items-center gap-3"><span className="flex size-8 items-center justify-center rounded-full bg-portal-ok-bg text-[#16a34a]"><Landmark className="size-4" strokeWidth={1.75} /></span><div><h3 className="text-body-md font-medium">Payment connection completed</h3><p className="text-body-sm text-portal-muted">Your payout account is ready to receive earnings.</p></div></div>
+                    <div className="flex flex-col gap-2"><div className="flex items-center gap-2"><span className="flex size-8 items-center justify-center rounded-full bg-portal-ok-bg text-[#16a34a]"><Landmark className="size-4" strokeWidth={1.75} /></span><h3 className="text-body-md font-medium">Payment connected</h3></div><p className="text-body-md text-portal-muted">Your account is now successfully connected and ready for payouts.</p></div>
                     <div className="grid gap-3 text-body-sm"><div className="flex justify-between"><span className="text-portal-muted">Account Name</span><span className="font-medium">Sophia Parker</span></div><div className="flex justify-between"><span className="text-portal-muted">Currency</span><span className="font-medium">SGD (Singapore Dollar)</span></div><div className="flex justify-between"><span className="text-portal-muted">Account Number</span><span className="font-medium">•••• •••• 4829</span></div><div className="flex justify-between"><span className="text-portal-muted">Payment Provider</span><span className="font-medium">HitPay</span></div></div>
+                    <div><Button variant="portalOutline" disabled={paymentPending} onClick={openPayoutPartner}>{paymentPending ? "Connecting…" : "Manage HitPay"}</Button></div>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6"><div className="flex flex-col gap-3 rounded-[10px] bg-[#eaf6fd] p-4"><img src="/urmei/hitpay-logo.png" alt="HitPay" className="h-6 w-auto self-start" /><p className="text-body-sm text-portal-muted">Get your earnings deposited straight into your bank account for easy access.</p></div><div className="grid gap-3 text-body-sm"><div className="flex justify-between"><span className="text-portal-muted">What you&#39;ll set up</span><span className="font-medium">Payout bank details</span></div><div className="flex justify-between"><span className="text-portal-muted">Payout currency</span><span className="font-medium">Based on your primary market</span></div><div className="flex justify-between"><span className="text-portal-muted">Platform fees</span><span className="font-medium">None — payouts are free</span></div></div><div><Button variant="portal" disabled={paymentPending || identityPending} onClick={identityVerified ? openPayoutPartner : startIdentityVerification}>{paymentPending ? "Connecting…" : identityPending ? "Verifying…" : identityVerified ? "Connect with HitPay" : "Verify identity first"}</Button><p className="mt-2 text-body-xs text-portal-muted">You&#39;ll be redirected to HitPay to complete setup.</p></div></div>
+                  <div className="flex flex-col gap-4 rounded-[10px] border border-portal-border bg-white p-5"><div className="flex flex-col gap-3 rounded-[10px] bg-[#eaf6fd] p-4"><img src="/urmei/hitpay-logo.png" alt="HitPay" className="h-6 w-auto self-start" /><p className="text-body-sm text-portal-muted">Get your earnings deposited straight into your bank account for easy access.</p></div><div className="grid gap-3 text-body-sm"><div className="flex justify-between"><span className="text-portal-muted">What you&#39;ll set up</span><span className="font-medium">Payout bank details</span></div><div className="flex justify-between"><span className="text-portal-muted">Payout currency</span><span className="font-medium">Based on your primary market</span></div><div className="flex justify-between"><span className="text-portal-muted">Platform fees</span><span className="font-medium">None — payouts are free</span></div></div><div><Button variant="portal" disabled={paymentPending || identityPending} onClick={identityVerified ? openPayoutPartner : startIdentityVerification}>{paymentPending ? "Connecting…" : identityPending ? "Verifying…" : identityVerified ? "Connect With HitPay" : "Verify identity first"}</Button><p className="mt-2 text-body-xs text-portal-muted">You&#39;ll be redirected to HitPay to complete setup.</p></div></div>
                 )}
               </>
             ) : activeSection === "Shipping addresses" ? (
               <>
-                <div className="flex items-start justify-between gap-4"><div><h2 className="track-section text-body-md font-medium uppercase">Shipping Address</h2><p className="text-body-sm text-portal-muted">Manage where brands send your product samples.</p></div>{!editingAddress ? <Button variant="portal" onClick={() => { setAddressDraft({ ...emptyAddress, isDefault: shippingAddresses.length === 0 }); setAddressErrors({}); setEditingAddress(true); }}>Add Address</Button> : null}</div>
+                <div className="flex items-start justify-between gap-4"><div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">All addresses</h2><p className="text-body-sm text-portal-muted">Manage where brands send your product samples.</p></div>{!editingAddress ? <Button variant="portal" onClick={() => { setAddressDraft({ ...emptyAddress, isDefault: shippingAddresses.length === 0 }); setAddressErrors({}); setEditingAddress(true); }}>Add Address</Button> : null}</div>
                 {shippingAddresses.length > 0 ? (
                   <div className="rounded-[10px] border border-portal-border bg-white p-6">
                     {shippingAddresses.map((address, index) => {
@@ -286,19 +294,43 @@ export default function ManageAccount({
                 )}
               </>
             ) : (
-              <>
-            <div><h2 className="track-section text-body-md font-medium uppercase">Profile</h2><p className="text-body-sm text-portal-muted">This is what shoppers see on your storefront.</p></div>
-            <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6">
-              <div className="flex items-start gap-4"><span className="relative size-16 shrink-0 overflow-hidden rounded-full"><ProfilePhoto key={photoVersion} fallback="/urmei/home/profile-dropdown-avatar.png" alt="Profile photo" /></span><div><p className="text-body-sm font-medium">Profile photo</p><p className="text-body-sm text-portal-muted">Square image, at least 400×400. JPG or PNG, up to 5 MB.</p><input ref={photoInput} type="file" accept="image/jpeg,image/png" onChange={updateProfilePhoto} className="hidden" /><button type="button" onClick={() => photoInput.current?.click()} className="mt-2 rounded-lg border border-portal-border px-4 py-2 text-body-sm font-medium">Change Photo</button></div></div>
-              <label className="flex flex-col gap-1.5 text-body-sm font-medium">Display name<input value={displayName} onChange={(e) => { setDisplayName(e.target.value); setSaved(false); }} className="rounded-[6px] border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label>
-              <label className="flex flex-col gap-1.5 text-body-sm font-medium">Username<input value="@charlotte" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted outline-none" /><span className="font-normal text-portal-muted">Your storefront address and every affiliate link you have shared use this. It cannot be changed here — contact support if you need it altered.</span></label>
-              <label className="flex flex-col gap-1.5 text-body-sm font-medium"><span className="flex justify-between"><span>Bio</span><span className="font-normal text-portal-muted">{bio.length} / 160</span></span><textarea value={bio} maxLength={160} onChange={(e) => { setBio(e.target.value); setSaved(false); }} className="h-[120px] resize-none rounded-[6px] border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label>
-              <ShopUrl variant="field" />
-            </div>
-            <div><h2 className="track-section text-body-md font-medium uppercase">Personal Information</h2><p className="text-body-sm text-portal-muted">Used to verify you and to pay you. None of this appears on your storefront.</p></div>
-            <div className="grid gap-5 rounded-[10px] border border-portal-border bg-white p-6 sm:grid-cols-2"><label className="flex flex-col gap-1.5 text-body-sm font-medium">Legal first name<input value="Charlotte" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /></label><label className="flex flex-col gap-1.5 text-body-sm font-medium">Legal last name<input value="Tan" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /></label><label className="flex flex-col gap-1.5 text-body-sm font-medium sm:col-span-2">Email address<input value="charlotte.tan@email.com" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /><span className="font-normal text-portal-muted">Changing your email sends a confirmation link to both the old and new address.</span></label><label className="flex flex-col gap-1.5 text-body-sm font-medium">Phone number<input type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setSaved(false); }} className="rounded-[6px] border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label><TextField label="Date of birth" placeholder="DD MMM YYYY" value={dob} icon="calendar" latestDate={latestEligibleBirthday} onChange={(value) => { setDob(value); setSaved(false); }} /></div>
-            <div className="flex justify-end"><Button variant="portal" disabled={!profileDirty || saved} onClick={() => { saveDisplayName(displayName); setSavedProfile({ displayName, bio, phone, dob }); setSaved(true); }}>{saved ? "Saved" : "Save Changes"}</Button></div>
-              </>
+              <div className="flex w-full flex-col gap-10">
+                <div className="flex w-full flex-col gap-5">
+                  <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Profile</h2><p className="text-body-sm text-portal-muted">This is what shoppers see on your storefront.</p></div>
+                  <div className="flex flex-col gap-5 rounded-[10px] border border-portal-border bg-white p-6">
+                    <div className="flex items-start gap-4"><span className="relative size-16 shrink-0 overflow-hidden rounded-full"><ProfilePhoto key={photoVersion} fallback="/urmei/home/profile-dropdown-avatar.png" alt="Profile photo" /></span><div><p className="text-body-sm text-portal-muted">Square image, at least 400×400. JPG or PNG, up to 5 MB.</p><input ref={photoInput} type="file" accept="image/jpeg,image/png" onChange={updateProfilePhoto} className="hidden" /><button type="button" onClick={() => photoInput.current?.click()} className="mt-2 rounded-lg border border-portal-border px-4 py-2 text-body-sm font-medium">Change Photo</button></div></div>
+                    <label className="flex flex-col gap-1.5 text-body-sm font-medium">Display name<input value={displayName} onChange={(e) => { setDisplayName(e.target.value); setSaved(false); }} className="rounded-[6px] border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label>
+                    <label className="flex flex-col gap-1.5 text-body-sm font-medium"><span className="flex justify-between"><span>Bio</span><span className="font-normal text-portal-muted">{bio.length} / 160</span></span><textarea value={bio} maxLength={160} onChange={(e) => { setBio(e.target.value); setSaved(false); }} className="h-[120px] resize-none rounded-[6px] border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label>
+                    <label className="flex flex-col gap-1.5 text-body-sm font-medium">Username<input value="@charlotte" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted outline-none" /><span className="font-normal text-portal-muted">Your storefront url and every affiliate link you have shared use this. It cannot be changed.</span></label>
+                    <ShopUrl variant="field" />
+                  </div>
+                </div>
+
+                {!identityVerified ? (
+                  <div className="flex w-full flex-col gap-5">
+                    <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Identity</h2><p className="text-body-sm text-portal-muted">Verify your identity to complete your shop setup and enable payouts.</p></div>
+                    <div className="flex flex-col gap-4 rounded-[10px] border border-portal-border bg-white p-5">
+                      <p className="text-body-sm text-portal-muted">You&#39;ll need the following</p>
+                      <div className="flex flex-col gap-1 text-body-sm text-portal-muted"><p className="flex items-center gap-2"><IdCard className="size-4" strokeWidth={1.5} />Government-issued photo ID</p><p className="flex items-center gap-2"><Camera className="size-4" strokeWidth={1.5} />Camera-enabled device</p><p className="flex items-center gap-2"><ShieldCheck className="size-4" strokeWidth={1.5} />Personal details matching your account</p></div>
+                      <div className="flex items-center gap-3"><Button variant="portal" disabled={identityPending} onClick={startIdentityVerification}>{identityPending ? "Verifying…" : "Start secure verification"}</Button><span className="text-body-xs text-portal-muted">Usually takes 3-5 minutes</span></div>
+                      <p className="text-body-xs text-portal-muted opacity-80">Your documents are processed securely by our verification partner. URMEI only receives the verification result and required identity data.</p>
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="flex w-full flex-col gap-5">
+                  <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Personal information</h2><p className="text-body-sm text-portal-muted">None of this appears on your storefront.</p></div>
+                  {identityVerified ? (
+                    <div className="flex flex-col gap-2 rounded-[10px] border border-portal-border bg-white p-5">
+                      <div className="flex items-center gap-2"><span className="flex size-8 items-center justify-center rounded-full bg-portal-ok-bg text-[#16a34a]"><CheckCircle2 className="size-4" strokeWidth={1.75} /></span><h3 className="text-body-md font-medium">Identity Verified</h3></div>
+                      <p className="max-w-[430px] text-body-md text-portal-muted">Your identity has been successfully verified. You can now proceed to connect your payment method.</p>
+                    </div>
+                  ) : null}
+                  <div className="grid gap-5 rounded-[10px] border border-portal-border bg-white p-6 sm:grid-cols-2"><label className="flex flex-col gap-1.5 text-body-sm font-medium">Legal first name<input value="Charlotte" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /></label><label className="flex flex-col gap-1.5 text-body-sm font-medium">Legal last name<input value="Tan" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /></label><label className="flex flex-col gap-1.5 text-body-sm font-medium sm:col-span-2">Email address<input value="charlotte.tan@email.com" readOnly className="rounded-[6px] bg-[#f8f8f8] px-4 py-3 font-normal text-portal-muted" /><span className="font-normal text-portal-muted">Changing your email sends a confirmation link to both the old and new address.</span></label><label className="flex flex-col gap-1.5 text-body-sm font-medium">Phone number<input type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setSaved(false); }} className="rounded-[6px] border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label><TextField label="Date of birth" placeholder="DD MMM YYYY" value={dob} icon="calendar" latestDate={latestEligibleBirthday} onChange={(value) => { setDob(value); setSaved(false); }} /></div>
+                </div>
+
+                <div className="flex w-full justify-end"><Button variant="portal" disabled={!profileDirty || saved} onClick={() => { saveDisplayName(displayName); setSavedProfile({ displayName, bio, phone, dob }); setSaved(true); }}>{saved ? "Saved" : "Save Changes"}</Button></div>
+              </div>
             )}
           </section>
         </div>

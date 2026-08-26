@@ -273,7 +273,7 @@ function screenFor(
     case "#/manage-account":
       return <ManageAccount />;
     case "#/manage-account/identity":
-      return <ManageAccount initialSection="Identity" />;
+      return <ManageAccount initialSection="Profile" />;
     case "#/manage-account/payouts":
       return <ManageAccount initialSection="Payouts" />;
     case "#/shop":
