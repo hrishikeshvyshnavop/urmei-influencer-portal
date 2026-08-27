@@ -1,10 +1,14 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useSyncExternalStore } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
+import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
+import { CreatorMarketBar } from '../components/CreatorMarketBar'
 import { EmptyStorefront } from '../components/EmptyStorefront'
 import { Icon } from '../components/Icon'
 import { ScaledBox } from '../components/ScaledBox'
+import { StorefrontHeader } from '../components/StorefrontHeader'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
+import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
 import type { ShopItem } from '../types'
 
@@ -20,26 +24,28 @@ const PICKS_PER_PAGE = 8
 /** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
 const FEATURED_SCROLL_STEP = 280 + 16
 
-function StorefrontHeader({ onClose }: { onClose: () => void }) {
+function NoAvailabilityNotice() {
   return (
-    <header className="flex w-full items-center justify-between rounded-b-[16px] border-b border-border-default bg-surface-secondary-100 px-margin py-md-2">
-      <button type="button" onClick={onClose} className="flex items-center gap-md-2">
-        <img src="/assets/img/urmei-mark.svg" alt="" className="h-[16px] w-[29.573px]" />
-        <p className="text-body-lg font-medium text-text-secondary-1000">Your shop preview</p>
-      </button>
-      <button
-        type="button"
-        aria-label="Close preview"
-        onClick={onClose}
-        className="flex size-[38px] items-center justify-center overflow-clip"
-      >
-        <Icon name="x" size={24} />
-      </button>
-    </header>
+    <div className="flex w-full flex-col items-start gap-xs rounded-md bg-surface-tertiary-100 px-lg py-md-2">
+      <p className="w-full text-body-md font-medium text-text-secondary-1000">
+        Currently, there are no products available for shipping to your country.
+      </p>
+      <p className="w-full text-body-sm text-text-secondary-700">
+        Tap the bell icon to get notified when it becomes available.
+      </p>
+    </div>
   )
 }
 
-function TopFeaturedProducts({ items }: { items: ShopItem[] }) {
+function TopFeaturedProducts({
+  items,
+  country,
+  onSelect,
+}: {
+  items: ShopItem[]
+  country: string
+  onSelect: (item: ShopItem) => void
+}) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   function scroll(direction: 'left' | 'right') {
@@ -79,14 +85,27 @@ function TopFeaturedProducts({ items }: { items: ShopItem[] }) {
         className="flex w-full gap-md overflow-x-auto px-margin [scrollbar-width:none]"
       >
         {items.map((item) => (
-          <StorefrontProductCard key={item.id} product={item.product} />
+          <StorefrontProductCard
+            key={item.id}
+            product={item.product}
+            available={item.product.regions.includes(country)}
+            onClick={() => onSelect(item)}
+          />
         ))}
       </div>
     </section>
   )
 }
 
-function AllPicks({ items }: { items: ShopItem[] }) {
+function AllPicks({
+  items,
+  country,
+  onSelect,
+}: {
+  items: ShopItem[]
+  country: string
+  onSelect: (item: ShopItem) => void
+}) {
   const [page, setPage] = useState(1)
   const totalPages = Math.max(1, Math.ceil(items.length / PICKS_PER_PAGE))
   const visible = items.slice((page - 1) * PICKS_PER_PAGE, page * PICKS_PER_PAGE)
@@ -98,7 +117,13 @@ function AllPicks({ items }: { items: ShopItem[] }) {
       </p>
       <div className="grid w-full max-w-[1200px] grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-lg">
         {visible.map((item) => (
-          <StorefrontProductCard key={item.id} product={item.product} className="w-full" />
+          <StorefrontProductCard
+            key={item.id}
+            product={item.product}
+            className="w-full"
+            available={item.product.regions.includes(country)}
+            onClick={() => onSelect(item)}
+          />
         ))}
       </div>
 
@@ -157,29 +182,60 @@ function AllPicks({ items }: { items: ShopItem[] }) {
 export function StorefrontPreview({ items, onClose, onCopyShopLink }: StorefrontPreviewProps) {
   const featuredItems = items.filter((item) => item.featured)
   const name = getSavedDisplayName('Charlotte')
+  const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
+  const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
 
   return (
-    <div className="flex min-h-screen w-full justify-center">
-      <ScaledBox width={1440} className="flex min-h-screen flex-col items-start bg-surface-secondary-100">
-        <StorefrontHeader onClose={onClose} />
-
-        <main className="flex w-full flex-col items-start">
-          <div className="w-full px-margin pt-md-2">
-            <StorefrontProfileCard onCopyLink={onCopyShopLink} />
-          </div>
-
-          {items.length === 0 ? (
-            <EmptyStorefront name={name} />
-          ) : (
-            <>
-              {featuredItems.length > 0 && <TopFeaturedProducts items={featuredItems} />}
-              <AllPicks items={items} />
-            </>
+    <div className="flex min-h-screen w-full flex-col items-center">
+      {/* `position: sticky` can't live *inside* `ScaledBox` — its offsets are
+          resolved in the box's pre-transform coordinate space, so a stuck
+          element drifts by `scrollY × (1 - scale)`, which grows without bound
+          as you scroll. Sticking an untransformed wrapper and scaling its
+          contents instead keeps the chrome pinned exactly. Both boxes share a
+          design width, so they resolve to the same scale. */}
+      <div className="sticky top-0 z-30 flex w-full justify-center">
+        <ScaledBox width={1440} className="flex flex-col items-start">
+          <StorefrontHeader onClose={onClose} />
+          {selectedItem && (
+            <CreatorMarketBar name={name} country={country} onBack={() => setSelectedItem(null)} />
           )}
-        </main>
+        </ScaledBox>
+      </div>
 
-        <AppFooter />
-      </ScaledBox>
+      <div className="flex w-full flex-1 justify-center">
+        <ScaledBox width={1440} className="flex flex-col items-start bg-surface-secondary-100">
+          <main className="flex w-full flex-col items-start">
+            {selectedItem ? (
+              <StorefrontProductDetail
+                item={selectedItem}
+                country={country}
+                onBack={() => setSelectedItem(null)}
+              />
+            ) : (
+              <>
+                <div className="flex w-full flex-col gap-md-2 px-margin pt-md-2">
+                  <StorefrontProfileCard onCopyLink={onCopyShopLink} />
+                  {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice />}
+                </div>
+
+                {items.length === 0 ? (
+                  <EmptyStorefront name={name} />
+                ) : (
+                  <>
+                    {featuredItems.length > 0 && (
+                      <TopFeaturedProducts items={featuredItems} country={country} onSelect={setSelectedItem} />
+                    )}
+                    <AllPicks items={items} country={country} onSelect={setSelectedItem} />
+                  </>
+                )}
+              </>
+            )}
+          </main>
+
+          <AppFooter />
+        </ScaledBox>
+      </div>
     </div>
   )
 }

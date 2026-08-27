@@ -36,8 +36,8 @@ export function StorefrontProfileCard({ onCopyLink }: StorefrontProfileCardProps
               <p className="text-body-xxl font-semibold text-text-secondary-1000">{name}</p>
               <p className="text-body-md font-medium text-text-secondary-700">@charlotte</p>
             </div>
-            <div className="flex items-center gap-sm">
-              <img src="/urmei/home/follower.svg" alt="URMEI" className="h-[14px] w-[26px]" />
+            <div className="flex h-[22px] items-center gap-sm">
+              <img src="/urmei/home/follower.svg" alt="URMEI" className="h-[14px] w-[25.881px]" />
               <p className="text-body-sm font-medium text-text-secondary-700">
                 {FOLLOWER_STATS.urmei} Followers
               </p>
