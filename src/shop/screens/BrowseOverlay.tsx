@@ -1,4 +1,4 @@
-import { useEffect, useRef, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ScaledBox } from '../components/ScaledBox'
 import { Icon } from '../components/Icon'
 
@@ -29,26 +29,88 @@ type BrowseOverlayProps = {
  * entirely sidesteps that rather than fighting it.
  */
 export function BrowseOverlay({ onClose, children, title = 'Browse and find products to add', scrollKey }: BrowseOverlayProps) {
+  const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
+  const [scrimOverhang, setScrimOverhang] = useState(0)
+
+  // Closing plays the panel's slide-out first and defers the real `onClose`
+  // — and the unmount it triggers — instead of firing it immediately, so the
+  // overlay animates away instead of vanishing.
+  const [closing, setClosing] = useState(false)
+  const closeTimeoutRef = useRef<number | null>(null)
+
+  function finishClose() {
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current)
+      closeTimeoutRef.current = null
+    }
+    onClose()
+  }
+
+  function requestClose() {
+    if (closing) return
+    setClosing(true)
+    // `onAnimationEnd` normally finishes the close, but CSS animations can
+    // stall while the tab is backgrounded — this guarantees it still closes.
+    closeTimeoutRef.current = window.setTimeout(finishClose, 300)
+  }
+
+  function handleExitAnimationEnd() {
+    if (closing) finishClose()
+  }
+
+  useEffect(
+    () => () => {
+      if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current)
+    },
+    [],
+  )
 
   // `html { scrollbar-gutter: stable }` (global.css) permanently reserves the
   // scrollbar's width so toggling scroll elsewhere in the app never shifts
   // layout — but that reservation also caps `vw`/`fixed inset-0` a scrollbar's
   // width short of the true window edge, so the scrim's right side never
-  // reaches it, leaving a sliver of the page showing through undimmed. Safe
-  // to lift only while this fully covers the screen: nothing behind it can
-  // shift layout since it's hidden, and scrolling is locked below anyway.
+  // reaches it, leaving a sliver of the page showing through undimmed.
+  // Extend just the background layer over that sliver.
   useEffect(() => {
-    const previousBody = document.body.style.overflow
-    const previousHtml = document.documentElement.style.overflow
-    const previousGutter = document.documentElement.style.scrollbarGutter
-    document.body.style.overflow = 'hidden'
-    document.documentElement.style.overflow = 'hidden'
-    document.documentElement.style.scrollbarGutter = 'auto'
+    setScrimOverhang(window.innerWidth - document.documentElement.clientWidth)
+  }, [])
+
+  // Locking scroll via `overflow: hidden` (with or without also pinning
+  // `body` to `position: fixed`) breaks every `position: sticky` element on
+  // the page behind this overlay: sticky needs an actual scrolling box to
+  // stick within, and once that box can't scroll, sticky elements fall back
+  // to their static in-flow position — while the page is still scrolled, so
+  // My Shop's sticky header/banner render far off-screen, briefly visible
+  // through the scrim's fade as it opens or closes. Block the scroll input
+  // itself instead of touching the page's own overflow/position: the page
+  // stays completely untouched (so its sticky elements keep computing
+  // correctly), and it can't visibly scroll anyway since this overlay
+  // already covers and hit-tests over the whole viewport.
+  useEffect(() => {
+    const isInsideBody = (target: EventTarget | null) =>
+      bodyRef.current?.contains(target as Node) ?? false
+    const isInsideOverlay = (target: EventTarget | null) =>
+      rootRef.current?.contains(target as Node) ?? false
+
+    const onWheel = (event: WheelEvent) => {
+      if (!isInsideBody(event.target)) event.preventDefault()
+    }
+    const onTouchMove = (event: TouchEvent) => {
+      if (!isInsideBody(event.target)) event.preventDefault()
+    }
+    const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '])
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (scrollKeys.has(event.key) && !isInsideOverlay(event.target)) event.preventDefault()
+    }
+
+    window.addEventListener('wheel', onWheel, { passive: false })
+    window.addEventListener('touchmove', onTouchMove, { passive: false })
+    window.addEventListener('keydown', onKeyDown)
     return () => {
-      document.body.style.overflow = previousBody
-      document.documentElement.style.overflow = previousHtml
-      document.documentElement.style.scrollbarGutter = previousGutter
+      window.removeEventListener('wheel', onWheel)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('keydown', onKeyDown)
     }
   }, [])
 
@@ -57,37 +119,51 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
   }, [scrollKey])
 
   return (
-    <div
-      className="fixed inset-0 z-30 flex flex-col bg-scrim"
-      style={{ paddingTop: 88 }}
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose()
-      }}
-    >
-      <div className="flex w-full justify-center overflow-x-hidden" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-        <ScaledBox width={1440} className="shrink-0 overflow-clip rounded-t-[10px] bg-surface-secondary-100">
-          <header className="flex w-full items-center justify-between border-b border-border-default bg-surface-secondary-100 px-margin py-[20px]">
-            <div className="flex items-center gap-md-2">
-              <img src="/assets/img/urmei-mark.svg" alt="" className="h-[15.999px] w-[29.573px]" />
-              <p className="text-body-lg font-medium text-text-secondary-1000">{title}</p>
-            </div>
-            <button
-              type="button"
-              aria-label="Close browse"
-              onClick={onClose}
-              className="flex size-[38px] items-center justify-center"
-            >
-              <Icon name="x" size={24} />
-            </button>
-          </header>
-        </ScaledBox>
-      </div>
+    <div ref={rootRef} className="fixed inset-0 z-30">
+      {/* Pure background layer, stretched over the scrollbar-gutter sliver.
+          Kept separate from the content layer below so extending it doesn't
+          shift that layer's own `justify-center` math off true-center. */}
+      <div
+        aria-hidden="true"
+        data-state={closing ? 'closed' : 'open'}
+        className="motion-modal-backdrop absolute inset-0 bg-scrim"
+        style={{ right: -scrimOverhang }}
+      />
 
-      <div ref={bodyRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto bg-surface-secondary-100">
-        <div className="flex min-h-full w-full justify-center" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
-          <ScaledBox width={1440} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">
-            {children}
+      <div
+        onAnimationEnd={handleExitAnimationEnd}
+        data-state={closing ? 'closed' : 'open'}
+        className="motion-browse-panel relative flex h-full flex-col"
+        style={{ paddingTop: 88 }}
+        onMouseDown={(event) => {
+          if (event.target === event.currentTarget) requestClose()
+        }}
+      >
+        <div className="flex w-full justify-center overflow-x-hidden" onMouseDown={(event) => { if (event.target === event.currentTarget) requestClose() }}>
+          <ScaledBox width={1440} className="shrink-0 overflow-clip rounded-t-[10px] bg-surface-secondary-100">
+            <header className="flex w-full items-center justify-between border-b border-border-default bg-surface-secondary-100 px-margin py-[20px]">
+              <div className="flex items-center gap-md-2">
+                <img src="/assets/img/urmei-mark.svg" alt="" className="h-[15.999px] w-[29.573px]" />
+                <p className="text-body-lg font-medium text-text-secondary-1000">{title}</p>
+              </div>
+              <button
+                type="button"
+                aria-label="Close browse"
+                onClick={requestClose}
+                className="flex size-[38px] items-center justify-center"
+              >
+                <Icon name="x" size={24} />
+              </button>
+            </header>
           </ScaledBox>
+        </div>
+
+        <div ref={bodyRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-surface-secondary-100">
+          <div className="flex min-h-full w-full justify-center" onMouseDown={(event) => { if (event.target === event.currentTarget) requestClose() }}>
+            <ScaledBox width={1440} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">
+              {children}
+            </ScaledBox>
+          </div>
         </div>
       </div>
     </div>
