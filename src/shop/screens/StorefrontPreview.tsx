@@ -5,6 +5,7 @@ import { getSavedDisplayName } from '../../portal/profile-status'
 import { CreatorMarketBar } from '../components/CreatorMarketBar'
 import { EmptyStorefront } from '../components/EmptyStorefront'
 import { Icon } from '../components/Icon'
+import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
 import { ScaledBox } from '../components/ScaledBox'
 import { StorefrontHeader } from '../components/StorefrontHeader'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
@@ -23,19 +24,6 @@ type StorefrontPreviewProps = {
 const PICKS_PER_PAGE = 8
 /** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
 const FEATURED_SCROLL_STEP = 280 + 16
-
-function NoAvailabilityNotice() {
-  return (
-    <div className="flex w-full flex-col items-start gap-xs rounded-md bg-surface-tertiary-100 px-lg py-md-2">
-      <p className="w-full text-body-md font-medium text-text-secondary-1000">
-        Currently, there are no products available for shipping to your country.
-      </p>
-      <p className="w-full text-body-sm text-text-secondary-700">
-        Tap the bell icon to get notified when it becomes available.
-      </p>
-    </div>
-  )
-}
 
 function TopFeaturedProducts({
   items,
@@ -210,6 +198,7 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
               <StorefrontProductDetail
                 item={selectedItem}
                 country={country}
+                creatorName={name}
                 onBack={() => setSelectedItem(null)}
               />
             ) : (

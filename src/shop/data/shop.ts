@@ -4,11 +4,6 @@
 
 export const SHOP_URL = 'urmei.com/shop/charlotte'
 
-/** The live deployment this prototype is hosted at. "View Shop" opens the
- *  real published storefront here rather than the current origin, so the
- *  link works the same during local development and once deployed. */
-export const DEPLOYED_APP_URL = 'https://urmei.vercel.app'
-
 /** Follower counts shown on the influencer profile card (Shop Preview, `917:53526`). */
 export const FOLLOWER_STATS = {
   urmei: 445,

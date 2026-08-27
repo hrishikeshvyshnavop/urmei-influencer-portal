@@ -1,14 +1,25 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useSyncExternalStore } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
+import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
+import { CreatorMarketBar } from '../components/CreatorMarketBar'
 import { EmptyStorefront } from '../components/EmptyStorefront'
 import { Icon } from '../components/Icon'
+import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
+import { StorefrontBreadcrumb } from '../components/StorefrontBreadcrumb'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
+import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
 import { SHOP_URL } from '../data/shop'
 import { loadShopItems } from '../shop-items-store'
+import type { ShopItem } from '../types'
 
 const PICKS_PER_PAGE = 8
+/** The design's content column: 1200px wide, sitting inside the 120px page
+ *  margin (1440 - 240). Shared by the breadcrumb, the profile card and the
+ *  All Picks grid, so they line up down the page at any viewport. */
+const CONTENT_COLUMN = 'w-full max-w-[1440px] px-margin'
 /** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
 const FEATURED_SCROLL_STEP = 280 + 16
 
@@ -18,7 +29,15 @@ const FEATURED_SCROLL_STEP = 280 + 16
  * preview (its own header/close chrome); this is the real public page opened
  * in a new tab by "View Shop", so it needs plain public-site chrome instead.
  */
-function TopFeaturedProducts({ items }: { items: ReturnType<typeof loadShopItems> }) {
+function TopFeaturedProducts({
+  items,
+  country,
+  onSelect,
+}: {
+  items: ShopItem[]
+  country: string
+  onSelect: (item: ShopItem) => void
+}) {
   const scrollRef = useRef<HTMLDivElement>(null)
 
   function scroll(direction: 'left' | 'right') {
@@ -29,7 +48,7 @@ function TopFeaturedProducts({ items }: { items: ReturnType<typeof loadShopItems
   }
 
   return (
-    <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-500/0 to-surface-tertiary-500 py-3xl">
+    <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100 py-3xl">
       <div className="flex w-full items-center gap-md-2 px-margin">
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           Top featured products
@@ -58,26 +77,50 @@ function TopFeaturedProducts({ items }: { items: ReturnType<typeof loadShopItems
         className="flex w-full gap-md overflow-x-auto px-margin [scrollbar-width:none]"
       >
         {items.map((item) => (
-          <StorefrontProductCard key={item.id} product={item.product} />
+          <StorefrontProductCard
+            key={item.id}
+            product={item.product}
+            available={item.product.regions.includes(country)}
+            onClick={() => onSelect(item)}
+          />
         ))}
       </div>
     </section>
   )
 }
 
-function AllPicks({ items }: { items: ReturnType<typeof loadShopItems> }) {
+function AllPicks({
+  items,
+  country,
+  onSelect,
+}: {
+  items: ShopItem[]
+  country: string
+  onSelect: (item: ShopItem) => void
+}) {
   const [page, setPage] = useState(1)
   const totalPages = Math.max(1, Math.ceil(items.length / PICKS_PER_PAGE))
   const visible = items.slice((page - 1) * PICKS_PER_PAGE, page * PICKS_PER_PAGE)
 
   return (
-    <section className="flex w-full flex-col items-center gap-md-2 px-margin py-3xl">
-      <p className="w-full max-w-[1200px] text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
+    <section className={`flex flex-col items-center gap-md-2 py-3xl ${CONTENT_COLUMN}`}>
+      <p className="w-full text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
         All Picks
       </p>
-      <div className="grid w-full max-w-[1200px] grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-lg">
+      {/* 16px between columns, 24px between rows — the design's own gaps.
+          Its cards are a fixed 280px, which leaves 32px unused at the end
+          of each four-up row; letting them flex instead keeps the grid
+          flush with the column (288px a card at 1440px) and still reflows
+          to fewer columns on narrower viewports. */}
+      <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-x-md gap-y-lg">
         {visible.map((item) => (
-          <StorefrontProductCard key={item.id} product={item.product} className="w-full" />
+          <StorefrontProductCard
+            key={item.id}
+            product={item.product}
+            className="w-full"
+            available={item.product.regions.includes(country)}
+            onClick={() => onSelect(item)}
+          />
         ))}
       </div>
 
@@ -128,36 +171,119 @@ function AllPicks({ items }: { items: ReturnType<typeof loadShopItems> }) {
  * once the shop is published with no pending changes. Reads the persisted
  * shop items directly, since a new tab starts with no shared state from the
  * Manage Shop tab that opened it.
+ *
+ * Availability follows the market chosen in the header's country switcher, the
+ * same way the creator's own preview does: picks that don't ship there are
+ * badged and lose their price and buy action, a storefront with nothing
+ * available at all says so above the picks (Figma `916:65413`), and opening
+ * such a pick lands on a product page offering to notify instead of to buy
+ * (`916:66693`).
  */
 export function StandaloneStorefront() {
   const items = loadShopItems()
   const featuredItems = items.filter((item) => item.featured)
   const name = getSavedDisplayName('Charlotte')
+  const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
+  const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
 
   const copyShopLink = () => {
     navigator.clipboard?.writeText(SHOP_URL).catch(() => {})
   }
 
+  const clearSelection = () => setSelectedItem(null)
+
+  const showFeatured = items.length > 0 && featuredItems.length > 0
+  const picks =
+    items.length === 0 ? (
+      <EmptyStorefront name={name} />
+    ) : (
+      <AllPicks items={items} country={country} onSelect={setSelectedItem} />
+    )
+
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100">
-      <header className="flex w-full items-center justify-center border-b border-border-default bg-surface-secondary-100 px-margin py-md-2">
-        <img src="/urmei/home/logo.svg" alt="URMEI" className="h-4 w-[109px]" />
-      </header>
+      {/* The site header stays put while the page scrolls, and on a product
+          page the market bar sticks under it — so which market's prices you're
+          looking at, and whose shop, stay on screen the whole way down. Both
+          live in one sticky wrapper rather than sticking separately: stacked
+          `top-0` / `top-[88px]` offsets would have to be kept in step with the
+          header's height by hand, whereas one wrapper just carries whatever is
+          inside it. Plain CSS sticky works here because this screen, unlike the
+          in-app preview, has no `ScaledBox` transform above it to break it.
 
-      <main className="flex w-full flex-col items-start">
-        <div className="w-full px-margin pt-md-2">
-          <StorefrontProfileCard onCopyLink={copyShopLink} />
+          The breadcrumb is deliberately left out of the wrapper — it's page
+          content, not chrome, and scrolls away with the rest. */}
+      <div className="sticky top-0 z-30 flex w-full flex-col items-center">
+        <StorefrontPublicHeader />
+        {selectedItem && (
+          /* A product page swaps the site breadcrumb for the market bar, which
+             states whose picks these are and which market's prices and stock
+             are being shown (Figma `916:66693`). The page's own breadcrumb
+             comes back from inside `StorefrontProductDetail`, as the product's
+             shelf path. */
+          <CreatorMarketBar name={name} country={country} onBack={clearSelection} />
+        )}
+      </div>
+
+      {!selectedItem && (
+        /* Static, like the site nav above it: the shelves above this page have
+           no screens to point at yet. */
+        <div className={CONTENT_COLUMN}>
+          <StorefrontBreadcrumb
+            items={[{ label: 'Home' }, { label: 'Influencers' }, { label: name }]}
+          />
         </div>
+      )}
 
-        {items.length === 0 ? (
-          <EmptyStorefront name={name} />
+      <main className="flex w-full flex-col items-center">
+        {selectedItem ? (
+          <div className={CONTENT_COLUMN}>
+            <StorefrontProductDetail
+              item={selectedItem}
+              country={country}
+              creatorName={name}
+              onBack={clearSelection}
+            />
+          </div>
         ) : (
           <>
-            {featuredItems.length > 0 && <TopFeaturedProducts items={featuredItems} />}
-            <AllPicks items={items} />
+            {/* The 36px gap belongs between the profile card and the *first*
+                section only (Figma `916:65747` wraps exactly those two). The
+                page frame itself has no gap, so every section after the first
+                is spaced by its own 36px top padding alone. */}
+            <div className="flex w-full flex-col items-center gap-3xl">
+              <div className={CONTENT_COLUMN}>
+                <StorefrontProfileCard onCopyLink={copyShopLink} />
+              </div>
+              {/* Nothing here ships to the selected market. Sits in the same
+                  36px column as the card rather than tucked under it the way
+                  the preview does — the edge frame's column is 952px tall,
+                  which is 200 + 36 + 88 + 36 + 592. */}
+              {items.length > 0 && !hasAvailableItems && (
+                <div className={CONTENT_COLUMN}>
+                  <NoAvailabilityNotice />
+                </div>
+              )}
+              {showFeatured ? (
+                <TopFeaturedProducts
+                  items={featuredItems}
+                  country={country}
+                  onSelect={setSelectedItem}
+                />
+              ) : (
+                picks
+              )}
+            </div>
+            {showFeatured && picks}
           </>
         )}
       </main>
+
+      {/* Figma `916:65859` — breathing room between the last section and the
+          footer, on top of the section's own bottom padding. A product page
+          brings its own, shorter (64px) spacer. */}
+      {!selectedItem && <div className="h-[80px] w-full shrink-0" />}
 
       <AppFooter />
     </div>

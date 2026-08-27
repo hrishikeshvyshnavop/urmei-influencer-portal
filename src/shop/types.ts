@@ -2,6 +2,15 @@ export type Product = {
   id: string
   brand: string
   name: string
+  /** Top-level shelf the product sits under, used for the storefront product
+   *  page's breadcrumb (`Home > Skincare > Serums > ...`, Figma `916:66734`).
+   *  Display-ready — title case, singular. Deliberately separate from the
+   *  browse filters' `CATEGORIES` list, which is a flat set of upper-case
+   *  keyword facets rather than a two-level shelf hierarchy. */
+  department: string
+  /** Shelf within `department`, e.g. "Serums". Display-ready — title case,
+   *  plural, matching the design's own crumb text. */
+  category: string
   /** Variant shown in the add-to-shop modal, e.g. "100 ML | Clear essence" — the
    *  default selection whenever the modal opens fresh for this product. */
   variant: string

@@ -1,14 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Accordion } from './Accordion'
-import { Breadcrumb } from './Breadcrumb'
 import { Button } from './Button'
 import { Icon } from './Icon'
+import { NotifyMeDialog } from './NotifyMeDialog'
+import { StorefrontBreadcrumb } from './StorefrontBreadcrumb'
 import type { ShopItem } from '../types'
 
 type StorefrontProductDetailProps = {
   item: ShopItem
   country: string
   onBack: () => void
+  /** Storefront owner, for the notify-me confirmation's "Back to X's shop".
+   *  Defaults to the design's creator so the preview can leave it off. */
+  creatorName?: string
 }
 
 /** "50 ML | Clear essence" -> "50ml" — the size Figma shows on the size chips
@@ -34,8 +38,14 @@ function Radio({ selected }: { selected: boolean }) {
  * when the product doesn't ship to the previewed country, matching the
  * storefront's own availability treatment (`916:65605`).
  */
-export function StorefrontProductDetail({ item, country, onBack }: StorefrontProductDetailProps) {
+export function StorefrontProductDetail({
+  item,
+  country,
+  onBack,
+  creatorName = 'Charlotte',
+}: StorefrontProductDetailProps) {
   const { product } = item
+  const [notifyOpen, setNotifyOpen] = useState(false)
   const [selectedSize, setSelectedSize] = useState(product.variant)
   const [purchaseType, setPurchaseType] = useState<'one-time' | 'subscribe'>('one-time')
   const [quantity, setQuantity] = useState(1)
@@ -50,9 +60,17 @@ export function StorefrontProductDetail({ item, country, onBack }: StorefrontPro
     <div className="flex w-full flex-col items-center">
       {/* Product Details / Desktop — the 1200px content column */}
       <div className="flex w-full max-w-[1200px] flex-col items-start">
-        <div className="w-full py-sm">
-          <Breadcrumb items={[{ label: 'Home', onClick: onBack }, { label: product.name }]} />
-        </div>
+        {/* The product's own shelf path (Figma `916:66734`), not the route that
+            got here: Home is the only crumb with somewhere to go, since the
+            department and category pages don't exist yet. */}
+        <StorefrontBreadcrumb
+          items={[
+            { label: 'Home', onClick: onBack },
+            { label: product.department },
+            { label: product.category },
+            { label: product.name },
+          ]}
+        />
 
         <div className="flex w-full items-start gap-5xl">
           {/* Image Gallery */}
@@ -283,23 +301,30 @@ export function StorefrontProductDetail({ item, country, onBack }: StorefrontPro
                   </div>
                 </>
               ) : (
-                /* Panel / Not available in market (`916:66778`) */
-                <div className="flex w-full flex-col items-start gap-md overflow-clip rounded-md bg-surface-tertiary-100 p-md-2">
-                  <div className="flex w-full flex-col items-start gap-[6px]">
+                /* Panel / Not available in market (`916:67118`) */
+                <div className="flex w-full flex-col items-start gap-fourteen overflow-clip rounded-md bg-surface-tertiary-100 p-md-2">
+                  <div className="flex items-center gap-ten">
+                    <Icon name="bell" size={20} />
                     <p className="text-body-lg leading-[1.4] font-semibold text-text-secondary-1000">
-                      This product doesn&apos;t ship to {country} yet.
-                    </p>
-                    <p className="w-full text-body-sm leading-[1.4] text-text-secondary-700">
-                      Get notified as soon as it becomes available in your country.
+                      Not available in {country}
                     </p>
                   </div>
-                  <Button variant="primary" className="w-[198px]">
-                    <Icon name="bell-inverse" size={16} />
-                    Notify me
+                  <p className="w-full text-body-sm leading-[1.4] text-text-secondary-700">
+                    {product.brand} doesn&apos;t ship to {country} yet. Tell us where to reach you
+                    and we&apos;ll email you the moment it does — no account needed.
+                  </p>
+                  {/* `normal-case` because `Button`'s primary variant capitalises
+                      every word, and the design's label is sentence case. */}
+                  <Button
+                    variant="primary"
+                    className="w-full normal-case"
+                    onClick={() => setNotifyOpen(true)}
+                  >
+                    Notify me when available
                   </Button>
                   <div className="h-px w-full bg-[#e6e5e4]" />
                   <p className="text-body-sm leading-[1.4] text-text-secondary-700">
-                    Available in {product.regions.join(', ')}
+                    Available in {product.regions.join(', ')} at {product.price}.
                   </p>
                 </div>
               )}
@@ -318,6 +343,19 @@ export function StorefrontProductDetail({ item, country, onBack }: StorefrontPro
 
       {/* spacer / before footer */}
       <div className="h-[64px] w-full shrink-0" />
+
+      {notifyOpen && (
+        <NotifyMeDialog
+          product={product}
+          country={country}
+          creatorName={creatorName}
+          onClose={() => setNotifyOpen(false)}
+          onBackToShop={() => {
+            setNotifyOpen(false)
+            onBack()
+          }}
+        />
+      )}
     </div>
   )
 }

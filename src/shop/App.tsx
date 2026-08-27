@@ -6,7 +6,7 @@ import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
 import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
-import { DEPLOYED_APP_URL, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
+import { SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
 import { BrandsList } from './screens/BrandsList'
 import { BrandsListSkeleton } from './components/BrandsListSkeleton'
 import { BrowseOverlay } from './screens/BrowseOverlay'
@@ -304,7 +304,12 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onBrowse={openCatalogue}
           onPreview={() => setPreviewOpen(true)}
           onViewShop={() => {
-            window.open(`${DEPLOYED_APP_URL}/#/shop/view`, '_blank')
+            // Same origin as whatever's running, not a hardcoded deployment:
+            // the storefront reads the shop from this browser's localStorage,
+            // so pointing at the deployed URL from a dev server opened a
+            // *different* app with a different (usually empty) shop — the
+            // storefront looked broken when the data simply wasn't there.
+            window.open(`${window.location.origin}${window.location.pathname}#/shop/view`, '_blank')
           }}
           published={publishedAt !== null}
           publishedAt={publishedAt}

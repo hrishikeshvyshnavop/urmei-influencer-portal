@@ -54,6 +54,11 @@
   --color-surface-primary-500: #403e3c;
   --color-surface-primary-700: #332f2d;
   --color-surface-primary-800: #2c2927;
+  /* Figma's surface/primary/900 — the darkest step, used for the public
+     storefront header's cart badge. Same hex the portal set calls
+     `--color-portal-step`; duplicated here so shop screens keep to the
+     surface-/text- names they were built against. */
+  --color-surface-primary-900: #262320;
   --color-surface-secondary-100: #fffefd;
   --color-surface-secondary-200: #fdfdfd;
   --color-surface-secondary-300: #f8f8f8;
