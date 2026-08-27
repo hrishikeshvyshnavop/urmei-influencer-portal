@@ -12,6 +12,7 @@ import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
 import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
 import { SHOP_URL } from '../data/shop'
+import { useHasOverflowX } from '../hooks/useHasOverflowX'
 import { loadShopItems } from '../shop-items-store'
 import type { ShopItem } from '../types'
 
@@ -39,6 +40,7 @@ function TopFeaturedProducts({
   onSelect: (item: ShopItem) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
+  const canScroll = useHasOverflowX(scrollRef, items.length)
 
   function scroll(direction: 'left' | 'right') {
     scrollRef.current?.scrollBy({
@@ -53,24 +55,29 @@ function TopFeaturedProducts({
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           Top featured products
         </p>
-        <div className="flex items-start gap-sm">
-          <button
-            type="button"
-            aria-label="Scroll featured products left"
-            onClick={() => scroll('left')}
-            className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
-          >
-            <Icon name="chevron-left" />
-          </button>
-          <button
-            type="button"
-            aria-label="Scroll featured products right"
-            onClick={() => scroll('right')}
-            className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
-          >
-            <Icon name="chevron-right" />
-          </button>
-        </div>
+        {/* Only when the strip actually overflows. With a handful of featured
+            picks every card is already on screen, and arrows that scroll
+            nothing read as broken controls. */}
+        {canScroll && (
+          <div className="flex items-start gap-sm">
+            <button
+              type="button"
+              aria-label="Scroll featured products left"
+              onClick={() => scroll('left')}
+              className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
+            >
+              <Icon name="chevron-left" />
+            </button>
+            <button
+              type="button"
+              aria-label="Scroll featured products right"
+              onClick={() => scroll('right')}
+              className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
+            >
+              <Icon name="chevron-right" />
+            </button>
+          </div>
+        )}
       </div>
       <div
         ref={scrollRef}
