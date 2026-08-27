@@ -126,19 +126,34 @@
 }
 
 html {
-  scrollbar-gutter: stable;
+  /* Hide the viewport's own scroll control on every page. `scrollbar-width` is
+     inherited, and the viewport takes its value from the root — so `body`
+     resets it to `auto` below. Without that reset this would also erase the
+     scrollbar of every scrolling box *inside* the page (the Search Results
+     filter rail, the browse overlay's product list), not just the page's own.
+     The page still scrolls by wheel, trackpad, keys and touch; what goes is
+     the bar and the drag-to-scroll it offers. */
+  scrollbar-width: none;
+  /* No scrollbar left to reserve room for. `stable` was here so that toggling
+     page scroll never shifted layout sideways — with nothing ever drawn there
+     is no shift to guard against, and the reserved strip was itself showing as
+     a gap down the window's edge. */
+  scrollbar-gutter: auto;
   overscroll-behavior-y: none;
 }
 
-/* Opt-out for pages with a full-bleed image and no Select/overlay to guard
-   against — see ApplyLanding. `body { overflow-x: hidden }` below clips any
-   attempt to paint over the reserved gutter, so the only way to remove the
-   sliver is to stop reserving it while such a page is mounted. */
+/* Redundant now that the rule above never reserves a gutter — kept so
+   ApplyLanding's existing opt-out (it adds this class for its full-bleed
+   image) stays harmless rather than dangling. Safe to delete along with that
+   effect. */
 html.scrollbar-gutter-auto {
   scrollbar-gutter: auto;
 }
 
 body {
+  /* Undoes the root's `scrollbar-width: none` for everything in the page, so
+     hiding the window's scrollbar doesn't hide in-page ones too. */
+  scrollbar-width: auto;
   background-color: #fff;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
@@ -153,9 +168,11 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Radix Select locks page scrolling while open. The document already reserves
-   its scrollbar gutter, so react-remove-scroll-bar's extra margin causes a
-   horizontal layout shift. Keep the lock, but remove duplicate compensation. */
+/* Radix Select locks page scrolling while open, and react-remove-scroll-bar
+   adds a margin to compensate for the scrollbar it thinks it removed. There is
+   no visible scrollbar to compensate for (see `scrollbar-width: none` above),
+   so that margin is a pure horizontal layout shift. Keep the lock, drop the
+   compensation. */
 html body[data-scroll-locked] {
   margin-right: 0 !important;
   --removed-body-scroll-bar-size: 0px !important;
