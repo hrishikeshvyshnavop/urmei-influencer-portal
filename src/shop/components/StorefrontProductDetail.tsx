@@ -301,30 +301,27 @@ export function StorefrontProductDetail({
                   </div>
                 </>
               ) : (
-                /* Panel / Not available in market (`916:67118`) */
-                <div className="flex w-full flex-col items-start gap-fourteen overflow-clip rounded-md bg-surface-tertiary-100 p-md-2">
-                  <div className="flex items-center gap-ten">
-                    <Icon name="bell" size={20} />
+                /* Panel / Not available in market (`916:66778`) */
+                <div className="flex w-full flex-col items-start gap-md overflow-clip rounded-md bg-surface-tertiary-100 p-md-2">
+                  <div className="flex w-full flex-col items-start gap-[6px]">
                     <p className="text-body-lg leading-[1.4] font-semibold text-text-secondary-1000">
-                      Not available in {country}
+                      This product doesn&apos;t ship to {country} yet.
+                    </p>
+                    <p className="w-full text-body-sm leading-[1.4] text-text-secondary-700">
+                      Get notified as soon as it becomes available in your country.
                     </p>
                   </div>
-                  <p className="w-full text-body-sm leading-[1.4] text-text-secondary-700">
-                    {product.brand} doesn&apos;t ship to {country} yet. Tell us where to reach you
-                    and we&apos;ll email you the moment it does — no account needed.
-                  </p>
-                  {/* `normal-case` because `Button`'s primary variant capitalises
-                      every word, and the design's label is sentence case. */}
                   <Button
                     variant="primary"
-                    className="w-full normal-case"
+                    className="w-[198px]"
                     onClick={() => setNotifyOpen(true)}
                   >
-                    Notify me when available
+                    <Icon name="bell-inverse" size={16} />
+                    Notify me
                   </Button>
                   <div className="h-px w-full bg-[#e6e5e4]" />
                   <p className="text-body-sm leading-[1.4] text-text-secondary-700">
-                    Available in {product.regions.join(', ')} at {product.price}.
+                    Available in {product.regions.join(', ')}
                   </p>
                 </div>
               )}
