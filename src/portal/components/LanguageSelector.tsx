@@ -7,7 +7,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSelectedCountry, setSelectedCountry, subscribeToSelectedCountry } from "../country-status";
+import {
+  COUNTRIES as countries,
+  type CountryId,
+  getSelectedCountry,
+  setSelectedCountry,
+  subscribeToSelectedCountry,
+} from "../country-status";
 import Button from "./Button";
 
 const languages = [
@@ -16,16 +22,6 @@ const languages = [
   { code: "MS", label: "Melayu - MS" },
   { code: "TA", label: "தமிழ் - TA" },
 ];
-
-const countries = [
-  { id: "singapore", name: "Singapore", host: "sg.urmei.com" },
-  { id: "indonesia", name: "Indonesia", host: "id.urmei.com" },
-  { id: "malaysia", name: "Malaysia", host: "my.urmei.com" },
-  { id: "thailand", name: "Thailand", host: "th.urmei.com" },
-  { id: "vietnam", name: "Vietnam", host: "vn.urmei.com" },
-] as const;
-
-type CountryId = (typeof countries)[number]["id"];
 
 const asset = (name: string) => `/urmei/country-flags/${name}.svg`;
 

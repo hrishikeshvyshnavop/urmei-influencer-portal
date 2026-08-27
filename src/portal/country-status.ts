@@ -1,5 +1,22 @@
+/**
+ * The markets URMEI operates in, in the order the header's country switcher
+ * lists them. Single source for that switcher and for the catalogue's Country
+ * filter — the filter offers every market, not just the ones the current
+ * catalogue happens to stock, so an unstocked market reads as "no results"
+ * rather than being missing from the list.
+ */
+export const COUNTRIES = [
+  { id: "singapore", name: "Singapore", host: "sg.urmei.com" },
+  { id: "indonesia", name: "Indonesia", host: "id.urmei.com" },
+  { id: "malaysia", name: "Malaysia", host: "my.urmei.com" },
+  { id: "thailand", name: "Thailand", host: "th.urmei.com" },
+  { id: "vietnam", name: "Vietnam", host: "vn.urmei.com" },
+] as const;
+
+export type CountryId = (typeof COUNTRIES)[number]["id"];
+
 const COUNTRY_KEY = "urmei.selected-country";
-const DEFAULT_COUNTRY = "Singapore";
+const DEFAULT_COUNTRY = COUNTRIES[0].name;
 
 type Listener = () => void;
 

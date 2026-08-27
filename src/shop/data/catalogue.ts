@@ -925,6 +925,9 @@ export type ProductFilters = {
    *  filter" behave identically. */
   categories: string[]
   ingredients: string[]
+  /** `Product.regions` values. Matched exactly rather than through `haystack`,
+   *  since a product's markets are structured data, not free text. */
+  countries: string[]
 }
 
 export const EMPTY_FILTERS: ProductFilters = {
@@ -933,6 +936,7 @@ export const EMPTY_FILTERS: ProductFilters = {
   ratingThresholds: [],
   categories: [],
   ingredients: [],
+  countries: [],
 }
 
 export function hasActiveFilters(filters: ProductFilters): boolean {
@@ -941,13 +945,21 @@ export function hasActiveFilters(filters: ProductFilters): boolean {
     filters.priceBuckets.length > 0 ||
     filters.ratingThresholds.length > 0 ||
     filters.categories.length > 0 ||
-    filters.ingredients.length > 0
+    filters.ingredients.length > 0 ||
+    filters.countries.length > 0
   )
 }
 
 export function applyFilters(products: Product[], filters: ProductFilters): Product[] {
   return products.filter((product) => {
     if (filters.brands.length && !filters.brands.includes(product.brand)) return false
+
+    if (
+      filters.countries.length &&
+      !filters.countries.some((country) => product.regions.includes(country))
+    ) {
+      return false
+    }
 
     if (filters.priceBuckets.length) {
       const price = parseCurrency(product.price)
