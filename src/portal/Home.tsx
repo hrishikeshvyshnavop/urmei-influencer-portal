@@ -229,7 +229,7 @@ export default function Home({
         {!firstVisit && hasShopItems ? (
           <>
             <RecentActivities />
-            {shopItems.length >= 2 ? <TopProducts items={shopItems} /> : null}
+            {isShopPublished && shopItems.length >= 2 ? <TopProducts items={shopItems} /> : null}
           </>
         ) : null}
 
