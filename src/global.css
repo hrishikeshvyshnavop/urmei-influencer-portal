@@ -127,6 +127,14 @@ html {
   overscroll-behavior-y: none;
 }
 
+/* Opt-out for pages with a full-bleed image and no Select/overlay to guard
+   against — see ApplyLanding. `body { overflow-x: hidden }` below clips any
+   attempt to paint over the reserved gutter, so the only way to remove the
+   sliver is to stop reserving it while such a page is mounted. */
+html.scrollbar-gutter-auto {
+  scrollbar-gutter: auto;
+}
+
 body {
   background-color: #fff;
   overflow-x: hidden;

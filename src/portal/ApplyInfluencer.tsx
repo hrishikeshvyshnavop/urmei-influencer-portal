@@ -446,7 +446,7 @@ export default function ApplyInfluencer({
     consentedToData;
 
   return (
-    <PortalFormLayout>
+    <PortalFormLayout animate={false}>
       <form
         className="flex w-full max-w-[940px] flex-col gap-6 px-6 pt-[136px] pb-16 sm:px-12 lg:px-[100px]"
         onInvalidCapture={(event) => {
