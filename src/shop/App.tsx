@@ -8,12 +8,16 @@ import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/co
 import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
 import { DEPLOYED_APP_URL, SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
 import { BrandsList } from './screens/BrandsList'
+import { BrandsListSkeleton } from './components/BrandsListSkeleton'
 import { BrowseOverlay } from './screens/BrowseOverlay'
 import { CatalogueHome } from './screens/CatalogueHome'
+import { CatalogueHomeSkeleton } from './components/CatalogueHomeSkeleton'
 import { MyShop } from './screens/MyShop'
 import { ProductDetail } from './screens/ProductDetail'
 import { ProductDetailPage } from './screens/ProductDetailPage'
+import { ProductDetailSkeleton } from './components/ProductDetailSkeleton'
 import { SearchResults } from './screens/SearchResults'
+import { SearchResultsSkeleton } from './components/SearchResultsSkeleton'
 import { StorefrontPreview } from './screens/StorefrontPreview'
 import {
   loadHasUnpublishedChanges,
@@ -319,6 +323,17 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
         <BrowseOverlay
           onClose={() => setOverlay(null)}
           scrollKey={overlay.kind === 'detail' ? `detail:${overlay.product.id}` : overlay.kind}
+          skeleton={
+            overlay.kind === 'catalogue' ? (
+              <CatalogueHomeSkeleton />
+            ) : overlay.kind === 'brands' ? (
+              <BrandsListSkeleton />
+            ) : overlay.kind === 'results' ? (
+              <SearchResultsSkeleton />
+            ) : (
+              <ProductDetailSkeleton />
+            )
+          }
         >
           {overlay.kind === 'catalogue' && (
             <CatalogueHome
