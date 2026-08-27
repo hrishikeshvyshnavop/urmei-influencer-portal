@@ -81,7 +81,10 @@
   --color-text-tertiary-100: #f2efed;
   --color-text-tertiary-800: #777674;
   --color-text-tertiary-900: #4f4e4d;
-  --color-text-success: #66bb6a;
+  /* typography/color/other/success — the discount badge's text. #66bb6a, used
+     here previously, is Figma's border/color/success (see --color-portal-success)
+     and washed out against the badge's pale green fill. */
+  --color-text-success: #28802c;
 
   --color-border-default: #e5e5e5;
   --color-border-outlined: #b1b1b1;

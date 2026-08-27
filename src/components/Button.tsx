@@ -5,9 +5,9 @@ export type ButtonVariant = "primary" | "outline" | "ghost" | "portal" | "portal
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & { children: ReactNode; leftIcon?: ReactNode; variant?: ButtonVariant };
 
 const variants: Record<ButtonVariant, string> = {
-  primary: "rounded-md bg-surface-primary-500 px-md py-sm text-body-sm capitalize text-text-secondary-100 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500",
+  primary: "rounded-md border border-transparent bg-surface-primary-500 px-md py-sm text-body-sm capitalize text-text-secondary-100 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500",
   outline: "rounded-md border border-border-default bg-surface-secondary-100 px-md py-sm text-body-sm capitalize text-text-secondary-1000 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500",
-  ghost: "rounded-md bg-surface-secondary-300 px-md py-sm text-body-sm capitalize text-text-secondary-1000 disabled:text-text-secondary-500",
+  ghost: "rounded-md border border-transparent bg-surface-secondary-300 px-md py-sm text-body-sm capitalize text-text-secondary-1000 disabled:text-text-secondary-500",
   portal: "rounded-lg border border-transparent bg-portal-dark px-4 py-2 text-body-sm capitalize text-portal-light disabled:bg-portal-surface disabled:text-portal-disabled",
   portalBlock: "w-full rounded-lg border border-transparent bg-portal-dark px-4 py-3 text-body-sm capitalize text-portal-light disabled:bg-portal-surface disabled:text-portal-disabled",
   portalLg: "rounded-lg border border-transparent bg-portal-dark px-4 py-3 text-body-sm capitalize text-portal-light disabled:bg-portal-surface disabled:text-portal-disabled",
