@@ -53,7 +53,6 @@ export function BrowseOverlay({
 }: BrowseOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
-  const [scrimOverhang, setScrimOverhang] = useState(0)
   const shouldLoad = (key: string | undefined) =>
     skeleton !== undefined && key !== undefined && !loadedViewKeys.has(key)
   const [contentLoading, setContentLoading] = useState(() => shouldLoad(scrollKey))
@@ -102,16 +101,6 @@ export function BrowseOverlay({
     [],
   )
 
-  // `html { scrollbar-gutter: stable }` (global.css) permanently reserves the
-  // scrollbar's width so toggling scroll elsewhere in the app never shifts
-  // layout — but that reservation also caps `vw`/`fixed inset-0` a scrollbar's
-  // width short of the true window edge, so the scrim's right side never
-  // reaches it, leaving a sliver of the page showing through undimmed.
-  // Extend just the background layer over that sliver.
-  useEffect(() => {
-    setScrimOverhang(window.innerWidth - document.documentElement.clientWidth)
-  }, [])
-
   // Locking scroll via `overflow: hidden` (with or without also pinning
   // `body` to `position: fixed`) breaks every `position: sticky` element on
   // the page behind this overlay: sticky needs an actual scrolling box to
@@ -124,10 +113,19 @@ export function BrowseOverlay({
   // correctly), and it can't visibly scroll anyway since this overlay
   // already covers and hit-tests over the whole viewport.
   useEffect(() => {
+    // Parts of the overlay's own chrome get portaled out to `document.body`
+    // when they stick (`SearchResults`' toolbar and filter rail, which can't
+    // use `position: sticky` inside a scaled ancestor). Those are still the
+    // overlay, so a `contains` check against the overlay's own elements
+    // misses them and the guards below would cancel their scrolling — they
+    // opt back in with `data-overlay-scroll`.
+    const isPortaledChrome = (target: EventTarget | null) =>
+      target instanceof Element && target.closest('[data-overlay-scroll]') !== null
+
     const isInsideBody = (target: EventTarget | null) =>
-      bodyRef.current?.contains(target as Node) ?? false
+      (bodyRef.current?.contains(target as Node) ?? false) || isPortaledChrome(target)
     const isInsideOverlay = (target: EventTarget | null) =>
-      rootRef.current?.contains(target as Node) ?? false
+      (rootRef.current?.contains(target as Node) ?? false) || isPortaledChrome(target)
 
     const onWheel = (event: WheelEvent) => {
       if (!isInsideBody(event.target)) event.preventDefault()
@@ -140,13 +138,52 @@ export function BrowseOverlay({
       if (scrollKeys.has(event.key) && !isInsideOverlay(event.target)) event.preventDefault()
     }
 
+    // The page keeps its own scroll control while the overlay is up — a second
+    // scrollbar beside the overlay's own, and `scrollbar-gutter: stable`
+    // (global.css) reserves its width whether or not it's drawn, leaving a
+    // strip at the screen's edge that the overlay can't cover: nothing
+    // positioned in the page paints inside that reserved gutter (a probe at
+    // `right: -15px` doesn't render, and `100vw` stops at the gutter's inner
+    // edge), so it showed the bare page canvas as a pale band.
+    //
+    // Removing the scrollbar and releasing the gutter drops both at once: the
+    // overlay then spans the true window width with nothing left over at the
+    // edge, so `inset-0` covers it exactly. The page behind does reflow ~15px
+    // wider for as long as the overlay is open, which is what
+    // `scrollbar-gutter: stable` normally exists to prevent — but the scrim
+    // covers it, so none of that is visible.
+    //
+    // Both properties are inherited, and the viewport's scrollbar takes its
+    // values from the root, so `body` is pinned back to the defaults to stop
+    // `none` reaching the overlay's own scrollers and erasing the results
+    // list's scrollbar with it.
+    const root = document.documentElement
+    const previousRootScrollbarWidth = root.style.scrollbarWidth
+    const previousRootScrollbarGutter = root.style.scrollbarGutter
+    const previousBodyScrollbarWidth = document.body.style.scrollbarWidth
+    root.style.scrollbarWidth = 'none'
+    root.style.scrollbarGutter = 'auto'
+    document.body.style.scrollbarWidth = 'auto'
+
+    // Belt and braces now that the page has no scrollbar to grab: holding the
+    // position covers any route the guards above don't — a thumb drag if a
+    // platform still draws one, or a programmatic scroll — without touching
+    // the page's own overflow.
+    const { scrollX, scrollY } = window
+    const holdScrollPosition = () => window.scrollTo(scrollX, scrollY)
+
     window.addEventListener('wheel', onWheel, { passive: false })
     window.addEventListener('touchmove', onTouchMove, { passive: false })
     window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('scroll', holdScrollPosition, { passive: true })
     return () => {
       window.removeEventListener('wheel', onWheel)
       window.removeEventListener('touchmove', onTouchMove)
       window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('scroll', holdScrollPosition)
+      root.style.scrollbarWidth = previousRootScrollbarWidth
+      root.style.scrollbarGutter = previousRootScrollbarGutter
+      document.body.style.scrollbarWidth = previousBodyScrollbarWidth
     }
   }, [])
 
@@ -170,14 +207,17 @@ export function BrowseOverlay({
 
   return (
     <div ref={rootRef} className="fixed inset-0 z-30">
-      {/* Pure background layer, stretched over the scrollbar-gutter sliver.
-          Kept separate from the content layer below so extending it doesn't
-          shift that layer's own `justify-center` math off true-center. */}
+      {/* Pure background layer, kept separate from the content layer below so
+          it can't shift that layer's own `justify-center` math off
+          true-center. `inset-0` reaches the true window edge unaided: the
+          scroll lock releases `scrollbar-gutter` while the overlay is open, so
+          there's no reserved sliver left to stretch over — and stretching a
+          layer into that gutter never worked anyway, since nothing in the page
+          paints there. */}
       <div
         aria-hidden="true"
         data-state={closing ? 'closed' : 'open'}
         className="motion-modal-backdrop absolute inset-0 bg-scrim"
-        style={{ right: -scrimOverhang }}
       />
 
       <div
@@ -208,7 +248,14 @@ export function BrowseOverlay({
           </ScaledBox>
         </div>
 
-        <div ref={bodyRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-surface-secondary-100">
+        {/* Thin, track-less scrollbar to match the Filters rail's. Left at the
+            platform default this was a full-width classic scrollbar whose pale
+            track read as a white band down the edge of the screen, right next
+            to the scrim. */}
+        <div
+          ref={bodyRef}
+          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-surface-secondary-100 [scrollbar-color:var(--color-border-outlined)_transparent] [scrollbar-width:thin]"
+        >
           <div className="flex min-h-full w-full justify-center" onMouseDown={(event) => { if (event.target === event.currentTarget) requestClose() }}>
             <ScaledBox width={1440} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">
               {contentLoading && skeleton !== undefined ? skeleton : children}
