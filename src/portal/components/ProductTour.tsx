@@ -133,7 +133,7 @@ export default function ProductTour({ onClose, onFinish }: ProductTourProps) {
       <div
         onAnimationEnd={handleExitAnimationEnd}
         data-state={closing ? "closed" : "open"}
-        className="motion-modal-panel relative my-auto flex h-[450px] w-[800px] max-w-full shrink-0 items-stretch overflow-clip rounded-[10px]"
+        className="motion-tour-panel relative my-auto flex h-[450px] w-[800px] max-w-full shrink-0 items-stretch overflow-clip rounded-[10px]"
       >
         <div className="flex h-full min-w-0 basis-1/2 flex-col items-start justify-between overflow-clip bg-white p-8">
           {step.indicator ? (

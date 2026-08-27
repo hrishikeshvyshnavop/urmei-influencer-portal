@@ -101,8 +101,9 @@ function consumeTourAfterLogin() {
  * opened explicitly from the profile menu; `#/home/tour` remains linkable.
  */
 /** Beat before the tour fades in after profile setup, so it reads as a
- *  deliberate welcome rather than popping in over Home's own entrance. */
-const TOUR_AFTER_LOGIN_DELAY_MS = 450;
+ *  deliberate welcome rather than popping in over Home's own entrance —
+ *  long enough that Home's own content has settled and painted first. */
+const TOUR_AFTER_LOGIN_DELAY_MS = 900;
 
 function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
   const [pendingTourAfterLogin] = useState(
