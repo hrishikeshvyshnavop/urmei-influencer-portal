@@ -198,9 +198,20 @@ export default function Home({
             <div className="flex flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-portal-light p-6 sm:flex-row sm:items-center sm:gap-10 lg:p-8">
               <div className="flex min-w-0 flex-1 items-center gap-6">
                 <img src="/urmei/home/store.svg" alt="" className="size-16 shrink-0" />
-                <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Create online shop</h2><p className="text-body-md text-portal-muted">Curate your products and publish your shop to start earning.</p></div>
+                {/* A shop that was published and then emptied back out to zero
+                    products (`isPublishBlocked`) is disabled rather than
+                    never set up — same distinction the Shop URL card above
+                    already makes — so it gets its own copy instead of the
+                    first-time setup message. */}
+                {isPublishBlocked ? (
+                  <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Your shop is disabled</h2><p className="text-body-md text-portal-muted">Add a product and publish your shop to enable it again.</p></div>
+                ) : (
+                  <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Create online shop</h2><p className="text-body-md text-portal-muted">Curate your products and publish your shop to start earning.</p></div>
+                )}
               </div>
-              <Button variant="portal" className="w-full sm:w-auto" onClick={() => { window.location.hash = "#/shop"; }}>Set Up Shop</Button>
+              <Button variant="portal" className="w-full sm:w-auto" onClick={() => { window.location.hash = "#/shop"; }}>
+                Setup Shop
+              </Button>
             </div>
           ) : null}
           {hasShopItems && isShopPublished ? (
