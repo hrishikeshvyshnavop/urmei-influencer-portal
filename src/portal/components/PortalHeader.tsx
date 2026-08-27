@@ -24,17 +24,22 @@ const logoLetters = [
 export default function PortalHeader({
   action,
   hideLanguageSelector = false,
+  hideBackdrop = false,
 }: {
   action?: ReactNode;
   /** Profile setup screens don't offer a region switch mid-flow. */
   hideLanguageSelector?: boolean;
+  /** Review Details renders without the form-column mask behind the header. */
+  hideBackdrop?: boolean;
 }) {
   return (
     <div className="sticky top-0 z-20 h-0">
       <div className="relative h-[96px]">
         {/* Backdrop for the form column only, so content scrolling underneath is
             masked while the wordmark keeps sitting on the accent photo. */}
-        <div className="absolute inset-y-0 right-0 left-0 bg-white lg:left-[35%]" />
+        {hideBackdrop ? null : (
+          <div className="absolute inset-y-0 right-0 left-0 bg-white lg:left-[35%]" />
+        )}
         <header className="relative flex h-full items-center justify-between px-[64px] py-6">
           <div className="flex h-full min-w-px flex-1 flex-col items-start gap-[10px] py-[15px]">
             <a

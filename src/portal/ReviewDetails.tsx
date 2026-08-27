@@ -129,9 +129,9 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
     );
 
   return (
-    <PortalFormLayout hideLanguageSelector>
+    <PortalFormLayout hideLanguageSelector hideHeaderBackdrop>
       <form
-        className="flex w-full max-w-[940px] flex-col gap-6 px-6 pt-[96px] pb-16 sm:px-12 lg:px-[100px]"
+        className="flex w-full max-w-[940px] flex-col gap-6 px-6 pt-[136px] pb-16 sm:px-12 lg:px-[100px]"
         onInvalidCapture={(event) => {
           event.preventDefault();
           scrollToFirstError(event.currentTarget);
@@ -186,8 +186,8 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
               ))}
             </div>
 
-            <div className="flex w-full items-center gap-[10px]">
-              <div className="flex size-[32px] shrink-0 flex-col items-center justify-center rounded-[10px] border border-solid border-portal-border bg-white">
+            <div className="flex w-full items-start gap-[2px]">
+              <div className="flex size-[24px] shrink-0 flex-col items-center justify-center rounded-[10px] bg-white">
                 <span className="relative size-[16px] shrink-0 overflow-clip">
                   <span className="absolute inset-[8.33%_16.67%]">
                     <span className="absolute inset-[-4.99%_-6.23%]">
