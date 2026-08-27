@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Icon } from './Icon'
 import type { Product } from '../types'
 
@@ -23,9 +24,18 @@ type NotifyMeDialogProps = {
   onBackToShop: () => void
 }
 
-/** Shared shell for both steps (Figma `916:67136` / `916:67022`) — same 400px
- *  card, same scrim. Only the body differs, so the two steps are two bodies
- *  rather than two dialogs. */
+/**
+ * Shared shell for both steps (Figma `916:67136` / `916:67022`) — same 400px
+ * card, same scrim. Only the body differs, so the two steps are two bodies
+ * rather than two dialogs.
+ *
+ * Portaled to `document.body` because the storefront preview renders this
+ * product page inside `ScaledBox`, and a `transform` ancestor becomes the
+ * containing block for `position: fixed` descendants: `inset-0` would resolve
+ * against the scaled page rather than the viewport, centring the card halfway
+ * down the whole document (usually off-screen) and scaling it along with the
+ * page. Same escape hatch `FloatingPanel` uses for the same reason.
+ */
 function DialogShell({
   children,
   labelledBy,
@@ -33,7 +43,7 @@ function DialogShell({
   children: ReactNode
   labelledBy: string
 }) {
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-scrim" role="presentation">
       <div
         role="dialog"
@@ -43,7 +53,8 @@ function DialogShell({
       >
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
