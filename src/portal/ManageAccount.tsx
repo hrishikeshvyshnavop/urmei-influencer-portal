@@ -252,7 +252,7 @@ export default function ManageAccount({
         </aside>
       ) : null}
 
-      <main className="mx-auto flex w-full max-w-[1440px] flex-col gap-9 px-6 py-8 lg:px-[120px]">
+      <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col gap-9 px-6 py-8 lg:px-[120px]">
         <div className="flex flex-col items-start gap-10 sm:flex-row">
           <div className="flex w-full shrink-0 flex-col gap-xl sm:hidden">
             <h1 className="text-body-xxl">Manage Your Account</h1>
@@ -268,13 +268,7 @@ export default function ManageAccount({
             <h1 className="text-body-xxl whitespace-nowrap">Manage Your Account</h1>
             {railNav}
           </div>
-          {/* min-height guarantees the row is always at least a viewport tall,
-              regardless of which tab's content is active — so the sticky rail
-              always has room to sit still and, only in the row's final
-              stretch, release and slide up with the page. Sticky containment
-              then makes footer overlap impossible: the rail can never render
-              past this section's own bottom edge. */}
-          <section style={{ minHeight: `calc(100vh - ${stickyOffset}px)` } as React.CSSProperties} className="flex min-w-0 flex-1 flex-col gap-5">
+          <section className="flex min-w-0 flex-1 flex-col gap-5">
             {activeSection === "Social accounts" ? (
               <>
                 <div className="flex flex-col gap-[6px]"><h2 className="text-body-xxl">Connected socials</h2><p className="text-body-sm text-portal-muted">Your connected accounts help brands see your social reach and engagement.</p></div>

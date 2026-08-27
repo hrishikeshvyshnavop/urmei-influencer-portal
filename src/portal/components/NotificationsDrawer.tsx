@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Bell, Star, User, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -59,6 +59,39 @@ export default function NotificationsDrawer({
 }: NotificationsDrawerProps) {
   const isEmpty = groups.every((group) => group.items.length === 0);
 
+  // Closing plays the drawer's slide-out first and defers the real `onClose`
+  // — and the unmount it triggers — instead of firing it immediately, so it
+  // animates away instead of vanishing.
+  const [closing, setClosing] = useState(false);
+  const closeTimeoutRef = useRef<number | null>(null);
+
+  function finishClose() {
+    if (closeTimeoutRef.current !== null) {
+      window.clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    onClose();
+  }
+
+  function requestClose() {
+    if (closing) return;
+    setClosing(true);
+    // `onAnimationEnd` normally finishes the close, but CSS animations can
+    // stall while the tab is backgrounded — this guarantees it still closes.
+    closeTimeoutRef.current = window.setTimeout(finishClose, 300);
+  }
+
+  function handleExitAnimationEnd() {
+    if (closing) finishClose();
+  }
+
+  useEffect(
+    () => () => {
+      if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current);
+    },
+    [],
+  );
+
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -74,11 +107,14 @@ export default function NotificationsDrawer({
       <button
         type="button"
         aria-label="Close notifications"
-        onClick={onClose}
+        onClick={requestClose}
+        data-state={closing ? "closed" : "open"}
         className="motion-modal-backdrop absolute inset-0 cursor-default bg-[rgba(0,0,0,0.2)]"
       />
 
       <aside
+        onAnimationEnd={handleExitAnimationEnd}
+        data-state={closing ? "closed" : "open"}
         role="dialog"
         aria-label="Notifications"
         className="motion-drawer-right absolute top-0 right-0 flex h-full w-[440px] max-w-full flex-col items-start border-l border-solid border-portal-border bg-portal-light"
@@ -89,7 +125,7 @@ export default function NotificationsDrawer({
           </p>
           <button
             type="button"
-            onClick={onClose}
+            onClick={requestClose}
             aria-label="Close"
             className="flex size-[40px] shrink-0 cursor-pointer items-center justify-center rounded-lg border border-solid border-portal-border"
           >

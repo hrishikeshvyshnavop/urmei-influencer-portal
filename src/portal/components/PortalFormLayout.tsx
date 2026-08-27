@@ -7,16 +7,19 @@ export default function PortalFormLayout({
   children,
   hideLanguageSelector = false,
   animate = true,
+  hideHeaderBackdrop = false,
 }: {
   children: ReactNode;
   /** Profile setup screens don't offer a region switch mid-flow. */
   hideLanguageSelector?: boolean;
   /** The apply/request form skips the entrance animation. */
   animate?: boolean;
+  /** Review Details renders without the form-column mask behind the header. */
+  hideHeaderBackdrop?: boolean;
 }) {
   return (
     <div className="relative min-h-screen w-full bg-white">
-      <PortalHeader hideLanguageSelector={hideLanguageSelector} />
+      <PortalHeader hideLanguageSelector={hideLanguageSelector} hideBackdrop={hideHeaderBackdrop} />
 
       <div className="flex min-h-screen items-stretch">
         <div className="hidden w-[35%] shrink-0 lg:block">

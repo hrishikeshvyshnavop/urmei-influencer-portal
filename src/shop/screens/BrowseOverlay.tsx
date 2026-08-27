@@ -2,6 +2,17 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { ScaledBox } from '../components/ScaledBox'
 import { Icon } from '../components/Icon'
 
+/** How long the boneyard skeleton stands in for the real view — long enough
+ *  to read as a deliberate load rather than a flicker, short enough that
+ *  switching views inside the overlay still feels snappy. */
+const CONTENT_LOAD_DELAY_MS = 550
+
+/** Views (by `scrollKey`) that have already played their skeleton once this
+ *  session. Module-level rather than component state so it survives closing
+ *  and reopening the overlay — once a view's "loaded", revisiting it goes
+ *  straight to the real content instead of replaying the boneyard. */
+const loadedViewKeys = new Set<string>()
+
 type BrowseOverlayProps = {
   onClose: () => void
   children: ReactNode
@@ -12,6 +23,11 @@ type BrowseOverlayProps = {
    *  top, since navigating between views swaps `children` in place rather
    *  than remounting this overlay or its scrolling container. */
   scrollKey?: string
+  /** Boneyard placeholder shown for `CONTENT_LOAD_DELAY_MS` whenever
+   *  `scrollKey` changes (including the overlay's first open), standing in
+   *  for `children` while shaped like the view about to appear. Views that
+   *  don't pass one skip the loading state entirely. */
+  skeleton?: ReactNode
 }
 
 /**
@@ -28,10 +44,30 @@ type BrowseOverlayProps = {
  * inside it could never actually stick. Keeping it outside the scrolling body
  * entirely sidesteps that rather than fighting it.
  */
-export function BrowseOverlay({ onClose, children, title = 'Browse and find products to add', scrollKey }: BrowseOverlayProps) {
+export function BrowseOverlay({
+  onClose,
+  children,
+  title = 'Browse and find products to add',
+  scrollKey,
+  skeleton,
+}: BrowseOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
   const [scrimOverhang, setScrimOverhang] = useState(0)
+  const shouldLoad = (key: string | undefined) =>
+    skeleton !== undefined && key !== undefined && !loadedViewKeys.has(key)
+  const [contentLoading, setContentLoading] = useState(() => shouldLoad(scrollKey))
+  const contentLoadTimeoutRef = useRef<number | null>(null)
+
+  // A new `scrollKey` means a different view than whatever's currently
+  // loaded — reset the skeleton state during render (React's documented
+  // pattern, also used by SearchResults' own page reset) rather than via an
+  // effect, since an effect can't set state synchronously on its own.
+  const [loadedScrollKey, setLoadedScrollKey] = useState(scrollKey)
+  if (scrollKey !== loadedScrollKey) {
+    setLoadedScrollKey(scrollKey)
+    setContentLoading(shouldLoad(scrollKey))
+  }
 
   // Closing plays the panel's slide-out first and defers the real `onClose`
   // — and the unmount it triggers — instead of firing it immediately, so the
@@ -116,6 +152,20 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
 
   useEffect(() => {
     bodyRef.current?.scrollTo(0, 0)
+
+    if (!shouldLoad(scrollKey)) return
+
+    contentLoadTimeoutRef.current = window.setTimeout(() => {
+      setContentLoading(false)
+      if (scrollKey !== undefined) loadedViewKeys.add(scrollKey)
+    }, CONTENT_LOAD_DELAY_MS)
+    return () => {
+      if (contentLoadTimeoutRef.current !== null) window.clearTimeout(contentLoadTimeoutRef.current)
+    }
+    // `skeleton`/`shouldLoad` intentionally excluded: `shouldLoad` is a fresh
+    // closure every render, and only `scrollKey` marks an actual view change
+    // worth reloading for.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scrollKey])
 
   return (
@@ -161,7 +211,7 @@ export function BrowseOverlay({ onClose, children, title = 'Browse and find prod
         <div ref={bodyRef} className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-surface-secondary-100">
           <div className="flex min-h-full w-full justify-center" onMouseDown={(event) => { if (event.target === event.currentTarget) requestClose() }}>
             <ScaledBox width={1440} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">
-              {children}
+              {contentLoading && skeleton !== undefined ? skeleton : children}
             </ScaledBox>
           </div>
         </div>

@@ -48,8 +48,8 @@ function ProductCard({ productId, image, title, onAdd, onViewDetails }: { produc
   return (
     <article className="min-w-[260px] flex-1 snap-start sm:min-w-[285px]">
       <button type="button" onClick={() => onViewDetails(productId)} aria-label={`View details for ${title}`} className="block w-full cursor-pointer overflow-hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"><img src={image} alt={title} className="aspect-square w-full object-cover" /></button>
-      <div className="flex flex-col gap-[6px] pt-[14px] pb-[14px]">
-        <div className="flex flex-col gap-[2px] border-b border-portal-border pb-[10px]">
+      <div className="flex flex-col gap-md-sm pt-[14px] pb-[14px]">
+        <div className="flex flex-col gap-[2px]">
           <p className="text-body-xs font-medium text-portal-placeholder">{product.brand}</p>
           <h3 className="truncate text-body-md font-medium text-portal-text">{title}</h3>
           <p className="text-body-xs text-portal-muted">{product.variant}</p>
@@ -60,7 +60,6 @@ function ProductCard({ productId, image, title, onAdd, onViewDetails }: { produc
             </span>
           </div>
         </div>
-        <p className="text-body-xs font-medium text-portal-muted">{product.regions.join('  •  ')}</p>
         <Button variant="portalOutline" className="w-full !rounded-md !border-border-outlined" onClick={() => onAdd(productId)}>Add to Shop</Button>
       </div>
     </article>
@@ -198,9 +197,20 @@ export default function Home({
             <div className="flex flex-col items-start gap-5 rounded-[10px] border border-portal-surface bg-portal-light p-6 sm:flex-row sm:items-center sm:gap-10 lg:p-8">
               <div className="flex min-w-0 flex-1 items-center gap-6">
                 <img src="/urmei/home/store.svg" alt="" className="size-16 shrink-0" />
-                <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Create online shop</h2><p className="text-body-md text-portal-muted">Curate your products and publish your shop to start earning.</p></div>
+                {/* A shop that was published and then emptied back out to zero
+                    products (`isPublishBlocked`) is disabled rather than
+                    never set up — same distinction the Shop URL card above
+                    already makes — so it gets its own copy instead of the
+                    first-time setup message. */}
+                {isPublishBlocked ? (
+                  <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Your shop is disabled</h2><p className="text-body-md text-portal-muted">Add a product and publish your shop to enable it again.</p></div>
+                ) : (
+                  <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Create online shop</h2><p className="text-body-md text-portal-muted">Curate your products and publish your shop to start earning.</p></div>
+                )}
               </div>
-              <Button variant="portal" className="w-full sm:w-auto" onClick={() => { window.location.hash = "#/shop"; }}>Set Up Shop</Button>
+              <Button variant="portal" className="w-full sm:w-auto" onClick={() => { window.location.hash = "#/shop"; }}>
+                Setup Shop
+              </Button>
             </div>
           ) : null}
           {hasShopItems && isShopPublished ? (
@@ -219,7 +229,7 @@ export default function Home({
         {!firstVisit && hasShopItems ? (
           <>
             <RecentActivities />
-            {shopItems.length >= 2 ? <TopProducts items={shopItems} /> : null}
+            {isShopPublished && shopItems.length >= 2 ? <TopProducts items={shopItems} /> : null}
           </>
         ) : null}
 
