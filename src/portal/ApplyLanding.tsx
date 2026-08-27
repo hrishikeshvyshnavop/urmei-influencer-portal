@@ -1,3 +1,4 @@
+import { useLayoutEffect } from "react";
 import Button from "./components/Button";
 
 type ApplyLandingProps = {
@@ -6,6 +7,20 @@ type ApplyLandingProps = {
 };
 
 export default function ApplyLanding({ onApply, onLogin }: ApplyLandingProps) {
+  // `html { scrollbar-gutter: stable }` (global.css) permanently reserves the
+  // scrollbar's width so Select/overlay scroll-locks elsewhere never shift
+  // layout, but it also leaves a blank sliver at the right edge of this
+  // full-bleed hero — and `body { overflow-x: hidden }` clips any attempt to
+  // paint over it, so the reservation has to be turned off instead. This
+  // page never scrolls and hosts no Select/overlay, so nothing depends on
+  // the reservation while it's mounted.
+  useLayoutEffect(() => {
+    document.documentElement.classList.add("scrollbar-gutter-auto");
+    return () => {
+      document.documentElement.classList.remove("scrollbar-gutter-auto");
+    };
+  }, []);
+
   return (
     <div className="motion-page flex min-h-screen w-full flex-col items-start bg-white">
       <div className="relative min-h-px w-full flex-1">
