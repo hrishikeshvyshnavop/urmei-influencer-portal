@@ -6,10 +6,13 @@ import PortalHeader from "./PortalHeader";
 export default function PortalFormLayout({
   children,
   hideLanguageSelector = false,
+  animate = true,
 }: {
   children: ReactNode;
   /** Profile setup screens don't offer a region switch mid-flow. */
   hideLanguageSelector?: boolean;
+  /** The apply/request form skips the entrance animation. */
+  animate?: boolean;
 }) {
   return (
     <div className="relative min-h-screen w-full bg-white">
@@ -26,7 +29,7 @@ export default function PortalFormLayout({
           </div>
         </div>
 
-        <div className="motion-page min-w-px flex-1">{children}</div>
+        <div className={`min-w-px flex-1 ${animate ? "motion-page" : ""}`}>{children}</div>
       </div>
     </div>
   );
