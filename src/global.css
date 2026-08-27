@@ -183,6 +183,11 @@ html body[data-scroll-locked] {
   to { transform: translateX(0); }
 }
 
+@keyframes portal-drawer-right-out {
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+}
+
 @keyframes portal-backdrop-out {
   from { opacity: 1; }
   to { opacity: 0; }
@@ -251,6 +256,7 @@ html body[data-scroll-locked] {
    using these same classes is unaffected. */
 .motion-modal-backdrop[data-state="closed"] { animation: portal-backdrop-out var(--motion-fast) ease-in both; }
 .motion-modal-panel[data-state="closed"] { animation: portal-modal-out var(--motion-base) var(--ease-portal) both; }
+.motion-drawer-right[data-state="closed"] { animation: portal-drawer-right-out var(--motion-base) var(--ease-portal) both; }
 /* Slower, more deliberate glide for the product tour's welcome moment —
    scoped separately so the snappier default stays untouched everywhere
    else it's used (AddToShopModal, LanguageSelector, etc). */
