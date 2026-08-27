@@ -23,7 +23,7 @@ export function isProfileSetupComplete(): boolean {
   );
 }
 
-/** Where "Complete action"/"Complete profile" should send the user: identity
+/** Where "Fix Issues" should send the user: identity
  *  first, then payment, matching the order `Onboarding.tsx` presents them in.
  *  Deep-links into Manage Account's matching section rather than the
  *  standalone onboarding accordion, so verifying happens from the user's
@@ -60,13 +60,13 @@ export default function SetupBanner() {
         </p>
       </div>
       <Button
-        variant="portalOutline"
-        className="shrink-0 bg-[#fffefd]"
+        variant="portalLink"
+        className="shrink-0 underline"
         onClick={() => {
           window.location.hash = getSetupManageAccountRoute();
         }}
       >
-        Complete action
+        Fix Issues
       </Button>
     </aside>
   );
