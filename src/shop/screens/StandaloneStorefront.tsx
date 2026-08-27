@@ -22,7 +22,7 @@ const PICKS_PER_PAGE = 8
  *  All Picks grid, so they line up down the page at any viewport. */
 const CONTENT_COLUMN = 'w-full max-w-[1440px] px-margin'
 /** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
-const FEATURED_SCROLL_STEP = 280 + 16
+const FEATURED_SCROLL_STEP = 288 + 16
 
 /**
  * "Top featured products" horizontal strip — its own component (rather than
@@ -79,18 +79,32 @@ function TopFeaturedProducts({
           </div>
         )}
       </div>
-      <div
-        ref={scrollRef}
-        className="flex w-full gap-md overflow-x-auto px-margin [scrollbar-width:none]"
-      >
-        {items.map((item) => (
-          <StorefrontProductCard
-            key={item.id}
-            product={item.product}
-            available={item.product.regions.includes(country)}
-            onClick={() => onSelect(item)}
-          />
-        ))}
+      {/* The card track is the 1200px content column, not the full page width
+          (Figma `916:65772`), so the page margin does the clipping and the row
+          starts and ends on the same edges as the profile card above it. The
+          margin has to sit on this wrapper rather than as the scroller's own
+          padding: as padding it scrolls with the content, which put the
+          overflow out in the page margin instead of clipped against it. */}
+      <div className="w-full px-margin">
+        <div
+          ref={scrollRef}
+          className="flex w-full gap-md overflow-x-auto [scrollbar-width:none]"
+        >
+          {items.map((item) => (
+            <StorefrontProductCard
+              key={item.id}
+              product={item.product}
+              /* 288px, matching All Picks rather than the design's 280 — asked
+                 for directly, so the two sections' cards are the same size.
+                 It also divides the 1200px column exactly four ways
+                 (4 x 288 + 3 x 16 = 1200), so a row of four is flush with the
+                 column edge. */
+              className="w-[288px]"
+              available={item.product.regions.includes(country)}
+              onClick={() => onSelect(item)}
+            />
+          ))}
+        </div>
       </div>
     </section>
   )

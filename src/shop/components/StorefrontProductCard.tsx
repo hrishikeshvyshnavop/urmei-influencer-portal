@@ -3,12 +3,14 @@ import { Icon } from './Icon'
 
 type StorefrontProductCardProps = {
   product: Product
-  /** Width of the card's own box. Defaults to the fixed 280px the "Top
-   *  Featured Products" horizontal strip needs (so cards keep a consistent
-   *  size while scrolling); the "All Picks" grid overrides this to `w-full`
-   *  so each card fills its responsive grid column instead of overflowing
-   *  it — a fixed width there caused columns to overlap below ~1440px wide,
-   *  since `grid-cols-4` doesn't shrink a fixed-width child to fit. */
+  /** Width of the card's own box, and the only thing that sets its size —
+   *  everything inside is relative to it. The "Top Featured Products" strip
+   *  passes a fixed width so cards keep a consistent size while scrolling;
+   *  the "All Picks" grid passes `w-full` so each card fills its responsive
+   *  grid column instead of overflowing it — a fixed width there caused
+   *  columns to overlap below ~1440px wide, since a grid column doesn't
+   *  shrink a fixed-width child to fit. The 280px default is the design's
+   *  own card width, for callers with no opinion. */
   className?: string
   /** Whether the product ships to the storefront's currently previewed
    *  country. Unavailable products swap the add-to-cart action for a
@@ -22,6 +24,15 @@ type StorefrontProductCardProps = {
  * Read-only product card used across the storefront preview (Figma `917:53442`)
  * — both the "Top Featured Products" strip and the "All Picks" grid share this
  * exact card, just a discount badge that only some products have.
+ *
+ * Height follows the content rather than the design's fixed 460px. That 460 is
+ * arithmetic on a 280px-wide card (373.33 image + 12 gap + 75 info = 460.33),
+ * so it stops being true the moment the card is any other width — at 288 the
+ * image is 384 and the content runs 11px past a pinned box. Inside the featured
+ * strip that was visible: `overflow-x: auto` makes `overflow-y` compute to
+ * `auto`, so the spill turned into a stray vertical scroll within the row.
+ * Cards in a row still line up — both the flex strip and the grid stretch their
+ * items to the tallest.
  */
 export function StorefrontProductCard({
   product,
@@ -46,7 +57,7 @@ export function StorefrontProductCard({
             }
           : undefined
       }
-      className={`flex h-[460px] shrink-0 flex-col items-start gap-md-sm ${onClick ? 'cursor-pointer text-left' : ''} ${className}`}
+      className={`flex shrink-0 flex-col items-start gap-md-sm ${onClick ? 'cursor-pointer text-left' : ''} ${className}`}
     >
       <div className="relative aspect-[280/373.33] w-full overflow-clip rounded-sm">
         <img src={product.shopCardImage} alt="" className="size-full object-cover" />
