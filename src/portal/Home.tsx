@@ -48,8 +48,8 @@ function ProductCard({ productId, image, title, onAdd, onViewDetails }: { produc
   return (
     <article className="min-w-[260px] flex-1 snap-start sm:min-w-[285px]">
       <button type="button" onClick={() => onViewDetails(productId)} aria-label={`View details for ${title}`} className="block w-full cursor-pointer overflow-hidden rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-portal-dark"><img src={image} alt={title} className="aspect-square w-full object-cover" /></button>
-      <div className="flex flex-col gap-[6px] pt-[14px] pb-[14px]">
-        <div className="flex flex-col gap-[2px] border-b border-portal-border pb-[10px]">
+      <div className="flex flex-col gap-md-sm pt-[14px] pb-[14px]">
+        <div className="flex flex-col gap-[2px]">
           <p className="text-body-xs font-medium text-portal-placeholder">{product.brand}</p>
           <h3 className="truncate text-body-md font-medium text-portal-text">{title}</h3>
           <p className="text-body-xs text-portal-muted">{product.variant}</p>
@@ -60,7 +60,6 @@ function ProductCard({ productId, image, title, onAdd, onViewDetails }: { produc
             </span>
           </div>
         </div>
-        <p className="text-body-xs font-medium text-portal-muted">{product.regions.join('  •  ')}</p>
         <Button variant="portalOutline" className="w-full !rounded-md !border-border-outlined" onClick={() => onAdd(productId)}>Add to Shop</Button>
       </div>
     </article>
