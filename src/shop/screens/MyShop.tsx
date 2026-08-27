@@ -1,5 +1,6 @@
 import AppShell from '../../portal/components/AppShell'
 import SetupBanner from '../../portal/components/SetupBanner'
+import { requestProductTour } from '../../portal/tour-status'
 import { AddProductTile } from '../components/AddProductTile'
 import { Button } from '../components/Button'
 import { EmptyFeatured } from '../components/EmptyFeatured'
@@ -78,7 +79,7 @@ export function MyShop({
   return (
     <AppShell
       className="bg-surface-secondary-100"
-      onShowTour={() => { window.location.hash = '#/home/tour' }}
+      onShowTour={requestProductTour}
       onShowHelp={() => { window.location.hash = '#/help-center' }}
     >
       <SetupBanner />

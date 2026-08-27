@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, Megaphone } from "lucide-react";
 import AppShell from "./components/AppShell";
+import { requestProductTour } from "./tour-status";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../shop/activity-log";
 import Pagination from "@/components/Pagination";
@@ -20,7 +21,7 @@ export default function RecentActivitiesPage() {
   return (
     <AppShell
       className="motion-page bg-portal-card text-portal-text"
-      onShowTour={() => { window.location.hash = "#/home/tour"; }}
+      onShowTour={requestProductTour}
       onShowHelp={() => { window.location.hash = "#/help-center"; }}
     >
 

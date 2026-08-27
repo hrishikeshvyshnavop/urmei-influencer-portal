@@ -6,6 +6,7 @@ import RecentActivities from "./components/RecentActivities";
 import TopProducts from "./components/TopProducts";
 import ProfilePhoto from "./components/ProfilePhoto";
 import SetupBanner from "./components/SetupBanner";
+import { requestProductTour } from "./tour-status";
 import { useHasShopItems, useIsPublishBlocked, useIsShopPublished } from "../shop/shop-status";
 import { loadShopItems, saveShopItems } from "../shop/shop-items-store";
 import { logShopActivity } from "../shop/activity-log";
@@ -68,10 +69,8 @@ function ProductCard({ productId, image, title, onAdd, onViewDetails }: { produc
 
 export default function Home({
   firstVisit = false,
-  onShowTour,
 }: {
   firstVisit?: boolean;
-  onShowTour?: () => void;
 }) {
   const hasShopItems = useHasShopItems();
   const isShopPublished = useIsShopPublished();
@@ -163,7 +162,7 @@ export default function Home({
   return (
     <AppShell
       className="bg-[#fffefd] text-portal-text"
-      onShowTour={() => onShowTour?.()}
+      onShowTour={requestProductTour}
       onShowHelp={() => { window.location.hash = "#/help-center"; }}
     >
 

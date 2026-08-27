@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, Search } from "lucide-react";
 import AppShell from "./components/AppShell";
+import { requestProductTour } from "./tour-status";
 import { BRAND_DIRECTORY_TILES } from "../shop/data/brand-directory";
 
 export default function Brands() {
@@ -13,7 +14,7 @@ export default function Brands() {
   return (
     <AppShell
       className="bg-white text-portal-text"
-      onShowTour={() => { window.location.hash = "#/home/tour"; }}
+      onShowTour={requestProductTour}
       onShowHelp={() => { window.location.hash = "#/help-center"; }}
     >
       <main className="mx-auto flex w-full max-w-[1440px] flex-col px-6 lg:px-[120px]">

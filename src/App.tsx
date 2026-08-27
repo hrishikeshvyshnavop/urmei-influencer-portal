@@ -18,6 +18,7 @@ import ResetEmail from "./portal/ResetEmail";
 import ApprovalPreview from "./portal/ApprovalPreview";
 import ApprovalEmail from "./portal/ApprovalEmail";
 import { clearSetupRequired, markSetupRequired } from "./portal/setup-status";
+import { subscribeToTourRequests, requestProductTour } from "./portal/tour-status";
 import HelpCenter from "./portal/HelpCenter";
 import Brands from "./portal/Brands";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
@@ -97,8 +98,10 @@ function consumeTourAfterLogin() {
 }
 
 /**
- * The first arrival uses the empty Home state from Figma. The product tour is
- * opened explicitly from the profile menu; `#/home/tour` remains linkable.
+ * The first arrival uses the empty Home state from Figma. The product tour
+ * (`ProductTour`, rendered once at the `App` level below) is a full-screen
+ * overlay reachable from any screen's profile menu, not something tied to
+ * Home — `#/home/tour` remains linkable as a direct way to trigger it.
  */
 /** Beat before the tour fades in after profile setup, so it reads as a
  *  deliberate welcome rather than popping in over Home's own entrance —
@@ -109,7 +112,6 @@ function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
   const [pendingTourAfterLogin] = useState(
     () => !forceTour && consumeTourAfterLogin(),
   );
-  const [showTour, setShowTour] = useState(forceTour);
   const [firstVisit] = useState(() => !hasVisitedHome());
 
   useEffect(() => {
@@ -121,27 +123,16 @@ function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
   }, []);
 
   useEffect(() => {
+    if (forceTour) {
+      requestProductTour();
+      return;
+    }
     if (!pendingTourAfterLogin) return;
-    const timer = window.setTimeout(() => setShowTour(true), TOUR_AFTER_LOGIN_DELAY_MS);
+    const timer = window.setTimeout(requestProductTour, TOUR_AFTER_LOGIN_DELAY_MS);
     return () => window.clearTimeout(timer);
-  }, [pendingTourAfterLogin]);
+  }, [forceTour, pendingTourAfterLogin]);
 
-  const dismiss = () => {
-    setShowTour(false);
-    if (forceTour) navigate("#/home");
-  };
-
-  const finishTour = () => {
-    setShowTour(false);
-    navigate("#/shop");
-  };
-
-  return (
-    <>
-      <Home firstVisit={firstVisit} onShowTour={() => setShowTour(true)} />
-      {showTour ? <ProductTour onClose={dismiss} onFinish={finishTour} /> : null}
-    </>
-  );
+  return <Home firstVisit={firstVisit} />;
 }
 
 function screenFor(
@@ -366,18 +357,32 @@ export default function App() {
       return "reset@example.com";
     }
   });
+  // Owned here rather than per-screen so the tour is one overlay that can
+  // open on top of whichever page requested it (see `tour-status.ts`)
+  // instead of forcing a navigation to Home first.
+  const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [hash]);
 
-  // Keyed by route so each screen remounts on navigation. Without this React
-  // reuses the instance when two routes render the same component (e.g. the
-  // verification states, or set-password vs reset-password) and their initial
-  // state never re-runs.
+  useEffect(() => subscribeToTourRequests(() => setShowTour(true)), []);
+
+  const finishTour = () => {
+    setShowTour(false);
+    navigate("#/shop");
+  };
+
   return (
-    <Fragment key={hash}>
-      {screenFor(hash, resetEmail, setResetEmail)}
-    </Fragment>
+    <>
+      {/* Keyed by route so each screen remounts on navigation. Without this
+          React reuses the instance when two routes render the same component
+          (e.g. the verification states, or set-password vs reset-password)
+          and their initial state never re-runs. */}
+      <Fragment key={hash}>
+        {screenFor(hash, resetEmail, setResetEmail)}
+      </Fragment>
+      {showTour ? <ProductTour onClose={() => setShowTour(false)} onFinish={finishTour} /> : null}
+    </>
   );
 }

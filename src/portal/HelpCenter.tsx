@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
+import { requestProductTour } from "./tour-status";
 
 const topics = [
   ["upload", "Can I upload tutorials and reviews?", "Yes. You can publish tutorials and product reviews through content linked from your shop. Use clear product information and disclose sponsored collaborations."],
@@ -19,7 +20,7 @@ export default function HelpCenter() {
   return (
     <AppShell
       className="bg-portal-light text-portal-text"
-      onShowTour={() => { window.location.hash = "#/home/tour"; }}
+      onShowTour={requestProductTour}
       onShowHelp={() => window.scrollTo({ top: 0, behavior: "smooth" })}
     >
 

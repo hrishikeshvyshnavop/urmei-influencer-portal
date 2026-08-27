@@ -13,6 +13,7 @@ import ShopUrl from "./components/ShopUrl";
 import TextField from "./components/TextField";
 import { clearSetupRequired, isSetupRequired } from "./setup-status";
 import { getSavedDisplayName, saveDisplayName } from "./profile-status";
+import { requestProductTour } from "./tour-status";
 
 const socialPlatforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
@@ -229,7 +230,7 @@ export default function ManageAccount({
   return (
     <div className="min-h-screen bg-portal-light text-portal-text">
       <AppHeader
-        onShowTour={() => { window.location.hash = "#/home/tour"; }}
+        onShowTour={requestProductTour}
         onShowHelp={() => { window.location.hash = "#/help-center"; }}
       />
 

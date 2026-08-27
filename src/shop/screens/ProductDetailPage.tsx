@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import AppShell from '../../portal/components/AppShell'
+import { requestProductTour } from '../../portal/tour-status'
 import { ScaledBox } from '../components/ScaledBox'
 import { ProductDetail, type ShopMode } from './ProductDetail'
 import type { ShopItem } from '../types'
@@ -29,7 +30,7 @@ export function ProductDetailPage({ item, shopMode, onBackToShop }: ProductDetai
   return (
     <AppShell
       className="bg-surface-secondary-100"
-      onShowTour={() => { window.location.hash = '#/home/tour' }}
+      onShowTour={requestProductTour}
       onShowHelp={() => { window.location.hash = '#/help-center' }}
     >
       <div className="flex w-full flex-1 justify-center">
