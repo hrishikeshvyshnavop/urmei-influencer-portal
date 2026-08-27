@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { COUNTRIES } from '../../portal/country-status'
 import {
   CATEGORIES,
   FILTER_BRANDS,
@@ -117,14 +118,18 @@ function FilterGroup({
 }
 
 /**
- * Search Results' left filter rail (Figma `1184:70079`). Brand, Price, Rating,
- * Category, and Ingredients each expand independently (the design shows all
- * five open at once in one frame and all collapsed in another, not a
- * single-open accordion). Brand/Price/Category/Ingredients content in the
- * design references brands and shipping options we don't carry — the filter
- * TYPES and interaction (checkbox lists, a "Search brands" box) are Figma's;
- * the values are this catalogue's real brands, categories and ingredients so
- * every filter actually narrows real results.
+ * Search Results' left filter rail (Figma `1184:70079`). Only one group is
+ * open at a time — opening one closes the previous. That's a deliberate
+ * departure from the Figma frames, which show every group open at once in one
+ * and all collapsed in another; it was asked for directly, and it keeps the
+ * rail close to one screen tall instead of several. Brand/Price/Category/
+ * Ingredients content in the design references brands and shipping options we
+ * don't carry — the filter TYPES and interaction (checkbox lists, a "Search
+ * brands" box) are Figma's; the values are this catalogue's real brands,
+ * categories and ingredients so every filter actually narrows real results.
+ *
+ * Country isn't in the Figma frame; it's appended last so the five designed
+ * groups keep their specified order.
  */
 export function FiltersSidebar({
   filters,
@@ -138,8 +143,11 @@ export function FiltersSidebar({
     brand.toLowerCase().includes(brandSearch.toLowerCase()),
   )
 
+  // `w-full` rather than a fixed 285px: the scrolling wrapper in
+  // `SearchResults` owns the rail's width, so this shrinks into the
+  // scrollbar's gutter instead of overflowing it horizontally.
   return (
-    <aside className="flex w-[285px] flex-col items-start self-start bg-surface-secondary-100">
+    <aside className="flex w-full flex-col items-start self-start bg-surface-secondary-100">
       <FilterGroup
         label="Brand"
         open={openGroups.has('Brand')}
@@ -254,7 +262,6 @@ export function FiltersSidebar({
         onRemoveSelected={(ingredient) =>
           onChange({ ...filters, ingredients: toggleInList(filters.ingredients, ingredient) })
         }
-        last
       >
         {INGREDIENTS.map((ingredient) => (
           <Checkbox
@@ -263,6 +270,28 @@ export function FiltersSidebar({
             checked={filters.ingredients.includes(ingredient.label)}
             onChange={() =>
               onChange({ ...filters, ingredients: toggleInList(filters.ingredients, ingredient.label) })
+            }
+          />
+        ))}
+      </FilterGroup>
+
+      <FilterGroup
+        label="Country"
+        open={openGroups.has('Country')}
+        onToggle={() => onToggleGroup('Country')}
+        selected={filters.countries.map((country) => ({ value: country, label: country }))}
+        onRemoveSelected={(country) =>
+          onChange({ ...filters, countries: toggleInList(filters.countries, country) })
+        }
+        last
+      >
+        {COUNTRIES.map((country) => (
+          <Checkbox
+            key={country.id}
+            label={country.name}
+            checked={filters.countries.includes(country.name)}
+            onChange={() =>
+              onChange({ ...filters, countries: toggleInList(filters.countries, country.name) })
             }
           />
         ))}

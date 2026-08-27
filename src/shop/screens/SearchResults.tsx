@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { CatalogueSearch } from '../components/CatalogueSearch'
@@ -120,6 +120,18 @@ const PAGE_SIZE = 8
 const SIDEBAR_WIDTH = 285
 const TOOLBAR_HEIGHT = 74
 
+/** The scrolling box the sticky chrome belongs to — the overlay's body. Found
+ *  by the same walk `useStickyOnScroll` does, rather than being passed down,
+ *  so both agree on which element they're talking about. */
+function findScrollParent(from: HTMLElement | null): HTMLElement | null {
+  let node = from?.parentElement ?? null
+  while (node) {
+    if (getComputedStyle(node).overflowY === 'auto') return node
+    node = node.parentElement
+  }
+  return null
+}
+
 /**
  * The "Filters"/"Clear All" + "Sort By" bar, spanning the same 285px-sidebar
  * + flex-1-results split as the row below it. Hoisted out of both columns so
@@ -183,13 +195,12 @@ export function SearchResults({
   const [openFilterGroups, setOpenFilterGroups] = useState<Set<string>>(new Set())
   const [brandSearch, setBrandSearch] = useState('')
 
+  // One group open at a time: opening a group closes whichever was open.
+  // Still modelled as a set rather than a single label so the sidebar's
+  // `openGroups` API doesn't have to change, and so this can go back to
+  // multi-open by restoring the add/delete branch.
   function toggleFilterGroup(label: string) {
-    setOpenFilterGroups((current) => {
-      const next = new Set(current)
-      if (next.has(label)) next.delete(label)
-      else next.add(label)
-      return next
-    })
+    setOpenFilterGroups((current) => (current.has(label) ? new Set() : new Set([label])))
   }
 
   const visibleResults = useMemo(
@@ -214,16 +225,84 @@ export function SearchResults({
 
   // Portal targets for the toolbar and Filters list: a local anchor (normal
   // flow) while not stuck, `document.body` (fixed position) once stuck.
-  // Always going through the same `createPortal` call site either way — as
-  // opposed to conditionally rendering the content inline OR in a portal —
-  // is what keeps each component's own state (open accordions, an open Sort
-  // dropdown) alive across the transition: React remounts a component
-  // whenever it disappears from one spot in the tree and appears in another,
-  // but treats a portal's target change as an update, not a remount.
+  //
+  // Changing a portal's container does NOT preserve the subtree — React
+  // remounts it, discarding both its component state and its DOM nodes. So
+  // anything that has to survive sticking lives in this component instead:
+  // the accordion/search state passed down to `FiltersSidebar`, and the wheel
+  // listeners above, which re-attach whenever these targets change.
   const [toolbarAnchor, setToolbarAnchor] = useState<HTMLDivElement | null>(null)
   const [filtersAnchor, setFiltersAnchor] = useState<HTMLDivElement | null>(null)
   const toolbarTarget = sticky.stuck ? document.body : toolbarAnchor
   const filtersTarget = sticky.stuck ? document.body : filtersAnchor
+
+  const toolbarBoxRef = useRef<HTMLDivElement>(null)
+  const filtersBoxRef = useRef<HTMLDivElement>(null)
+
+  // The sticky chrome takes the wheel over completely rather than leaving it
+  // to native scroll chaining, which can't be trusted here: while stuck these
+  // boxes are portaled to `document.body`, so their scroll ancestor is the
+  // page *behind* the overlay rather than the overlay's body — left alone, an
+  // exhausted rail scrolls the page underneath. (The toolbar is worse: it
+  // isn't a scroller at all, so chaining skips straight past it and
+  // `overscroll-behavior` there is a no-op.) Each box absorbs what it can and
+  // the event is always cancelled, so nothing chains in either state; only
+  // `forwardResidual` decides whether the leftover reaches the results list.
+  //
+  // Registered natively rather than via React's `onWheel`, which is passive at
+  // the root: `preventDefault` is unavailable there, and a passive handler
+  // races the compositor's own scroll while we're partitioning the delta.
+  useEffect(() => {
+    type WheelBox = { box: HTMLDivElement; forwardResidual: boolean }
+    const boxes = [
+      // The Filters rail keeps its scrolling to itself. Running off its end
+      // used to carry on into the results list, which made the list jump
+      // while the pointer was still over the filters; hitting the end of the
+      // filters should simply stop.
+      { box: filtersBoxRef.current, forwardResidual: false },
+      // The toolbar has no scroll of its own and spans the results column, so
+      // moving the list is the only thing a wheel there can sensibly do.
+      { box: toolbarBoxRef.current, forwardResidual: true },
+    ].filter((entry): entry is WheelBox => entry.box !== null)
+    if (boxes.length === 0) return
+
+    const detach = boxes.map(({ box, forwardResidual }) => {
+      function onWheel(event: WheelEvent) {
+        // A mouse wheel commonly reports lines rather than pixels.
+        const dy =
+          event.deltaMode === 1
+            ? event.deltaY * 16
+            : event.deltaMode === 2
+              ? event.deltaY * box.clientHeight
+              : event.deltaY
+        if (dy === 0) return
+
+        const max = box.scrollHeight - box.clientHeight
+        const next = Math.max(0, Math.min(box.scrollTop + dy, max))
+        const absorbed = next - box.scrollTop
+        box.scrollTop = next
+
+        const residual = dy - absorbed
+        if (forwardResidual && residual !== 0) {
+          const list = findScrollParent(filtersAnchor)
+          if (list) list.scrollTop += residual
+        }
+        event.preventDefault()
+      }
+
+      box.addEventListener('wheel', onWheel, { passive: false })
+      return () => box.removeEventListener('wheel', onWheel)
+    })
+
+    return () => detach.forEach((remove) => remove())
+    // Keyed on the portal *targets*, not the anchors. The wrappers only exist
+    // once an anchor does, so a mount-only effect would attach to nothing —
+    // and changing a portal's container remounts its subtree (see
+    // `FiltersSidebar`), so sticking replaces these nodes with fresh ones and
+    // the listeners have to be re-attached. Watching the anchors alone left
+    // them bound to the detached copies, so the wheel went unhandled in
+    // exactly the stuck state this exists to fix.
+  }, [toolbarTarget, filtersTarget, filtersAnchor])
 
   // While stuck, the Filters list moves out of `filtersAnchor` and into a
   // `position: fixed` box, leaving the anchor (still sitting in the row,
@@ -304,6 +383,11 @@ export function SearchResults({
       {toolbarTarget &&
         createPortal(
           <div
+            ref={toolbarBoxRef}
+            // Marks this as the overlay's own chrome even while it's portaled
+            // out to `document.body` — see the matching comment on the Filters
+            // wrapper below.
+            data-overlay-scroll="allow"
             style={
               sticky.stuck
                 ? { position: 'fixed', top: sticky.top, left: sticky.left, width: sticky.width, zIndex: 40 }
@@ -318,6 +402,15 @@ export function SearchResults({
       {filtersTarget &&
         createPortal(
           <div
+            ref={filtersBoxRef}
+            // Once stuck, this wrapper is portaled to `document.body`, which
+            // puts it outside the scroll container `BrowseOverlay` uses to
+            // decide whether a wheel/touch/key event belongs to the overlay or
+            // to the locked page behind it. Without this marker the overlay
+            // read the rail as "the page" and cancelled the event, so the rail
+            // could only be scrolled by dragging its scrollbar thumb — the one
+            // input that isn't a wheel or a key. Harmless when not stuck.
+            data-overlay-scroll="allow"
             // `maxHeight`/`overflowY` apply unconditionally, not just once
             // stuck: capping the Filters list to one viewport's worth (with
             // its own scrollbar) whether stuck or not keeps its rendered
@@ -328,11 +421,29 @@ export function SearchResults({
             style={{
               maxHeight: stuckFiltersHeight,
               overflowY: 'auto',
+              // Belt to the wheel handler's braces, and the only guard for
+              // touch: keeps a flick that runs past the rail's end from
+              // scrolling the page behind the overlay.
+              overscrollBehavior: 'contain',
+              // Set in both states so the scrollbar's gutter comes out of the
+              // rail's own width rather than pushing the results column, and
+              // so the column measures the same stuck or not.
+              width: SIDEBAR_WIDTH,
               ...(sticky.stuck
-                ? { position: 'fixed', top: sticky.top + TOOLBAR_HEIGHT, left: sticky.left, width: SIDEBAR_WIDTH, zIndex: 39 }
+                ? { position: 'fixed', top: sticky.top + TOOLBAR_HEIGHT, left: sticky.left, zIndex: 39 }
                 : undefined),
             }}
-            className="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            // The scrollbar has to stay visible here. Elsewhere in the app it's
+            // hidden (Home's carousel, the featured strips) because those are
+            // horizontal and have prev/next buttons as the affordance; this
+            // rail has none, so hiding it made a list that does scroll read as
+            // one that doesn't once several groups were expanded.
+            //
+            // Styled with the standard properties rather than `::-webkit-
+            // scrollbar` pseudo-elements: Chrome now implements
+            // `scrollbar-width`/`scrollbar-color` natively and ignores the
+            // legacy pseudo-element rules whenever either is set.
+            className="[scrollbar-color:var(--color-border-outlined)_transparent] [scrollbar-width:thin]"
           >
             <FiltersSidebar
               filters={filters}
