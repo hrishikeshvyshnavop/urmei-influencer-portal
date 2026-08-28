@@ -108,7 +108,11 @@ export default function AppHeader({
             </ul> : null}
           </div>
           <div className="flex items-center justify-center">
-            <LanguageSelector />
+            {/* The creator's storefront region is fixed to their account, so
+                this header reports it without offering to change it. The
+                storefront preview and the live storefront keep the switch —
+                there it's the shopper's region and it drives availability. */}
+            <LanguageSelector disableCountryChange />
             <button
               type="button"
               aria-label={hasUnreadNotifications ? "Notifications, unread" : "Notifications"}

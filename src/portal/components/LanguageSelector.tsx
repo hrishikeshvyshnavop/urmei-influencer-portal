@@ -88,7 +88,33 @@ function CountryFlag({ country, size = 32 }: { country: CountryId; size?: number
   );
 }
 
-export default function LanguageSelector() {
+type LanguageSelectorProps = {
+  /** Renders the panel's "Change Country" CTA disabled, leaving the language
+   *  list and the "Your storefront region is …" line untouched.
+   *
+   *  Set on the creator portal's own header, where the storefront region is a
+   *  property of the creator's account rather than something to flip from a
+   *  dropdown — the panel still reports which region that is, it just doesn't
+   *  offer to reassign it.
+   *
+   *  Deliberately left off on the shopper-facing surfaces (`StorefrontHeader`
+   *  in the shop preview, `StorefrontPublicHeader` on the live storefront).
+   *  There the control means something different — it's the *shopper's* region,
+   *  and it drives which products read as available (`product.regions`), so
+   *  switching it is the whole point. */
+  disableCountryChange?: boolean
+}
+
+/**
+ * The header's language panel, and — everywhere it isn't disabled above — the
+ * app's only country switcher.
+ *
+ * One component serves both the creator portal and the two shopper-facing
+ * storefront headers, which is why the country half is a prop rather than a
+ * fork: the panel's markup, language list and region line are identical in all
+ * three, and only the authority to change the region differs.
+ */
+export default function LanguageSelector({ disableCountryChange = false }: LanguageSelectorProps) {
   const [language, setLanguage] = useState("EN");
   const selectedCountryName = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry);
   const [countryModalOpen, setCountryModalOpen] = useState(false);
@@ -147,7 +173,11 @@ export default function LanguageSelector() {
             <p className="text-body-sm text-portal-text">
               Your storefront region is {selectedCountry.name}
             </p>
-            <Button variant="portalOutline" onClick={() => setCountryModalOpen(true)}>
+            <Button
+              variant="portalOutline"
+              disabled={disableCountryChange}
+              onClick={() => setCountryModalOpen(true)}
+            >
               Change Country
             </Button>
           </div>
