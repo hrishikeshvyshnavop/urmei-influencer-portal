@@ -11,7 +11,7 @@ type StorefrontProfileCardProps = {
 }
 
 /**
- * The influencer card at the top of the storefront preview (Figma `917:53526`,
+ * The creator card at the top of the storefront preview (Figma `917:53526`,
  * frame `1211:72383`; the followed state and bio popup are `1105:12707`) —
  * avatar, name/handle, follower counts across URMEI/TikTok/Instagram, a
  * "Follow" button that toggles to an outlined "Following" state (this is a

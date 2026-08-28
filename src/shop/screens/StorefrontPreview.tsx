@@ -184,7 +184,7 @@ function AllPicks({
 }
 
 /**
- * A live preview of the influencer's public storefront (Figma section
+ * A live preview of the creator's public storefront (Figma section
  * `917:53442`), reached from the "Preview Storefront" button on `StoreCard`
  * (enabled only once the shop is published). Shows the real shop contents
  * rather than the section's placeholder products — "Top Featured Products"

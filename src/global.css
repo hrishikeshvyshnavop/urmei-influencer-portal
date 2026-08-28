@@ -2,7 +2,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Tokens mirrored from the URMEI influencer portal Figma library. */
+  /* Tokens mirrored from the URMEI creator portal Figma library. */
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
 
   --color-portal-text: #222222; /* typography/color/secondary/1000 */

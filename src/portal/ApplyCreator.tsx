@@ -398,15 +398,15 @@ function FieldGrid({
   );
 }
 
-type ApplyInfluencerProps = {
+type ApplyCreatorProps = {
   onBack: () => void;
   onSubmit: () => void;
 };
 
-export default function ApplyInfluencer({
+export default function ApplyCreator({
   onBack,
   onSubmit,
-}: ApplyInfluencerProps) {
+}: ApplyCreatorProps) {
   const selectedCountry = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry);
   const addressFields = [
     ...(ADDRESS_FIELDS_BY_COUNTRY[selectedCountry] ?? ADDRESS_FIELDS_BY_COUNTRY.Singapore),
@@ -465,7 +465,7 @@ export default function ApplyInfluencer({
       >
         <div className="flex w-full max-w-[740px] flex-col items-start gap-[6px]">
           <h1 className="w-full text-body-xxl text-portal-text">
-            Apply as an influencer
+            Apply as a creator
           </h1>
           <p className="w-full text-body-md text-portal-muted">
             Complete your details so brands can find you and you can start

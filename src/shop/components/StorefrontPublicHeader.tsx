@@ -8,8 +8,13 @@ import { Icon } from './Icon'
 const HEADER_HEIGHT = 88
 
 /** Section links in the design. Rendered as plain text, not buttons — see the
- *  component note below. */
-const NAV_LINKS = ['Categories', 'Brands', 'Influencers', 'Offers']
+ *  component note below.
+ *
+ *  `Creators` deliberately departs from the Figma node cited below, which still
+ *  reads `Influencers`: the product renamed that audience to "creator"
+ *  everywhere, so the copy here is deliberately ahead of the design file. Don't
+ *  "correct" it back the next time this node is re-synced. */
+const NAV_LINKS = ['Categories', 'Brands', 'Creators', 'Offers']
 
 /** The count drawn on the cart badge in Figma. A design literal, not state:
  *  there is no cart on this page to read a real number from. */

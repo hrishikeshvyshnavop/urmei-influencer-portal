@@ -5,7 +5,7 @@ import { requestProductTour } from "./tour-status";
 
 const topics = [
   ["upload", "Can I upload tutorials and reviews?", "Yes. You can publish tutorials and product reviews through content linked from your shop. Use clear product information and disclose sponsored collaborations."],
-  ["rewards", "How do influencers earn rewards?", "Creators earn rewards from eligible sales and campaign activities completed through their URMEI shop."],
+  ["rewards", "How do creators earn rewards?", "Creators earn rewards from eligible sales and campaign activities completed through their URMEI shop."],
   ["payment", "How is my payment calculated", "Your payout is based on tracked eligible sales, the product commission rate, and campaign rewards shown in your account."],
   ["campaign", "How do I join a campaign", "Open an available campaign, review its requirements, and submit your participation request before the deadline."],
   ["content", "Can I upload tutorials and reviews?", "Yes. URMEI supports creator-led tutorials, demonstrations, and honest product reviews."],
@@ -34,7 +34,7 @@ export default function HelpCenter() {
           <div className="flex flex-col gap-2.5">
             <div className="flex flex-col gap-1">
               <h1 className="text-body-xxl font-medium">Help Center</h1>
-              <p className="text-body-sm text-portal-body">Your influencer support is just a click away—visit our Help Center for tips and answers.</p>
+              <p className="text-body-sm text-portal-body">Your creator support is just a click away—visit our Help Center for tips and answers.</p>
             </div>
             <a href="#faq-list" className="w-fit text-body-sm font-medium capitalize">Help Center</a>
           </div>

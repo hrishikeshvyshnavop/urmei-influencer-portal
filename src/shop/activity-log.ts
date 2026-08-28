@@ -46,7 +46,7 @@ export function loadShopActivities(): ShopActivity[] {
 
 /** Called wherever a real shop action happens (add/remove/feature/publish) so
  *  Home's Recent Activities and the full Recent Activities page reflect what
- *  the influencer actually did instead of fixture data. */
+ *  the creator actually did instead of fixture data. */
 export function logShopActivity(type: ShopActivityType, detail = '') {
   try {
     const activity: ShopActivity = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, type, detail, at: Date.now() }

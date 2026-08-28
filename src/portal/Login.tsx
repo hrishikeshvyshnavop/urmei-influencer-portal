@@ -98,7 +98,7 @@ export default function Login({
 
             <div className="flex w-full items-center justify-center gap-2">
               <p className="text-body-md whitespace-nowrap text-portal-body">
-                Join as a URMEI Influencer?
+                Join as a URMEI Creator?
               </p>
               <Button variant="portalLink" onClick={onApply}>
                 Apply

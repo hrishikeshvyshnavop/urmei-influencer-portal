@@ -3,7 +3,7 @@ const TOUR_REQUESTED_EVENT = "urmei:tour-requested";
 /** Every screen's "How does it work?" profile-menu item calls this directly
  *  instead of navigating to `#/home/tour` first — the product tour is a
  *  full-screen overlay (see `ProductTour.tsx`), not something tied to Home,
- *  so it can open on top of whichever page the influencer is already on. */
+ *  so it can open on top of whichever page the creator is already on. */
 export function requestProductTour() {
   window.dispatchEvent(new Event(TOUR_REQUESTED_EVENT));
 }

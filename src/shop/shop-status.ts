@@ -48,7 +48,7 @@ export function useHasShopItems() {
   return useSyncExternalStore(subscribe, () => getShopItemCount() > 0, () => false);
 }
 
-/** Called once the influencer publishes their shop, so Home's Shop URL card
+/** Called once the creator publishes their shop, so Home's Shop URL card
  *  can switch from the "publish to get your URL" placeholder to the real
  *  link — same condition `StoreCard` uses inside the shop itself. */
 export function setShopPublished(published: boolean) {

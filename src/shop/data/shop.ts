@@ -4,7 +4,7 @@
 
 export const SHOP_URL = 'urmei.com/shop/charlotte'
 
-/** Follower counts shown on the influencer profile card (Shop Preview, `917:53526`). */
+/** Follower counts shown on the creator profile card (Shop Preview, `917:53526`). */
 export const FOLLOWER_STATS = {
   urmei: 445,
   tiktok: '1.5k',

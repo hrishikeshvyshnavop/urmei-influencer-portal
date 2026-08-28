@@ -17,7 +17,7 @@ type PortalLayoutProps = {
   hideLanguageSelector?: boolean;
 };
 
-/** Shared chrome for the influencer portal auth screens: sticky side accent
+/** Shared chrome for the creator portal auth screens: sticky side accent
  *  panel, sticky header, and a vertically centred content column. */
 export default function PortalLayout({
   children,

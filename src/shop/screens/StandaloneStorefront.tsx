@@ -249,7 +249,7 @@ export function StandaloneStorefront() {
            no screens to point at yet. */
         <div className={CONTENT_COLUMN}>
           <StorefrontBreadcrumb
-            items={[{ label: 'Home' }, { label: 'Influencers' }, { label: name }]}
+            items={[{ label: 'Home' }, { label: 'Creators' }, { label: name }]}
           />
         </div>
       )}

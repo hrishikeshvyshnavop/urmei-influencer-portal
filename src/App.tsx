@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState, useSyncExternalStore } from "react";
-import ApplyInfluencer from "./portal/ApplyInfluencer";
+import ApplyCreator from "./portal/ApplyCreator";
 import ApplyLanding from "./portal/ApplyLanding";
 import ApplySuccess from "./portal/ApplySuccess";
 import CheckInbox from "./portal/CheckInbox";
@@ -164,7 +164,7 @@ function screenFor(
       );
     case "#/apply/form":
       return (
-        <ApplyInfluencer
+        <ApplyCreator
           onBack={() => navigate("#/apply")}
           onSubmit={() => navigate("#/apply/success")}
         />
