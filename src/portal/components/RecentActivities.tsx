@@ -1,5 +1,5 @@
-import { ChevronRight, Megaphone } from "lucide-react";
-import { ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../../shop/activity-log";
+import { ChevronRight } from "lucide-react";
+import { ACTIVITY_ICONS, ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../../shop/activity-log";
 
 const VISIBLE_COUNT = 3;
 
@@ -27,7 +27,9 @@ export default function RecentActivities() {
       </div>
 
       <div className="flex w-full flex-col items-start">
-        {activities.map((activity, index) => (
+        {activities.map((activity, index) => {
+          const ActivityIcon = ACTIVITY_ICONS[activity.type];
+          return (
           <div
             key={activity.id}
             className={`flex w-full items-start gap-[10px] overflow-clip bg-portal-card py-4 ${
@@ -38,7 +40,7 @@ export default function RecentActivities() {
           >
             <div className="flex min-w-px flex-1 items-start gap-3">
               <div className="flex size-[32px] shrink-0 items-center justify-center rounded-full bg-portal-tint p-[6px]">
-                <Megaphone aria-hidden="true" className="size-4" strokeWidth={1.5} />
+                <ActivityIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />
               </div>
 
               <div className="flex min-w-px flex-1 flex-col items-start gap-1">
@@ -57,7 +59,8 @@ export default function RecentActivities() {
               {formatActivityTime(activity.at)}
             </p>
           </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

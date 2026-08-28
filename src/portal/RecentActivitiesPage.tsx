@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { ChevronRight, Megaphone } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
 import { requestProductTour } from "./tour-status";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../shop/activity-log";
+import { ACTIVITY_ICONS, ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../shop/activity-log";
 import Pagination from "@/components/Pagination";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -46,11 +46,13 @@ export default function RecentActivitiesPage() {
             <p className="py-4 text-body-sm text-portal-muted">Nothing here yet — actions like adding a product or publishing your shop will show up here.</p>
           ) : (
             <div>
-              {visibleActivities.map((activity, index) => (
+              {visibleActivities.map((activity, index) => {
+                const ActivityIcon = ACTIVITY_ICONS[activity.type];
+                return (
                 <article key={activity.id} className={`flex items-start gap-2.5 py-4 ${index < visibleActivities.length - 1 ? "border-b border-portal-border" : ""}`}>
                   <div className="flex min-w-0 flex-1 items-start gap-3">
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-portal-tint">
-                      <Megaphone aria-hidden="true" className="size-4" strokeWidth={1.5} />
+                      <ActivityIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block text-body-md font-medium">{ACTIVITY_LABELS[activity.type]}</span>
@@ -59,7 +61,8 @@ export default function RecentActivitiesPage() {
                   </div>
                   <time className="shrink-0 text-body-xs text-portal-muted">{formatActivityTime(activity.at)}</time>
                 </article>
-              ))}
+                );
+              })}
               {pageCount > 1 ? <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} /> : null}
             </div>
           )}

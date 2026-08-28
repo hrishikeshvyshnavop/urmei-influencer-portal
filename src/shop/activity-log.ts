@@ -1,3 +1,5 @@
+import { Megaphone, PackageMinus, PackagePlus, Star, StarOff, type LucideIcon } from 'lucide-react'
+
 export type ShopActivityType =
   | 'product-added'
   | 'product-removed'
@@ -19,6 +21,14 @@ export const ACTIVITY_LABELS: Record<ShopActivityType, string> = {
   'product-featured': 'Product added to featured',
   'product-unfeatured': 'Product removed from featured',
   'shop-published': 'Shop published',
+}
+
+export const ACTIVITY_ICONS: Record<ShopActivityType, LucideIcon> = {
+  'product-added': PackagePlus,
+  'product-removed': PackageMinus,
+  'product-featured': Star,
+  'product-unfeatured': StarOff,
+  'shop-published': Megaphone,
 }
 
 const ACTIVITY_LOG_KEY = 'urmei.shop-activity-log'
