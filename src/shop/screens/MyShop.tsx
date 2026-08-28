@@ -108,7 +108,7 @@ export function MyShop({
                   { label: 'TOTAL PRODUCTS', value: String(items.length) },
                   { label: 'CLICKS', value: '0%' },
                   { label: 'SALES', value: '0' },
-                  { label: 'COMMISSION EARNED', value: 'S$0' },
+                  { label: 'COMMISSION OWNED', value: 'S$0' },
                   { label: 'COMMISSION SETTLED', value: 'S$0' },
                 ]}
               />

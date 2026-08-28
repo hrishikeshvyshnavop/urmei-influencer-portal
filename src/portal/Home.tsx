@@ -218,7 +218,7 @@ export default function Home({
                 { label: "TOTAL PRODUCTS", value: String(shopItems.length) },
                 { label: "CLICKS", value: "0%" },
                 { label: "SALES", value: "0" },
-                { label: "COMMISSION EARNED", value: "S$0" },
+                { label: "COMMISSION OWNED", value: "S$0" },
                 { label: "COMMISSION SETTLED", value: "S$0" },
               ]}
             />
