@@ -33,16 +33,15 @@ type BrowseOverlayProps = {
 /**
  * Full-screen "Browse and find products to add" panel. It sits over the My Shop
  * page, starting below the site header, with a scrim across the whole viewport.
- * The panel is capped at the app's 1440px screen width (matching every other
+ * The body is capped at the app's 1440px screen width (matching every other
  * shop screen's `ScaledBox`); `ScaledBox` shrinks it to fit narrower viewports
- * without reflowing or forcing horizontal scroll.
- *
- * The header and the body sit in two separate `ScaledBox`es (rather than one,
- * scrolled as a unit) so the header can stay put while only the body scrolls:
- * `transform` on an ancestor breaks `position: sticky` for any descendant, and
- * `ScaledBox` itself applies `transform: scale()`, so a sticky header nested
- * inside it could never actually stick. Keeping it outside the scrolling body
- * entirely sidesteps that rather than fighting it.
+ * without reflowing or forcing horizontal scroll. The overlay's own header bar
+ * spans the full viewport width instead — unscaled, sitting outside the body's
+ * `ScaledBox` — both so it reads as the overlay's chrome rather than more of
+ * the (narrower) page content, and so it can stay fixed in place while only
+ * the body scrolls: `transform` on an ancestor breaks `position: sticky` for
+ * any descendant, and `ScaledBox` applies `transform: scale()`, so a sticky
+ * header nested inside one could never actually stick.
  */
 export function BrowseOverlay({
   onClose,
@@ -229,24 +228,20 @@ export function BrowseOverlay({
           if (event.target === event.currentTarget) requestClose()
         }}
       >
-        <div className="flex w-full justify-center overflow-x-hidden" onMouseDown={(event) => { if (event.target === event.currentTarget) requestClose() }}>
-          <ScaledBox width={1440} className="shrink-0 overflow-clip rounded-t-[10px] bg-surface-secondary-100">
-            <header className="flex w-full items-center justify-between border-b border-border-default bg-surface-secondary-100 px-margin py-[20px]">
-              <div className="flex items-center gap-md-2">
-                <img src="/assets/img/urmei-mark.svg" alt="" className="h-[15.999px] w-[29.573px]" />
-                <p className="text-body-lg font-medium text-text-secondary-1000">{title}</p>
-              </div>
-              <button
-                type="button"
-                aria-label="Close browse"
-                onClick={requestClose}
-                className="flex size-[38px] items-center justify-center"
-              >
-                <Icon name="x" size={24} />
-              </button>
-            </header>
-          </ScaledBox>
-        </div>
+        <header className="flex w-full shrink-0 items-center justify-between border-b border-border-default bg-surface-secondary-100 px-margin py-[20px]">
+          <div className="flex items-center gap-md-2">
+            <img src="/assets/img/urmei-mark.svg" alt="" className="h-[15.999px] w-[29.573px]" />
+            <p className="text-body-lg font-medium text-text-secondary-1000">{title}</p>
+          </div>
+          <button
+            type="button"
+            aria-label="Close browse"
+            onClick={requestClose}
+            className="flex size-[38px] items-center justify-center"
+          >
+            <Icon name="x" size={24} />
+          </button>
+        </header>
 
         {/* Thin, track-less scrollbar to match the Filters rail's. Left at the
             platform default this was a full-width classic scrollbar whose pale
