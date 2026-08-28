@@ -216,10 +216,10 @@ export default function Home({
             <StatsRow
               stats={[
                 { label: "TOTAL PRODUCTS", value: String(shopItems.length) },
-                { label: "FEATURED PRODUCTS", value: String(featuredShopItemCount) },
                 { label: "CLICKS", value: "0%" },
                 { label: "SALES", value: "0" },
                 { label: "COMMISSION EARNED", value: "S$0" },
+                { label: "COMMISSION SETTLED", value: "S$0" },
               ]}
             />
           ) : null}
