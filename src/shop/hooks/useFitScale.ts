@@ -1,19 +1,20 @@
 import { useEffect, useState } from 'react'
 
 /**
- * viewport width / designWidth, kept up to date on resize. Listens both to
- * `window.resize` and a `ResizeObserver` on the document root — belt and
- * suspenders, since some viewport changes (devtools-driven resizes,
- * pinch-zoom, browser automation) don't reliably fire one or the other.
- * Uncapped: the design fills the viewport at any width, scaling up past its
- * design size on large screens instead of centering with room to spare.
+ * viewport width / designWidth, capped at 1, kept up to date on resize.
+ * Listens both to `window.resize` and a `ResizeObserver` on the document
+ * root — belt and suspenders, since some viewport changes (devtools-driven
+ * resizes, pinch-zoom, browser automation) don't reliably fire one or the
+ * other. Capped so the design never scales up past its natural size on
+ * screens wider than `designWidth` — it just centers with room to spare,
+ * like the rest of the portal, instead of blowing up larger than Figma.
  */
 export function useFitScale(designWidth: number): number {
-  const [scale, setScale] = useState(() => document.documentElement.clientWidth / designWidth)
+  const [scale, setScale] = useState(() => Math.min(1, document.documentElement.clientWidth / designWidth))
 
   useEffect(() => {
     function update() {
-      setScale(document.documentElement.clientWidth / designWidth)
+      setScale(Math.min(1, document.documentElement.clientWidth / designWidth))
     }
     update()
     window.addEventListener('resize', update)
