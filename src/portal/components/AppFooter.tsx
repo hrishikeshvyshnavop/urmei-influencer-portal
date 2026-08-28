@@ -16,6 +16,10 @@ const socials = [
 export default function AppFooter() {
   return (
     <footer className="bg-[#2c2927] px-6 py-10 text-[#fdfdfd] lg:px-[120px]">
+      {/* 1200 = the page's own 1440px content column minus its 120px side
+          padding — keeps this content aligned with the page above it once the
+          viewport passes 1440px, where the page's own max-width stops growing
+          but this padded, uncapped `footer` otherwise would. */}
       <div className="mx-auto max-w-[1200px]">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-4">
           {linkColumns.map(([title, ...links]) => (
