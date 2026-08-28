@@ -30,6 +30,16 @@ const CART_COUNT = 8
  *
  * Distinct from `StorefrontHeader`, which is the in-app *preview* chrome
  * (wordmark + close button) for the creator's own shop.
+ *
+ * Responsive across ordinary desktop widths (1280–1920): the design is a
+ * single 1440px frame, and its two halves — nav on the left, search + country
+ * + actions on the right — are both wide enough on their own that at anything
+ * narrower than about 1400px they collide. Nothing here can wrap (single-word
+ * nav links, a one-line search placeholder) or usefully truncate except the
+ * search field's own placeholder text, so it's the one piece asked to give:
+ * `shrink-0` on both rigid halves plus letting the search box shrink and grow
+ * within its own row keeps every other element at its natural, undistorted
+ * size at every width in range.
  */
 export function StorefrontPublicHeader() {
   return (
@@ -37,7 +47,7 @@ export function StorefrontPublicHeader() {
       className="flex w-full items-center justify-between rounded-b-[16px] bg-surface-secondary-300 px-margin py-md-2"
       style={{ minHeight: HEADER_HEIGHT }}
     >
-      <div className="flex h-full items-center gap-md-sm">
+      <div className="flex h-full shrink-0 items-center gap-md-sm">
         <img src="/urmei/home/logo.svg" alt="URMEI" className="h-4 w-[109px]" />
         {/* No gap between the links: each carries the design's own 16px
             horizontal padding, which is what sets them apart. */}
@@ -55,20 +65,45 @@ export function StorefrontPublicHeader() {
 
       {/* Centred rather than the design's `items-start`: there, the search bar
           stretches to the row's height and re-centres its 38px box with 5px of
-          padding — the same result, one box less. */}
-      <div className="flex items-center gap-sm">
-        <div className="flex w-[300px] items-center gap-sm rounded-sm border border-border-default px-md-sm py-sm">
+          padding — the same result, one box less.
+
+          This side is left shrinkable (unlike the nav group above) because
+          it's the only place the header can absorb width pressure: the search
+          box is the one child that can actually get narrower without content
+          spilling out of its box. */}
+      <div className="flex min-w-0 items-center gap-sm">
+        {/* `min-w-0`: a flex item's automatic minimum size otherwise defaults
+            to its content's own min-content size, which — for a *nested* flex
+            container like this one — Chrome computes generously enough that
+            shrinking stalled well short of what was actually needed, spilling
+            this row past the header's right padding instead of the search box
+            giving up the rest of the room it's entitled to. `w-[300px]` (the
+            design's own width) doubles as this item's flex basis, so at rest
+            — plenty of room, nothing being asked to shrink or grow — it
+            renders at exactly 300px, matching Figma. `grow` lets it reclaim
+            the design width whenever the row has room to give it; `shrink`
+            with a 160px floor lets it give width back below ~1400px, where
+            the nav side (which can't shrink at all — see below) needs it.
+            Below 160 the icon and truncated placeholder stop reading as a
+            search field at all, so that's the floor. */}
+        <div className="flex min-w-[160px] max-w-[300px] w-[300px] grow shrink items-center gap-sm rounded-sm border border-border-default px-md-sm py-sm">
           <Icon name="search" />
           <p className="flex-1 truncate text-body-sm text-text-secondary-700">
             Find your fav beauty picks.
           </p>
         </div>
 
-        <LanguageSelector />
+        {/* Wrapped, not passed a className, because `LanguageSelector` takes
+            none — and it needs the same protection as the nav links: its
+            button can't compress either, so leaving it shrinkable would just
+            move the overflow here instead of fixing it. */}
+        <div className="shrink-0">
+          <LanguageSelector />
+        </div>
 
         {/* The three action slots sit flush against each other; the 48px slots
             supply the spacing between the 20px glyphs inside them. */}
-        <div className="flex items-center">
+        <div className="flex shrink-0 items-center">
           <span className="relative flex size-[48px] items-center justify-center rounded-sm">
             <Icon name="bell" size={20} />
             <span className="absolute top-[9px] left-[28px] size-[5px] rounded-full bg-surface-other-alert" />
