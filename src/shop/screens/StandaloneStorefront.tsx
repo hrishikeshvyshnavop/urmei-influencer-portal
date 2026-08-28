@@ -13,14 +13,11 @@ import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
 import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
 import { SHOP_URL } from '../data/shop'
 import { useHasOverflowX } from '../hooks/useHasOverflowX'
+import { CONTENT_COLUMN } from '../layout'
 import { loadShopItems } from '../shop-items-store'
 import type { ShopItem } from '../types'
 
 const PICKS_PER_PAGE = 8
-/** The design's content column: 1200px wide, sitting inside the 120px page
- *  margin (1440 - 240). Shared by the breadcrumb, the profile card and the
- *  All Picks grid, so they line up down the page at any viewport. */
-const CONTENT_COLUMN = 'w-full max-w-[1440px] px-margin'
 /** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
 const FEATURED_SCROLL_STEP = 288 + 16
 
@@ -51,7 +48,7 @@ function TopFeaturedProducts({
 
   return (
     <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100 py-3xl">
-      <div className="flex w-full items-center gap-md-2 px-margin">
+      <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           Top featured products
         </p>
@@ -85,7 +82,7 @@ function TopFeaturedProducts({
           margin has to sit on this wrapper rather than as the scroller's own
           padding: as padding it scrolls with the content, which put the
           overflow out in the page margin instead of clipped against it. */}
-      <div className="w-full px-margin">
+      <div className={CONTENT_COLUMN}>
         <div
           ref={scrollRef}
           className="flex w-full gap-md overflow-x-auto [scrollbar-width:none]"

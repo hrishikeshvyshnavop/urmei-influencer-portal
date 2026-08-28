@@ -12,6 +12,7 @@ import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
 import { useHasOverflowX } from '../hooks/useHasOverflowX'
+import { CONTENT_COLUMN } from '../layout'
 import type { ShopItem } from '../types'
 
 type StorefrontPreviewProps = {
@@ -47,7 +48,7 @@ function TopFeaturedProducts({
 
   return (
     <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-500/0 to-surface-tertiary-500 py-3xl">
-      <div className="flex w-full items-center gap-md-2 px-margin">
+      <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           Top featured products
         </p>
@@ -81,7 +82,7 @@ function TopFeaturedProducts({
           margin has to sit on this wrapper rather than as the scroller's own
           padding: as padding it scrolls with the content, which put the
           overflow out in the page margin instead of clipped against it. */}
-      <div className="w-full px-margin">
+      <div className={CONTENT_COLUMN}>
         <div
           ref={scrollRef}
           className="flex w-full gap-md overflow-x-auto [scrollbar-width:none]"
