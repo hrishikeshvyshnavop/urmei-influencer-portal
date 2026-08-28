@@ -63,8 +63,13 @@ function ResultCard({
               {product.priceRange}
             </p>
             <span className="flex w-fit items-center justify-center gap-xs rounded-[24px] bg-surface-secondary-300 px-sm py-xs text-body-xs text-text-secondary-900">
+              {/* The range, not `commissionBadge`: this row quotes `priceRange`
+                  beside it, so both figures span the same set of variants
+                  (Figma `28:18377`). The single-variant badge is what the
+                  add-to-shop modal and the shop card show, once a variant has
+                  actually been picked. */}
               <span className="font-medium text-text-secondary-1000">
-                {product.commissionBadge}
+                {product.commissionRange}
               </span>{' '}
               Commission
             </span>

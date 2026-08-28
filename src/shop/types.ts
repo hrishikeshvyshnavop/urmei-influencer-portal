@@ -26,6 +26,13 @@ export type Product = {
   shopCompareAt: string
   savePct: string
   commissionBadge: string
+  /** Commission span across the product's variants, e.g. "12% - 15%" — the
+   *  commission counterpart to `priceRange`, and shown directly beneath it on
+   *  the browse overlay's result row (Figma `28:18377`). Deliberately separate
+   *  from `commissionBadge`, which is the single figure quoted once a variant
+   *  has been chosen (the add-to-shop modal, the shop card, the remove
+   *  dialog); a row that spans every variant has to quote a span. */
+  commissionRange: string
   commissionPerSale: string
   regions: string[]
   rating: number
