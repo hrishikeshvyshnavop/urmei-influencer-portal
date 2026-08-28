@@ -15,7 +15,13 @@ const socials = [
  *  Activities, My Shop). */
 export default function AppFooter() {
   return (
-    <footer className="bg-[#2c2927] px-6 py-10 text-[#fdfdfd] lg:px-[120px]">
+    // `w-full` so the dark fill reaches both page edges. Without it, screens
+    // whose column centres or start-aligns its children (the storefront's
+    // `items-center`, the preview's `items-start`) sized this to fit its
+    // content instead of stretching it, leaving the page background showing
+    // down either side of the footer — 144px of it at 1728px wide. Harmless on
+    // the screens that do stretch it (`AppShell`, `ManageAccount`).
+    <footer className="w-full bg-[#2c2927] px-6 py-10 text-[#fdfdfd] lg:px-[120px]">
       {/* 1200 = the page's own 1440px content column minus its 120px side
           padding — keeps this content aligned with the page above it once the
           viewport passes 1440px, where the page's own max-width stops growing
