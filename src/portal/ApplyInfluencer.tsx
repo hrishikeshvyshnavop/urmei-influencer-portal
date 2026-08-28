@@ -74,7 +74,7 @@ const personalFields: FieldSpec[] = [
   },
   {
     name: "displayName",
-    label: "Display name",
+    label: "Display Name",
     placeholder: "",
     autoComplete: "nickname",
   },
@@ -87,7 +87,7 @@ const personalFields: FieldSpec[] = [
   },
   {
     name: "phone",
-    label: "Phone number",
+    label: "Phone Number",
     placeholder: "",
     type: "tel",
     autoComplete: "tel",
