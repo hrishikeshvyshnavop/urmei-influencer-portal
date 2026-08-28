@@ -38,7 +38,7 @@ export default function RecentActivities() {
                 : ""
             }`}
           >
-            <div className="flex min-w-px flex-1 items-start gap-3">
+            <div className="flex min-w-px flex-1 items-center gap-3">
               <div className="flex size-[32px] shrink-0 items-center justify-center rounded-full bg-portal-tint p-[6px]">
                 <ActivityIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />
               </div>

@@ -50,7 +50,7 @@ export default function RecentActivitiesPage() {
                 const ActivityIcon = ACTIVITY_ICONS[activity.type];
                 return (
                 <article key={activity.id} className={`flex items-start gap-2.5 py-4 ${index < visibleActivities.length - 1 ? "border-b border-portal-border" : ""}`}>
-                  <div className="flex min-w-0 flex-1 items-start gap-3">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-portal-tint">
                       <ActivityIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />
                     </span>
