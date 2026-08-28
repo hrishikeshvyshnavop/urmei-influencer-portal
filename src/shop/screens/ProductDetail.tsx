@@ -1,3 +1,4 @@
+import { BookOpen, FlaskConical, Info, Undo2 } from 'lucide-react'
 import { Accordion } from '../components/Accordion'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { Icon } from '../components/Icon'
@@ -300,10 +301,10 @@ export function ProductDetail({
 
           <Accordion
             items={[
-              { icon: 'info', title: 'Product Details', body: product.details.productDetails },
-              { icon: 'flask', title: 'Ingredients', body: product.details.ingredients },
-              { icon: 'book-open', title: 'How To Use', body: product.details.howToUse },
-              { icon: 'return', title: 'Authenticity & Return Policy', body: product.details.returns },
+              { icon: Info, title: 'Product Details', body: product.details.productDetails },
+              { icon: FlaskConical, title: 'Ingredients', body: product.details.ingredients },
+              { icon: BookOpen, title: 'How To Use', body: product.details.howToUse },
+              { icon: Undo2, title: 'Authenticity & Return Policy', body: product.details.returns },
             ]}
           />
         </div>

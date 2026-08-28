@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { BookOpen, FlaskConical, Info } from 'lucide-react'
 import { Accordion } from './Accordion'
 import { Button } from './Button'
 import { Icon } from './Icon'
@@ -329,9 +330,9 @@ export function StorefrontProductDetail({
 
             <Accordion
               items={[
-                { icon: 'info', title: 'Product Details', body: product.details.productDetails },
-                { icon: 'flask', title: 'Ingredients', body: product.details.ingredients },
-                { icon: 'book-open', title: 'How To Use', body: product.details.howToUse },
+                { icon: Info, title: 'Product Details', body: product.details.productDetails },
+                { icon: FlaskConical, title: 'Ingredients', body: product.details.ingredients },
+                { icon: BookOpen, title: 'How To Use', body: product.details.howToUse },
               ]}
             />
           </div>
