@@ -41,6 +41,7 @@ export default function PasswordField({
         <div className="flex min-w-px flex-1 items-center gap-1">
           <input
             id={id}
+            name={autoComplete}
             type={revealed ? "text" : "password"}
             value={value}
             onChange={(event) => onChange(event.target.value)}

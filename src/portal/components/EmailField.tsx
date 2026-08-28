@@ -60,6 +60,7 @@ export default function EmailField({
         <div className="flex min-w-px flex-1 items-center gap-1">
           <input
             id={id}
+            name={autoComplete}
             type={isPassword && revealed ? "text" : type}
             value={value}
             onChange={(event) => onChange(event.target.value)}

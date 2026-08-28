@@ -111,6 +111,7 @@ export default function TextField({
           ) : (
             <input
               id={id}
+              name={autoComplete}
               type={type}
               value={value}
               inputMode={numericOnly ? "numeric" : type === "tel" ? "tel" : undefined}
