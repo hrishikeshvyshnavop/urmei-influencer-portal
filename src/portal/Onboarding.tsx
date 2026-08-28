@@ -238,11 +238,7 @@ export default function Onboarding({
             </p>
           </div>
 
-          <Button
-            variant="portalOutlineLg"
-            className="bg-portal-light"
-            onClick={onFinish}
-          >
+          <Button variant="portalLg" onClick={onFinish}>
             Continue
           </Button>
         </div>
