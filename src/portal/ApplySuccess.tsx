@@ -36,11 +36,15 @@ export default function ApplySuccess({
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
+          {/* "Preview approval" isn't in the design (Figma `1583:87526` shows
+              only "Log In"). It's prototype scaffolding: the approval email
+              and its screens are otherwise reachable only by typing a URL, so
+              it stays until the flow is walked some other way. */}
           <Button variant="portal" onClick={onPreviewApproval}>
             Preview approval
           </Button>
           <Button variant="portalLg" onClick={onBackToLogin}>
-            Back to Login
+            Log In
           </Button>
         </div>
       </div>

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Bell, Star, User, X } from "lucide-react";
+import { Bell, Percent, Receipt, Star, User, X } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 type Notification = {
@@ -17,11 +17,30 @@ type NotificationGroup = { date: string; items: Notification[] };
 
 const defaultGroups: NotificationGroup[] = [
   {
+    date: "Today",
+    items: [
+      {
+        icon: Percent,
+        title: "Sale on your shop",
+        body: "Resurrection renew radiance eye cream sold — you earned S$4.05.",
+        time: "2m",
+        unread: true,
+      },
+      {
+        icon: Receipt,
+        title: "Payout sent",
+        body: "Payout sent from URMEI it is on its way to your bank. Expect it in 2–3 working days.",
+        time: "1h",
+        unread: true,
+      },
+    ],
+  },
+  {
     date: "Yesterday",
     items: [
       {
         icon: User,
-        title: "Mei Tan started following your shop on URMEI.",
+        title: "Mei Tan started following on URMEI.",
         time: "18h",
       },
     ],
@@ -109,7 +128,7 @@ export default function NotificationsDrawer({
         aria-label="Close notifications"
         onClick={requestClose}
         data-state={closing ? "closed" : "open"}
-        className="motion-modal-backdrop absolute inset-0 cursor-default bg-[rgba(0,0,0,0.2)]"
+        className="motion-modal-backdrop absolute inset-0 cursor-default bg-[rgba(0,0,0,0.5)]"
       />
 
       <aside
@@ -160,9 +179,11 @@ export default function NotificationsDrawer({
                 {group.items.map((item) => (
                   <div
                     key={item.title}
-                    className={`flex w-full items-start gap-[10px] overflow-clip px-4 py-5 ${
-                      item.unread ? "bg-portal-surface" : ""
-                    }`}
+                    // A one-line row centres its icon and timestamp against the
+                    // single line of copy; rows with a body align to the top.
+                    className={`flex w-full gap-[10px] overflow-clip px-4 py-5 ${
+                      item.body ? "items-start" : "items-center"
+                    } ${item.unread ? "bg-portal-surface" : ""}`}
                   >
                     <IconWell icon={item.icon} />
                     <div className="flex min-w-px flex-1 flex-col items-start gap-1 text-body-sm">

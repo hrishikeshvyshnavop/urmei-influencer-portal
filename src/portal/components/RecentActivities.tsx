@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
-import { ACTIVITY_ICONS, ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../../shop/activity-log";
+import { loadShopActivities } from "../../shop/activity-log";
+import ActivityRow from "./ActivityRow";
 
 const VISIBLE_COUNT = 3;
 
@@ -27,40 +28,9 @@ export default function RecentActivities() {
       </div>
 
       <div className="flex w-full flex-col items-start">
-        {activities.map((activity, index) => {
-          const ActivityIcon = ACTIVITY_ICONS[activity.type];
-          return (
-          <div
-            key={activity.id}
-            className={`flex w-full items-start gap-[10px] overflow-clip bg-portal-card py-4 ${
-              index < activities.length - 1
-                ? "border-b border-solid border-portal-border"
-                : ""
-            }`}
-          >
-            <div className="flex min-w-px flex-1 items-center gap-3">
-              <div className="flex size-[32px] shrink-0 items-center justify-center rounded-full bg-portal-tint p-[6px]">
-                <ActivityIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />
-              </div>
-
-              <div className="flex min-w-px flex-1 flex-col items-start gap-1">
-                <p className="w-full text-body-md font-medium text-portal-text">
-                  {ACTIVITY_LABELS[activity.type]}
-                </p>
-                {activity.detail ? (
-                  <p className="w-full text-body-sm text-portal-muted">
-                    {activity.detail}
-                  </p>
-                ) : null}
-              </div>
-            </div>
-
-            <p className="shrink-0 text-right text-body-xs whitespace-nowrap text-portal-muted">
-              {formatActivityTime(activity.at)}
-            </p>
-          </div>
-          );
-        })}
+        {activities.map((activity, index) => (
+          <ActivityRow key={activity.id} activity={activity} divider={index < activities.length - 1} />
+        ))}
       </div>
     </section>
   );

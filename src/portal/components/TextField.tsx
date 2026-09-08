@@ -1,4 +1,5 @@
 import { useId, useState } from "react";
+import { Info } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -41,6 +42,22 @@ type TextFieldProps = {
   error?: string;
   /** Review Details renders identity fields as read-only, filled swatches. */
   locked?: boolean;
+  /** Standing helper line below the input, drawn with the design's 12px info
+   *  glyph (Figma `1583:87433`). `error` takes precedence: showing both would
+   *  stack two lines of small print under one field and shift the grid. */
+  hint?: string;
+  /** Fixed, unselectable text ahead of the value, greyed like a placeholder —
+   *  the Username field's "urmei.com/shop/" (Figma `1583:87772`). It reads as
+   *  part of the value rather than as a label, so it lives inside the box. */
+  prefix?: string;
+  /** Draws the design's red asterisk beside the label (the bank fields,
+   *  Figma `1583:88109`). Cosmetic only — validation is the caller's. */
+  required?: boolean;
+  /** Green tick on the trailing edge of the box, for a value the caller has
+   *  confirmed good — the Username field's available handle (Figma
+   *  `1583:87772`). There is no failure glyph to match: `error` already
+   *  reddens the border and prints the reason underneath. */
+  valid?: boolean;
 };
 
 export default function TextField({
@@ -57,6 +74,10 @@ export default function TextField({
   latestDate,
   error,
   locked = false,
+  hint,
+  prefix,
+  required = false,
+  valid = false,
 }: TextFieldProps) {
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -68,20 +89,31 @@ export default function TextField({
 
   return (
     <div className="flex w-full flex-col items-start gap-1">
-      <label
-        htmlFor={id}
-        className="text-body-sm font-medium whitespace-nowrap text-portal-text"
-      >
-        {label}
-      </label>
+      <div className="flex items-start gap-1">
+        <label
+          htmlFor={id}
+          className="text-body-sm font-medium whitespace-nowrap text-portal-text"
+        >
+          {label}
+        </label>
+        {required ? (
+          <img
+            src="/urmei/icon-asterisk.svg"
+            alt="required"
+            className="block size-[6px]"
+          />
+        ) : null}
+      </div>
 
       <div
-        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 focus-within:border-portal-dark focus-within:ring-2 focus-within:ring-portal-surface ${
+        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 focus-within:ring-2 focus-within:ring-portal-surface ${
           locked
             ? "border-portal-surface bg-portal-surface"
             : error
-              ? "border-portal-alert"
-              : "border-portal-border"
+              ? // Stays red on focus: the field is wrong, and clicking into it
+                // to fix it is not a reason to stop saying so.
+                "border-portal-alert focus-within:border-portal-alert"
+              : "border-portal-border focus-within:border-portal-dark"
         }`}
       >
         <div className="relative flex min-w-px flex-1 items-center gap-1">
@@ -109,6 +141,15 @@ export default function TextField({
               </SelectContent>
             </Select>
           ) : (
+            <>
+              {prefix ? (
+                <span
+                  aria-hidden="true"
+                  className="shrink-0 text-body-sm text-portal-placeholder"
+                >
+                  {prefix}
+                </span>
+              ) : null}
             <input
               id={id}
               name={autoComplete}
@@ -140,6 +181,7 @@ export default function TextField({
                 locked ? "cursor-not-allowed" : ""
               }`}
             />
+            </>
           )}
         </div>
 
@@ -181,10 +223,28 @@ export default function TextField({
             </PopoverContent>
           </Popover>
         ) : null}
+
+        {valid && !error ? (
+          <span
+            aria-hidden="true"
+            className="motion-success-tick relative size-[20px] shrink-0 overflow-clip"
+          >
+            <img
+              src="/urmei/icon-circle-check.svg"
+              alt=""
+              className="block size-full max-w-none"
+            />
+          </span>
+        ) : null}
       </div>
       {error ? (
         <p className="text-body-xs text-portal-alert" role="alert">
           {error}
+        </p>
+      ) : hint ? (
+        <p className="flex items-center gap-[2px] text-body-xs text-portal-muted">
+          <Info aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.5} />
+          {hint}
         </p>
       ) : null}
     </div>

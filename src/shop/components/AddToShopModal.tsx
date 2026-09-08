@@ -7,33 +7,32 @@ import { VariantSelect } from './VariantSelect'
 
 type AddToShopModalProps = {
   product: Product
-  featuredCount: number
-  featuredLimit: number
+  favoriteCount: number
+  favoriteLimit: number
   /** Variants of this same product already in the shop — including when
    *  there's only one variant to begin with, which makes the product itself
    *  the thing that's already added. Re-adding one is blocked rather than
    *  creating an indistinguishable duplicate row. */
   existingVariants: string[]
   onClose: () => void
-  onConfirm: (featured: boolean, variant: string) => void
-  /** Called instead of enabling the toggle when all `featuredLimit` slots are
-   *  already taken — the caller shows the 6/6 limit toast. */
-  onFeatureBlocked: () => void
+  onConfirm: (favorite: boolean, variant: string) => void
+  /** Called instead of enabling the toggle when all `favoriteLimit` slots are
+   *  already taken — the caller shows the slots-full toast. */
+  onFavoriteBlocked: () => void
 }
 
 export function AddToShopModal({
   product,
-  featuredCount,
-  featuredLimit,
+  favoriteCount,
+  favoriteLimit,
   existingVariants,
   onClose,
   onConfirm,
-  onFeatureBlocked,
+  onFavoriteBlocked,
 }: AddToShopModalProps) {
-  const [featured, setFeatured] = useState(false)
+  const [favorite, setFavorite] = useState(false)
   const [selectedVariant, setSelectedVariant] = useState(product.variant)
-  const atLimit = featuredCount >= featuredLimit
-  const nextFeaturedCount = featured ? featuredCount + 1 : featuredCount
+  const atLimit = favoriteCount >= favoriteLimit
   const alreadyAdded = existingVariants.includes(selectedVariant)
 
   // The modal only actually unmounts once the parent clears `pendingProduct`,
@@ -48,7 +47,7 @@ export function AddToShopModal({
       window.clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
     }
-    if (kind === 'confirm') onConfirm(featured, selectedVariant)
+    if (kind === 'confirm') onConfirm(favorite, selectedVariant)
     else onClose()
   }
 
@@ -82,13 +81,13 @@ export function AddToShopModal({
     }
   }, [])
 
-  function handleFeatureToggle(next: boolean) {
+  function handleFavoriteToggle(next: boolean) {
     if (alreadyAdded) return
     if (next && atLimit) {
-      onFeatureBlocked()
+      onFavoriteBlocked()
       return
     }
-    setFeatured(next)
+    setFavorite(next)
   }
 
   return createPortal(
@@ -115,7 +114,7 @@ export function AddToShopModal({
             type="button"
             aria-label="Close"
             onClick={() => requestClose('cancel')}
-            className="flex w-[40px] items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
+            className="flex size-[40px] items-center justify-center overflow-clip rounded-md border border-border-default"
           >
             <Icon name="x" srcSize={24} />
           </button>
@@ -123,15 +122,15 @@ export function AddToShopModal({
 
         <div className="flex w-full flex-col gap-lg px-lg pt-md pb-lg">
           <div className="flex w-full flex-col gap-[18px]">
-            <div className="flex w-full flex-col gap-fourteen overflow-clip rounded-[7px] bg-surface-secondary-300">
+            <div className="flex w-full flex-col overflow-clip rounded-[7px] bg-surface-secondary-300">
               <div className="flex w-full items-center rounded-t-md bg-surface-tertiary-100 px-ten py-sm">
                 <p className="text-body-xs font-medium text-text-secondary-700">
-                  This product is available only in{' '}
+                  Available only in{' '}
                   <span className="text-text-secondary-900">{product.regions.join(' & ')}</span>
                 </p>
               </div>
 
-              <div className="flex w-full items-center gap-lg px-md pb-[15px]">
+              <div className="flex w-full items-center gap-lg p-md">
                 <img
                   src={product.heroImage}
                   alt=""
@@ -179,17 +178,20 @@ export function AddToShopModal({
               </div>
             </div>
 
-            <div className="flex w-full items-center justify-between rounded-[12px] bg-surface-secondary-300 p-md-sm">
+            <div className="flex w-full items-center justify-between rounded-[12px] border border-border-default p-md-sm">
               <div className="flex flex-col justify-center gap-[2px]">
-                <p className="text-body-sm text-surface-secondary-1000">Feature on home storefront</p>
+                <p className="text-body-sm text-surface-secondary-1000">Add to your Favorite Picks</p>
+                {/* The shop's current count, which is what "added" means — the
+                    frames print 0/4 with the toggle both off and on, and the
+                    toggle itself is the feedback for the pending one. */}
                 <p className="text-body-xs font-medium text-text-secondary-700">
-                  {nextFeaturedCount}/{featuredLimit} Featured products added
+                  {favoriteCount}/{favoriteLimit} products added
                 </p>
               </div>
               <Toggle
-                checked={featured}
-                onChange={handleFeatureToggle}
-                label="Feature on home storefront"
+                checked={favorite}
+                onChange={handleFavoriteToggle}
+                label="Add to your Favorite Picks"
                 disabled={atLimit || alreadyAdded}
               />
             </div>

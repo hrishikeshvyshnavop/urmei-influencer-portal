@@ -44,7 +44,7 @@ export function PublishShopDialog({
 
         <div className="flex w-full flex-col items-start gap-md px-lg pt-md pb-lg">
           <p className="w-full text-body-sm text-text-secondary-700">
-            Once published, your products and featured products will be live and visible to your
+            Once published, your products and favorite products will be live and visible to your
             customers.
           </p>
 

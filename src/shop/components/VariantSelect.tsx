@@ -25,7 +25,7 @@ export function VariantSelect({ options, value, onChange }: VariantSelectProps) 
         aria-haspopup="listbox"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
-        className="flex w-fit items-center rounded-[12px] border border-border-default bg-surface-secondary-300 py-[2px] pr-[6px] pl-ten"
+        className="flex w-fit items-center rounded-[12px] border border-border-default bg-surface-secondary-100 py-[2px] pr-[6px] pl-ten"
       >
         <p className="text-body-xs text-text-secondary-900">{value}</p>
         <span className="flex items-center justify-center overflow-clip rounded-sm p-xs">

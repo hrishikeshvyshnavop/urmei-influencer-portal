@@ -8,12 +8,14 @@ import ProfilePhoto from "./components/ProfilePhoto";
 import SetupBanner from "./components/SetupBanner";
 import { requestProductTour } from "./tour-status";
 import { useHasShopItems, useIsPublishBlocked, useIsShopPublished } from "../shop/shop-status";
-import { loadShopItems, saveShopItems } from "../shop/shop-items-store";
+import { MAX_FAVORITES } from "../shop/limits";
+import { loadPublishedAt, loadShopItems, saveShopItems } from "../shop/shop-items-store";
 import { logShopActivity } from "../shop/activity-log";
 import { StatsRow } from "../shop/components/StatsRow";
+import { homeStatsRowEntries, productStatsHash } from "../shop/data/stats";
 import ShopUrl from "./components/ShopUrl";
 import { PRODUCTS } from "../shop/data/catalogue";
-import { affiliateLinkFor } from "../shop/data/shop";
+import { affiliateLinkFor, hasLiveLink } from "../shop/data/shop";
 import type { Product, ShopItem } from "../shop/types";
 import { AddToShopModal } from "../shop/components/AddToShopModal";
 import { BrowseOverlay } from "../shop/screens/BrowseOverlay";
@@ -67,6 +69,20 @@ function ProductCard({ productId, image, title, onAdd, onViewDetails }: { produc
   );
 }
 
+/** Home's own toast state — the same shape the shop's `Toast` takes, so the
+ *  blocked-favorite toast reads identically on both pages. */
+type HomeToast = {
+  message: string;
+  variant?: "success" | "error";
+  action?: { label: string; onClick: () => void };
+};
+
+/** Hoisted out of the toast's action object: assigning `window.location.hash`
+ *  inside an object literal trips `react-hooks/immutability`. */
+function goToShop() {
+  window.location.hash = "#/shop";
+}
+
 export default function Home({
   firstVisit = false,
 }: {
@@ -76,14 +92,14 @@ export default function Home({
   const isShopPublished = useIsShopPublished();
   const isPublishBlocked = useIsPublishBlocked();
   const [shopItems, setShopItems] = useState(loadShopItems);
-  const featuredShopItemCount = shopItems.filter((item) => item.featured).length;
+  const favoriteShopItemCount = shopItems.filter((item) => item.favorite).length;
   const recommendedProducts = recommendedPool
     .filter((product) => !shopItems.some((item) => item.product.id === product.productId))
     .slice(0, 4);
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toast, setToast] = useState<HomeToast | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
   const productsRef = useRef<HTMLDivElement>(null);
@@ -107,10 +123,10 @@ export default function Home({
   }, []);
 
   useEffect(() => {
-    if (!toastMessage) return;
-    const timer = window.setTimeout(() => setToastMessage(null), 3200);
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 3200);
     return () => window.clearTimeout(timer);
-  }, [toastMessage]);
+  }, [toast]);
 
   const scrollProducts = (direction: number) => {
     const carousel = productsRef.current;
@@ -121,17 +137,37 @@ export default function Home({
     });
   };
 
+  /** The blocked-favorite toast, shown from both the add modal and the
+   *  overlay's Add To Favorite. Its action can only reach the shop's All Picks
+   *  tab from here — the favorites tab is local state inside the shop app —
+   *  but that is where the badges and the "Remove from Favorite" menu live. */
+  const showFavoriteSlotsFullToast = () => {
+    setToast({
+      message: "Product failed to add as Favorite",
+      variant: "error",
+      action: { label: "Manage Favorite", onClick: goToShop },
+    });
+  };
+
   /** Real shop-management actions for the product-detail overlay opened from
    *  this page's "Recommended Products" carousel — mirrors `shop/App.tsx`'s
    *  own toggle/remove/add-to-shop logic so the two entry points stay
    *  consistent, without navigating away from Home to reach them. */
-  const toggleFeaturedFromHome = (item: ShopItem) => {
+  const toggleFavoriteFromHome = (item: ShopItem) => {
+    // The cap is enforced here too, not just in the shop: this overlay can
+    // favorite a product without ever opening My Shop, and four slots is few
+    // enough to walk into from either side.
+    if (!item.favorite && favoriteShopItemCount >= MAX_FAVORITES) {
+      showFavoriteSlotsFullToast();
+      return;
+    }
     setShopItems((current) => {
-      const next = current.map((row) => (row.id === item.id ? { ...row, featured: !row.featured } : row));
+      const next = current.map((row) => (row.id === item.id ? { ...row, favorite: !row.favorite } : row));
       saveShopItems(next);
       return next;
     });
-    logShopActivity(item.featured ? "product-unfeatured" : "product-featured", `${item.product.brand} ${item.product.name}`);
+    logShopActivity(item.favorite ? "product-unfeatured" : "product-featured", `${item.product.brand} ${item.product.name}`);
+    setToast({ message: item.favorite ? "Product Removed From Favorite" : "Product Added to Favorites" });
   };
 
   const removeFromShopFromHome = (item: ShopItem) => {
@@ -149,13 +185,16 @@ export default function Home({
     const item = shopItems.find((row) => row.product.id === product.id);
     if (!item) return undefined;
     return {
-      featured: item.featured,
+      favorite: item.favorite,
       variant: item.variant,
-      onToggleFeatured: () => toggleFeaturedFromHome(item),
+      onToggleFavorite: () => toggleFavoriteFromHome(item),
       onRemoveFromShop: () => removeFromShopFromHome(item),
       affiliateLink: affiliateLinkFor(item.product),
       onCopyLink: () => { navigator.clipboard?.writeText(affiliateLinkFor(item.product)).catch(() => {}); },
-      published: isShopPublished,
+      // Same rule the shop uses: the link exists only once this product has
+      // been on the live storefront.
+      published: hasLiveLink(item, loadPublishedAt()),
+      statsHref: productStatsHash(item.id, "home"),
     };
   };
 
@@ -213,15 +252,10 @@ export default function Home({
             </div>
           ) : null}
           {hasShopItems && isShopPublished ? (
-            <StatsRow
-              stats={[
-                { label: "TOTAL PRODUCTS", value: String(shopItems.length) },
-                { label: "CLICKS", value: "0%" },
-                { label: "SALES", value: "0" },
-                { label: "COMMISSION OWNED", value: "S$0" },
-                { label: "COMMISSION SETTLED", value: "S$0" },
-              ]}
-            />
+            // The same five totals the shop's own row shows, from the same
+            // module — Home used to hardcode zeros and a "TOTAL PRODUCTS"
+            // column the design has since dropped.
+            <StatsRow stats={homeStatsRowEntries(shopItems)} />
           ) : null}
         </section>
 
@@ -290,15 +324,21 @@ export default function Home({
       {pendingProduct ? (
         <AddToShopModal
           product={pendingProduct}
-          featuredCount={featuredShopItemCount}
-          featuredLimit={6}
+          favoriteCount={favoriteShopItemCount}
+          favoriteLimit={MAX_FAVORITES}
           existingVariants={loadShopItems()
             .filter((item) => item.product.id === pendingProduct.id)
             .map((item) => item.variant)}
           onClose={() => setPendingProduct(null)}
-          onFeatureBlocked={() => setToastMessage("Product failed to add as featured")}
-          onConfirm={(featured, variant) => {
-            const newItem: ShopItem = { id: crypto.randomUUID(), product: pendingProduct, featured, variant };
+          onFavoriteBlocked={showFavoriteSlotsFullToast}
+          onConfirm={(favorite, variant) => {
+            const newItem: ShopItem = {
+              id: crypto.randomUUID(),
+              product: pendingProduct,
+              favorite,
+              variant,
+              addedAt: Date.now(),
+            };
             setShopItems((current) => {
               const next = [...current, newItem];
               saveShopItems(next);
@@ -307,7 +347,7 @@ export default function Home({
             });
             logShopActivity("product-added", `${pendingProduct.brand} ${pendingProduct.name}`);
             setPendingProduct(null);
-            setToastMessage("Product added to your shop");
+            setToast({ message: "Product added to your shop" });
           }}
         />
       ) : null}
@@ -323,7 +363,7 @@ export default function Home({
         </BrowseOverlay>
       ) : null}
 
-      {toastMessage ? <Toast message={toastMessage} /> : null}
+      {toast ? <Toast message={toast.message} variant={toast.variant} action={toast.action} /> : null}
     </AppShell>
   );
 }

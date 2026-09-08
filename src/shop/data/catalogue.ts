@@ -29,16 +29,24 @@ export const INGREDIENTS = [
   { label: 'Niacinamide', image: '/assets/img/ing-niacinamide.png' },
 ]
 
-export const PRICE_BUCKETS = [
-  { id: 'under-20', label: 'Under S$20', test: (price: number) => price < 20 },
-  { id: '20-40', label: 'S$20 – S$40', test: (price: number) => price >= 20 && price <= 40 },
-  { id: '40-60', label: 'S$40 – S$60', test: (price: number) => price > 40 && price <= 60 },
-  { id: 'above-60', label: 'Above S$60', test: (price: number) => price > 60 },
+/**
+ * The Commission filter's buckets, with the design's own copy and boundaries
+ * (Figma `1594:34898`) — including the gap between 5% and 10%, which is how
+ * the frame reads. Tested against a product's headline commission.
+ */
+export const COMMISSION_BUCKETS = [
+  { id: 'under-5', label: 'Under 5%', test: (percent: number) => percent < 5 },
+  { id: '10-20', label: '10% – 20%', test: (percent: number) => percent >= 10 && percent <= 20 },
+  { id: '20-30', label: '20% – 30%', test: (percent: number) => percent > 20 && percent <= 30 },
+  { id: 'above-30', label: 'Above 30%', test: (percent: number) => percent > 30 },
 ]
 
+/** The commission slider's ends, as the design labels them ("0 - 30%"). */
+export const COMMISSION_RANGE = { min: 0, max: 30 }
+
 export const RATING_THRESHOLDS = [
-  { min: 4, label: '4★ & up' },
-  { min: 3, label: '3★ & up' },
+  { min: 4, label: '4 ★ & above' },
+  { min: 3, label: '3 ★ & above' },
 ]
 
 export const SORT_OPTIONS = [
@@ -74,13 +82,6 @@ const PLACEHOLDER_DETAILS = {
 /** Shared across every product — Figma only demos these numbers for one
  *  product (Water Bank) on the product-detail page, so every other product
  *  inherits them rather than inventing unverified performance history. */
-const PLACEHOLDER_PERFORMANCE = {
-  unitsSold: 128,
-  commissionEarned: 'S$568.32',
-  linkClicks: '2,410',
-  conversionRate: '10%',
-}
-
 export const PRODUCTS: Product[] = [
   {
     id: 'laneige-water-bank',
@@ -109,7 +110,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-laneige.png',
     keywords: ['laneige', 'water', 'bank', 'blue', 'hyaluronic', 'cream', 'moisturizer'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'cosrx-snail-96',
@@ -138,7 +138,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-cosrx.png',
     keywords: ['cosrx', 'snail', 'mucin', 'power', 'essence', 'serum'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'innisfree-green-tea-seed',
@@ -169,7 +168,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-innisfree.png',
     keywords: ['innisfree', 'green', 'tea', 'seed', 'hyaluronic', 'cream', 'moisturizer'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'sulwhasoo-first-care',
@@ -198,7 +196,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-sulwhasoo.png',
     keywords: ['sulwhasoo', 'first', 'care', 'activating', 'serum'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'somebymi-30-days-miracle',
@@ -227,7 +224,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-somebymi.png',
     keywords: ['some', 'by', 'mi', 'aha', 'bha', 'pha', 'glycolic', 'acid', 'miracle', 'toner', 'cleanser'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'etudehouse-soonjung',
@@ -256,7 +252,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-etudehouse.png',
     keywords: ['etude', 'house', 'soonjung', 'barrier', 'intensive', 'cream', 'moisturizer'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'missha-time-revolution',
@@ -286,7 +281,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-cosrx.png',
     keywords: ['missha', 'time', 'revolution', 'night', 'repair', 'ampoule', 'serum'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'laneige-lip-sleeping-mask',
@@ -315,7 +309,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-laneige.png',
     keywords: ['laneige', 'lip', 'sleeping', 'mask', 'balm'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'cosrx-low-ph-cleanser',
@@ -345,7 +338,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-cosrx.png',
     keywords: ['cosrx', 'low', 'ph', 'good', 'morning', 'gel', 'cleanser'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'innisfree-bija-trouble-oil',
@@ -374,7 +366,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-innisfree.png',
     keywords: ['innisfree', 'bija', 'trouble', 'facial', 'oil'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'sulwhasoo-concentrated-ginseng',
@@ -403,7 +394,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-sulwhasoo.png',
     keywords: ['sulwhasoo', 'concentrated', 'ginseng', 'renewing', 'cream', 'moisturizer'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'somebymi-retinol-serum',
@@ -432,7 +422,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-somebymi.png',
     keywords: ['some', 'by', 'mi', 'retinol', 'intense', 'reactivating', 'serum'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'etudehouse-soonjung-essence',
@@ -461,7 +450,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-etudehouse.png',
     keywords: ['etude', 'house', 'soonjung', 'hydro', 'barrier', 'essence'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'missha-artemisia-essence',
@@ -491,7 +479,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-cosrx.png',
     keywords: ['missha', 'time', 'revolution', 'artemisia', 'treatment', 'essence'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     /* No product in the catalogue matched the "SUNCARE" category tile before this. */
@@ -521,7 +508,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-cosrx.png',
     keywords: ['cosrx', 'aloe', 'soothing', 'sun', 'suncare', 'sunscreen', 'spf'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     /* No product in the catalogue matched the "LOTION" category tile before this. */
@@ -551,7 +537,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-laneige.png',
     keywords: ['laneige', 'water', 'bank', 'blue', 'hyaluronic', 'lotion', 'moisturizer'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     /* "EYE CREAM" previously only "matched" by accident, via the unrelated
@@ -582,7 +567,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-etudehouse.png',
     keywords: ['etude', 'house', 'soonjung', 'barrier', 'repair', 'eye', 'cream'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     /* No product in the catalogue matched the "Niacinamide" ingredient tile before this. */
@@ -612,7 +596,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-cosrx.png',
     keywords: ['cosrx', 'niacinamide', 'glow', 'targeting', 'serum', 'brightening'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     /* "Vitamin C" previously only "matched" by accident — its second search
@@ -643,7 +626,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/assets/img/featured-somebymi.png',
     keywords: ['some', 'by', 'mi', 'galactomyces', 'pure', 'vitamin', 'c', 'vitamin-c', 'glow', 'serum'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   // One product per Brands-page tile (Figma 1364:16002) so selecting any
   // brand there always lands on a non-empty listing — these brands don't
@@ -676,7 +658,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-01.png',
     keywords: ['etude', 'dear', 'darling', 'water', 'tint', 'lip'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'allies-of-skin-vitamin-c-serum',
@@ -705,7 +686,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-02.png',
     keywords: ['allies', 'of', 'skin', 'vitamin', 'c', 'brightening', 'serum'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'rae-cosmetics-setting-powder',
@@ -734,7 +714,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-03.png',
     keywords: ['rae', 'cosmetics', 'barely', 'there', 'setting', 'powder'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'porcelain-skincare-retinol-cream',
@@ -763,7 +742,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-04.png',
     keywords: ['porcelain', 'skincare', 'renewal', 'retinol', 'night', 'cream'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'klavuu-pearlsation-eye-cream',
@@ -792,7 +770,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-05.png',
     keywords: ['klavuu', 'pure', 'pearlsation', 'revitalizing', 'eye', 'cream'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'browhaus-brow-gel-duo',
@@ -821,7 +798,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-06.png',
     keywords: ['browhaus', 'brow', 'gel', 'duo'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'btf-hydra-glow-essence',
@@ -850,7 +826,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-07.png',
     keywords: ['btf', 'hydra', 'glow', 'essence'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'sigi-skin-pore-serum',
@@ -879,7 +854,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-08.png',
     keywords: ['sigi', 'skin', 'pore', 'perfecting', 'serum'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'liht-radiance-oil',
@@ -908,7 +882,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-09.png',
     keywords: ['liht', 'radiance', 'renewal', 'oil'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'mudo-labs-barrier-moisturizer',
@@ -937,7 +910,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-10.png',
     keywords: ['mudo', 'labs', 'barrier', 'repair', 'moisturizer'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
   {
     id: 'boundary-daily-sunscreen',
@@ -966,7 +938,6 @@ export const PRODUCTS: Product[] = [
     shopCardImage: '/urmei/brands/brand-11.png',
     keywords: ['boundary', 'daily', 'defense', 'sunscreen', 'spf50'],
     details: PLACEHOLDER_DETAILS,
-    performance: PLACEHOLDER_PERFORMANCE,
   },
 ]
 
@@ -998,21 +969,55 @@ export function searchProducts(query: string): Product[] {
  *  carry, like "Dr. Jart+", so this derives the real list instead). */
 export const FILTER_BRANDS = Array.from(new Set(PRODUCTS.map((product) => product.brand)))
 
-function parseCurrency(value: string): number {
+/**
+ * The Category filter's tree (Figma `1600:36953`): a department row that
+ * expands into its categories. Derived from the catalogue's own
+ * `department`/`category` pairs, so every row narrows real results — the
+ * design's third level (skin concerns: "Oil Control", "Sensitivity", …) has
+ * no counterpart in the product data and isn't built.
+ */
+export const CATEGORY_TREE = PRODUCTS.reduce<{ department: string; categories: string[] }[]>(
+  (tree, product) => {
+    const branch = tree.find((entry) => entry.department === product.department)
+    if (!branch) {
+      tree.push({ department: product.department, categories: [product.category] })
+    } else if (!branch.categories.includes(product.category)) {
+      branch.categories.push(product.category)
+      // Alphabetical, so the tree reads as a taxonomy rather than in the
+      // order products happen to sit in the catalogue.
+      branch.categories.sort()
+    }
+    return tree
+  },
+  [],
+)
+
+/** The department a category hangs off, for the design's "Skincare - Serums"
+ *  chip label. Unknown values (a category tile's own label) keep their text. */
+export function categoryChipLabel(category: string): string {
+  const branch = CATEGORY_TREE.find((entry) => entry.categories.includes(category))
+  return branch ? `${branch.department} - ${category}` : category
+}
+
+export function parseCurrency(value: string): number {
   return Number(value.replace(/[^0-9.]/g, ''))
 }
 
-function parsePercent(value: string): number {
+export function parsePercent(value: string): number {
   return Number(value.replace(/[^0-9.]/g, ''))
 }
 
 export type ProductFilters = {
   brands: string[]
-  priceBuckets: string[]
+  /** `COMMISSION_BUCKETS` ids. */
+  commissionBuckets: string[]
+  /** The slider's `[min, max]`, or `null` while it still spans
+   *  `COMMISSION_RANGE` — an untouched slider must not count as a filter. */
+  commissionRange: [number, number] | null
   ratingThresholds: number[]
-  /** `CATEGORIES`/`INGREDIENTS` labels, matched the same loose way `searchProducts`
-   *  matches a typed query — so "clicking a category" and "checking a category
-   *  filter" behave identically. */
+  /** `CATEGORY_TREE` categories, matched against `Product.category` exactly —
+   *  they come from the product data, so there's nothing to match loosely.
+   *  (The catalogue's category tiles run a search instead of setting this.) */
   categories: string[]
   ingredients: string[]
   /** `Product.regions` values. Matched exactly rather than through `haystack`,
@@ -1022,7 +1027,8 @@ export type ProductFilters = {
 
 export const EMPTY_FILTERS: ProductFilters = {
   brands: [],
-  priceBuckets: [],
+  commissionBuckets: [],
+  commissionRange: null,
   ratingThresholds: [],
   categories: [],
   ingredients: [],
@@ -1032,7 +1038,8 @@ export const EMPTY_FILTERS: ProductFilters = {
 export function hasActiveFilters(filters: ProductFilters): boolean {
   return (
     filters.brands.length > 0 ||
-    filters.priceBuckets.length > 0 ||
+    filters.commissionBuckets.length > 0 ||
+    filters.commissionRange !== null ||
     filters.ratingThresholds.length > 0 ||
     filters.categories.length > 0 ||
     filters.ingredients.length > 0 ||
@@ -1051,10 +1058,16 @@ export function applyFilters(products: Product[], filters: ProductFilters): Prod
       return false
     }
 
-    if (filters.priceBuckets.length) {
-      const price = parseCurrency(product.price)
-      const inSelectedBucket = filters.priceBuckets.some((id) =>
-        PRICE_BUCKETS.find((bucket) => bucket.id === id)?.test(price),
+    // The slider and the buckets are separate controls in the design, so they
+    // narrow independently: a product has to clear both.
+    const commission = parsePercent(product.commissionBadge)
+    if (filters.commissionRange) {
+      const [min, max] = filters.commissionRange
+      if (commission < min || commission > max) return false
+    }
+    if (filters.commissionBuckets.length) {
+      const inSelectedBucket = filters.commissionBuckets.some((id) =>
+        COMMISSION_BUCKETS.find((bucket) => bucket.id === id)?.test(commission),
       )
       if (!inSelectedBucket) return false
     }
@@ -1067,7 +1080,7 @@ export function applyFilters(products: Product[], filters: ProductFilters): Prod
     const haystack = [product.brand, product.name, ...product.keywords].join(' ').toLowerCase()
     if (
       filters.categories.length &&
-      !filters.categories.some((category) => haystack.includes(category.toLowerCase()))
+      !filters.categories.some((category) => category === product.category)
     ) {
       return false
     }

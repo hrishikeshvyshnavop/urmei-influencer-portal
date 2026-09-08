@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { logShopActivity } from './activity-log'
+import { MAX_FAVORITES, MAX_PRODUCTS } from './limits'
 import { AddToShopModal } from './components/AddToShopModal'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
 import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
-import { SHOP_URL, affiliateLinkFor, formatPublishedAt } from './data/shop'
+import { SHOP_URL, affiliateLinkFor, hasLiveLink } from './data/shop'
 import { BrandsList } from './screens/BrandsList'
 import { BrandsListSkeleton } from './components/BrandsListSkeleton'
 import { BrowseOverlay } from './screens/BrowseOverlay'
@@ -19,6 +20,7 @@ import { ProductDetailSkeleton } from './components/ProductDetailSkeleton'
 import { SearchResults } from './screens/SearchResults'
 import { SearchResultsSkeleton } from './components/SearchResultsSkeleton'
 import { StorefrontPreview } from './screens/StorefrontPreview'
+import { productStatsHash } from './data/stats'
 import {
   loadHasUnpublishedChanges,
   loadPublishBlocked,
@@ -32,10 +34,7 @@ import {
 import { setPublishBlocked as setPublishBlockedShared, setShopItemCount, setShopPublished } from './shop-status'
 import type { OverlayView, Product, ShopItem } from './types'
 
-/** Business rules confirmed for the shop flow. */
-const MAX_PRODUCTS = 16
-const MAX_FEATURED = 6
-/** Simulated backend flakiness for reordering featured items — Figma documents
+/** Simulated backend flakiness for reordering favorite items — Figma documents
  *  both a success (frame 02) and a failure (frame 04) outcome for the same
  *  action with no visible trigger difference, so this picks randomly. */
 const REORDER_FAILURE_RATE = 0.2
@@ -73,7 +72,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
 
   const [publishOpen, setPublishOpen] = useState(false)
   const [profileComplete] = useState(isProfileSetupComplete)
-  const [publishedAt, setPublishedAt] = useState<string | null>(loadPublishedAt)
+  const [publishedAt, setPublishedAt] = useState<number | null>(loadPublishedAt)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(loadHasUnpublishedChanges)
   const [publishBlocked, setPublishBlocked] = useState(loadPublishBlocked)
 
@@ -105,7 +104,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     if (publishedAt !== null) setHasUnpublishedChanges(true)
   }
 
-  const featuredCount = items.filter((item) => item.featured).length
+  const favoriteCount = items.filter((item) => item.favorite).length
   // Derived (not a snapshot) so the detail overlay stays in sync when its item
   // changes underneath it, and auto-closes if the item is removed from the shop.
   const viewingItem = items.find((item) => item.id === viewingItemId) ?? null
@@ -129,31 +128,37 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setOverlay({ kind: 'results', query: '' })
   }
 
-  /** Shown wherever a "feature this" action can't be satisfied because all
-   *  `MAX_FEATURED` slots are already taken — the Shop's "⋮" menu, the Add to
-   *  Shop modal's feature toggle, and the Product Detail page all hit this. */
-  function showFeaturedSlotsFullToast() {
+  /** Shown wherever a "favorite this" action can't be satisfied because all
+   *  `MAX_FAVORITES` slots are already taken — the Shop's "⋮" menu, the Add to
+   *  Shop modal's favorite toggle, and the Product Detail page all hit this. */
+  function showFavoriteSlotsFullToast() {
     setToast({
-      message: 'Product failed to add as featured',
+      message: 'Product failed to add as Favorite',
       variant: 'error',
-      action: { label: 'Manage Slot', onClick: () => setActiveTab('featured') },
+      action: { label: 'Manage Favorite', onClick: () => setActiveTab('favorites') },
     })
   }
 
-  function confirmAdd(featured: boolean, variant: string) {
+  function confirmAdd(favorite: boolean, variant: string) {
     if (!pendingProduct) return
     if (items.length >= MAX_PRODUCTS) {
       setPendingProduct(null)
       return
     }
-    const slotsFull = featured && featuredCount >= MAX_FEATURED
+    const slotsFull = favorite && favoriteCount >= MAX_FAVORITES
     setItems((current) => [
       ...current,
-      { id: crypto.randomUUID(), product: pendingProduct, featured: featured && !slotsFull, variant },
+      {
+        id: crypto.randomUUID(),
+        product: pendingProduct,
+        favorite: favorite && !slotsFull,
+        variant,
+        addedAt: Date.now(),
+      },
     ])
     setPendingProduct(null)
     if (slotsFull) {
-      showFeaturedSlotsFullToast()
+      showFavoriteSlotsFullToast()
     } else {
       setToast({ message: 'Product added to your shop' })
     }
@@ -177,7 +182,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       setShopPublished(false)
       return
     }
-    setPublishedAt(formatPublishedAt(new Date()))
+    setPublishedAt(Date.now())
     setHasUnpublishedChanges(false)
     setPublishBlocked(false)
     setPublishBlockedShared(false)
@@ -186,24 +191,24 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     logShopActivity('shop-published')
   }
 
-  function toggleFeatured(item: ShopItem) {
-    if (item.featured) {
+  function toggleFavorite(item: ShopItem) {
+    if (item.favorite) {
       setItems((current) =>
-        current.map((row) => (row.id === item.id ? { ...row, featured: false } : row)),
+        current.map((row) => (row.id === item.id ? { ...row, favorite: false } : row)),
       )
-      setToast({ message: 'Product Removed From Featured' })
+      setToast({ message: 'Product Removed From Favorite' })
       logShopActivity('product-unfeatured', `${item.product.brand} ${item.product.name}`)
       markChanged()
       return
     }
 
-    if (featuredCount >= MAX_FEATURED) {
-      showFeaturedSlotsFullToast()
+    if (favoriteCount >= MAX_FAVORITES) {
+      showFavoriteSlotsFullToast()
       return
     }
 
-    setItems((current) => current.map((row) => (row.id === item.id ? { ...row, featured: true } : row)))
-    setToast({ message: 'Product Added to Featured' })
+    setItems((current) => current.map((row) => (row.id === item.id ? { ...row, favorite: true } : row)))
+    setToast({ message: 'Product Added to Favorites' })
     logShopActivity('product-featured', `${item.product.brand} ${item.product.name}`)
     markChanged()
   }
@@ -218,8 +223,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     markChanged()
   }
 
-  /** Reorders within the featured subset only; every other item keeps its slot. */
-  function reorderFeatured(id: string, direction: 'up' | 'down') {
+  /** Reorders within the favorite subset only; every other item keeps its slot. */
+  function reorderFavorite(id: string, direction: 'up' | 'down') {
     if (Math.random() < REORDER_FAILURE_RATE) {
       setToast({
         message: "Couldn't save the new order, we put it back the way it was",
@@ -229,10 +234,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     }
 
     setItems((current) => {
-      const featuredIndices = current
-        .map((item, index) => (item.featured ? index : -1))
+      const favoriteIndices = current
+        .map((item, index) => (item.favorite ? index : -1))
         .filter((index) => index >= 0)
-      const order = featuredIndices.map((index) => current[index])
+      const order = favoriteIndices.map((index) => current[index])
       const position = order.findIndex((item) => item.id === id)
       const swapWith = direction === 'up' ? position - 1 : position + 1
       if (position < 0 || swapWith < 0 || swapWith >= order.length) return current
@@ -243,7 +248,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       nextOrder[swapWith] = temp
 
       const next = current.slice()
-      featuredIndices.forEach((index, k) => {
+      favoriteIndices.forEach((index, k) => {
         next[index] = nextOrder[k]
       })
       return next
@@ -266,17 +271,18 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   // including clearing the box back down to nothing.
   const results = overlay?.kind === 'results' ? searchProducts(query) : []
 
-  /** Builds the featured/remove/affiliate-link controls for the standalone
+  /** Builds the favorite/remove/affiliate-link controls for the standalone
    *  Product Detail page of an item already in the shop. */
   function shopModeFor(item: ShopItem, showPerformance: boolean) {
     return {
-      featured: item.featured,
+      favorite: item.favorite,
       variant: item.variant,
-      onToggleFeatured: () => toggleFeatured(item),
+      onToggleFavorite: () => toggleFavorite(item),
       onRemoveFromShop: () => setRemovalCandidate(item),
       affiliateLink: affiliateLinkFor(item.product),
       onCopyLink: () => copyAffiliateLink(item),
-      published: publishedAt !== null,
+      published: hasLiveLink(item, publishedAt),
+      statsHref: productStatsHash(item.id, 'shop'),
       showPerformance,
     }
   }
@@ -298,7 +304,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       ) : (
         <MyShop
           items={items}
-          featuredLimit={MAX_FEATURED}
+          favoriteLimit={MAX_FAVORITES}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onBrowse={openCatalogue}
@@ -318,9 +324,9 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onPublish={() => setPublishOpen(true)}
           onViewDetails={(item) => setViewingItemId(item.id)}
           onCopyLink={copyAffiliateLink}
-          onToggleFeatured={toggleFeatured}
+          onToggleFavorite={toggleFavorite}
           onRemoveFromShop={(item) => setRemovalCandidate(item)}
-          onReorderFeatured={reorderFeatured}
+          onReorderFavorite={reorderFavorite}
         />
       )}
 
@@ -383,14 +389,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       {pendingProduct && (
         <AddToShopModal
           product={pendingProduct}
-          featuredCount={featuredCount}
-          featuredLimit={MAX_FEATURED}
+          favoriteCount={favoriteCount}
+          favoriteLimit={MAX_FAVORITES}
           existingVariants={items
             .filter((item) => item.product.id === pendingProduct.id)
             .map((item) => item.variant)}
           onClose={() => setPendingProduct(null)}
           onConfirm={confirmAdd}
-          onFeatureBlocked={() => showFeaturedSlotsFullToast()}
+          onFavoriteBlocked={() => showFavoriteSlotsFullToast()}
         />
       )}
 

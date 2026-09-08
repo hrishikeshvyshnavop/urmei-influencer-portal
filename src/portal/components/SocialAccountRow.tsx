@@ -70,12 +70,12 @@ export default function SocialAccountRow({
   return (
     <div className="flex items-center justify-between p-4">
       <div className="flex min-w-px flex-1 items-center gap-4">
-        <div className="flex size-[48px] shrink-0 flex-col items-center justify-center overflow-clip rounded-lg border border-solid border-portal-border">
+        <div className="flex size-[48px] shrink-0 flex-col items-center justify-center overflow-clip rounded-md">
           <PlatformIcon id={platform.id} />
         </div>
         <div className="flex min-w-px flex-1 flex-col items-start gap-1 whitespace-nowrap">
           <p className="text-body-lg font-medium text-portal-text">{platform.name}</p>
-          <p className="text-body-sm text-portal-muted">
+          <p className={`text-body-sm ${connected ? "text-portal-body" : "text-portal-muted"}`}>
             {connected ? (platform.handle ?? "Connected") : "Not connected"}
           </p>
         </div>

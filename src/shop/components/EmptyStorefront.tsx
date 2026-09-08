@@ -1,4 +1,4 @@
-/** Shown instead of "Top Featured Products"/"All Picks" once every product
+/** Shown instead of "Top Favorite Products"/"All Picks" once every product
  *  has been removed from a published shop (Figma `1342:73280`). Shared by
  *  both the in-app storefront preview and the real public storefront page,
  *  since the design is identical between them. */

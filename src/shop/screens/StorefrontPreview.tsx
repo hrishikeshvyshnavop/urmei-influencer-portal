@@ -24,16 +24,20 @@ type StorefrontPreviewProps = {
 /** Also the threshold above which pagination appears at all — 8 or fewer
  *  picks all fit on one page, so the controls stay hidden. */
 const PICKS_PER_PAGE = 8
-/** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
-const FEATURED_SCROLL_STEP = 288 + 16
+/** How far one click of the favorite-strip's prev/next scrolls — one card + its gap. */
+const FAVORITES_SCROLL_STEP = 288 + 16
 
-function TopFeaturedProducts({
+function FavoritePicks({
   items,
   country,
+  /** The storefront owner's display name: the strip is titled after them
+   *  ("CHARLOTTE'S FAVORITE PICKS", Figma `1619:36970`). */
+  ownerName,
   onSelect,
 }: {
   items: ShopItem[]
   country: string
+  ownerName: string
   onSelect: (item: ShopItem) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -41,7 +45,7 @@ function TopFeaturedProducts({
 
   function scroll(direction: 'left' | 'right') {
     scrollRef.current?.scrollBy({
-      left: direction === 'left' ? -FEATURED_SCROLL_STEP : FEATURED_SCROLL_STEP,
+      left: direction === 'left' ? -FAVORITES_SCROLL_STEP : FAVORITES_SCROLL_STEP,
       behavior: 'smooth',
     })
   }
@@ -50,16 +54,16 @@ function TopFeaturedProducts({
     <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-500/0 to-surface-tertiary-500 py-3xl">
       <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
-          Top featured products
+          {ownerName}&rsquo;s favorite picks
         </p>
-        {/* Only when the strip actually overflows. With a handful of featured
+        {/* Only when the strip actually overflows. With a handful of favorite
             picks every card is already on screen, and arrows that scroll
             nothing read as broken controls. */}
         {canScroll && (
           <div className="flex items-start gap-sm">
             <button
               type="button"
-              aria-label="Scroll featured products left"
+              aria-label="Scroll favorite products left"
               onClick={() => scroll('left')}
               className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
             >
@@ -67,7 +71,7 @@ function TopFeaturedProducts({
             </button>
             <button
               type="button"
-              aria-label="Scroll featured products right"
+              aria-label="Scroll favorite products right"
               onClick={() => scroll('right')}
               className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
             >
@@ -187,14 +191,14 @@ function AllPicks({
  * A live preview of the creator's public storefront (Figma section
  * `917:53442`), reached from the "Preview Storefront" button on `StoreCard`
  * (enabled only once the shop is published). Shows the real shop contents
- * rather than the section's placeholder products — "Top Featured Products"
- * mirrors the Featured tab and is omitted entirely when nothing is featured,
+ * rather than the section's placeholder products — "Top Favorite Products"
+ * mirrors the Favorite tab and is omitted entirely when nothing is favorite,
  * since the Figma frames never show that empty case. With no products at
  * all (e.g. everything removed after publishing), swaps both product
  * sections for the dedicated empty state.
  */
 export function StorefrontPreview({ items, onClose, onCopyShopLink }: StorefrontPreviewProps) {
-  const featuredItems = items.filter((item) => item.featured)
+  const favoriteItems = items.filter((item) => item.favorite)
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
@@ -238,8 +242,13 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
                   <EmptyStorefront name={name} />
                 ) : (
                   <>
-                    {featuredItems.length > 0 && (
-                      <TopFeaturedProducts items={featuredItems} country={country} onSelect={setSelectedItem} />
+                    {favoriteItems.length > 0 && (
+                      <FavoritePicks
+                        items={favoriteItems}
+                        country={country}
+                        ownerName={name}
+                        onSelect={setSelectedItem}
+                      />
                     )}
                     <AllPicks items={items} country={country} onSelect={setSelectedItem} />
                   </>

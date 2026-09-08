@@ -2,19 +2,17 @@ import { Fragment, useEffect, useState, useSyncExternalStore } from "react";
 import ApplyCreator from "./portal/ApplyCreator";
 import ApplyLanding from "./portal/ApplyLanding";
 import ApplySuccess from "./portal/ApplySuccess";
-import CheckInbox from "./portal/CheckInbox";
-import ChooseUsername from "./portal/ChooseUsername";
-import ForgotPassword from "./portal/ForgotPassword";
+import BankDetails from "./portal/BankDetails";
+import FinishProfile from "./portal/FinishProfile";
 import Login from "./portal/Login";
 import ReviewDetails from "./portal/ReviewDetails";
 import SetProfilePhoto from "./portal/SetProfilePhoto";
+import ShippingAddress from "./portal/ShippingAddress";
 import Onboarding from "./portal/Onboarding";
-import SetPassword, { resetPasswordCopy } from "./portal/SetPassword";
 import VerificationPartner from "./portal/VerificationPartner";
 import Home from "./portal/Home";
 import ProductTour from "./portal/components/ProductTour";
 import PaymentPartner from "./portal/PaymentPartner";
-import ResetEmail from "./portal/ResetEmail";
 import ApprovalPreview from "./portal/ApprovalPreview";
 import ApprovalEmail from "./portal/ApprovalEmail";
 import { clearSetupRequired, markSetupRequired } from "./portal/setup-status";
@@ -24,6 +22,9 @@ import Brands from "./portal/Brands";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
 import ManageAccount from "./portal/ManageAccount";
 import ShopExperience from "./shop/App";
+import { ProductStats } from "./shop/screens/ProductStats";
+import { StatBreakdown } from "./shop/screens/StatBreakdown";
+import { metricFromSlug, parseStatsOrigin } from "./shop/data/stats";
 import { StandaloneStorefront } from "./shop/screens/StandaloneStorefront";
 
 // This project has no router, so the portal screens are selected by hash.
@@ -135,11 +136,30 @@ function HomeScreen({ forceTour = false }: { forceTour?: boolean }) {
   return <Home firstVisit={firstVisit} />;
 }
 
-function screenFor(
-  hash: string,
-  resetEmail: string,
-  setResetEmail: (email: string) => void,
-) {
+function screenFor(fullHash: string) {
+  // The stats pages carry their breadcrumb trail in a `?from=…&via=…` suffix
+  // (see `productStatsHash`); every other route ignores it.
+  const queryAt = fullHash.indexOf("?");
+  const hash = queryAt === -1 ? fullHash : fullHash.slice(0, queryAt);
+  const params = new URLSearchParams(queryAt === -1 ? "" : fullHash.slice(queryAt + 1));
+  const origin = parseStatsOrigin(params.get("from"));
+
+  // Longest first: `#/shop/stats/product/<id>` also matches the metric prefix.
+  if (hash.startsWith("#/shop/stats/product/")) {
+    return (
+      <ProductStats
+        itemId={decodeURIComponent(hash.slice("#/shop/stats/product/".length))}
+        origin={origin}
+        via={metricFromSlug(params.get("via") ?? "") ?? undefined}
+      />
+    );
+  }
+  if (hash.startsWith("#/shop/stats/")) {
+    const metric = metricFromSlug(hash.slice("#/shop/stats/".length));
+    // An unknown metric falls through to the shop rather than a blank page.
+    if (metric) return <StatBreakdown metric={metric} origin={origin} />;
+    return <ShopExperience />;
+  }
   if (hash.startsWith("#/shop/search/")) {
     return <ShopExperience initialSearch={decodeURIComponent(hash.slice("#/shop/search/".length))} />;
   }
@@ -184,24 +204,41 @@ function screenFor(
       return (
         <ApprovalEmail
           email="charlotte.tan@email.com"
-          onOpenPortal={() => continueInOpener("#/set-password")}
+          onOpenPortal={() => continueInOpener("#/login")}
         />
       );
 
-    // Registration
-    case "#/set-password":
-      return <SetPassword onLogIn={toLogin} />;
 
-    // Profile setup
-    case "#/profile/username":
-      return <ChooseUsername onSubmit={() => navigate("#/profile/review")} />;
+    // Profile setup — four numbered steps behind an unnumbered review of what
+    // the application captured (Figma `1583:87724`). Identity verification is
+    // no longer part of it: that happens on the apply form now.
     case "#/profile/review":
       return <ReviewDetails onContinue={() => navigate("#/profile/photo")} />;
     case "#/profile/photo":
+      return <SetProfilePhoto onContinue={() => navigate("#/profile/username")} />;
+    case "#/profile/username":
       return (
-        <SetProfilePhoto
-          onContinue={() => navigate("#/verify")}
-          onSkip={() => navigate("#/verify")}
+        <FinishProfile
+          onSubmit={() => navigate("#/profile/shipping")}
+          onBack={() => navigate("#/profile/photo")}
+        />
+      );
+    case "#/profile/shipping":
+      return (
+        <ShippingAddress
+          onAddAddress={() => navigate("#/profile/bank")}
+          onBack={() => navigate("#/profile/username")}
+          // Skip on step 3 skips the step, not the flow: bank details are
+          // what actually unblock publishing, so they still get asked.
+          onSkip={() => navigate("#/profile/bank")}
+        />
+      );
+    case "#/profile/bank":
+      return (
+        <BankDetails
+          onAddAccount={finishSetup}
+          onBack={() => navigate("#/profile/shipping")}
+          onSkip={skipSetup}
         />
       );
 
@@ -209,6 +246,9 @@ function screenFor(
     // Outcomes decided by the verification/payment partner get their own routes
     // so they are reachable without a backend; the client-side transitions
     // (start -> pending -> restart, and step 1 -> step 2) work for real.
+    // These are no longer part of first-time setup — identity is verified on
+    // the apply form and payout details are step 4 — but `ManageAccount`
+    // still sends the creator here to re-verify or reconnect.
     case "#/verify":
       return <Onboarding onFinish={finishSetup} onSkip={skipSetup} />;
     case "#/verify/partner":
@@ -286,42 +326,6 @@ function screenFor(
     case "#/shop/view":
       return <StandaloneStorefront />;
 
-    // Password reset
-    case "#/forgot-password":
-      return (
-        <ForgotPassword
-          onSendResetLink={(email) => {
-            setResetEmail(email);
-            navigate("#/check-inbox");
-          }}
-          onBackToLogIn={toLogin}
-        />
-      );
-    case "#/check-inbox":
-      return (
-        <CheckInbox
-          email={resetEmail}
-          onOpenEmail={() => {
-            try {
-              window.localStorage.setItem("urmei.reset-email", resetEmail);
-            } catch {
-              // The popup still opens with the prototype fallback address.
-            }
-            openFlowWindow("#/reset-email", "urmei-password-reset-email");
-          }}
-          onReturnToLogIn={toLogin}
-        />
-      );
-    case "#/reset-email":
-      return (
-        <ResetEmail
-          email={resetEmail}
-          onResetPassword={() => continueInOpener("#/reset-password")}
-        />
-      );
-    case "#/reset-password":
-      return <SetPassword copy={resetPasswordCopy} onLogIn={toLogin} />;
-
     case "#/login":
       return (
         <Login
@@ -331,9 +335,8 @@ function screenFor(
             } catch {
               // The login and onboarding flow still works without storage.
             }
-            navigate("#/profile/username");
+            navigate("#/profile/review");
           }}
-          onForgotPassword={() => navigate("#/forgot-password")}
           onApply={() => navigate("#/apply/form")}
         />
       );
@@ -350,13 +353,6 @@ function screenFor(
 
 export default function App() {
   const hash = useSyncExternalStore(subscribe, () => window.location.hash);
-  const [resetEmail, setResetEmail] = useState(() => {
-    try {
-      return window.localStorage.getItem("urmei.reset-email") ?? "reset@example.com";
-    } catch {
-      return "reset@example.com";
-    }
-  });
   // Owned here rather than per-screen so the tour is one overlay that can
   // open on top of whichever page requested it (see `tour-status.ts`)
   // instead of forcing a navigation to Home first.
@@ -377,10 +373,10 @@ export default function App() {
     <>
       {/* Keyed by route so each screen remounts on navigation. Without this
           React reuses the instance when two routes render the same component
-          (e.g. the verification states, or set-password vs reset-password)
-          and their initial state never re-runs. */}
+          (e.g. the shop routes, or the verification states) and their initial
+          state never re-runs. */}
       <Fragment key={hash}>
-        {screenFor(hash, resetEmail, setResetEmail)}
+        {screenFor(hash)}
       </Fragment>
       {showTour ? <ProductTour onClose={() => setShowTour(false)} onFinish={finishTour} /> : null}
     </>

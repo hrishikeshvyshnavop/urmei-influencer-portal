@@ -10,7 +10,8 @@ export type ItemMenuAction = {
 
 /**
  * The "⋮" dropdown on a shop product card — View product details, Copy
- * affiliate link, Add/Remove featured, Remove from shop.
+ * affiliate link, Add/Remove favorite, Remove from shop — the link row is
+ * absent until the product is on the live storefront.
  */
 export function ItemMenu({ actions }: { actions: ItemMenuAction[] }) {
   const [open, setOpen] = useState(false)

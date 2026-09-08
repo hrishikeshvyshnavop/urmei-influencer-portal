@@ -6,7 +6,7 @@ type ToastProps = {
   message: string
   /** check-circle (success, default) or x-circle (blocked/error). */
   variant?: 'success' | 'error'
-  /** e.g. "Manage Slot" on the featured-slots-full toast — fixes the toast at 400px wide. */
+  /** e.g. "Manage Slot" on the favorite-slots-full toast — fixes the toast at 400px wide. */
   action?: ToastAction
 }
 

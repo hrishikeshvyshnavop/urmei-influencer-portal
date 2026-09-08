@@ -18,22 +18,26 @@ import { loadShopItems } from '../shop-items-store'
 import type { ShopItem } from '../types'
 
 const PICKS_PER_PAGE = 8
-/** How far one click of the featured-strip's prev/next scrolls — one card + its gap. */
-const FEATURED_SCROLL_STEP = 288 + 16
+/** How far one click of the favorite-strip's prev/next scrolls — one card + its gap. */
+const FAVORITES_SCROLL_STEP = 288 + 16
 
 /**
- * "Top featured products" horizontal strip — its own component (rather than
+ * "Top favorite products" horizontal strip — its own component (rather than
  * reused from `StorefrontPreview`) because that screen is the in-app editor
  * preview (its own header/close chrome); this is the real public page opened
  * in a new tab by "View Shop", so it needs plain public-site chrome instead.
  */
-function TopFeaturedProducts({
+function FavoritePicks({
   items,
   country,
+  /** The storefront owner's display name: the strip is titled after them
+   *  ("CHARLOTTE'S FAVORITE PICKS", Figma `1619:36970`). */
+  ownerName,
   onSelect,
 }: {
   items: ShopItem[]
   country: string
+  ownerName: string
   onSelect: (item: ShopItem) => void
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -41,7 +45,7 @@ function TopFeaturedProducts({
 
   function scroll(direction: 'left' | 'right') {
     scrollRef.current?.scrollBy({
-      left: direction === 'left' ? -FEATURED_SCROLL_STEP : FEATURED_SCROLL_STEP,
+      left: direction === 'left' ? -FAVORITES_SCROLL_STEP : FAVORITES_SCROLL_STEP,
       behavior: 'smooth',
     })
   }
@@ -50,16 +54,16 @@ function TopFeaturedProducts({
     <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100 py-3xl">
       <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
-          Top featured products
+          {ownerName}&rsquo;s favorite picks
         </p>
-        {/* Only when the strip actually overflows. With a handful of featured
+        {/* Only when the strip actually overflows. With a handful of favorite
             picks every card is already on screen, and arrows that scroll
             nothing read as broken controls. */}
         {canScroll && (
           <div className="flex items-start gap-sm">
             <button
               type="button"
-              aria-label="Scroll featured products left"
+              aria-label="Scroll favorite products left"
               onClick={() => scroll('left')}
               className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
             >
@@ -67,7 +71,7 @@ function TopFeaturedProducts({
             </button>
             <button
               type="button"
-              aria-label="Scroll featured products right"
+              aria-label="Scroll favorite products right"
               onClick={() => scroll('right')}
               className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
             >
@@ -199,7 +203,7 @@ function AllPicks({
  */
 export function StandaloneStorefront() {
   const items = loadShopItems()
-  const featuredItems = items.filter((item) => item.featured)
+  const favoriteItems = items.filter((item) => item.favorite)
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
@@ -211,7 +215,7 @@ export function StandaloneStorefront() {
 
   const clearSelection = () => setSelectedItem(null)
 
-  const showFeatured = items.length > 0 && featuredItems.length > 0
+  const showFavorite = items.length > 0 && favoriteItems.length > 0
   const picks =
     items.length === 0 ? (
       <EmptyStorefront name={name} />
@@ -283,17 +287,18 @@ export function StandaloneStorefront() {
                   <NoAvailabilityNotice />
                 </div>
               )}
-              {showFeatured ? (
-                <TopFeaturedProducts
-                  items={featuredItems}
+              {showFavorite ? (
+                <FavoritePicks
+                  items={favoriteItems}
                   country={country}
+                  ownerName={name}
                   onSelect={setSelectedItem}
                 />
               ) : (
                 picks
               )}
             </div>
-            {showFeatured && picks}
+            {showFavorite && picks}
           </>
         )}
       </main>

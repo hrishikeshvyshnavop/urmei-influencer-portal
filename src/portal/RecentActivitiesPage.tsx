@@ -3,7 +3,8 @@ import { ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
 import { requestProductTour } from "./tour-status";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ACTIVITY_ICONS, ACTIVITY_LABELS, formatActivityTime, loadShopActivities } from "../shop/activity-log";
+import { loadShopActivities } from "../shop/activity-log";
+import ActivityRow from "./components/ActivityRow";
 import Pagination from "@/components/Pagination";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -46,23 +47,9 @@ export default function RecentActivitiesPage() {
             <p className="py-4 text-body-sm text-portal-muted">Nothing here yet — actions like adding a product or publishing your shop will show up here.</p>
           ) : (
             <div>
-              {visibleActivities.map((activity, index) => {
-                const ActivityIcon = ACTIVITY_ICONS[activity.type];
-                return (
-                <article key={activity.id} className={`flex items-start gap-2.5 py-4 ${index < visibleActivities.length - 1 ? "border-b border-portal-border" : ""}`}>
-                  <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-portal-tint">
-                      <ActivityIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-body-md font-medium">{ACTIVITY_LABELS[activity.type]}</span>
-                      {activity.detail ? <span className="block text-body-sm text-portal-muted">{activity.detail}</span> : null}
-                    </span>
-                  </div>
-                  <time className="shrink-0 text-body-xs text-portal-muted">{formatActivityTime(activity.at)}</time>
-                </article>
-                );
-              })}
+              {visibleActivities.map((activity) => (
+                <ActivityRow key={activity.id} activity={activity} />
+              ))}
               {pageCount > 1 ? <Pagination page={currentPage} pageCount={pageCount} onChange={setPage} /> : null}
             </div>
           )}

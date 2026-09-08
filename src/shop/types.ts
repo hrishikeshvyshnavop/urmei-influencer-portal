@@ -49,7 +49,6 @@ export type Product = {
   details: { productDetails: string; ingredients: string; howToUse: string; returns: string }
   /** Shown on the product-detail page once the item is in the shop. Figma only demos
    *  these numbers for one product (Water Bank); every other product inherits them. */
-  performance: { unitsSold: number; commissionEarned: string; linkClicks: string; conversionRate: string }
 }
 
 export type ShopItem = {
@@ -58,7 +57,11 @@ export type ShopItem = {
    *  `AddToShopModal`, which blocks re-adding one already in `variant`). */
   id: string
   product: Product
-  featured: boolean
+  favorite: boolean
+  /** When the product was added to the shop, for the product-stats page's
+   *  "Added to shop on 19 Sep 2025" line. Null for items persisted before
+   *  the field existed. */
+  addedAt: number | null
   variant: string
 }
 

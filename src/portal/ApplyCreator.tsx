@@ -1,47 +1,16 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import Button from "./components/Button";
 import Checkbox from "./components/Checkbox";
+import { IdentityVerificationCard } from "./components/IdentityVerificationCard";
 import PortalFormLayout from "./components/PortalFormLayout";
 import SectionTitle from "./components/SectionTitle";
 import SocialAccountRow from "./components/SocialAccountRow";
 import type { SocialPlatform } from "./components/SocialAccountRow";
-import TextField from "./components/TextField";
+import FieldGrid from "./components/FieldGrid";
 import { getSelectedCountry, subscribeToSelectedCountry } from "./country-status";
+import type { FieldSpec } from "./form-fields";
+import { useIdentityVerification } from "./identity-verification";
 import { scrollToFirstError } from "@/lib/form-validation";
-
-type FieldSpec = {
-  name: string;
-  label: string;
-  placeholder: string;
-  type?: "text" | "email" | "tel";
-  icon?: "calendar";
-  autoComplete?: string;
-  options?: string[];
-  numericOnly?: boolean;
-  maxLength?: number;
-  latestDate?: Date;
-  locked?: boolean;
-  optional?: boolean;
-};
-
-const MALAYSIA_STATES = [
-  "Johor",
-  "Kedah",
-  "Kelantan",
-  "Melaka",
-  "Negeri Sembilan",
-  "Pahang",
-  "Pulau Pinang",
-  "Perak",
-  "Perlis",
-  "Sabah",
-  "Sarawak",
-  "Selangor",
-  "Terengganu",
-  "Kuala Lumpur",
-  "Labuan",
-  "Putrajaya",
-];
 
 function getLatestEligibleBirthday() {
   const date = new Date();
@@ -59,24 +28,43 @@ function isValidAdultBirthday(value: string) {
   );
 }
 
+/** The market being applied for. Driven by the header's country switcher
+ *  rather than typed in, so it's locked here and synced from `country-status`
+ *  in the component below. Distinct from the shipping address captured later
+ *  in profile setup — this one decides which market reviews the application. */
+const APPLYING_COUNTRY_FIELD: FieldSpec = {
+  name: "country",
+  label: "Applying Country",
+  placeholder: "Select",
+  autoComplete: "country-name",
+  options: ["Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam"],
+  locked: true,
+};
+
+/**
+ * The application's fields, per Figma `1583:87432`.
+ *
+ * Deliberately shorter than it used to be. The latest design drops Display
+ * Name — profile setup chooses it (`1583:87725`) — and the entire per-country
+ * address block, which becomes its own profile-setup step ("Adding shipping
+ * address", `1583:88069`). What's left is only what's needed to verify
+ * someone and send them an invitation; the schemas for the address step are
+ * preserved in `form-fields.ts` rather than deleted.
+ */
 const personalFields: FieldSpec[] = [
   {
     name: "firstName",
-    label: "Legal First Name",
+    label: "First Name",
     placeholder: "",
     autoComplete: "given-name",
+    hint: "Based on your country's valid ID.",
   },
   {
     name: "lastName",
-    label: "Legal Last Name",
+    label: "Last Name",
     placeholder: "",
     autoComplete: "family-name",
-  },
-  {
-    name: "displayName",
-    label: "Display Name",
-    placeholder: "",
-    autoComplete: "nickname",
+    hint: "Based on your country's valid ID.",
   },
   {
     name: "email",
@@ -84,6 +72,7 @@ const personalFields: FieldSpec[] = [
     placeholder: "",
     type: "email",
     autoComplete: "email",
+    hint: "Invitation will be sent to this email.",
   },
   {
     name: "phone",
@@ -94,256 +83,15 @@ const personalFields: FieldSpec[] = [
   },
   {
     name: "birthday",
-    label: "Birthday",
+    label: "DOB",
     placeholder: "Select",
     icon: "calendar",
     autoComplete: "bday",
     latestDate: latestEligibleBirthday,
   },
+  APPLYING_COUNTRY_FIELD,
 ];
 
-/** Always the last field in every country's address section — driven by the
- *  header's country selector rather than typed in, so it's locked here and
- *  synced from `country-status` in the component below. */
-const COUNTRY_FIELD: FieldSpec = {
-  name: "country",
-  label: "Country",
-  placeholder: "Select",
-  autoComplete: "country-name",
-  options: ["Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam"],
-  locked: true,
-};
-
-/** Each country's address form asks for different administrative levels, so
- *  the field set itself — not just validation — changes with the header's
- *  selected country. Field names are unique per country (no shared "street"
- *  etc.) so a value typed for one country's field never bleeds into another
- *  country's field of a similar name after switching back and forth. */
-const ADDRESS_FIELDS_BY_COUNTRY: Record<string, FieldSpec[]> = {
-  Singapore: [
-    {
-      name: "postalCode",
-      label: "Postal Code",
-      placeholder: "",
-      autoComplete: "postal-code",
-      numericOnly: true,
-      maxLength: 6,
-    },
-    {
-      name: "blockNo",
-      label: "Blk / House No",
-      placeholder: "",
-      numericOnly: true,
-    },
-    {
-      name: "street",
-      label: "Street Name",
-      placeholder: "",
-      autoComplete: "address-line1",
-    },
-    {
-      name: "building",
-      label: "Building Name",
-      placeholder: "",
-      autoComplete: "address-line2",
-      optional: true,
-    },
-    {
-      name: "floorNo",
-      label: "Floor No.",
-      placeholder: "",
-      numericOnly: true,
-    },
-    {
-      name: "unitNumber",
-      label: "Unit Number",
-      placeholder: "",
-      numericOnly: true,
-    },
-  ],
-  Malaysia: [
-    {
-      name: "myPostcode",
-      label: "Postcode",
-      placeholder: "",
-      autoComplete: "postal-code",
-      numericOnly: true,
-      maxLength: 5,
-    },
-    {
-      name: "myBlockNo",
-      label: "Blk / House / Lot No",
-      placeholder: "",
-    },
-    {
-      name: "myStreet",
-      label: "Street Name (Jalan)",
-      placeholder: "",
-      autoComplete: "address-line1",
-    },
-    {
-      name: "myBuilding",
-      label: "Building / Taman",
-      placeholder: "",
-      autoComplete: "address-line2",
-    },
-    {
-      name: "myFloorNo",
-      label: "Floor No.",
-      placeholder: "",
-      numericOnly: true,
-      optional: true,
-    },
-    {
-      name: "myUnitNumber",
-      label: "Unit Number",
-      placeholder: "",
-      numericOnly: true,
-      optional: true,
-    },
-    {
-      name: "myCity",
-      label: "City",
-      placeholder: "",
-      autoComplete: "address-level2",
-    },
-    {
-      name: "myState",
-      label: "State",
-      placeholder: "Select",
-      options: MALAYSIA_STATES,
-      autoComplete: "address-level1",
-    },
-  ],
-  Thailand: [
-    {
-      name: "thHouseNo",
-      label: "House / Plot No",
-      placeholder: "",
-    },
-    {
-      name: "thMoo",
-      label: "Moo / Village / Building",
-      placeholder: "",
-      autoComplete: "address-line2",
-    },
-    {
-      name: "thRoad",
-      label: "Road / Alley (Thanon / Soi)",
-      placeholder: "",
-      autoComplete: "address-line1",
-    },
-    {
-      name: "thSubDistrict",
-      label: "Sub-district (Tambon / Khwaeng)",
-      placeholder: "",
-    },
-    {
-      name: "thDistrict",
-      label: "District (Amphoe / Khet)",
-      placeholder: "",
-    },
-    {
-      name: "thProvince",
-      label: "Province (Changwat)",
-      placeholder: "",
-      autoComplete: "address-level1",
-    },
-    {
-      name: "thPostalCode",
-      label: "Postal Code",
-      placeholder: "",
-      autoComplete: "postal-code",
-      numericOnly: true,
-      maxLength: 5,
-    },
-  ],
-  Vietnam: [
-    {
-      name: "vnHouseNo",
-      label: "House / Alley / Building No",
-      placeholder: "",
-    },
-    {
-      name: "vnStreet",
-      label: "Street Name",
-      placeholder: "",
-      autoComplete: "address-line1",
-    },
-    {
-      name: "vnWard",
-      label: "Ward / Commune (Phường / Xã)",
-      placeholder: "",
-    },
-    {
-      name: "vnDistrict",
-      label: "District (Quận / Huyện)",
-      placeholder: "",
-    },
-    {
-      name: "vnProvince",
-      label: "Province / City (Tỉnh / Thành phố)",
-      placeholder: "",
-      autoComplete: "address-level1",
-    },
-    {
-      name: "vnPostalCode",
-      label: "Postal Code",
-      placeholder: "",
-      autoComplete: "postal-code",
-      numericOnly: true,
-      maxLength: 5,
-    },
-  ],
-  Indonesia: [
-    {
-      name: "idHouseNo",
-      label: "House / Blk No",
-      placeholder: "",
-    },
-    {
-      name: "idStreet",
-      label: "Street Name",
-      placeholder: "",
-      autoComplete: "address-line1",
-    },
-    {
-      name: "idRtRw",
-      label: "RT / RW",
-      placeholder: "",
-    },
-    {
-      name: "idVillage",
-      label: "Village / Sub-district (Kelurahan / Desa)",
-      placeholder: "",
-    },
-    {
-      name: "idDistrict",
-      label: "District (Kecamatan)",
-      placeholder: "",
-    },
-    {
-      name: "idCity",
-      label: "City / Regency (Kota / Kabupaten)",
-      placeholder: "",
-      autoComplete: "address-level2",
-    },
-    {
-      name: "idProvince",
-      label: "Province",
-      placeholder: "",
-      autoComplete: "address-level1",
-    },
-    {
-      name: "idPostalCode",
-      label: "Postal Code",
-      placeholder: "",
-      autoComplete: "postal-code",
-      numericOnly: true,
-      maxLength: 5,
-    },
-  ],
-};
 
 const platforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
@@ -352,50 +100,20 @@ const platforms: SocialPlatform[] = [
   { id: "tiktok", name: "TikTok", handle: "@charlotte.tan" },
 ];
 
-function FieldGrid({
-  fields,
-  values,
-  showErrors,
-  onChange,
-}: {
-  fields: FieldSpec[];
-  values: Record<string, string>;
-  showErrors: boolean;
-  onChange: (name: string, value: string) => void;
-}) {
-  return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-      {fields.map((field) => (
-        <TextField
-          key={field.name}
-          label={field.label}
-          placeholder={field.placeholder}
-          type={field.type}
-          icon={field.icon}
-          autoComplete={field.autoComplete}
-          options={field.options}
-          numericOnly={field.numericOnly}
-          maxLength={field.maxLength}
-          latestDate={field.latestDate}
-          locked={field.locked}
-          value={values[field.name] ?? ""}
-          error={
-            showErrors && !field.optional && !(values[field.name] ?? "").trim()
-              ? `${field.label} is required.`
-              : showErrors &&
-                  field.name === "birthday" &&
-                  !isValidAdultBirthday(values[field.name] ?? "")
-                ? "You must be at least 18 years old to apply."
-              : showErrors && field.type === "email" &&
-                  !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values[field.name] ?? "")
-                ? "Enter a valid email address."
-                : undefined
-          }
-          onChange={(value) => onChange(field.name, value)}
-        />
-      ))}
-    </div>
-  );
+/** The apply form's rules beyond "required and empty": a birthday has to be
+ *  an adult one, and an email has to look like an email. */
+function applyFieldError(field: FieldSpec, value: string) {
+  if (field.name === "birthday" && value.trim() && !isValidAdultBirthday(value)) {
+    return "You must be at least 18 years old to apply.";
+  }
+  if (
+    field.type === "email" &&
+    value.trim() &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)
+  ) {
+    return "Enter a valid email address.";
+  }
+  return undefined;
 }
 
 type ApplyCreatorProps = {
@@ -408,11 +126,8 @@ export default function ApplyCreator({
   onSubmit,
 }: ApplyCreatorProps) {
   const selectedCountry = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry);
-  const addressFields = [
-    ...(ADDRESS_FIELDS_BY_COUNTRY[selectedCountry] ?? ADDRESS_FIELDS_BY_COUNTRY.Singapore),
-    COUNTRY_FIELD,
-  ];
   const [values, setValues] = useState<Record<string, string>>({ country: selectedCountry });
+  const identity = useIdentityVerification();
   const [connected, setConnected] = useState<string[]>([]);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [consentedToData, setConsentedToData] = useState(false);
@@ -432,7 +147,7 @@ export default function ApplyCreator({
         : [...current, id],
     );
 
-  const allFieldsComplete = [...personalFields, ...addressFields]
+  const allFieldsComplete = personalFields
     .filter((field) => !field.optional)
     .every((field) => (values[field.name] ?? "").trim().length > 0);
   const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email ?? "");
@@ -441,6 +156,7 @@ export default function ApplyCreator({
     allFieldsComplete &&
     emailIsValid &&
     isAdult &&
+    identity.status === "complete" &&
     connected.length > 0 &&
     agreedToTerms &&
     consentedToData;
@@ -465,11 +181,11 @@ export default function ApplyCreator({
       >
         <div className="flex w-full max-w-[740px] flex-col items-start gap-[6px]">
           <h1 className="w-full text-body-xxl text-portal-text">
-            Apply as a creator
+            Apply as Creator
           </h1>
           <p className="w-full text-body-md text-portal-muted">
-            Complete your details so brands can find you and you can start
-            earning on URMEI
+            Complete your details so we can verify you to provide access to
+            URMEI Creator Portal
           </p>
         </div>
 
@@ -481,29 +197,34 @@ export default function ApplyCreator({
               values={values}
               showErrors={showErrors}
               onChange={setField}
+              // Gated so a half-typed email doesn't accuse the user mid-word;
+              // the standing required check is already gated by `showErrors`.
+              errorFor={showErrors ? applyFieldError : undefined}
             />
           </section>
 
-          <section className="flex w-full flex-col items-start gap-6">
-            <SectionTitle>Address</SectionTitle>
-            <FieldGrid
-              fields={addressFields}
-              values={values}
-              showErrors={showErrors}
-              onChange={setField}
+          {/* Identity verification sits inside the application now, ahead of
+              approval, rather than waiting for post-approval onboarding. */}
+          <section className="flex w-full flex-col items-start gap-5">
+            <SectionTitle>Identity Verification</SectionTitle>
+            <IdentityVerificationCard
+              status={identity.status}
+              onStart={identity.startVerification}
+              onRestart={identity.restartVerification}
             />
+            {showErrors && identity.status !== "complete" ? (
+              <p className="text-body-xs text-portal-alert" role="alert" aria-invalid="true">
+                Verify your identity to continue.
+              </p>
+            ) : null}
           </section>
 
           <section className="flex w-full flex-col items-start gap-5">
             <div className="flex w-full flex-col items-start gap-2">
-              <SectionTitle>Connect Your Socials</SectionTitle>
+              <SectionTitle>Social accounts</SectionTitle>
               <p className="w-full text-body-sm text-portal-muted">
-                Connecting your social accounts helps brands discover you and
-                verify your reach. Your follower count and engagement metrics
-                will be visible on your profile.
-              </p>
-              <p className="w-full text-body-sm text-portal-notice">
-                At least one social account is required to continue.
+                Connect at least one social account to help verify your reach
+                as a creator.
               </p>
             </div>
 
@@ -523,26 +244,11 @@ export default function ApplyCreator({
               </p>
             ) : null}
 
-            <div className="flex w-full items-start gap-[2px]">
-              <div className="flex size-[24px] shrink-0 flex-col items-center justify-center rounded-[10px] bg-white">
-                <span className="relative size-[16px] shrink-0 overflow-clip">
-                  <span className="absolute inset-[8.33%_16.67%]">
-                    <span className="absolute inset-[-4.99%_-6.23%]">
-                      <img
-                        src="/urmei/icon-shield.svg"
-                        alt=""
-                        className="block size-full max-w-none"
-                      />
-                    </span>
-                  </span>
-                </span>
-              </div>
-              <p className="min-w-px flex-1 text-body-sm text-portal-muted">
-                We keep your accounts safe and secure. We&#39;ll never post
-                anything on your behalf or look at your private messages. You
-                can disconnect anytime from Settings.
-              </p>
-            </div>
+            <p className="w-full text-body-xxs text-portal-muted opacity-80">
+              We keep your accounts safe and secure. We&#39;ll never post
+              anything on your behalf or look at your private messages. You can
+              disconnect anytime from Settings.
+            </p>
           </section>
         </div>
 

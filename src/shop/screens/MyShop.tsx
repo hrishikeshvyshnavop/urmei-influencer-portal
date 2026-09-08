@@ -3,39 +3,41 @@ import SetupBanner from '../../portal/components/SetupBanner'
 import { requestProductTour } from '../../portal/tour-status'
 import { AddProductTile } from '../components/AddProductTile'
 import { Button } from '../components/Button'
-import { EmptyFeatured } from '../components/EmptyFeatured'
+import { EmptyFavorites } from '../components/EmptyFavorites'
 import { EmptyShop } from '../components/EmptyShop'
 import { Icon } from '../components/Icon'
 import { ShopProductCard } from '../components/ShopProductCard'
 import { StatsRow } from '../components/StatsRow'
+import { hasLiveLink } from '../data/shop'
+import { statsRowEntries } from '../data/stats'
 import { StoreCard } from '../components/StoreCard'
 import { Tabs } from '../components/Tabs'
 import type { ShopItem } from '../types'
 
 type MyShopProps = {
   items: ShopItem[]
-  featuredLimit: number
+  favoriteLimit: number
   activeTab: string
   onTabChange: (id: string) => void
   onBrowse: () => void
   onPreview: () => void
   onViewShop: () => void
   published: boolean
-  publishedAt: string | null
+  publishedAt: number | null
   hasUnpublishedChanges: boolean
   /** Set after publishing was attempted with zero products — see `StoreCard`. */
   publishBlocked: boolean
   onPublish: () => void
   onViewDetails: (item: ShopItem) => void
   onCopyLink: (item: ShopItem) => void
-  onToggleFeatured: (item: ShopItem) => void
+  onToggleFavorite: (item: ShopItem) => void
   onRemoveFromShop: (item: ShopItem) => void
-  onReorderFeatured: (id: string, direction: 'up' | 'down') => void
+  onReorderFavorite: (id: string, direction: 'up' | 'down') => void
 }
 
 export function MyShop({
   items,
-  featuredLimit,
+  favoriteLimit,
   activeTab,
   onTabChange,
   onBrowse,
@@ -48,33 +50,36 @@ export function MyShop({
   onPublish,
   onViewDetails,
   onCopyLink,
-  onToggleFeatured,
+  onToggleFavorite,
   onRemoveFromShop,
-  onReorderFeatured,
+  onReorderFavorite,
 }: MyShopProps) {
-  const featuredItems = items.filter((item) => item.featured)
+  const favoriteItems = items.filter((item) => item.favorite)
   const isEmpty = items.length === 0
   // Adding a product resolves a blocked publish attempt immediately, even
   // before the user publishes again.
   const blocked = publishBlocked && isEmpty
-  const isFeaturedTab = activeTab === 'featured'
+  const isFavoriteTab = activeTab === 'favorites'
 
   const tabs = isEmpty
     ? [
         { id: 'all', label: 'All Picks ' },
-        { id: 'featured', label: 'Featured' },
+        { id: 'favorites', label: 'Favorites' },
       ]
     : [
         { id: 'all', label: `All Picks (${items.length})` },
-        { id: 'featured', label: `Featured (${featuredItems.length})` },
+        {
+          id: 'favorites',
+          label: favoriteItems.length > 0 ? `Favorites (${favoriteItems.length})` : 'Favorites',
+        },
       ]
 
-  const heading = isFeaturedTab ? `Featured products (${featuredItems.length}/${featuredLimit})` : 'Your Picks '
-  const subtitle = isFeaturedTab
-    ? 'Products here appears first in your storefront'
+  const heading = isFavoriteTab ? `Favorite products (${favoriteItems.length}/${favoriteLimit})` : 'Your Picks '
+  const subtitle = isFavoriteTab
+    ? 'Products here appear first in your storefront'
     : 'Everything you add appears here'
 
-  const visibleItems = isFeaturedTab ? featuredItems : items
+  const visibleItems = isFavoriteTab ? favoriteItems : items
 
   return (
     <AppShell
@@ -103,15 +108,7 @@ export function MyShop({
               onViewShop={onViewShop}
             />
             {(published || blocked) && (
-              <StatsRow
-                stats={[
-                  { label: 'TOTAL PRODUCTS', value: String(items.length) },
-                  { label: 'CLICKS', value: '0%' },
-                  { label: 'SALES', value: '0' },
-                  { label: 'COMMISSION OWNED', value: 'S$0' },
-                  { label: 'COMMISSION SETTLED', value: 'S$0' },
-                ]}
-              />
+              <StatsRow stats={statsRowEntries(items)} />
             )}
           </div>
         </section>
@@ -125,7 +122,7 @@ export function MyShop({
                 <p className="text-body-xxl text-text-primary-1000">{heading}</p>
                 <p className="text-body-md text-text-secondary-700">{subtitle}</p>
               </div>
-              {!isFeaturedTab && (
+              {!isFavoriteTab && (
                 <Button variant="outline" onClick={onBrowse} leftIcon={<Icon name="plus" />}>
                   Add product
                 </Button>
@@ -133,11 +130,11 @@ export function MyShop({
             </div>
 
             <div className="flex w-full flex-col items-start bg-surface-secondary-100">
-              {/* Checked before `isEmpty` so the Featured tab always shows its
+              {/* Checked before `isEmpty` so the Favorite tab always shows its
                   own empty state — including when the shop has no products
                   at all — rather than falling back to `EmptyShop`. */}
-              {isFeaturedTab && featuredItems.length === 0 ? (
-                <EmptyFeatured onGoToAllPicks={() => onTabChange('all')} />
+              {isFavoriteTab && favoriteItems.length === 0 ? (
+                <EmptyFavorites limit={favoriteLimit} onGoToAllPicks={() => onTabChange('all')} />
               ) : isEmpty ? (
                 <EmptyShop onBrowse={onBrowse} />
               ) : (
@@ -147,28 +144,33 @@ export function MyShop({
                       key={item.id}
                       item={item}
                       onViewDetails={() => onViewDetails(item)}
-                      onCopyLink={() => onCopyLink(item)}
-                      onToggleFeatured={() => onToggleFeatured(item)}
+                      // Left off entirely until the product is on the live
+                      // storefront: there is no link to copy before that, and
+                      // the frame's menu simply has one fewer row.
+                      onCopyLink={
+                        hasLiveLink(item, publishedAt) ? () => onCopyLink(item) : undefined
+                      }
+                      onToggleFavorite={() => onToggleFavorite(item)}
                       onRemoveFromShop={() => onRemoveFromShop(item)}
-                      featuredRank={
-                        isFeaturedTab
+                      favoriteRank={
+                        isFavoriteTab
                           ? {
-                              rank: featuredItems.findIndex((f) => f.id === item.id) + 1,
-                              canMoveUp: featuredItems.findIndex((f) => f.id === item.id) > 0,
+                              rank: favoriteItems.findIndex((f) => f.id === item.id) + 1,
+                              canMoveUp: favoriteItems.findIndex((f) => f.id === item.id) > 0,
                               canMoveDown:
-                                featuredItems.findIndex((f) => f.id === item.id) <
-                                featuredItems.length - 1,
+                                favoriteItems.findIndex((f) => f.id === item.id) <
+                                favoriteItems.length - 1,
                             }
                           : undefined
                       }
                       onReorder={
-                        isFeaturedTab ? (direction) => onReorderFeatured(item.id, direction) : undefined
+                        isFavoriteTab ? (direction) => onReorderFavorite(item.id, direction) : undefined
                       }
                     />
                   ))}
-                  {/* Only All Picks gets a trailing "add" tile — the Featured
+                  {/* Only All Picks gets a trailing "add" tile — the Favorite
                       tab manages its slots via each card's own menu instead. */}
-                  {!isFeaturedTab && <AddProductTile onClick={onBrowse} />}
+                  {!isFavoriteTab && <AddProductTile onClick={onBrowse} />}
                 </div>
               )}
             </div>

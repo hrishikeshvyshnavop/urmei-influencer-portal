@@ -1,6 +1,7 @@
 import ProfilePhoto from '../../portal/components/ProfilePhoto'
 import ShopUrl from '../../portal/components/ShopUrl'
 import { getSavedDisplayName } from '../../portal/profile-status'
+import { formatPublishedAt } from '../data/shop'
 import { Button } from './Button'
 import { Icon } from './Icon'
 
@@ -8,8 +9,9 @@ type StoreCardProps = {
   /** Rounds only the top when the KPI strip sits directly underneath. */
   attachedBelow?: boolean
   published?: boolean
-  /** Formatted timestamp shown under the actions once published. */
-  publishedAt?: string | null
+  /** When the shop was last published, epoch ms — formatted for the
+   *  "Last Published on …" line here rather than by the caller. */
+  publishedAt?: number | null
   /** True once something (reordering, adding, removing, featuring) has changed
    *  since the last publish — swaps "View Shop" for "Publish changes". */
   hasUnpublishedChanges?: boolean
@@ -109,7 +111,7 @@ export function StoreCard({
 
           {published && publishedAt && (
             <p className="text-body-sm font-medium text-text-secondary-700">
-              Last Published on {publishedAt}
+              Last Published on {formatPublishedAt(new Date(publishedAt))}
             </p>
           )}
         </div>

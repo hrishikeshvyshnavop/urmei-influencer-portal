@@ -1,11 +1,13 @@
 import type { ReactNode } from 'react'
 import { COUNTRIES } from '../../portal/country-status'
 import {
-  CATEGORIES,
+  CATEGORY_TREE,
+  COMMISSION_BUCKETS,
+  COMMISSION_RANGE,
   FILTER_BRANDS,
   INGREDIENTS,
-  PRICE_BUCKETS,
   RATING_THRESHOLDS,
+  categoryChipLabel,
   type ProductFilters,
 } from '../data/catalogue'
 import { Checkbox } from './Checkbox'
@@ -25,6 +27,11 @@ type FiltersSidebarProps = {
    *  survives it. */
   openGroups: Set<string>
   onToggleGroup: (label: string) => void
+  /** Which Category departments are expanded. Several can be open at once —
+   *  unlike the groups themselves — and it lives in the caller for the same
+   *  reason as `openGroups`. */
+  openDepartments: Set<string>
+  onToggleDepartment: (department: string) => void
   brandSearch: string
   onBrandSearchChange: (value: string) => void
 }
@@ -62,12 +69,26 @@ function Tag({ label, onRemove }: { label: string; onRemove: () => void }) {
   )
 }
 
+/** One row of a filter's list: 40px tall with its own padding and no gap to
+ *  its neighbours, the way the design stacks them (Figma `1594:34897`). */
+function FilterRow({ children, indent = false }: { children: ReactNode; indent?: boolean }) {
+  return (
+    <div
+      className={[
+        'flex h-[40px] w-full items-center overflow-clip rounded-xs',
+        indent ? 'pl-sm' : '',
+      ].join(' ')}
+    >
+      {children}
+    </div>
+  )
+}
+
 function FilterGroup({
   label,
   open,
   onToggle,
   children,
-  last = false,
   selected = [],
   onRemoveSelected,
 }: {
@@ -75,11 +96,9 @@ function FilterGroup({
   open: boolean
   onToggle: () => void
   children: ReactNode
-  /** The design omits the bottom border on the last (Ingredients) group. */
-  last?: boolean
   /** Currently-applied values for this group, shown as removable chips
-   *  whenever the group is collapsed — so a filter stays visible and
-   *  editable without needing to reopen the checkbox list. */
+   *  whenever the group is collapsed (Figma `1594:35010`) — so a filter stays
+   *  visible and editable without needing to reopen the list. */
   selected?: SelectedTag[]
   onRemoveSelected?: (value: string) => void
 }) {
@@ -88,15 +107,15 @@ function FilterGroup({
   return (
     <div
       className={[
-        'flex w-full flex-col items-start',
-        last ? '' : 'border-b border-border-default',
+        'flex w-full flex-col items-start border-b border-r border-border-default px-md py-lg',
+        showSelected ? 'gap-md-sm' : 'gap-md',
       ].join(' ')}
     >
       <button
         type="button"
         aria-expanded={open}
         onClick={onToggle}
-        className="flex w-full items-center justify-between px-md py-lg"
+        className="flex w-full items-center justify-between"
       >
         <span className="text-body-lg text-text-secondary-1000">{label}</span>
         <Icon
@@ -106,42 +125,119 @@ function FilterGroup({
         />
       </button>
       {showSelected && (
-        <div className="flex w-full flex-wrap items-start gap-sm px-md pb-lg">
+        <div className="flex w-full flex-wrap items-start gap-sm">
           {selected.map((tag) => (
             <Tag key={tag.value} label={tag.label} onRemove={() => onRemoveSelected?.(tag.value)} />
           ))}
         </div>
       )}
-      {open && <div className="flex w-full flex-col items-start gap-md-sm px-md pb-lg">{children}</div>}
+      {open && <div className="flex w-full flex-col items-start">{children}</div>}
     </div>
   )
 }
 
 /**
- * Search Results' left filter rail (Figma `1184:70079`). Only one group is
- * open at a time — opening one closes the previous. That's a deliberate
- * departure from the Figma frames, which show every group open at once in one
- * and all collapsed in another; it was asked for directly, and it keeps the
- * rail close to one screen tall instead of several. Brand/Price/Category/
- * Ingredients content in the design references brands and shipping options we
- * don't carry — the filter TYPES and interaction (checkbox lists, a "Search
- * brands" box) are Figma's; the values are this catalogue's real brands,
- * categories and ingredients so every filter actually narrows real results.
+ * The Commission filter's two-handle range (Figma `1594:34898`): a tinted
+ * panel with the current span above the track. Built from two native range
+ * inputs sharing one track — the thumbs are the only part that takes pointer
+ * events (`.range-thumb` in `global.css`), so a drag always grabs the handle
+ * that was clicked rather than whichever input happens to sit on top.
+ */
+function CommissionSlider({
+  range,
+  onChange,
+}: {
+  range: [number, number] | null
+  onChange: (next: [number, number] | null) => void
+}) {
+  const [min, max] = range ?? [COMMISSION_RANGE.min, COMMISSION_RANGE.max]
+  const span = COMMISSION_RANGE.max - COMMISSION_RANGE.min
+  const percent = (value: number) => ((value - COMMISSION_RANGE.min) / span) * 100
+
+  const commit = (next: [number, number]) => {
+    const isFullRange = next[0] === COMMISSION_RANGE.min && next[1] === COMMISSION_RANGE.max
+    onChange(isFullRange ? null : next)
+  }
+
+  return (
+    <div className="w-full py-sm">
+      <div className="flex w-full flex-col justify-center gap-[2px] rounded-sm bg-surface-secondary-300 px-md py-md-sm">
+        <div className="flex items-start gap-sm text-body-xs font-bold whitespace-nowrap text-text-secondary-1000">
+          <span>{min}</span>
+          <span>-</span>
+          <span>{max}%</span>
+        </div>
+        <div className="relative h-[38px] w-full">
+          <div className="absolute top-1/2 right-0 left-0 h-[4px] -translate-y-1/2 rounded-xs bg-surface-secondary-400" />
+          <div
+            className="absolute top-1/2 h-[4px] -translate-y-1/2 rounded-xs bg-surface-primary-500"
+            style={{ left: `${percent(min)}%`, right: `${100 - percent(max)}%` }}
+          />
+          <input
+            type="range"
+            aria-label="Minimum commission"
+            min={COMMISSION_RANGE.min}
+            max={COMMISSION_RANGE.max}
+            value={min}
+            onChange={(event) => commit([Math.min(Number(event.target.value), max), max])}
+            className="range-thumb absolute inset-x-0 top-1/2 h-[16px] w-full -translate-y-1/2"
+          />
+          <input
+            type="range"
+            aria-label="Maximum commission"
+            min={COMMISSION_RANGE.min}
+            max={COMMISSION_RANGE.max}
+            value={max}
+            onChange={(event) => commit([min, Math.max(Number(event.target.value), min)])}
+            className="range-thumb absolute inset-x-0 top-1/2 h-[16px] w-full -translate-y-1/2"
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Search Results' left filter rail (Figma `1594:34810` expanded /
+ * `1594:34922` applied). Only one group is open at a time — opening one
+ * closes the previous. That's a deliberate departure from the Figma frames,
+ * which show every group open at once in one and all collapsed in another; it
+ * was asked for directly, and it keeps the rail close to one screen tall
+ * instead of several.
  *
- * Country isn't in the Figma frame; it's appended last so the five designed
- * groups keep their specified order.
+ * The filter TYPES, order and interactions are Figma's; the values are this
+ * catalogue's real brands, departments, categories, ingredients and markets,
+ * so every row actually narrows real results (the design's own lists name
+ * brands and skin concerns we don't carry).
  */
 export function FiltersSidebar({
   filters,
   onChange,
   openGroups,
   onToggleGroup,
+  openDepartments,
+  onToggleDepartment,
   brandSearch,
   onBrandSearchChange,
 }: FiltersSidebarProps) {
   const visibleBrands = FILTER_BRANDS.filter((brand) =>
     brand.toLowerCase().includes(brandSearch.toLowerCase()),
   )
+
+  const commissionTags: SelectedTag[] = [
+    ...(filters.commissionRange
+      ? [
+          {
+            value: 'range',
+            label: `${filters.commissionRange[0]}% - ${filters.commissionRange[1]}%`,
+          },
+        ]
+      : []),
+    ...filters.commissionBuckets.map((id) => ({
+      value: id,
+      label: COMMISSION_BUCKETS.find((bucket) => bucket.id === id)?.label ?? id,
+    })),
+  ]
 
   // `w-full` rather than a fixed 285px: the scrolling wrapper in
   // `SearchResults` owns the rail's width, so this shrinks into the
@@ -166,36 +262,47 @@ export function FiltersSidebar({
           />
         </div>
         {visibleBrands.map((brand) => (
-          <Checkbox
-            key={brand}
-            label={toTitleCase(brand)}
-            checked={filters.brands.includes(brand)}
-            onChange={() => onChange({ ...filters, brands: toggleInList(filters.brands, brand) })}
-          />
+          <FilterRow key={brand}>
+            <Checkbox
+              label={toTitleCase(brand)}
+              checked={filters.brands.includes(brand)}
+              onChange={() => onChange({ ...filters, brands: toggleInList(filters.brands, brand) })}
+            />
+          </FilterRow>
         ))}
       </FilterGroup>
 
       <FilterGroup
-        label="Price"
-        open={openGroups.has('Price')}
-        onToggle={() => onToggleGroup('Price')}
-        selected={filters.priceBuckets.map((id) => ({
-          value: id,
-          label: PRICE_BUCKETS.find((bucket) => bucket.id === id)?.label ?? id,
-        }))}
-        onRemoveSelected={(id) =>
-          onChange({ ...filters, priceBuckets: toggleInList(filters.priceBuckets, id) })
+        label="Commission"
+        open={openGroups.has('Commission')}
+        onToggle={() => onToggleGroup('Commission')}
+        selected={commissionTags}
+        onRemoveSelected={(value) =>
+          value === 'range'
+            ? onChange({ ...filters, commissionRange: null })
+            : onChange({
+                ...filters,
+                commissionBuckets: toggleInList(filters.commissionBuckets, value),
+              })
         }
       >
-        {PRICE_BUCKETS.map((bucket) => (
-          <Checkbox
-            key={bucket.id}
-            label={bucket.label}
-            checked={filters.priceBuckets.includes(bucket.id)}
-            onChange={() =>
-              onChange({ ...filters, priceBuckets: toggleInList(filters.priceBuckets, bucket.id) })
-            }
-          />
+        <CommissionSlider
+          range={filters.commissionRange}
+          onChange={(commissionRange) => onChange({ ...filters, commissionRange })}
+        />
+        {COMMISSION_BUCKETS.map((bucket) => (
+          <FilterRow key={bucket.id}>
+            <Checkbox
+              label={bucket.label}
+              checked={filters.commissionBuckets.includes(bucket.id)}
+              onChange={() =>
+                onChange({
+                  ...filters,
+                  commissionBuckets: toggleInList(filters.commissionBuckets, bucket.id),
+                })
+              }
+            />
+          </FilterRow>
         ))}
       </FilterGroup>
 
@@ -205,7 +312,7 @@ export function FiltersSidebar({
         onToggle={() => onToggleGroup('Rating')}
         selected={filters.ratingThresholds.map((min) => ({
           value: String(min),
-          label: RATING_THRESHOLDS.find((threshold) => threshold.min === min)?.label ?? `${min}★ & up`,
+          label: RATING_THRESHOLDS.find((threshold) => threshold.min === min)?.label ?? `${min} ★ & above`,
         }))}
         onRemoveSelected={(value) => {
           const min = Number(value)
@@ -216,20 +323,23 @@ export function FiltersSidebar({
         }}
       >
         {RATING_THRESHOLDS.map((threshold) => (
-          <Checkbox
-            key={threshold.min}
-            label={threshold.label}
-            checked={filters.ratingThresholds.includes(threshold.min)}
-            onChange={() =>
-              onChange({
-                ...filters,
-                ratingThresholds:
-                  filters.ratingThresholds.includes(threshold.min)
-                    ? filters.ratingThresholds.filter((value) => value !== threshold.min)
-                    : [...filters.ratingThresholds, threshold.min],
-              })
-            }
-          />
+          <FilterRow key={threshold.min}>
+            <Checkbox
+              // The design writes the rating with the star as a glyph rather
+              // than the word — "4 ★ & above" (Figma `1594:34899`).
+              label={`${threshold.min} ★ & above`}
+              checked={filters.ratingThresholds.includes(threshold.min)}
+              onChange={() =>
+                onChange({
+                  ...filters,
+                  ratingThresholds:
+                    filters.ratingThresholds.includes(threshold.min)
+                      ? filters.ratingThresholds.filter((value) => value !== threshold.min)
+                      : [...filters.ratingThresholds, threshold.min],
+                })
+              }
+            />
+          </FilterRow>
         ))}
       </FilterGroup>
 
@@ -237,21 +347,62 @@ export function FiltersSidebar({
         label="Category"
         open={openGroups.has('Category')}
         onToggle={() => onToggleGroup('Category')}
-        selected={filters.categories.map((category) => ({ value: category, label: category }))}
+        selected={filters.categories.map((category) => ({
+          value: category,
+          label: categoryChipLabel(category),
+        }))}
         onRemoveSelected={(category) =>
           onChange({ ...filters, categories: toggleInList(filters.categories, category) })
         }
       >
-        {CATEGORIES.map((category) => (
-          <Checkbox
-            key={category.label}
-            label={category.label}
-            checked={filters.categories.includes(category.label)}
-            onChange={() =>
-              onChange({ ...filters, categories: toggleInList(filters.categories, category.label) })
-            }
-          />
-        ))}
+        {CATEGORY_TREE.map(({ department, categories }) => {
+          const expanded = openDepartments.has(department)
+          return (
+            <div key={department} className="flex w-full flex-col items-start">
+              <FilterRow>
+                <button
+                  type="button"
+                  aria-expanded={expanded}
+                  onClick={() => onToggleDepartment(department)}
+                  className="flex w-full items-center gap-md-sm"
+                >
+                  <span className="min-w-px flex-1 text-left text-body-sm text-text-secondary-1000">
+                    {department}
+                  </span>
+                  <Icon
+                    name="chevron-down"
+                    srcSize={24}
+                    className={expanded ? 'rotate-180 transition-transform' : 'transition-transform'}
+                  />
+                </button>
+              </FilterRow>
+              {expanded &&
+                categories.map((category) => {
+                  const selected = filters.categories.includes(category)
+                  return (
+                    <FilterRow key={category} indent>
+                      <button
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() =>
+                          onChange({
+                            ...filters,
+                            categories: toggleInList(filters.categories, category),
+                          })
+                        }
+                        className={[
+                          'w-full text-left text-body-sm font-medium',
+                          selected ? 'text-text-secondary-1000' : 'text-text-secondary-700',
+                        ].join(' ')}
+                      >
+                        {category}
+                      </button>
+                    </FilterRow>
+                  )
+                })}
+            </div>
+          )
+        })}
       </FilterGroup>
 
       <FilterGroup
@@ -264,14 +415,15 @@ export function FiltersSidebar({
         }
       >
         {INGREDIENTS.map((ingredient) => (
-          <Checkbox
-            key={ingredient.label}
-            label={ingredient.label}
-            checked={filters.ingredients.includes(ingredient.label)}
-            onChange={() =>
-              onChange({ ...filters, ingredients: toggleInList(filters.ingredients, ingredient.label) })
-            }
-          />
+          <FilterRow key={ingredient.label}>
+            <Checkbox
+              label={ingredient.label}
+              checked={filters.ingredients.includes(ingredient.label)}
+              onChange={() =>
+                onChange({ ...filters, ingredients: toggleInList(filters.ingredients, ingredient.label) })
+              }
+            />
+          </FilterRow>
         ))}
       </FilterGroup>
 
@@ -283,17 +435,17 @@ export function FiltersSidebar({
         onRemoveSelected={(country) =>
           onChange({ ...filters, countries: toggleInList(filters.countries, country) })
         }
-        last
       >
         {COUNTRIES.map((country) => (
-          <Checkbox
-            key={country.id}
-            label={country.name}
-            checked={filters.countries.includes(country.name)}
-            onChange={() =>
-              onChange({ ...filters, countries: toggleInList(filters.countries, country.name) })
-            }
-          />
+          <FilterRow key={country.id}>
+            <Checkbox
+              label={country.name}
+              checked={filters.countries.includes(country.name)}
+              onChange={() =>
+                onChange({ ...filters, countries: toggleInList(filters.countries, country.name) })
+              }
+            />
+          </FilterRow>
         ))}
       </FilterGroup>
     </aside>

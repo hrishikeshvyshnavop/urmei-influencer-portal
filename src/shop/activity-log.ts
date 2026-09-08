@@ -1,6 +1,15 @@
-import { Megaphone, PackageMinus, PackagePlus, Star, StarOff, type LucideIcon } from 'lucide-react'
+import { Box, Check, DollarSign, Megaphone, ShoppingBag, Star, StarOff, X, type LucideIcon } from 'lucide-react'
 
+/**
+ * These ids are written into `localStorage` by `logShopActivity`, so the two
+ * favorite ones keep their old "featured" spelling: renaming them would leave
+ * every already-logged entry unlabelled. Only the copy below changed when the
+ * feature was renamed to Favorites.
+ */
 export type ShopActivityType =
+  | 'sale'
+  | 'commission-confirmed'
+  | 'commission-settled'
   | 'product-added'
   | 'product-removed'
   | 'product-featured'
@@ -12,20 +21,35 @@ export type ShopActivity = {
   type: ShopActivityType
   /** The product name, empty for activity types that aren't product-specific. */
   detail: string
+  /** Earnings only: the sum the row prints after its label, e.g. `S$1.50`. */
+  amount?: number
   at: number
 }
 
+/**
+ * Wording and glyphs come from the design's Activity Item set (Figma
+ * `1584:96889`), which spells favourite the British way even though the
+ * feature is Favorites everywhere else in the product. `product-unfeatured`
+ * and `shop-published` aren't drawn there but real actions log them, so they
+ * stay and borrow the same voice.
+ */
 export const ACTIVITY_LABELS: Record<ShopActivityType, string> = {
-  'product-added': 'Product added to shop',
-  'product-removed': 'Product removed from shop',
-  'product-featured': 'Product added to featured',
-  'product-unfeatured': 'Product removed from featured',
+  sale: 'Sale happened!',
+  'commission-confirmed': 'Commission confirmed:',
+  'commission-settled': 'Commission settled:',
+  'product-added': 'Added to shop',
+  'product-removed': 'Removed from shop',
+  'product-featured': 'Added a product as favourite',
+  'product-unfeatured': 'Removed a product from favourite',
   'shop-published': 'Shop published',
 }
 
 export const ACTIVITY_ICONS: Record<ShopActivityType, LucideIcon> = {
-  'product-added': PackagePlus,
-  'product-removed': PackageMinus,
+  sale: ShoppingBag,
+  'commission-confirmed': Check,
+  'commission-settled': DollarSign,
+  'product-added': Box,
+  'product-removed': X,
   'product-featured': Star,
   'product-unfeatured': StarOff,
   'shop-published': Megaphone,
@@ -47,14 +71,20 @@ export function loadShopActivities(): ShopActivity[] {
 /** Called wherever a real shop action happens (add/remove/feature/publish) so
  *  Home's Recent Activities and the full Recent Activities page reflect what
  *  the creator actually did instead of fixture data. */
-export function logShopActivity(type: ShopActivityType, detail = '') {
+export function logShopActivity(type: ShopActivityType, detail = '', amount?: number) {
   try {
     const activity: ShopActivity = { id: `${Date.now()}-${Math.random().toString(36).slice(2)}`, type, detail, at: Date.now() }
+    if (amount !== undefined) activity.amount = amount
     const next = [activity, ...loadShopActivities()].slice(0, MAX_ACTIVITIES)
     window.localStorage.setItem(ACTIVITY_LOG_KEY, JSON.stringify(next))
   } catch {
     // The current session still works when storage is unavailable.
   }
+}
+
+/** The bold sum on an earnings row, in the portal's `S$1.50` style. */
+export function formatActivityAmount(amount: number): string {
+  return `S$${amount.toFixed(2)}`
 }
 
 function isSameDay(a: Date, b: Date) {

@@ -8,19 +8,22 @@ import type { Product } from '../types'
 type BreadcrumbItem = { label: string; onClick?: () => void }
 
 export type ShopMode = {
-  featured: boolean
+  favorite: boolean
   /** The variant actually chosen when this item was added to the shop —
    *  distinct from the product's catalogue-wide `variant`/`variantOptions`. */
   variant: string
-  onToggleFeatured: () => void
+  onToggleFavorite: () => void
   onRemoveFromShop: () => void
   affiliateLink: string
   onCopyLink: () => void
-  /** The link only resolves once the shop is live — shows a "publish first"
-   *  placeholder instead, matching the Shop URL field's own state. */
+  /** Whether this item is on the live storefront — false for an unpublished
+   *  shop and for a product added since the last publish. The link row shows a
+   *  "publish first" placeholder instead, matching the Shop URL field. */
   published: boolean
   /** Only the My Shop "view details" reuse shows the PERFORMACE block. */
   showPerformance?: boolean
+  /** This item's stats page, where the performance card's columns lead. */
+  statsHref: string
 }
 
 type ProductDetailProps = {
@@ -39,7 +42,7 @@ type ProductDetailProps = {
   ctaLabel?: string
   ctaDisabled?: boolean
   /** Set when viewing an item already in the shop: swaps the single CTA for
-   *  featured/remove management buttons, an affiliate-link row, and adds the
+   *  favorite/remove management buttons, an affiliate-link row, and adds the
    *  "PERFORMACE" stats section below. */
   shopMode?: ShopMode
 }
@@ -101,11 +104,11 @@ export function ProductDetail({
               alt={product.name}
               className="absolute inset-0 size-full object-cover"
             />
-            {shopMode?.featured && (
+            {shopMode?.favorite && (
               <div className="absolute top-0 right-0 flex items-center p-md">
                 <span className="flex items-center gap-sm rounded-md bg-surface-primary-800 px-md py-sm text-body-sm font-medium text-text-tertiary-100 capitalize">
                   <Icon name="star-featured" />
-                  Featured
+                  Favorite
                 </span>
               </div>
             )}
@@ -242,10 +245,10 @@ export function ProductDetail({
                   <div className="flex w-full items-center gap-md-sm">
                     <button
                       type="button"
-                      onClick={shopMode.onToggleFeatured}
+                      onClick={shopMode.onToggleFavorite}
                       className="flex flex-1 items-center justify-center gap-sm rounded-md border border-border-default px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
                     >
-                      {shopMode.featured ? 'Remove from featured' : 'Add to featured'}
+                      {shopMode.favorite ? 'Remove From Favorite' : 'Add To Favorite'}
                     </button>
                     <button
                       type="button"
@@ -310,7 +313,9 @@ export function ProductDetail({
         </div>
       </div>
 
-      {shopMode?.showPerformance && <PerformanceStats data={product.performance} />}
+      {shopMode?.showPerformance && (
+        <PerformanceStats product={product} statsHref={shopMode.statsHref} />
+      )}
     </div>
   )
 }

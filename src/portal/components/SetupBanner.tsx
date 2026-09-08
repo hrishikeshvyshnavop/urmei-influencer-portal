@@ -1,6 +1,6 @@
 import Button from "./Button";
 import { VERIFICATION_STORAGE_KEY } from "../VerificationPartner";
-import { PAYMENT_STORAGE_KEY } from "../PaymentPartner";
+import { PAYMENT_STORAGE_KEY } from "../bank-account";
 import { isSetupRequired } from "../setup-status";
 
 function hasCompletedAction(storageKey: string) {
@@ -35,8 +35,11 @@ export function getSetupManageAccountRoute(): string {
 }
 
 /**
- * "Verify your identity and connect a payment method" prompt (Figma
- * `1241:72617`). Shown on any page reachable once a user is logged in but
+ * The "finish setting up your account" prompt (Figma `1241:72617`). The copy
+ * says "add your bank details" rather than the design's "connect a payment
+ * method" because payout details are now a form in profile setup (step 4)
+ * rather than a provider popup. Shown on any page reachable once a user is
+ * logged in but
  * hasn't finished onboarding — including when they explicitly skipped it,
  * since skipping doesn't make the shop publishable.
  */
@@ -55,8 +58,8 @@ export default function SetupBanner() {
           className="mt-px size-5 shrink-0 sm:mt-0"
         />
         <p className="text-body-md font-medium text-[#2d2305]">
-          To publish your shop, you need to verify your identity and connect
-          a payment method.
+          To publish your shop, you need to verify your identity and add your
+          bank details.
         </p>
       </div>
       <Button

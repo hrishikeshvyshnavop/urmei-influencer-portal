@@ -1,3 +1,4 @@
+import { productStatsHash, statsForProduct } from "../../shop/data/stats";
 import type { ShopItem } from "../../shop/types";
 
 function Stat({
@@ -47,9 +48,12 @@ export default function TopProducts({ items }: { items: ShopItem[] }) {
         </h2>
 
         <div className="grid w-full grid-cols-2 items-start gap-4 lg:grid-cols-4">
-          {topProducts.map(({ product, variant }) => (
-            <div
+          {topProducts.map(({ id, product, variant }) => (
+            // A card is the shortcut straight to that product's stats, so the
+            // trail there reads "Home > <product>" with no breakdown between.
+            <a
               key={`${product.id}-${variant}`}
+              href={productStatsHash(id, "home")}
               className="flex min-w-px flex-col items-start"
             >
               <div className="relative aspect-[1080/1350] w-full shrink-0 overflow-hidden rounded-[6px]">
@@ -65,12 +69,12 @@ export default function TopProducts({ items }: { items: ShopItem[] }) {
                   <Stat
                     icon="eye"
                     inset="inset-[20.83%_8.33%]"
-                    label={`${product.performance.linkClicks} Views`}
+                    label={`${statsForProduct(product).clicks} Views`}
                   />
                   <Stat
                     icon="bag"
                     inset="inset-[8.33%_12.5%]"
-                    label={`${product.performance.unitsSold} Sales`}
+                    label={`${statsForProduct(product).sales} Sales`}
                   />
                 </div>
 
@@ -80,15 +84,15 @@ export default function TopProducts({ items }: { items: ShopItem[] }) {
                   </p>
                   <div className="flex shrink-0 items-center gap-2">
                     <p className="shrink-0 text-body-xl font-semibold whitespace-nowrap text-portal-text">
-                      {product.performance.commissionEarned}
+                      {`S$${statsForProduct(product).commissionSettled}`}
                     </p>
                     <p className="shrink-0 text-body-sm font-medium whitespace-nowrap text-portal-muted">
-                      Commission earned
+                      Commission Settled
                     </p>
                   </div>
                 </div>
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

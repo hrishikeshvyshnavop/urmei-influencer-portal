@@ -1,17 +1,27 @@
 import { useState } from "react";
+import { PAYMENT_MESSAGE_TYPE, saveBankAccount } from "./bank-account";
 import Button from "./components/Button";
 
-export const PAYMENT_STORAGE_KEY = "urmei:payment-result";
-export const PAYMENT_MESSAGE_TYPE = "urmei:payment-complete";
+/**
+ * The provider's own form is out of scope for the prototype, so a connection
+ * made here lands the demo account Manage Account's bank card reads back —
+ * a record with no fields at all would read as "not added" there.
+ */
+const DEMO_ACCOUNT = {
+  accountHolderName: "Charlotte Wong",
+  bankName: "DBS Bank",
+  bankAccountNumber: "001-234567-8",
+  bankCode: "7171",
+  accountHolderType: "Individual",
+  accountType: "Savings",
+  payoutCurrency: "SGD - Singapore Dollar",
+};
 
 export default function PaymentPartner() {
   const [complete, setComplete] = useState(false);
 
   const connect = () => {
-    localStorage.setItem(
-      PAYMENT_STORAGE_KEY,
-      JSON.stringify({ status: "complete", completedAt: Date.now() }),
-    );
+    saveBankAccount(DEMO_ACCOUNT);
     setComplete(true);
     window.opener?.postMessage(
       { type: PAYMENT_MESSAGE_TYPE, status: "complete" },

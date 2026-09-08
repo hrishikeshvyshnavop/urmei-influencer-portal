@@ -1,20 +1,14 @@
-export const PROFILE_PHOTO_KEY = "urmei.profile-photo";
+import { readProfilePhoto } from "../profile-photo";
 
-type SavedProfilePhoto = {
-  src: string;
-  offset: number;
-  cropScale: number;
-};
-
-function readProfilePhoto(): SavedProfilePhoto | null {
-  try {
-    const value = window.localStorage.getItem(PROFILE_PHOTO_KEY);
-    return value ? (JSON.parse(value) as SavedProfilePhoto) : null;
-  } catch {
-    return null;
-  }
-}
-
+/**
+ * Draws the saved crop, or `fallback` when there is none.
+ *
+ * The cropped image is positioned absolutely and sized past 100%, so the
+ * caller MUST supply a `relative overflow-hidden` wrapper at the size the
+ * avatar should be — without it the photo escapes and lays itself over the
+ * page. The fallback branch is a plain `size-full` image, so a missing
+ * wrapper looks fine until a photo is actually saved.
+ */
 export default function ProfilePhoto({
   fallback,
   alt,

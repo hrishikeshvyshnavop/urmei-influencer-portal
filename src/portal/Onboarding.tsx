@@ -12,25 +12,8 @@ import {
   VERIFICATION_MESSAGE_TYPE,
   VERIFICATION_STORAGE_KEY,
 } from "./VerificationPartner";
-import { PAYMENT_MESSAGE_TYPE, PAYMENT_STORAGE_KEY } from "./PaymentPartner";
-
-const requirements = [
-  {
-    icon: "id-card",
-    inset: "inset-[20.83%_8.33%]",
-    label: "Government-issued photo ID",
-  },
-  {
-    icon: "camera",
-    inset: "inset-[16.67%_8.33%]",
-    label: "Camera-enabled device",
-  },
-  {
-    icon: "shield-check",
-    inset: "inset-[8.33%_16.67%]",
-    label: "Personal details matching your account",
-  },
-];
+import { PAYMENT_MESSAGE_TYPE, PAYMENT_STORAGE_KEY } from "./bank-account";
+import { IDENTITY_REQUIREMENTS } from "./identity-verification";
 
 const payoutFacts = [
   ["You'll set up", "Payout bank details"],
@@ -283,7 +266,7 @@ export default function Onboarding({
                     You&#39;ll need the following
                   </p>
                   <div className="flex w-full flex-col items-start gap-1">
-                    {requirements.map((requirement) => (
+                    {IDENTITY_REQUIREMENTS.map((requirement) => (
                       <div
                         key={requirement.icon}
                         className="flex w-full items-center gap-2"

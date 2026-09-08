@@ -1,10 +1,17 @@
 import { Button } from './Button'
 import { Icon } from './Icon'
 
-/** Shown on the Featured tab when the shop has products but none are
- *  featured yet (Figma `1362:74210`) — distinct from `EmptyShop`, which
- *  covers a shop with no products at all. */
-export function EmptyFeatured({ onGoToAllPicks }: { onGoToAllPicks: () => void }) {
+/** Shown on the Favorites tab when the shop has products but none are
+ *  favorited yet (Figma `1603:40560`) — distinct from `EmptyShop`, which
+ *  covers a shop with no products at all. The cap comes from the caller so
+ *  this copy can't drift from the rule it describes. */
+export function EmptyFavorites({
+  limit,
+  onGoToAllPicks,
+}: {
+  limit: number
+  onGoToAllPicks: () => void
+}) {
   return (
     <div className="flex h-[471px] w-full items-center">
       <div className="flex h-full flex-1 flex-col items-start overflow-clip rounded-lg border-2 border-dashed border-surface-secondary-500 bg-surface-secondary-100">
@@ -15,14 +22,14 @@ export function EmptyFeatured({ onGoToAllPicks }: { onGoToAllPicks: () => void }
             </span>
             <div className="flex w-full flex-col items-center gap-xs text-center">
               <p className="text-body-xl font-medium text-text-secondary-1000">
-                No featured products yet
+                No Favorite products yet
               </p>
               <p className="text-body-xs text-text-secondary-700">
-                Feature up to 6 of your picks to put them first on your storefront
+                Favorite up to {limit} of your picks to put them first on your storefront
               </p>
             </div>
           </div>
-          <Button onClick={onGoToAllPicks}>Go to all picks</Button>
+          <Button onClick={onGoToAllPicks}>Go To All Picks</Button>
         </div>
       </div>
     </div>

@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Button from "./components/Button";
 import PortalLayout from "./components/PortalLayout";
-import { PROFILE_PHOTO_KEY } from "./components/ProfilePhoto";
+import { SETUP_STEP_COUNT } from "./components/SetupStep";
+import { PROFILE_PHOTO_KEY, readProfilePhoto } from "./profile-photo";
 
 const CROP_SIZE = 298;
 const CROP_BAND = 28;
@@ -195,22 +196,17 @@ export function CropModal({
 
 type SetProfilePhotoProps = {
   onContinue: () => void;
-  onSkip: () => void;
 };
 
-export default function SetProfilePhoto({
-  onContinue,
-  onSkip,
-}: SetProfilePhotoProps) {
+/** Step 1 of profile setup (Figma `1583:87931`). A photo is mandatory: there
+ *  is no "Skip" here or on step 2 — only on the shipping and bank steps, where
+ *  the frames draw one — and Continue stays disabled until one is applied. */
+export default function SetProfilePhoto({ onContinue }: SetProfilePhotoProps) {
   const fileInput = useRef<HTMLInputElement>(null);
   const [pending, setPending] = useState<string | null>(null);
-  const [photo, setPhoto] = useState<{
-    src: string;
-    offset: number;
-    cropScale: number;
-  } | null>(
-    null,
-  );
+  // Seeded from storage so returning here — via Back from step 2, or a
+  // reload — finds the photo already applied rather than an empty circle.
+  const [photo, setPhoto] = useState(readProfilePhoto);
   const [offset, setOffset] = useState(0);
   const [cropScale, setCropScale] = useState(1);
 
@@ -231,21 +227,17 @@ export default function SetProfilePhoto({
   };
 
   return (
-    <PortalLayout
-      withPanel
-      offsetHeader
-      hideLanguageSelector
-      headerAction={
-        <Button variant="portalOutlineLg" className="w-[60px]" onClick={onSkip}>
-          Skip
-        </Button>
-      }
-    >
+    <PortalLayout withPanel offsetHeader hideLanguageSelector>
       <div className="mx-auto flex w-full max-w-[500px] flex-col items-center gap-10">
         <div className="flex w-full flex-col items-center gap-3 text-center">
-          <h1 className="w-full text-body-xxl text-portal-text">
-            Set your profile photo
-          </h1>
+          <div className="flex w-full flex-col items-center gap-[6px]">
+            <p className="w-full text-body-sm text-portal-placeholder">
+              1/{SETUP_STEP_COUNT}
+            </p>
+            <h1 className="w-full text-body-xxl text-portal-text">
+              Set your profile pic
+            </h1>
+          </div>
           <p className="w-full text-body-md text-portal-muted">
             Add a photo so brands and followers can recognize you. You can always
             change this later.
@@ -328,7 +320,14 @@ export default function SetProfilePhoto({
         </div>
 
         <div className="flex w-full items-start justify-center">
-          <Button variant="portalLg" className="w-[120px]" onClick={onContinue}>
+          <Button
+            variant="portalLg"
+            className="w-[120px]"
+            // Nothing to continue to without a photo: the whole step is the
+            // photo, so an empty circle is an incomplete step, not a skip.
+            disabled={!photo}
+            onClick={onContinue}
+          >
             Continue
           </Button>
         </div>

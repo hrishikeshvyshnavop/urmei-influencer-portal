@@ -2,7 +2,7 @@ import { Icon } from './Icon'
 
 type AddProductTileProps = {
   onClick: () => void
-  /** 434px in the All Picks grid; 468px to match the taller Featured-tab cards. */
+  /** 434px in the All Picks grid; 468px to match the taller Favorite-tab cards. */
   height?: number
 }
 

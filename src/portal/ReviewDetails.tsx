@@ -1,118 +1,58 @@
 import { useState } from "react";
 import Button from "./components/Button";
+import FieldGrid from "./components/FieldGrid";
 import PortalFormLayout from "./components/PortalFormLayout";
 import SectionTitle from "./components/SectionTitle";
 import SocialAccountRow from "./components/SocialAccountRow";
 import type { SocialPlatform } from "./components/SocialAccountRow";
-import TextField from "./components/TextField";
+import type { FieldSpec } from "./form-fields";
 import { scrollToFirstError } from "@/lib/form-validation";
 
-type ReviewField = {
-  name: string;
-  label: string;
-  value: string;
-  /** Identity fields come back from the application and cannot be edited here. */
-  locked?: boolean;
-  icon?: "calendar";
-  type?: "text" | "email" | "tel";
-  options?: string[];
-  numericOnly?: boolean;
-  maxLength?: number;
-};
-
-const personalFields: ReviewField[] = [
-  { name: "firstName", label: "Legal First Name", value: "Charlotte", locked: true },
-  { name: "lastName", label: "Legal Last Name", value: "Tan", locked: true },
-  { name: "displayName", label: "Display Name", value: "Charlotte Tan" },
+/**
+ * Figma `1583:87857`. Name and email come back from the approved application
+ * and are read-only here; phone, birthday and applying country stay editable.
+ * The address block that used to sit on this screen moved to its own setup
+ * step (`ShippingAddress`).
+ */
+const personalFields: FieldSpec[] = [
+  { name: "firstName", label: "First Name", placeholder: "", locked: true },
+  { name: "lastName", label: "Last Name", placeholder: "", locked: true },
   {
     name: "email",
     label: "Email",
-    value: "charlotte.tan@email.com",
-    locked: true,
+    placeholder: "",
     type: "email",
-  },
-  {
-    name: "phone",
-    label: "Phone number",
-    value: "+65 9123 4567",
     locked: true,
-    type: "tel",
   },
-  { name: "birthday", label: "Birthday", value: "15 Jan 1998", icon: "calendar" },
+  { name: "phone", label: "Phone number", placeholder: "", type: "tel" },
+  { name: "dob", label: "DOB", placeholder: "Select", icon: "calendar" },
+  {
+    name: "applyingCountry",
+    label: "Applying Country",
+    placeholder: "Select",
+    options: ["Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam"],
+    // Grey-filled in the frame like the other locked fields, and the chevron
+    // is drawn faint: the applying country is fixed at application time, so
+    // this shows the choice rather than offering it again.
+    locked: true,
+  },
 ];
 
-const addressFields: ReviewField[] = [
-  {
-    name: "postalCode",
-    label: "Postal Code",
-    value: "520101",
-    numericOnly: true,
-    maxLength: 6,
-  },
-  { name: "blockNo", label: "Blk / House No", value: "12A" },
-  { name: "street", label: "Street Name", value: "Orchard Boulevard" },
-  { name: "building", label: "Building Name", value: "Camden Medical Centre" },
-  {
-    name: "floorNo",
-    label: "Floor No.",
-    value: "03",
-    numericOnly: true,
-  },
-  {
-    name: "unitNumber",
-    label: "Unit Number",
-    value: "28",
-    numericOnly: true,
-  },
-  {
-    name: "country",
-    label: "Country",
-    value: "Singapore",
-    options: ["Singapore", "Malaysia", "Indonesia", "Philippines", "Thailand", "Vietnam"],
-    locked: true,
-  },
-];
+const initialValues: Record<string, string> = {
+  firstName: "Charlotte",
+  lastName: "Wong",
+  email: "charlotte@gmail.com",
+  phone: "+65 9123 4567",
+  dob: "15 Jan 1998",
+  applyingCountry: "Singapore",
+};
 
 const platforms: SocialPlatform[] = [
-  { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
-  { id: "facebook", name: "Facebook", handle: "@charlotte.tan" },
-  { id: "youtube", name: "YouTube", handle: "@CharlotteTan" },
-  { id: "tiktok", name: "TikTok", handle: "@charlotte.tan" },
+  { id: "instagram", name: "Instagram", handle: "@charlotte" },
+  { id: "facebook", name: "Facebook", handle: "@charlotte" },
+  { id: "youtube", name: "YouTube", handle: "@charlotte" },
+  { id: "tiktok", name: "TikTok", handle: "@charlotte" },
 ];
-
-const initialValues = Object.fromEntries(
-  [...personalFields, ...addressFields].map((field) => [field.name, field.value]),
-);
-
-function FieldGrid({
-  fields,
-  values,
-  onChange,
-}: {
-  fields: ReviewField[];
-  values: Record<string, string>;
-  onChange: (name: string, value: string) => void;
-}) {
-  return (
-    <div className="grid w-full grid-cols-1 gap-4 sm:grid-cols-2">
-      {fields.map((field) => (
-        <TextField
-          key={field.name}
-          label={field.label}
-          placeholder=""
-          type={field.type}
-          icon={field.icon}
-          locked={field.locked}
-          options={field.options}
-          numericOnly={field.numericOnly}
-          maxLength={field.maxLength}
-          value={values[field.name] ?? ""}
-          onChange={(value) => onChange(field.name, value)}
-        />
-      ))}
-    </div>
-  );
-}
 
 export default function ReviewDetails({ onContinue }: { onContinue: () => void }) {
   const [values, setValues] = useState<Record<string, string>>(initialValues);
@@ -131,7 +71,7 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
   return (
     <PortalFormLayout hideLanguageSelector hideHeaderBackdrop>
       <form
-        className="flex w-full max-w-[940px] flex-col gap-6 px-6 pt-[136px] pb-16 sm:px-12 lg:px-[100px]"
+        className="flex w-full max-w-[940px] flex-col gap-8 px-6 pt-[120px] pb-16 sm:px-12 lg:px-[100px]"
         onInvalidCapture={(event) => {
           event.preventDefault();
           scrollToFirstError(event.currentTarget);
@@ -143,39 +83,20 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
       >
         <div className="flex w-full max-w-[740px] flex-col items-start gap-[6px]">
           <h1 className="w-full text-body-xxl text-portal-text">
-            Review your details
+            Your personal info
           </h1>
           <p className="w-full text-body-md text-portal-muted">
-            Please review the information you submitted. You can update your name
-            if needed.
+            Please review the information you submitted.
           </p>
         </div>
 
         <div className="flex w-full max-w-[740px] flex-col items-start gap-[44px]">
-          <section className="flex w-full flex-col items-start gap-6">
-            <SectionTitle>Personal Info</SectionTitle>
-            <FieldGrid
-              fields={personalFields}
-              values={values}
-              onChange={setField}
-            />
-          </section>
+          <FieldGrid fields={personalFields} values={values} onChange={setField} />
 
-          <section className="flex w-full flex-col items-start gap-6">
-            <SectionTitle>Address</SectionTitle>
-            <FieldGrid fields={addressFields} values={values} onChange={setField} />
-          </section>
+          <section className="flex w-full flex-col items-start gap-[6px]">
+            <SectionTitle>Social accounts</SectionTitle>
 
-          <section className="flex w-full flex-col items-start gap-5">
-            <div className="flex w-full flex-col items-start gap-2">
-              <SectionTitle>Connected Socials</SectionTitle>
-              <p className="w-full text-body-sm text-portal-muted">
-                Your connected accounts help brands verify your reach. You can
-                manage connections anytime in Settings.
-              </p>
-            </div>
-
-            <div className="w-full divide-y divide-portal-border overflow-hidden rounded-lg border border-solid border-portal-border">
+            <div className="mt-[14px] w-full divide-y divide-portal-border overflow-hidden rounded-lg border border-solid border-portal-border">
               {platforms.map((platform) => (
                 <SocialAccountRow
                   key={platform.id}
@@ -186,26 +107,10 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
               ))}
             </div>
 
-            <div className="flex w-full items-start gap-[2px]">
-              <div className="flex size-[24px] shrink-0 flex-col items-center justify-center rounded-[10px] bg-white">
-                <span className="relative size-[16px] shrink-0 overflow-clip">
-                  <span className="absolute inset-[8.33%_16.67%]">
-                    <span className="absolute inset-[-4.99%_-6.23%]">
-                      <img
-                        src="/urmei/icon-shield.svg"
-                        alt=""
-                        className="block size-full max-w-none"
-                      />
-                    </span>
-                  </span>
-                </span>
-              </div>
-              <p className="min-w-px flex-1 text-body-sm text-portal-muted">
-                We keep your accounts safe and secure. We&#39;ll never post
-                anything on your behalf or look at your private messages. You can
-                disconnect anytime from Settings.
-              </p>
-            </div>
+            <p className="w-full text-body-xxs text-portal-muted opacity-80">
+              We keep your accounts safe and secure. We&#39;ll never post
+              anything on your behalf or look at your private messages.
+            </p>
           </section>
         </div>
 

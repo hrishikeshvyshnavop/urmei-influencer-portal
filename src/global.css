@@ -6,6 +6,7 @@
   --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
 
   --color-portal-text: #222222; /* typography/color/secondary/1000 */
+  --color-portal-emphasis: #272726; /* typography/color/tertiary/1000 */
   --color-portal-muted: #757575; /* typography/color/secondary/700 */
   --color-portal-body: #464646; /* typography/color/secondary/900 */
   --color-portal-subtle: #6c6c6c; /* typography/color/secondary/800 */
@@ -94,9 +95,15 @@
   --color-border-default: #e5e5e5;
   --color-border-outlined: #b1b1b1;
   --color-border-muted: #f8f8f8;
+  /* border/color/success — the bright green the stat pages' up-trend arrow and
+     percentage use. Distinct from --color-text-success (#28802c), which is
+     typography/color/other/success. */
+  --color-border-success: #66bb6a;
 
   --text-body-xxs: 10px;
   --text-body-xxs--line-height: 16px;
+  --text-h4: 32px;
+  --text-h4--line-height: 42px;
   --text-h6: 24px;
   --text-h6--line-height: 34px;
 
@@ -123,6 +130,51 @@
 
   --shadow-ds-sm: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
   --shadow-store-card: 0 4px 20px 0 rgba(0, 0, 0, 0.03);
+}
+
+/* Radix anchors every popover, select list and dropdown menu in a wrapper it
+   gives an inline `z-index: 50`, which is what the stacking is decided on —
+   the `z-*` class on the content inside is on a static box and does nothing.
+   The portal's own overlays sit at 40–70 (drawer, profile menu, modals), so a
+   select opened inside a modal painted *behind* the panel and looked broken.
+   A popover always belongs above whatever spawned it. */
+[data-radix-popper-content-wrapper] {
+  z-index: 80 !important;
+}
+
+/* The Commission filter's two-handle range (Figma `1594:34898`). Both native
+   range inputs sit on the same track, so the inputs themselves pass pointer
+   events through and only their thumbs take them — otherwise whichever input
+   is painted last would swallow every drag, including ones aimed at the other
+   handle. The track is drawn by the elements underneath. */
+.range-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+}
+
+.range-thumb::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 9999px;
+  background: var(--color-surface-secondary-100);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
+}
+
+.range-thumb::-moz-range-thumb {
+  pointer-events: auto;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--color-border-default);
+  border-radius: 9999px;
+  background: var(--color-surface-secondary-100);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.16);
+  cursor: pointer;
 }
 
 /* Section titles carry 1.6px tracking (Heading/body-sm-medium(ST)). */

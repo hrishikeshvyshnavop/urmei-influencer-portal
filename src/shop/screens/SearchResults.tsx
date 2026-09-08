@@ -198,6 +198,9 @@ export function SearchResults({
   // its target container changes — which would otherwise reset local state
   // there and collapse every open filter group.
   const [openFilterGroups, setOpenFilterGroups] = useState<Set<string>>(new Set())
+  // The Category tree's departments expand independently of each other, so
+  // this is a plain multi-value set rather than the one-at-a-time rule above.
+  const [openDepartments, setOpenDepartments] = useState<Set<string>>(new Set())
   const [brandSearch, setBrandSearch] = useState('')
 
   // One group open at a time: opening a group closes whichever was open.
@@ -206,6 +209,15 @@ export function SearchResults({
   // multi-open by restoring the add/delete branch.
   function toggleFilterGroup(label: string) {
     setOpenFilterGroups((current) => (current.has(label) ? new Set() : new Set([label])))
+  }
+
+  function toggleDepartment(department: string) {
+    setOpenDepartments((current) => {
+      const next = new Set(current)
+      if (next.has(department)) next.delete(department)
+      else next.add(department)
+      return next
+    })
   }
 
   const visibleResults = useMemo(
@@ -439,7 +451,7 @@ export function SearchResults({
                 : undefined),
             }}
             // The scrollbar has to stay visible here. Elsewhere in the app it's
-            // hidden (Home's carousel, the featured strips) because those are
+            // hidden (Home's carousel, the favorite strips) because those are
             // horizontal and have prev/next buttons as the affordance; this
             // rail has none, so hiding it made a list that does scroll read as
             // one that doesn't once several groups were expanded.
@@ -455,6 +467,8 @@ export function SearchResults({
               onChange={setFilters}
               openGroups={openFilterGroups}
               onToggleGroup={toggleFilterGroup}
+              openDepartments={openDepartments}
+              onToggleDepartment={toggleDepartment}
               brandSearch={brandSearch}
               onBrandSearchChange={setBrandSearch}
             />
