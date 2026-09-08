@@ -35,16 +35,26 @@ export function getSetupManageAccountRoute(): string {
 }
 
 /**
- * The "finish setting up your account" prompt (Figma `1241:72617`). The copy
- * says "add your bank details" rather than the design's "connect a payment
- * method" because payout details are now a form in profile setup (step 4)
- * rather than a provider popup. Shown on any page reachable once a user is
- * logged in but
- * hasn't finished onboarding — including when they explicitly skipped it,
- * since skipping doesn't make the shop publishable.
+ * The "finish setting up your account" prompt (Figma `1602:37660`). Shown on
+ * any page reachable once a user is logged in but hasn't finished onboarding
+ * — including when they explicitly skipped it, since skipping doesn't make
+ * the shop publishable.
  */
 export default function SetupBanner() {
   if (isProfileSetupComplete()) return null;
+
+  const identityVerified = hasCompletedAction(VERIFICATION_STORAGE_KEY);
+  const bankAdded = hasCompletedAction(PAYMENT_STORAGE_KEY);
+  // The design words the bank-only case exactly this way; the other two follow
+  // its phrasing and name only what is actually still missing, so the banner
+  // never asks for something the user has already done. (Skipping setup shows
+  // the both-missing line, and Manage Account clears the skip flag as soon as
+  // identity and bank are both on file.)
+  const message = identityVerified
+    ? "To publish your shop, you need to add bank details"
+    : bankAdded
+      ? "To publish your shop, you need to verify your identity"
+      : "To publish your shop, you need to verify your identity and add bank details";
 
   return (
     <aside
@@ -57,10 +67,7 @@ export default function SetupBanner() {
           alt=""
           className="mt-px size-5 shrink-0 sm:mt-0"
         />
-        <p className="text-body-md font-medium text-[#2d2305]">
-          To publish your shop, you need to verify your identity and add your
-          bank details.
-        </p>
+        <p className="text-body-md font-medium text-[#2d2305]">{message}</p>
       </div>
       <Button
         variant="portalLink"
