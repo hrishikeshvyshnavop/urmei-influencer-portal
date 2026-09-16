@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import FieldGrid from '../../portal/components/FieldGrid'
-import { ADDRESS_FIELDS_BY_COUNTRY, type FieldSpec } from '../../portal/form-fields'
+import { ADDRESS_MODAL_FIELDS } from '../../portal/form-fields'
 import {
   loadShippingAddresses,
   saveShippingAddresses,
@@ -9,7 +9,6 @@ import {
 } from '../../portal/shipping-address'
 import type { SampleShippingAddress } from '../sample-requests'
 import type { Product } from '../types'
-import { Checkbox } from './Checkbox'
 import { Icon } from './Icon'
 
 type RequestSampleModalProps = {
@@ -18,29 +17,6 @@ type RequestSampleModalProps = {
   onClose: () => void
   onSubmit: (input: { shippingAddress: SampleShippingAddress; note?: string }) => void
 }
-
-/** Same shape as Manage Account's own address modal (`ADDRESS_MODAL_FIELDS`)
- *  minus the address label, which only matters for a saved, named address. */
-const REQUEST_ADDRESS_FIELDS: FieldSpec[] = [
-  ...ADDRESS_FIELDS_BY_COUNTRY.Singapore!.map((field) =>
-    field.name === 'floorNo' || field.name === 'unitNumber' ? { ...field, optional: true } : field,
-  ),
-  {
-    name: 'country',
-    label: 'Country',
-    placeholder: 'Select',
-    autoComplete: 'country-name',
-    options: ['Singapore', 'Malaysia', 'Indonesia', 'Thailand', 'Vietnam'],
-  },
-  {
-    name: 'phone',
-    label: 'Recipient phone',
-    placeholder: '',
-    type: 'tel',
-    autoComplete: 'tel',
-    fullWidth: true,
-  },
-]
 
 function formatAddress(fields: Record<string, string>): string {
   const unit = fields.floorNo && fields.unitNumber ? `#${fields.floorNo}-${fields.unitNumber}` : undefined
@@ -55,17 +31,17 @@ function formatAddress(fields: Record<string, string>): string {
  * §5.2). Urmei approves every request manually for now, so this only ever
  * writes a `requested` record; there's no in-app approval step here.
  *
- * Defaults to whatever address Manage Account has on file (the one marked
- * "For sample shipping", or the first saved one) rather than asking a
- * creator who already has an address in their profile to retype it.
+ * Picks from the creator's saved addresses (the same list Manage Account
+ * manages) rather than asking them to retype one — "Add address" saves a new
+ * one into that same list instead of throwing it away after this one request.
  */
 export function RequestSampleModal({ product, variant, onClose, onSubmit }: RequestSampleModalProps) {
-  const [addresses] = useState<ShippingAddress[]>(loadShippingAddresses)
-  const savedAddress = addresses.find((address) => address.isDefault) ?? addresses[0] ?? null
-
-  const [useSaved, setUseSaved] = useState(savedAddress !== null)
+  const [addresses, setAddresses] = useState<ShippingAddress[]>(loadShippingAddresses)
+  const [selectedId, setSelectedId] = useState<string | null>(
+    () => (addresses.find((address) => address.isDefault) ?? addresses[0] ?? null)?.id ?? null,
+  )
+  const [addingNew, setAddingNew] = useState(addresses.length === 0)
   const [values, setValues] = useState<Record<string, string>>({ country: 'Singapore' })
-  const [saveForFuture, setSaveForFuture] = useState(addresses.length === 0)
   const [showErrors, setShowErrors] = useState(false)
   const [note, setNote] = useState('')
 
@@ -77,21 +53,33 @@ export function RequestSampleModal({ product, variant, onClose, onSubmit }: Requ
     }
   }, [])
 
+  function startAddingAddress() {
+    setValues({ country: 'Singapore' })
+    setShowErrors(false)
+    setAddingNew(true)
+  }
+
   function handleSubmit() {
-    if (useSaved && savedAddress) {
-      onSubmit({ shippingAddress: savedAddress.fields, note: note.trim() || undefined })
+    if (addingNew) {
+      setShowErrors(true)
+      const complete = ADDRESS_MODAL_FIELDS.every((field) => field.optional || (values[field.name] ?? '').trim())
+      if (!complete) return
+      const newAddress: ShippingAddress = {
+        id: `address-${Date.now()}`,
+        isDefault: addresses.length === 0,
+        fields: values,
+      }
+      const next = [...addresses, newAddress]
+      saveShippingAddresses(next)
+      setAddresses(next)
+      setSelectedId(newAddress.id)
+      setAddingNew(false)
+      onSubmit({ shippingAddress: newAddress.fields, note: note.trim() || undefined })
       return
     }
-    setShowErrors(true)
-    const complete = REQUEST_ADDRESS_FIELDS.every((field) => field.optional || (values[field.name] ?? '').trim())
-    if (!complete) return
-    if (saveForFuture) {
-      saveShippingAddresses([
-        ...addresses,
-        { id: `address-${Date.now()}`, isDefault: addresses.length === 0, fields: values },
-      ])
-    }
-    onSubmit({ shippingAddress: values, note: note.trim() || undefined })
+    const selected = addresses.find((address) => address.id === selectedId)
+    if (!selected) return
+    onSubmit({ shippingAddress: selected.fields, note: note.trim() || undefined })
   }
 
   return createPortal(
@@ -139,61 +127,67 @@ export function RequestSampleModal({ product, variant, onClose, onSubmit }: Requ
             Urmei reviews every sample request manually — check the Samples page for status updates.
           </p>
 
-          {savedAddress && (
-            <div className="flex items-center gap-ten" role="tablist" aria-label="Shipping address">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={useSaved}
-                onClick={() => setUseSaved(true)}
-                className={[
-                  'rounded-full border px-md py-sm text-body-sm transition-colors duration-200',
-                  useSaved
-                    ? 'border-transparent bg-surface-tertiary-1000 text-text-secondary-100'
-                    : 'border-border-default bg-surface-secondary-100 text-text-secondary-700',
-                ].join(' ')}
-              >
-                Saved address
-              </button>
-              <button
-                type="button"
-                role="tab"
-                aria-selected={!useSaved}
-                onClick={() => setUseSaved(false)}
-                className={[
-                  'rounded-full border px-md py-sm text-body-sm transition-colors duration-200',
-                  !useSaved
-                    ? 'border-transparent bg-surface-tertiary-1000 text-text-secondary-100'
-                    : 'border-border-default bg-surface-secondary-100 text-text-secondary-700',
-                ].join(' ')}
-              >
-                Different address
-              </button>
-            </div>
-          )}
+          <div className="flex w-full flex-col gap-sm">
+            <p className="text-body-sm font-medium text-text-secondary-1000">Shipping address</p>
 
-          {useSaved && savedAddress ? (
-            <div className="flex w-full flex-col gap-xs rounded-md border border-border-default bg-surface-secondary-100 p-md-sm">
-              <p className="text-body-sm font-medium text-text-secondary-1000">
-                {savedAddress.fields.label || 'Saved address'}
-              </p>
-              <p className="text-body-xs text-text-secondary-700">{formatAddress(savedAddress.fields)}</p>
-            </div>
-          ) : (
-            <div className="flex w-full flex-col gap-md-sm">
-              <FieldGrid
-                fields={REQUEST_ADDRESS_FIELDS}
-                values={values}
-                showErrors={showErrors}
-                onChange={(name, value) => setValues((current) => ({ ...current, [name]: value }))}
-              />
-              <Checkbox
-                checked={saveForFuture}
-                onChange={setSaveForFuture}
-                label="Save this address for future requests"
-              />
-            </div>
-          )}
+            {addresses.map((address) => {
+              const selected = !addingNew && selectedId === address.id
+              return (
+                <button
+                  key={address.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedId(address.id)
+                    setAddingNew(false)
+                  }}
+                  className={[
+                    'flex w-full items-start gap-sm rounded-md border p-md-sm text-left',
+                    selected ? 'border-surface-primary-500' : 'border-border-default',
+                  ].join(' ')}
+                >
+                  <Icon name={selected ? 'radio-selected' : 'radio'} size={16} className="mt-[2px]" />
+                  <span className="flex min-w-px flex-1 flex-col gap-xs">
+                    <span className="text-body-sm font-medium text-text-secondary-1000">
+                      {address.fields.label || 'Address'}
+                    </span>
+                    <span className="text-body-xs text-text-secondary-700">{formatAddress(address.fields)}</span>
+                  </span>
+                </button>
+              )
+            })}
+
+            {addingNew ? (
+              <div className="flex w-full flex-col gap-md-sm rounded-md border border-border-default bg-surface-secondary-100 p-md-sm">
+                <div className="flex w-full items-center justify-between">
+                  <p className="text-body-sm font-medium text-text-secondary-1000">Add address</p>
+                  {addresses.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => setAddingNew(false)}
+                      className="text-body-xs font-medium text-text-secondary-700 underline"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+                <FieldGrid
+                  fields={ADDRESS_MODAL_FIELDS}
+                  values={values}
+                  showErrors={showErrors}
+                  onChange={(name, value) => setValues((current) => ({ ...current, [name]: value }))}
+                />
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={startAddingAddress}
+                className="flex w-full items-center justify-center gap-sm rounded-md border border-dashed border-border-default px-md py-sm text-body-sm font-medium text-text-secondary-1000"
+              >
+                <Icon name="plus" />
+                Add address
+              </button>
+            )}
+          </div>
 
           <label className="flex w-full flex-col gap-xs">
             <span className="text-body-sm font-medium text-text-secondary-1000">
@@ -211,7 +205,8 @@ export function RequestSampleModal({ product, variant, onClose, onSubmit }: Requ
           <button
             type="button"
             onClick={handleSubmit}
-            className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100"
+            disabled={!addingNew && !selectedId}
+            className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500"
           >
             Submit request
           </button>

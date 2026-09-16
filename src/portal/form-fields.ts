@@ -297,3 +297,36 @@ export const ADDRESS_FIELDS_BY_COUNTRY: Record<string, FieldSpec[]> = {
     },
   ],
 };
+
+/**
+ * The address modal's fields (Figma `1619:58187`): a label of its own, then the
+ * same street schema profile setup collects, then country and the recipient's
+ * phone. Shared by Manage Account's address form and the sample-request
+ * flow, which both save into the same address list — see
+ * `src/portal/shipping-address.ts`.
+ */
+export const ADDRESS_MODAL_FIELDS: FieldSpec[] = [
+  { name: "label", label: "Address Label", placeholder: "", fullWidth: true },
+  ...ADDRESS_FIELDS_BY_COUNTRY.Singapore!.map((field) => {
+    // Floor and unit are optional here — plenty of addresses have neither —
+    // and a house number is not a number ("12A", the design's own value).
+    if (field.name === "floorNo" || field.name === "unitNumber") return { ...field, optional: true };
+    if (field.name === "blockNo") return { ...field, numericOnly: false };
+    return field;
+  }),
+  {
+    name: "country",
+    label: "Country",
+    placeholder: "Select",
+    autoComplete: "country-name",
+    options: ["Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam"],
+  },
+  {
+    name: "phone",
+    label: "Recipient phone",
+    placeholder: "",
+    type: "tel",
+    autoComplete: "tel",
+    fullWidth: true,
+  },
+];

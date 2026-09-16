@@ -13,7 +13,7 @@ import AppHeader from "./components/AppHeader";
 import { CropModal } from "./SetProfilePhoto";
 import TextField from "./components/TextField";
 import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, readBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
-import { ADDRESS_FIELDS_BY_COUNTRY, type FieldSpec } from "./form-fields";
+import { ADDRESS_MODAL_FIELDS, type FieldSpec } from "./form-fields";
 import { loadShippingAddresses, saveShippingAddresses, type ShippingAddress } from "./shipping-address";
 import { clearSetupRequired, isSetupRequired } from "./setup-status";
 import { getSavedBio, getSavedDisplayName, saveBio, saveDisplayName } from "./profile-status";
@@ -32,37 +32,6 @@ const initialProfile = {
   phone: "+65 9123 4567",
   dob: "1998-01-15",
 };
-
-/**
- * The address modal's fields (Figma `1619:58187`): a label of its own, then the
- * same street schema profile setup collects, then country and the recipient's
- * phone.
- */
-const ADDRESS_MODAL_FIELDS: FieldSpec[] = [
-  { name: "label", label: "Address Label", placeholder: "", fullWidth: true },
-  ...ADDRESS_FIELDS_BY_COUNTRY.Singapore.map((field) => {
-    // Floor and unit are optional here — plenty of addresses have neither —
-    // and a house number is not a number ("12A", the design's own value).
-    if (field.name === "floorNo" || field.name === "unitNumber") return { ...field, optional: true };
-    if (field.name === "blockNo") return { ...field, numericOnly: false };
-    return field;
-  }),
-  {
-    name: "country",
-    label: "Country",
-    placeholder: "Select",
-    autoComplete: "country-name",
-    options: ["Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam"],
-  },
-  {
-    name: "phone",
-    label: "Recipient phone",
-    placeholder: "",
-    type: "tel",
-    autoComplete: "tel",
-    fullWidth: true,
-  },
-];
 
 /**
  * The bank modal (Figma `1619:59252`) asks for exactly what profile setup asks
