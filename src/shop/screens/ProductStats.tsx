@@ -1,8 +1,11 @@
 import { useState, type ReactNode } from 'react'
 import AppShell from '../../portal/components/AppShell'
 import { requestProductTour } from '../../portal/tour-status'
+import { logShopActivity } from '../activity-log'
 import { Breadcrumb } from '../components/Breadcrumb'
 import { ProductListingCard } from '../components/ShopProductCard'
+import { WriteReviewModal } from '../components/WriteReviewModal'
+import { reviewForShopItem, saveCreatorReview, type CreatorReview } from '../creator-reviews'
 import { affiliateLinkFor, formatShopDate, hasLiveLink } from '../data/shop'
 import {
   ORIGIN_CRUMBS,
@@ -85,6 +88,8 @@ export function ProductStats({
   const [items] = useState(loadShopItems)
   const [tab, setTab] = useState<Tab>('Sales')
   const [copied, setCopied] = useState(false)
+  const [review, setReview] = useState<CreatorReview | null>(() => reviewForShopItem(itemId))
+  const [reviewModalOpen, setReviewModalOpen] = useState(false)
 
   const item: ShopItem | undefined = items.find((row) => row.id === itemId)
 
@@ -122,6 +127,14 @@ export function ProductStats({
     void navigator.clipboard?.writeText(link)
     setCopied(true)
     window.setTimeout(() => setCopied(false), 2000)
+  }
+
+  function handleReviewSubmit(input: { comment: string; socialPostUrl?: string }) {
+    const isNew = !review
+    const saved = saveCreatorReview(itemId, product.id, input)
+    setReview(saved)
+    setReviewModalOpen(false)
+    if (isNew) logShopActivity('product-reviewed', `${product.brand} ${product.name}`)
   }
 
   return (
@@ -237,6 +250,39 @@ export function ProductStats({
                         {product.regions.join(' & ')}
                       </span>
                     </p>
+
+                    <div className="flex w-full flex-col items-start gap-sm rounded-lg border border-border-default bg-surface-secondary-100 p-md-sm">
+                      <div className="flex w-full items-center justify-between">
+                        <p className="text-body-sm font-medium text-text-secondary-900">Creator Review</p>
+                        <button
+                          type="button"
+                          onClick={() => setReviewModalOpen(true)}
+                          className="text-body-xs font-medium text-text-secondary-1000 underline"
+                        >
+                          {review ? 'Edit' : 'Write a review'}
+                        </button>
+                      </div>
+                      {review ? (
+                        <div className="flex w-full flex-col gap-xs">
+                          <p className="text-body-sm text-text-secondary-900">{review.comment}</p>
+                          {review.socialPostUrl && (
+                            <a
+                              href={review.socialPostUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-body-xs font-medium text-text-secondary-700 underline"
+                            >
+                              View social post
+                            </a>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-body-xs text-text-secondary-700">
+                          Share your experience with this product — creator reviews are kept separate
+                          from shopper reviews.
+                        </p>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -244,6 +290,15 @@ export function ProductStats({
           </div>
         </div>
       </main>
+
+      {reviewModalOpen && (
+        <WriteReviewModal
+          product={product}
+          initialReview={review}
+          onClose={() => setReviewModalOpen(false)}
+          onSubmit={handleReviewSubmit}
+        />
+      )}
     </AppShell>
   )
 }

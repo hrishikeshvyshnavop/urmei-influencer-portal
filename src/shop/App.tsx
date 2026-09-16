@@ -4,7 +4,15 @@ import { MAX_FAVORITES, MAX_PRODUCTS } from './limits'
 import { AddToShopModal } from './components/AddToShopModal'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
+import { RequestSampleModal } from './components/RequestSampleModal'
 import { Toast } from './components/Toast'
+import {
+  SAMPLE_REQUEST_STATUS_LABELS,
+  loadSampleRequests,
+  submitSampleRequest,
+  type SampleRequest,
+  type SampleShippingAddress,
+} from './sample-requests'
 import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
 import { SHOP_URL, affiliateLinkFor, hasLiveLink } from './data/shop'
@@ -69,6 +77,9 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
   const [removalCandidate, setRemovalCandidate] = useState<ShopItem | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
+
+  const [sampleRequests, setSampleRequests] = useState<SampleRequest[]>(loadSampleRequests)
+  const [sampleTarget, setSampleTarget] = useState<{ product: Product; variant?: string } | null>(null)
 
   const [publishOpen, setPublishOpen] = useState(false)
   const [profileComplete] = useState(isProfileSetupComplete)
@@ -266,6 +277,37 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setToast({ message: 'Shop link copied to clipboard' })
   }
 
+  /** "Request sample" until one exists for this product, then its status —
+   *  same idea as `hasLiveLink`: derive from stored requests rather than
+   *  tracking a separate "already requested" flag. */
+  function sampleActionLabelFor(productId: string) {
+    const existing = sampleRequests
+      .filter((request) => request.productId === productId)
+      .sort((a, b) => b.requestedAt - a.requestedAt)[0]
+    return existing ? `Sample ${SAMPLE_REQUEST_STATUS_LABELS[existing.status].toLowerCase()}` : 'Request sample'
+  }
+
+  function confirmSampleRequest(input: { shippingAddress: SampleShippingAddress; note?: string }) {
+    if (!sampleTarget) return
+    const request = submitSampleRequest({
+      product: sampleTarget.product,
+      variant: sampleTarget.variant,
+      ...input,
+    })
+    setSampleRequests((current) => [request, ...current])
+    setSampleTarget(null)
+    setToast({
+      message: 'Sample request sent to Urmei for approval',
+      action: {
+        label: 'View status',
+        onClick: () => {
+          window.location.hash = '#/samples'
+        },
+      },
+    })
+    logShopActivity('sample-requested', `${request.productBrand} ${request.productName}`)
+  }
+
   // Derived from the live `query` (not `overlay.query`, frozen at the last
   // Enter/suggestion submit) so results/empty-vs-all track every keystroke,
   // including clearing the box back down to nothing.
@@ -300,6 +342,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           item={viewingItem}
           shopMode={shopModeFor(viewingItem, true)}
           onBackToShop={() => setViewingItemId(null)}
+          onRequestSample={() => setSampleTarget({ product: viewingItem.product, variant: viewingItem.variant })}
+          sampleActionLabel={sampleActionLabelFor(viewingItem.product.id)}
         />
       ) : (
         <MyShop
@@ -327,6 +371,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onToggleFavorite={toggleFavorite}
           onRemoveFromShop={(item) => setRemovalCandidate(item)}
           onReorderFavorite={reorderFavorite}
+          onRequestSample={(item) => setSampleTarget({ product: item.product, variant: item.variant })}
+          requestSampleLabelFor={sampleActionLabelFor}
         />
       )}
 
@@ -381,6 +427,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
               onBackToCatalogue={openCatalogue}
               onBackToResults={() => setOverlay({ kind: 'results', query: overlay.query })}
               onAddToShop={() => setPendingProduct(overlay.product)}
+              onRequestSample={() => setSampleTarget({ product: overlay.product })}
+              sampleActionLabel={sampleActionLabelFor(overlay.product.id)}
             />
           )}
         </BrowseOverlay>
@@ -416,6 +464,15 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           variant={removalCandidate.variant}
           onClose={() => setRemovalCandidate(null)}
           onConfirm={() => performRemoveFromShop(removalCandidate)}
+        />
+      )}
+
+      {sampleTarget && (
+        <RequestSampleModal
+          product={sampleTarget.product}
+          variant={sampleTarget.variant}
+          onClose={() => setSampleTarget(null)}
+          onSubmit={confirmSampleRequest}
         />
       )}
 

@@ -45,6 +45,12 @@ type ProductDetailProps = {
    *  favorite/remove management buttons, an affiliate-link row, and adds the
    *  "PERFORMACE" stats section below. */
   shopMode?: ShopMode
+  /** Opens the sample-request flow. Shown regardless of `shopMode` — sample
+   *  requests are deliberately independent of shop membership (see
+   *  docs/prd/creator-reviews-and-sample-requests.md §5.2). */
+  onRequestSample?: () => void
+  /** Reflects an existing request's status once one has been submitted. */
+  sampleActionLabel?: string
 }
 
 /** "50 ML | Blue gel cream" -> "50ml" — the size suffix Figma appends to the
@@ -73,6 +79,8 @@ export function ProductDetail({
   ctaLabel = 'Add product to shop',
   ctaDisabled = false,
   shopMode,
+  onRequestSample,
+  sampleActionLabel = 'Request sample',
 }: ProductDetailProps) {
   // Not-yet-added products have no chosen variant, so fall back to the
   // catalogue's default — Figma (980:25543) shows the size on this page
@@ -297,6 +305,16 @@ export function ProductDetail({
                   ].join(' ')}
                 >
                   {ctaLabel}
+                </button>
+              )}
+
+              {onRequestSample && (
+                <button
+                  type="button"
+                  onClick={onRequestSample}
+                  className="flex w-full items-center justify-center gap-sm rounded-md border border-border-default px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
+                >
+                  {sampleActionLabel}
                 </button>
               )}
             </div>

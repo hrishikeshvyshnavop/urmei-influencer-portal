@@ -9,6 +9,8 @@ type ProductDetailPageProps = {
   item: ShopItem
   shopMode: ShopMode
   onBackToShop: () => void
+  onRequestSample: () => void
+  sampleActionLabel: string
 }
 
 /**
@@ -19,7 +21,13 @@ type ProductDetailPageProps = {
  * after confirming "Add to shop" from the catalogue (Figma `1144:62070`), which
  * keeps the browse overlay's scrim and stays inside `BrowseOverlay`.
  */
-export function ProductDetailPage({ item, shopMode, onBackToShop }: ProductDetailPageProps) {
+export function ProductDetailPage({
+  item,
+  shopMode,
+  onBackToShop,
+  onRequestSample,
+  sampleActionLabel,
+}: ProductDetailPageProps) {
   // This is an in-place state swap within `#/shop`, not a hash change, so
   // App.tsx's hash-based `scrollTo(0, 0)` never runs — without this, opening
   // the page keeps whatever scroll position My Shop was left at.
@@ -39,6 +47,8 @@ export function ProductDetailPage({ item, shopMode, onBackToShop }: ProductDetai
             product={item.product}
             breadcrumbItems={[{ label: 'My Shop', onClick: onBackToShop }, { label: item.product.name }]}
             shopMode={shopMode}
+            onRequestSample={onRequestSample}
+            sampleActionLabel={sampleActionLabel}
           />
         </ScaledBox>
       </div>

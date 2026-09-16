@@ -33,6 +33,8 @@ type MyShopProps = {
   onToggleFavorite: (item: ShopItem) => void
   onRemoveFromShop: (item: ShopItem) => void
   onReorderFavorite: (id: string, direction: 'up' | 'down') => void
+  onRequestSample: (item: ShopItem) => void
+  requestSampleLabelFor: (productId: string) => string
 }
 
 export function MyShop({
@@ -53,6 +55,8 @@ export function MyShop({
   onToggleFavorite,
   onRemoveFromShop,
   onReorderFavorite,
+  onRequestSample,
+  requestSampleLabelFor,
 }: MyShopProps) {
   const favoriteItems = items.filter((item) => item.favorite)
   const isEmpty = items.length === 0
@@ -152,6 +156,8 @@ export function MyShop({
                       }
                       onToggleFavorite={() => onToggleFavorite(item)}
                       onRemoveFromShop={() => onRemoveFromShop(item)}
+                      onRequestSample={() => onRequestSample(item)}
+                      requestSampleLabel={requestSampleLabelFor(item.product.id)}
                       favoriteRank={
                         isFavoriteTab
                           ? {

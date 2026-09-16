@@ -12,6 +12,11 @@ type ShopProductCardProps = {
   onCopyLink?: () => void
   onToggleFavorite: () => void
   onRemoveFromShop: () => void
+  /** Opens the sample-request flow for this product — independent of shop
+   *  membership, but reachable here too since the card is already showing
+   *  the product. Label reflects any existing request's status. */
+  onRequestSample: () => void
+  requestSampleLabel: string
   /**
    * Only set on the Favorite tab: the card swaps its top-left "Favorite" badge
    * for a rank + reorder footer ("#N Favorite", ‹ ›).
@@ -138,6 +143,8 @@ export function ShopProductCard({
   onCopyLink,
   onToggleFavorite,
   onRemoveFromShop,
+  onRequestSample,
+  requestSampleLabel,
   favoriteRank,
   onReorder,
 }: ShopProductCardProps) {
@@ -148,6 +155,7 @@ export function ShopProductCard({
     { label: 'View product details', onSelect: onViewDetails },
     ...(onCopyLink ? [{ label: 'Copy affiliate link', onSelect: onCopyLink }] : []),
     { label: favorite ? 'Remove from Favorite' : 'Add to Favorite', onSelect: onToggleFavorite },
+    { label: requestSampleLabel, onSelect: onRequestSample },
     { label: 'Remove from shop', onSelect: onRemoveFromShop, destructive: true },
   ]
 

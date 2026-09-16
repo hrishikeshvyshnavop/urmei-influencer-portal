@@ -1,4 +1,4 @@
-import { Box, Check, DollarSign, Megaphone, ShoppingBag, Star, StarOff, X, type LucideIcon } from 'lucide-react'
+import { Box, Check, DollarSign, Megaphone, MessageSquare, Package, ShoppingBag, Star, StarOff, X, type LucideIcon } from 'lucide-react'
 
 /**
  * These ids are written into `localStorage` by `logShopActivity`, so the two
@@ -15,6 +15,8 @@ export type ShopActivityType =
   | 'product-featured'
   | 'product-unfeatured'
   | 'shop-published'
+  | 'product-reviewed'
+  | 'sample-requested'
 
 export type ShopActivity = {
   id: string
@@ -42,6 +44,8 @@ export const ACTIVITY_LABELS: Record<ShopActivityType, string> = {
   'product-featured': 'Added a product as favourite',
   'product-unfeatured': 'Removed a product from favourite',
   'shop-published': 'Shop published',
+  'product-reviewed': 'Wrote a product review',
+  'sample-requested': 'Requested a product sample',
 }
 
 export const ACTIVITY_ICONS: Record<ShopActivityType, LucideIcon> = {
@@ -53,6 +57,8 @@ export const ACTIVITY_ICONS: Record<ShopActivityType, LucideIcon> = {
   'product-featured': Star,
   'product-unfeatured': StarOff,
   'shop-published': Megaphone,
+  'product-reviewed': MessageSquare,
+  'sample-requested': Package,
 }
 
 const ACTIVITY_LOG_KEY = 'urmei.shop-activity-log'

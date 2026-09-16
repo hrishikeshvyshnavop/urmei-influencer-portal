@@ -66,6 +66,7 @@ export default function AppHeader({
           <nav className="hidden items-center gap-4 md:flex">
             <a href="#/home" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">Home</a>
             <a href="#/shop" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">My Shop</a>
+            <a href="#/samples" className="track-section rounded-lg px-4 py-2 text-body-sm font-medium uppercase">Samples</a>
           </nav>
           </div>
           <div className="flex items-center gap-3 lg:gap-6">

@@ -20,6 +20,7 @@ import { subscribeToTourRequests, requestProductTour } from "./portal/tour-statu
 import HelpCenter from "./portal/HelpCenter";
 import Brands from "./portal/Brands";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
+import SampleRequests from "./portal/SampleRequests";
 import ManageAccount from "./portal/ManageAccount";
 import ShopExperience from "./shop/App";
 import { ProductStats } from "./shop/screens/ProductStats";
@@ -313,6 +314,8 @@ function screenFor(fullHash: string) {
       return <Brands />;
     case "#/recent-activities":
       return <RecentActivitiesPage />;
+    case "#/samples":
+      return <SampleRequests />;
     case "#/manage-account":
       return <ManageAccount />;
     case "#/manage-account/identity":
