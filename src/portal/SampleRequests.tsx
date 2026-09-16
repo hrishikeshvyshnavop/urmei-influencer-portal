@@ -27,7 +27,7 @@ export default function SampleRequests() {
 
   return (
     <AppShell
-      className="motion-page bg-portal-card text-portal-text"
+      className="bg-portal-card text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { window.location.hash = "#/help-center"; }}
     >
