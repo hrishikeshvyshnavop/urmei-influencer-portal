@@ -18,6 +18,14 @@ import { PRODUCTS } from "../shop/data/catalogue";
 import { affiliateLinkFor, hasLiveLink } from "../shop/data/shop";
 import type { Product, ShopItem } from "../shop/types";
 import { AddToShopModal } from "../shop/components/AddToShopModal";
+import { RequestSampleModal } from "../shop/components/RequestSampleModal";
+import {
+  SAMPLE_REQUEST_STATUS_LABELS,
+  loadSampleRequests,
+  submitSampleRequest,
+  type SampleRequest,
+  type SampleShippingAddress,
+} from "../shop/sample-requests";
 import { BrowseOverlay } from "../shop/screens/BrowseOverlay";
 import { ProductDetail, type ShopMode } from "../shop/screens/ProductDetail";
 import { setShopItemCount } from "../shop/shop-status";
@@ -83,6 +91,10 @@ function goToShop() {
   window.location.hash = "#/shop";
 }
 
+function goToSamples() {
+  window.location.hash = "#/samples";
+}
+
 export default function Home({
   firstVisit = false,
 }: {
@@ -99,6 +111,8 @@ export default function Home({
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [sampleRequests, setSampleRequests] = useState<SampleRequest[]>(loadSampleRequests);
+  const [sampleTarget, setSampleTarget] = useState<Product | null>(null);
   const [toast, setToast] = useState<HomeToast | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
@@ -179,6 +193,28 @@ export default function Home({
     });
     logShopActivity("product-removed", `${item.product.brand} ${item.product.name}`);
     setViewingProduct(null);
+  };
+
+  /** "Request sample" until one exists for this product, then its status —
+   *  mirrors `shop/App.tsx`'s own helper so the two entry points read the
+   *  same way regardless of which one a creator used. */
+  const sampleActionLabelFor = (productId: string) => {
+    const existing = sampleRequests
+      .filter((request) => request.productId === productId)
+      .sort((a, b) => b.requestedAt - a.requestedAt)[0];
+    return existing ? `Sample ${SAMPLE_REQUEST_STATUS_LABELS[existing.status].toLowerCase()}` : "Request sample";
+  };
+
+  const confirmSampleRequest = (input: { shippingAddress: SampleShippingAddress; note?: string }) => {
+    if (!sampleTarget) return;
+    const request = submitSampleRequest({ product: sampleTarget, ...input });
+    setSampleRequests((current) => [request, ...current]);
+    setSampleTarget(null);
+    setToast({
+      message: "Sample request sent to Urmei for approval",
+      action: { label: "View status", onClick: goToSamples },
+    });
+    logShopActivity("sample-requested", `${request.productBrand} ${request.productName}`);
   };
 
   const shopModeFor = (product: Product): ShopMode | undefined => {
@@ -359,8 +395,18 @@ export default function Home({
             hideBreadcrumb
             onAddToShop={() => { setPendingProduct(viewingProduct); setViewingProduct(null); }}
             shopMode={shopModeFor(viewingProduct)}
+            onRequestSample={() => setSampleTarget(viewingProduct)}
+            sampleActionLabel={sampleActionLabelFor(viewingProduct.id)}
           />
         </BrowseOverlay>
+      ) : null}
+
+      {sampleTarget ? (
+        <RequestSampleModal
+          product={sampleTarget}
+          onClose={() => setSampleTarget(null)}
+          onSubmit={confirmSampleRequest}
+        />
       ) : null}
 
       {toast ? <Toast message={toast.message} variant={toast.variant} action={toast.action} /> : null}
