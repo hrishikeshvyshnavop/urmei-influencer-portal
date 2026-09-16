@@ -14,6 +14,7 @@ import { CropModal } from "./SetProfilePhoto";
 import TextField from "./components/TextField";
 import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, readBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
 import { ADDRESS_FIELDS_BY_COUNTRY, type FieldSpec } from "./form-fields";
+import { loadShippingAddresses, saveShippingAddresses, type ShippingAddress } from "./shipping-address";
 import { clearSetupRequired, isSetupRequired } from "./setup-status";
 import { getSavedBio, getSavedDisplayName, saveBio, saveDisplayName } from "./profile-status";
 import { requestProductTour } from "./tour-status";
@@ -83,22 +84,6 @@ const BANK_MODAL_FIELDS: FieldSpec[] = [
   // this frame does not. `optional` still drives which ones must be filled.
   return [{ ...field, required: false, fullWidth: name === "accountHolderType" }];
 });
-
-/** A saved address: its own id and default flag, plus the form's own values. */
-type ShippingAddress = { id: string; isDefault: boolean; fields: Record<string, string> };
-
-const initialAddresses: ShippingAddress[] = [
-  {
-    id: "a1",
-    isDefault: true,
-    fields: { label: "Home", blockNo: "12A", street: "Orchard Boulevard", building: "Camden Medical Centre", floorNo: "03", unitNumber: "28", postalCode: "520101", country: "Singapore", phone: "+65 9123 4567" },
-  },
-  {
-    id: "a2",
-    isDefault: false,
-    fields: { label: "Vietnam studio", blockNo: "88", street: "Nguyen Hue, District 1", building: "", floorNo: "", unitNumber: "", postalCode: "700000", country: "Vietnam", phone: "+84 90 123 4567" },
-  },
-];
 
 const emptyAddressFields: Record<string, string> = { label: "", blockNo: "", street: "", building: "", floorNo: "", unitNumber: "", postalCode: "", country: "Singapore", phone: "" };
 
@@ -214,7 +199,7 @@ export default function ManageAccount({
   const [identityPending, setIdentityPending] = useState(false);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(readBankAccount);
   const [setupRequired, setSetupRequired] = useState(isSetupRequired);
-  const [shippingAddresses, setShippingAddresses] = useState(initialAddresses);
+  const [shippingAddresses, setShippingAddresses] = useState(loadShippingAddresses);
   const [addressDraft, setAddressDraft] = useState<ShippingAddress | null>(null);
   const [addressErrors, setAddressErrors] = useState(false);
   const [bankDraft, setBankDraft] = useState<Record<string, string> | null>(null);
@@ -223,6 +208,10 @@ export default function ManageAccount({
   const [stickyOffset, setStickyOffset] = useState(120);
   const paymentConnected = bankAccount !== null;
   const profileDirty = displayName !== savedProfile.displayName || bio !== savedProfile.bio || phone !== savedProfile.phone || dob !== savedProfile.dob;
+
+  useEffect(() => {
+    saveShippingAddresses(shippingAddresses);
+  }, [shippingAddresses]);
 
   useEffect(() => {
     if (setupRequired && identityVerified && paymentConnected) {

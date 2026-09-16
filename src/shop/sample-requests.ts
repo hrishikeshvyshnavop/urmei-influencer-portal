@@ -10,14 +10,10 @@ import type { Product } from './types'
  */
 export type SampleRequestStatus = 'requested' | 'approved' | 'shipped' | 'rejected'
 
-export type SampleShippingAddress = {
-  fullName: string
-  addressLine1: string
-  addressLine2?: string
-  city: string
-  postalCode: string
-  country: string
-}
+/** The same `fields` shape Manage Account's saved addresses use (schema
+ *  varies by country — see `ADDRESS_FIELDS_BY_COUNTRY`), snapshotted at
+ *  submit time rather than a fixed set of named columns. */
+export type SampleShippingAddress = Record<string, string>
 
 export type SampleRequest = {
   id: string
@@ -60,11 +56,15 @@ function seedSampleRequests(): SampleRequest[] {
     productImage: product.shopCardImage,
     variant: product.variant,
     shippingAddress: {
-      fullName: 'Tan Ah Beng',
-      addressLine1: '12 Marina Boulevard',
-      city: 'Singapore',
-      postalCode: '018982',
+      label: 'Home',
+      blockNo: '12A',
+      street: 'Orchard Boulevard',
+      building: 'Camden Medical Centre',
+      floorNo: '03',
+      unitNumber: '28',
+      postalCode: '520101',
       country: 'Singapore',
+      phone: '+65 9123 4567',
     },
     status: statuses[index]!,
     requestedAt: now - (index + 1) * 4 * DAY_MS,

@@ -1,7 +1,15 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
+import FieldGrid from '../../portal/components/FieldGrid'
+import { ADDRESS_FIELDS_BY_COUNTRY, type FieldSpec } from '../../portal/form-fields'
+import {
+  loadShippingAddresses,
+  saveShippingAddresses,
+  type ShippingAddress,
+} from '../../portal/shipping-address'
 import type { SampleShippingAddress } from '../sample-requests'
 import type { Product } from '../types'
+import { Checkbox } from './Checkbox'
 import { Icon } from './Icon'
 
 type RequestSampleModalProps = {
@@ -11,39 +19,34 @@ type RequestSampleModalProps = {
   onSubmit: (input: { shippingAddress: SampleShippingAddress; note?: string }) => void
 }
 
-const EMPTY_ADDRESS: SampleShippingAddress = {
-  fullName: '',
-  addressLine1: '',
-  addressLine2: '',
-  city: '',
-  postalCode: '',
-  country: '',
-}
+/** Same shape as Manage Account's own address modal (`ADDRESS_MODAL_FIELDS`)
+ *  minus the address label, which only matters for a saved, named address. */
+const REQUEST_ADDRESS_FIELDS: FieldSpec[] = [
+  ...ADDRESS_FIELDS_BY_COUNTRY.Singapore!.map((field) =>
+    field.name === 'floorNo' || field.name === 'unitNumber' ? { ...field, optional: true } : field,
+  ),
+  {
+    name: 'country',
+    label: 'Country',
+    placeholder: 'Select',
+    autoComplete: 'country-name',
+    options: ['Singapore', 'Malaysia', 'Indonesia', 'Thailand', 'Vietnam'],
+  },
+  {
+    name: 'phone',
+    label: 'Recipient phone',
+    placeholder: '',
+    type: 'tel',
+    autoComplete: 'tel',
+    fullWidth: true,
+  },
+]
 
-function Field({
-  label,
-  value,
-  onChange,
-  required = true,
-}: {
-  label: string
-  value: string
-  onChange: (value: string) => void
-  required?: boolean
-}) {
-  return (
-    <label className="flex w-full flex-col gap-xs">
-      <span className="text-body-sm font-medium text-text-secondary-1000">
-        {label} {required ? null : <span className="font-normal text-text-secondary-600">(optional)</span>}
-      </span>
-      <input
-        type="text"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-md border border-border-default bg-surface-secondary-100 px-md py-sm text-body-sm text-text-secondary-1000 outline-none placeholder:text-text-secondary-600 focus:border-border-outlined"
-      />
-    </label>
-  )
+function formatAddress(fields: Record<string, string>): string {
+  const unit = fields.floorNo && fields.unitNumber ? `#${fields.floorNo}-${fields.unitNumber}` : undefined
+  return [fields.blockNo, fields.street, fields.building, unit, fields.postalCode, fields.country]
+    .filter((part) => part && part.trim().length > 0)
+    .join(', ')
 }
 
 /**
@@ -51,9 +54,19 @@ function Field({
  * is in the creator's shop (see docs/prd/creator-reviews-and-sample-requests.md
  * §5.2). Urmei approves every request manually for now, so this only ever
  * writes a `requested` record; there's no in-app approval step here.
+ *
+ * Defaults to whatever address Manage Account has on file (the one marked
+ * "For sample shipping", or the first saved one) rather than asking a
+ * creator who already has an address in their profile to retype it.
  */
 export function RequestSampleModal({ product, variant, onClose, onSubmit }: RequestSampleModalProps) {
-  const [address, setAddress] = useState<SampleShippingAddress>(EMPTY_ADDRESS)
+  const [addresses] = useState<ShippingAddress[]>(loadShippingAddresses)
+  const savedAddress = addresses.find((address) => address.isDefault) ?? addresses[0] ?? null
+
+  const [useSaved, setUseSaved] = useState(savedAddress !== null)
+  const [values, setValues] = useState<Record<string, string>>({ country: 'Singapore' })
+  const [saveForFuture, setSaveForFuture] = useState(addresses.length === 0)
+  const [showErrors, setShowErrors] = useState(false)
   const [note, setNote] = useState('')
 
   useEffect(() => {
@@ -64,23 +77,21 @@ export function RequestSampleModal({ product, variant, onClose, onSubmit }: Requ
     }
   }, [])
 
-  const canSubmit =
-    address.fullName.trim().length > 0 &&
-    address.addressLine1.trim().length > 0 &&
-    address.city.trim().length > 0 &&
-    address.postalCode.trim().length > 0 &&
-    address.country.trim().length > 0
-
-  function update<K extends keyof SampleShippingAddress>(key: K, value: string) {
-    setAddress((current) => ({ ...current, [key]: value }))
-  }
-
   function handleSubmit() {
-    if (!canSubmit) return
-    onSubmit({
-      shippingAddress: { ...address, addressLine2: address.addressLine2?.trim() || undefined },
-      note: note.trim() || undefined,
-    })
+    if (useSaved && savedAddress) {
+      onSubmit({ shippingAddress: savedAddress.fields, note: note.trim() || undefined })
+      return
+    }
+    setShowErrors(true)
+    const complete = REQUEST_ADDRESS_FIELDS.every((field) => field.optional || (values[field.name] ?? '').trim())
+    if (!complete) return
+    if (saveForFuture) {
+      saveShippingAddresses([
+        ...addresses,
+        { id: `address-${Date.now()}`, isDefault: addresses.length === 0, fields: values },
+      ])
+    }
+    onSubmit({ shippingAddress: values, note: note.trim() || undefined })
   }
 
   return createPortal(
@@ -128,25 +139,61 @@ export function RequestSampleModal({ product, variant, onClose, onSubmit }: Requ
             Urmei reviews every sample request manually — check the Samples page for status updates.
           </p>
 
-          <div className="flex w-full flex-col gap-md-sm">
-            <Field label="Full name" value={address.fullName} onChange={(value) => update('fullName', value)} />
-            <Field
-              label="Address line 1"
-              value={address.addressLine1}
-              onChange={(value) => update('addressLine1', value)}
-            />
-            <Field
-              label="Address line 2"
-              value={address.addressLine2 ?? ''}
-              onChange={(value) => update('addressLine2', value)}
-              required={false}
-            />
-            <div className="flex w-full items-start gap-md-sm">
-              <Field label="City" value={address.city} onChange={(value) => update('city', value)} />
-              <Field label="Postal code" value={address.postalCode} onChange={(value) => update('postalCode', value)} />
+          {savedAddress && (
+            <div className="flex items-center gap-ten" role="tablist" aria-label="Shipping address">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={useSaved}
+                onClick={() => setUseSaved(true)}
+                className={[
+                  'rounded-full border px-md py-sm text-body-sm transition-colors duration-200',
+                  useSaved
+                    ? 'border-transparent bg-surface-tertiary-1000 text-text-secondary-100'
+                    : 'border-border-default bg-surface-secondary-100 text-text-secondary-700',
+                ].join(' ')}
+              >
+                Saved address
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={!useSaved}
+                onClick={() => setUseSaved(false)}
+                className={[
+                  'rounded-full border px-md py-sm text-body-sm transition-colors duration-200',
+                  !useSaved
+                    ? 'border-transparent bg-surface-tertiary-1000 text-text-secondary-100'
+                    : 'border-border-default bg-surface-secondary-100 text-text-secondary-700',
+                ].join(' ')}
+              >
+                Different address
+              </button>
             </div>
-            <Field label="Country" value={address.country} onChange={(value) => update('country', value)} />
-          </div>
+          )}
+
+          {useSaved && savedAddress ? (
+            <div className="flex w-full flex-col gap-xs rounded-md border border-border-default bg-surface-secondary-100 p-md-sm">
+              <p className="text-body-sm font-medium text-text-secondary-1000">
+                {savedAddress.fields.label || 'Saved address'}
+              </p>
+              <p className="text-body-xs text-text-secondary-700">{formatAddress(savedAddress.fields)}</p>
+            </div>
+          ) : (
+            <div className="flex w-full flex-col gap-md-sm">
+              <FieldGrid
+                fields={REQUEST_ADDRESS_FIELDS}
+                values={values}
+                showErrors={showErrors}
+                onChange={(name, value) => setValues((current) => ({ ...current, [name]: value }))}
+              />
+              <Checkbox
+                checked={saveForFuture}
+                onChange={setSaveForFuture}
+                label="Save this address for future requests"
+              />
+            </div>
+          )}
 
           <label className="flex w-full flex-col gap-xs">
             <span className="text-body-sm font-medium text-text-secondary-1000">
@@ -164,8 +211,7 @@ export function RequestSampleModal({ product, variant, onClose, onSubmit }: Requ
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={!canSubmit}
-            className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500"
+            className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100"
           >
             Submit request
           </button>
