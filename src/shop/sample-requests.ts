@@ -25,7 +25,6 @@ export type SampleRequest = {
   productImage: string
   variant?: string
   shippingAddress: SampleShippingAddress
-  note?: string
   status: SampleRequestStatus
   requestedAt: number
   updatedAt: number
@@ -44,13 +43,19 @@ const DAY_MS = 24 * 60 * 60 * 1000
 /** Demo history so the status page isn't empty before there's a real backend
  *  to fulfil requests — built from real catalogue products so it reads as
  *  genuine activity rather than placeholder rows (mirrors the seeded-fixture
- *  approach `NotificationsDrawer` already uses for the same reason). */
+ *  approach `NotificationsDrawer` already uses for the same reason).
+ *
+ *  `productId` is deliberately NOT the real catalogue id: every other lookup
+ *  in this file (`latestSampleRequestForProduct`, and the card badge/menu
+ *  logic in shop/App.tsx and Home.tsx) matches on `productId`, so a seeded
+ *  row using the real id would make that catalogue product look like it
+ *  already had a request — including one a creator later actually adds. */
 function seedSampleRequests(): SampleRequest[] {
   const now = Date.now()
   const statuses: SampleRequestStatus[] = ['shipped', 'approved', 'requested']
   return PRODUCTS.slice(0, statuses.length).map((product, index) => ({
     id: `seed-${product.id}`,
-    productId: product.id,
+    productId: `seed-${product.id}`,
     productName: product.name,
     productBrand: product.brand,
     productImage: product.shopCardImage,
@@ -72,6 +77,23 @@ function seedSampleRequests(): SampleRequest[] {
   }))
 }
 
+/** A browser that already ran the old seed (`productId` was the real
+ *  catalogue id) keeps that stale data forever otherwise — `loadSampleRequests`
+ *  only seeds fresh storage, so already-persisted rows never get the fix.
+ *  Seed rows are the only ones with a `seed-` id (real submissions get a
+ *  timestamp id from `submitSampleRequest`), so this only ever touches those. */
+function migrateLegacySeedProductIds(requests: SampleRequest[]): { requests: SampleRequest[]; changed: boolean } {
+  let changed = false
+  const migrated = requests.map((request) => {
+    if (request.id.startsWith('seed-') && !request.productId.startsWith('seed-')) {
+      changed = true
+      return { ...request, productId: `seed-${request.productId}` }
+    }
+    return request
+  })
+  return { requests: migrated, changed }
+}
+
 export function loadSampleRequests(): SampleRequest[] {
   try {
     const raw = window.localStorage.getItem(SAMPLE_REQUESTS_KEY)
@@ -80,7 +102,10 @@ export function loadSampleRequests(): SampleRequest[] {
       saveSampleRequests(seeded)
       return seeded
     }
-    return JSON.parse(raw) as SampleRequest[]
+    const stored = JSON.parse(raw) as SampleRequest[]
+    const { requests, changed } = migrateLegacySeedProductIds(stored)
+    if (changed) saveSampleRequests(requests)
+    return requests
   } catch {
     return []
   }
@@ -109,7 +134,6 @@ export function submitSampleRequest(input: {
   product: Product
   variant?: string
   shippingAddress: SampleShippingAddress
-  note?: string
 }): SampleRequest {
   const now = Date.now()
   const request: SampleRequest = {
@@ -120,7 +144,6 @@ export function submitSampleRequest(input: {
     productImage: input.product.shopCardImage,
     variant: input.variant,
     shippingAddress: input.shippingAddress,
-    note: input.note,
     status: 'requested',
     requestedAt: now,
     updatedAt: now,

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { SAMPLE_REQUEST_STATUS_LABELS, type SampleRequestStatus } from '../sample-requests'
 import type { ShopItem } from '../types'
 import { Icon } from './Icon'
 import { ItemMenu, type ItemMenuAction } from './ItemMenu'
@@ -14,9 +15,15 @@ type ShopProductCardProps = {
   onRemoveFromShop: () => void
   /** Opens the sample-request flow for this product — independent of shop
    *  membership, but reachable here too since the card is already showing
-   *  the product. Label reflects any existing request's status. */
+   *  the product. Always opens a fresh request, even if one already exists;
+   *  an existing request is surfaced separately via `sampleStatus` below,
+   *  not by changing what this menu item says or does. */
   onRequestSample: () => void
-  requestSampleLabel: string
+  /** Set once a request exists for this product — draws a status badge on
+   *  the card (bottom-left) instead of folding the status into the menu. */
+  sampleStatus?: SampleRequestStatus | null
+  /** Opens that request's order-summary page. Required when `sampleStatus` is set. */
+  onViewSampleStatus?: () => void
   /**
    * Only set on the Favorite tab: the card swaps its top-left "Favorite" badge
    * for a rank + reorder footer ("#N Favorite", ‹ ›).
@@ -57,6 +64,10 @@ type ProductListingCardProps = {
   imageAction?: ReactNode
   /** The Favorite tab replaces the top-left badge with a rank footer. */
   hideFavoriteBadge?: boolean
+  /** Rendered over the image's bottom-left corner — a product's sample-request
+   *  status, when it has one. Kept apart from `imageAction` (top-right) and
+   *  the Favorite badge (top-left) so none of the three ever collide. */
+  sampleBadge?: ReactNode
   /**
    * The product-stats page's variant (Figma `1652:59725`): brand, name and
    * variant only — no price, commission pill, regions or divider, because the
@@ -76,6 +87,7 @@ export function ProductListingCard({
   item,
   imageAction,
   hideFavoriteBadge,
+  sampleBadge,
   titleOnly,
   footer,
 }: ProductListingCardProps) {
@@ -95,6 +107,7 @@ export function ProductListingCard({
           </span>
         )}
         {imageAction && <div className="absolute top-md-sm right-md-sm">{imageAction}</div>}
+        {sampleBadge && <div className="absolute bottom-md-sm left-md-sm">{sampleBadge}</div>}
       </div>
 
       <div className="flex w-full flex-col gap-md-sm bg-surface-secondary-200">
@@ -144,7 +157,8 @@ export function ShopProductCard({
   onToggleFavorite,
   onRemoveFromShop,
   onRequestSample,
-  requestSampleLabel,
+  sampleStatus,
+  onViewSampleStatus,
   favoriteRank,
   onReorder,
 }: ShopProductCardProps) {
@@ -155,7 +169,7 @@ export function ShopProductCard({
     { label: 'View product details', onSelect: onViewDetails },
     ...(onCopyLink ? [{ label: 'Copy affiliate link', onSelect: onCopyLink }] : []),
     { label: favorite ? 'Remove from Favorite' : 'Add to Favorite', onSelect: onToggleFavorite },
-    { label: requestSampleLabel, onSelect: onRequestSample },
+    { label: 'Request sample', onSelect: onRequestSample },
     { label: 'Remove from shop', onSelect: onRemoveFromShop, destructive: true },
   ]
 
@@ -175,6 +189,20 @@ export function ShopProductCard({
       <ProductListingCard
         item={item}
         hideFavoriteBadge={isFavoriteTab}
+        sampleBadge={
+          sampleStatus && (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation()
+                onViewSampleStatus?.()
+              }}
+              className="flex items-center rounded-full bg-surface-secondary-900 px-sm py-xs text-body-xxs font-medium whitespace-pre text-text-secondary-100"
+            >
+              {SAMPLE_REQUEST_STATUS_LABELS[sampleStatus]}
+            </button>
+          )
+        }
         imageAction={
           // Stops the card's own onClick from also firing when opening the menu or picking an item.
           <div onClick={(event) => event.stopPropagation()}>

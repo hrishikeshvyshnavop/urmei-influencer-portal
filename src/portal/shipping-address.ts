@@ -43,6 +43,15 @@ export function saveShippingAddresses(addresses: ShippingAddress[]) {
   }
 }
 
+/** A one-line, human-readable rendering of a saved address's fields — used
+ *  wherever an address needs to read as a summary rather than a form. */
+export function formatAddress(fields: Record<string, string>): string {
+  const unit = fields.floorNo && fields.unitNumber ? `#${fields.floorNo}-${fields.unitNumber}` : undefined;
+  return [fields.blockNo, fields.street, fields.building, unit, fields.postalCode, fields.country]
+    .filter((part) => part && part.trim().length > 0)
+    .join(", ");
+}
+
 /** The address samples ship to: whichever one Manage Account has marked "For
  *  sample shipping" (`isDefault`), or the first saved address if none is
  *  marked, or null if the creator hasn't saved one yet. Read by the

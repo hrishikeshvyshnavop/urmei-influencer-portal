@@ -11,6 +11,8 @@ type ProductDetailPageProps = {
   onBackToShop: () => void
   onRequestSample: () => void
   sampleActionLabel: string
+  onWriteReview: () => void
+  reviewActionLabel: string
 }
 
 /**
@@ -27,6 +29,8 @@ export function ProductDetailPage({
   onBackToShop,
   onRequestSample,
   sampleActionLabel,
+  onWriteReview,
+  reviewActionLabel,
 }: ProductDetailPageProps) {
   // This is an in-place state swap within `#/shop`, not a hash change, so
   // App.tsx's hash-based `scrollTo(0, 0)` never runs — without this, opening
@@ -49,6 +53,8 @@ export function ProductDetailPage({
             shopMode={shopMode}
             onRequestSample={onRequestSample}
             sampleActionLabel={sampleActionLabel}
+            onWriteReview={onWriteReview}
+            reviewActionLabel={reviewActionLabel}
           />
         </ScaledBox>
       </div>

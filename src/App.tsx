@@ -21,6 +21,7 @@ import HelpCenter from "./portal/HelpCenter";
 import Brands from "./portal/Brands";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
 import SampleRequests from "./portal/SampleRequests";
+import SampleOrderSummary from "./portal/SampleOrderSummary";
 import ManageAccount from "./portal/ManageAccount";
 import ShopExperience from "./shop/App";
 import { ProductStats } from "./shop/screens/ProductStats";
@@ -172,6 +173,9 @@ function screenFor(fullHash: string) {
   }
   if (hash.startsWith("#/shop/product/")) {
     return <ShopExperience initialProductId={decodeURIComponent(hash.slice("#/shop/product/".length))} />;
+  }
+  if (hash.startsWith("#/samples/")) {
+    return <SampleOrderSummary id={decodeURIComponent(hash.slice("#/samples/".length))} />;
   }
 
   switch (hash) {

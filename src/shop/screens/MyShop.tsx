@@ -10,6 +10,7 @@ import { ShopProductCard } from '../components/ShopProductCard'
 import { StatsRow } from '../components/StatsRow'
 import { hasLiveLink } from '../data/shop'
 import { statsRowEntries } from '../data/stats'
+import type { SampleRequestStatus } from '../sample-requests'
 import { StoreCard } from '../components/StoreCard'
 import { Tabs } from '../components/Tabs'
 import type { ShopItem } from '../types'
@@ -34,7 +35,8 @@ type MyShopProps = {
   onRemoveFromShop: (item: ShopItem) => void
   onReorderFavorite: (id: string, direction: 'up' | 'down') => void
   onRequestSample: (item: ShopItem) => void
-  requestSampleLabelFor: (productId: string) => string
+  sampleStatusFor: (productId: string) => SampleRequestStatus | null
+  onViewSampleStatus: (item: ShopItem) => void
 }
 
 export function MyShop({
@@ -56,7 +58,8 @@ export function MyShop({
   onRemoveFromShop,
   onReorderFavorite,
   onRequestSample,
-  requestSampleLabelFor,
+  sampleStatusFor,
+  onViewSampleStatus,
 }: MyShopProps) {
   const favoriteItems = items.filter((item) => item.favorite)
   const isEmpty = items.length === 0
@@ -157,7 +160,8 @@ export function MyShop({
                       onToggleFavorite={() => onToggleFavorite(item)}
                       onRemoveFromShop={() => onRemoveFromShop(item)}
                       onRequestSample={() => onRequestSample(item)}
-                      requestSampleLabel={requestSampleLabelFor(item.product.id)}
+                      sampleStatus={sampleStatusFor(item.product.id)}
+                      onViewSampleStatus={() => onViewSampleStatus(item)}
                       favoriteRank={
                         isFavoriteTab
                           ? {

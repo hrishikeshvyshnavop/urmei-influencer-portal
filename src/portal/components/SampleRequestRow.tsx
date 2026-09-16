@@ -1,4 +1,3 @@
-import { Package } from "lucide-react";
 import { formatActivityTime } from "../../shop/activity-log";
 import { SAMPLE_REQUEST_STATUS_LABELS, type SampleRequest } from "../../shop/sample-requests";
 
@@ -11,18 +10,21 @@ const STATUS_STYLES: Record<SampleRequest["status"], string> = {
 
 /** One row of the Sample Requests list — mirrors `ActivityRow`'s layout
  *  (icon well, label, trailing timestamp) with a status pill in place of the
- *  activity feed's bold amount. */
+ *  activity feed's bold amount. Links to that request's order-summary page. */
 export default function SampleRequestRow({ request, divider = true }: { request: SampleRequest; divider?: boolean }) {
   return (
-    <article
+    <a
+      href={`#/samples/${request.id}`}
       className={`flex w-full items-start gap-[10px] overflow-clip bg-portal-card py-4 ${
         divider ? "border-b border-solid border-portal-border" : ""
       }`}
     >
       <div className="flex min-w-px flex-1 items-start gap-3">
-        <div className="flex size-[32px] shrink-0 items-center justify-center rounded-full bg-portal-tint p-[6px]">
-          <Package aria-hidden="true" className="size-4" strokeWidth={1.5} />
-        </div>
+        <img
+          src={request.productImage}
+          alt=""
+          className="size-[48px] shrink-0 rounded-sm border border-portal-border object-cover"
+        />
 
         <div className="flex min-w-px flex-1 flex-col items-start gap-1">
           <p className="w-full text-body-md font-medium text-portal-text">
@@ -40,6 +42,6 @@ export default function SampleRequestRow({ request, divider = true }: { request:
           {formatActivityTime(request.requestedAt)}
         </time>
       </div>
-    </article>
+    </a>
   );
 }

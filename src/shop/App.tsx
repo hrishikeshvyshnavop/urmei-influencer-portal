@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react'
 import { logShopActivity } from './activity-log'
+import { reviewForShopItem, saveCreatorReview } from './creator-reviews'
 import { MAX_FAVORITES, MAX_PRODUCTS } from './limits'
 import { AddToShopModal } from './components/AddToShopModal'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { RequestSampleModal } from './components/RequestSampleModal'
+import { WriteReviewModal } from './components/WriteReviewModal'
 import { Toast } from './components/Toast'
 import {
   SAMPLE_REQUEST_STATUS_LABELS,
@@ -53,6 +55,14 @@ type ToastState = {
   action?: { label: string; onClick: () => void }
 }
 
+/** Hoisted out of `openSampleFlow`: assigning `window.location.hash` as a
+ *  plain statement inside a component-scoped function trips
+ *  `react-hooks/immutability` (see `portal/Home.tsx`'s `goToShop` for the
+ *  same fix). */
+function goToSampleRequest(id: string) {
+  window.location.hash = `#/samples/${id}`
+}
+
 export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string }) {
   const [items, setItems] = useState<ShopItem[]>(loadShopItems)
   const [activeTab, setActiveTab] = useState('all')
@@ -80,6 +90,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
 
   const [sampleRequests, setSampleRequests] = useState<SampleRequest[]>(loadSampleRequests)
   const [sampleTarget, setSampleTarget] = useState<{ product: Product; variant?: string } | null>(null)
+  const [reviewTarget, setReviewTarget] = useState<ShopItem | null>(null)
 
   const [publishOpen, setPublishOpen] = useState(false)
   const [profileComplete] = useState(isProfileSetupComplete)
@@ -277,17 +288,33 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setToast({ message: 'Shop link copied to clipboard' })
   }
 
+  function latestSampleRequestFor(productId: string) {
+    return sampleRequests
+      .filter((request) => request.productId === productId)
+      .sort((a, b) => b.requestedAt - a.requestedAt)[0]
+  }
+
   /** "Request sample" until one exists for this product, then its status —
    *  same idea as `hasLiveLink`: derive from stored requests rather than
    *  tracking a separate "already requested" flag. */
   function sampleActionLabelFor(productId: string) {
-    const existing = sampleRequests
-      .filter((request) => request.productId === productId)
-      .sort((a, b) => b.requestedAt - a.requestedAt)[0]
+    const existing = latestSampleRequestFor(productId)
     return existing ? `Sample ${SAMPLE_REQUEST_STATUS_LABELS[existing.status].toLowerCase()}` : 'Request sample'
   }
 
-  function confirmSampleRequest(input: { shippingAddress: SampleShippingAddress; note?: string }) {
+  /** Once a product already has a request, the action reads its status — so
+   *  it should open that request's own order-summary page instead of a fresh
+   *  request form, which would otherwise let a creator submit a duplicate. */
+  function openSampleFlow(product: Product, variant?: string) {
+    const existing = latestSampleRequestFor(product.id)
+    if (existing) {
+      goToSampleRequest(existing.id)
+      return
+    }
+    setSampleTarget({ product, variant })
+  }
+
+  function confirmSampleRequest(input: { shippingAddress: SampleShippingAddress }) {
     if (!sampleTarget) return
     const request = submitSampleRequest({
       product: sampleTarget.product,
@@ -306,6 +333,19 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       },
     })
     logShopActivity('sample-requested', `${request.productBrand} ${request.productName}`)
+  }
+
+  function reviewActionLabelFor(shopItemId: string) {
+    return reviewForShopItem(shopItemId) ? 'Edit review' : 'Write a review'
+  }
+
+  function confirmReview(input: { comment: string; socialPostUrl?: string }) {
+    if (!reviewTarget) return
+    const isNew = !reviewForShopItem(reviewTarget.id)
+    saveCreatorReview(reviewTarget.id, reviewTarget.product.id, input)
+    setReviewTarget(null)
+    setToast({ message: isNew ? 'Review saved' : 'Review updated' })
+    if (isNew) logShopActivity('product-reviewed', `${reviewTarget.product.brand} ${reviewTarget.product.name}`)
   }
 
   // Derived from the live `query` (not `overlay.query`, frozen at the last
@@ -342,8 +382,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           item={viewingItem}
           shopMode={shopModeFor(viewingItem, true)}
           onBackToShop={() => setViewingItemId(null)}
-          onRequestSample={() => setSampleTarget({ product: viewingItem.product, variant: viewingItem.variant })}
+          onRequestSample={() => openSampleFlow(viewingItem.product, viewingItem.variant)}
           sampleActionLabel={sampleActionLabelFor(viewingItem.product.id)}
+          onWriteReview={() => setReviewTarget(viewingItem)}
+          reviewActionLabel={reviewActionLabelFor(viewingItem.id)}
         />
       ) : (
         <MyShop
@@ -372,7 +414,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onRemoveFromShop={(item) => setRemovalCandidate(item)}
           onReorderFavorite={reorderFavorite}
           onRequestSample={(item) => setSampleTarget({ product: item.product, variant: item.variant })}
-          requestSampleLabelFor={sampleActionLabelFor}
+          sampleStatusFor={(productId) => latestSampleRequestFor(productId)?.status ?? null}
+          onViewSampleStatus={(item) => openSampleFlow(item.product, item.variant)}
         />
       )}
 
@@ -427,7 +470,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
               onBackToCatalogue={openCatalogue}
               onBackToResults={() => setOverlay({ kind: 'results', query: overlay.query })}
               onAddToShop={() => setPendingProduct(overlay.product)}
-              onRequestSample={() => setSampleTarget({ product: overlay.product })}
+              onRequestSample={() => openSampleFlow(overlay.product)}
               sampleActionLabel={sampleActionLabelFor(overlay.product.id)}
             />
           )}
@@ -473,6 +516,15 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           variant={sampleTarget.variant}
           onClose={() => setSampleTarget(null)}
           onSubmit={confirmSampleRequest}
+        />
+      )}
+
+      {reviewTarget && (
+        <WriteReviewModal
+          product={reviewTarget.product}
+          initialReview={reviewForShopItem(reviewTarget.id)}
+          onClose={() => setReviewTarget(null)}
+          onSubmit={confirmReview}
         />
       )}
 

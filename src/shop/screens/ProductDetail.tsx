@@ -51,6 +51,12 @@ type ProductDetailProps = {
   onRequestSample?: () => void
   /** Reflects an existing request's status once one has been submitted. */
   sampleActionLabel?: string
+  /** Opens the creator-review flow. Only meaningful (and only rendered) once
+   *  `shopMode` is set — a review is for a product the creator has actually
+   *  added to their shop, unlike sample requests. */
+  onWriteReview?: () => void
+  /** "Write a review" until one exists for this item, then "Edit review". */
+  reviewActionLabel?: string
 }
 
 /** "50 ML | Blue gel cream" -> "50ml" — the size suffix Figma appends to the
@@ -81,6 +87,8 @@ export function ProductDetail({
   shopMode,
   onRequestSample,
   sampleActionLabel = 'Request sample',
+  onWriteReview,
+  reviewActionLabel = 'Write a review',
 }: ProductDetailProps) {
   // Not-yet-added products have no chosen variant, so fall back to the
   // catalogue's default — Figma (980:25543) shows the size on this page
@@ -305,6 +313,16 @@ export function ProductDetail({
                   ].join(' ')}
                 >
                   {ctaLabel}
+                </button>
+              )}
+
+              {shopMode && onWriteReview && (
+                <button
+                  type="button"
+                  onClick={onWriteReview}
+                  className="flex w-full items-center justify-center gap-sm rounded-md border border-border-default px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
+                >
+                  {reviewActionLabel}
                 </button>
               )}
 

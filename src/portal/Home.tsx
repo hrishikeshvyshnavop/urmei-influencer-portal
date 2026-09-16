@@ -19,6 +19,8 @@ import { affiliateLinkFor, hasLiveLink } from "../shop/data/shop";
 import type { Product, ShopItem } from "../shop/types";
 import { AddToShopModal } from "../shop/components/AddToShopModal";
 import { RequestSampleModal } from "../shop/components/RequestSampleModal";
+import { WriteReviewModal } from "../shop/components/WriteReviewModal";
+import { reviewForShopItem, saveCreatorReview } from "../shop/creator-reviews";
 import {
   SAMPLE_REQUEST_STATUS_LABELS,
   loadSampleRequests,
@@ -95,6 +97,10 @@ function goToSamples() {
   window.location.hash = "#/samples";
 }
 
+function goToSampleRequest(id: string) {
+  window.location.hash = `#/samples/${id}`;
+}
+
 export default function Home({
   firstVisit = false,
 }: {
@@ -113,6 +119,7 @@ export default function Home({
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
   const [sampleRequests, setSampleRequests] = useState<SampleRequest[]>(loadSampleRequests);
   const [sampleTarget, setSampleTarget] = useState<Product | null>(null);
+  const [reviewTarget, setReviewTarget] = useState<ShopItem | null>(null);
   const [toast, setToast] = useState<HomeToast | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
@@ -195,17 +202,32 @@ export default function Home({
     setViewingProduct(null);
   };
 
+  const latestSampleRequestFor = (productId: string) =>
+    sampleRequests
+      .filter((request) => request.productId === productId)
+      .sort((a, b) => b.requestedAt - a.requestedAt)[0];
+
   /** "Request sample" until one exists for this product, then its status —
    *  mirrors `shop/App.tsx`'s own helper so the two entry points read the
    *  same way regardless of which one a creator used. */
   const sampleActionLabelFor = (productId: string) => {
-    const existing = sampleRequests
-      .filter((request) => request.productId === productId)
-      .sort((a, b) => b.requestedAt - a.requestedAt)[0];
+    const existing = latestSampleRequestFor(productId);
     return existing ? `Sample ${SAMPLE_REQUEST_STATUS_LABELS[existing.status].toLowerCase()}` : "Request sample";
   };
 
-  const confirmSampleRequest = (input: { shippingAddress: SampleShippingAddress; note?: string }) => {
+  /** Once a product already has a request, opens its order-summary page
+   *  instead of a fresh request form — same reasoning as shop/App.tsx's
+   *  openSampleFlow, so a creator can't submit a duplicate from here either. */
+  const openSampleFlow = (product: Product) => {
+    const existing = latestSampleRequestFor(product.id);
+    if (existing) {
+      goToSampleRequest(existing.id);
+      return;
+    }
+    setSampleTarget(product);
+  };
+
+  const confirmSampleRequest = (input: { shippingAddress: SampleShippingAddress }) => {
     if (!sampleTarget) return;
     const request = submitSampleRequest({ product: sampleTarget, ...input });
     setSampleRequests((current) => [request, ...current]);
@@ -217,8 +239,21 @@ export default function Home({
     logShopActivity("sample-requested", `${request.productBrand} ${request.productName}`);
   };
 
+  const reviewActionLabelFor = (shopItemId: string) => (reviewForShopItem(shopItemId) ? "Edit review" : "Write a review");
+
+  const confirmReview = (input: { comment: string; socialPostUrl?: string }) => {
+    if (!reviewTarget) return;
+    const isNew = !reviewForShopItem(reviewTarget.id);
+    saveCreatorReview(reviewTarget.id, reviewTarget.product.id, input);
+    setReviewTarget(null);
+    setToast({ message: isNew ? "Review saved" : "Review updated" });
+    if (isNew) logShopActivity("product-reviewed", `${reviewTarget.product.brand} ${reviewTarget.product.name}`);
+  };
+
+  const shopItemFor = (product: Product) => shopItems.find((row) => row.product.id === product.id);
+
   const shopModeFor = (product: Product): ShopMode | undefined => {
-    const item = shopItems.find((row) => row.product.id === product.id);
+    const item = shopItemFor(product);
     if (!item) return undefined;
     return {
       favorite: item.favorite,
@@ -395,8 +430,16 @@ export default function Home({
             hideBreadcrumb
             onAddToShop={() => { setPendingProduct(viewingProduct); setViewingProduct(null); }}
             shopMode={shopModeFor(viewingProduct)}
-            onRequestSample={() => setSampleTarget(viewingProduct)}
+            onRequestSample={() => openSampleFlow(viewingProduct)}
             sampleActionLabel={sampleActionLabelFor(viewingProduct.id)}
+            onWriteReview={() => {
+              const item = shopItemFor(viewingProduct);
+              if (item) setReviewTarget(item);
+            }}
+            reviewActionLabel={(() => {
+              const item = shopItemFor(viewingProduct);
+              return item ? reviewActionLabelFor(item.id) : undefined;
+            })()}
           />
         </BrowseOverlay>
       ) : null}
@@ -406,6 +449,15 @@ export default function Home({
           product={sampleTarget}
           onClose={() => setSampleTarget(null)}
           onSubmit={confirmSampleRequest}
+        />
+      ) : null}
+
+      {reviewTarget ? (
+        <WriteReviewModal
+          product={reviewTarget.product}
+          initialReview={reviewForShopItem(reviewTarget.id)}
+          onClose={() => setReviewTarget(null)}
+          onSubmit={confirmReview}
         />
       ) : null}
 
