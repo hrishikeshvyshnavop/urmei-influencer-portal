@@ -407,7 +407,9 @@ html body[data-scroll-locked] {
   position: absolute;
   inset-block: 0;
   left: 50%;
-  width: 100vw;
+  /* 100vw alone falls short below 1440px, where `ScaledBox` scales down and
+     the viewport's width is measured in the box's larger, unscaled units. */
+  width: max(100%, 100vw);
   translate: -50% 0;
   z-index: -1;
   pointer-events: none;
