@@ -14,6 +14,7 @@ import { VERIFICATION_MESSAGE_TYPE, VERIFICATION_STORAGE_KEY } from "./Verificat
 import AppFooter from "./components/AppFooter";
 import AppHeader from "./components/AppHeader";
 import { CropModal } from "./SetProfilePhoto";
+import TextArea from "./components/TextArea";
 import TextField from "./components/TextField";
 import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, isBankAccountComplete, readBankAccount, removeBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
 import {
@@ -263,7 +264,7 @@ export default function ManageAccount({
 
   const railNav = (
     <nav aria-label="Account settings" className="flex w-full shrink-0 gap-[2px] overflow-x-auto sm:flex-col">
-      {NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`flex h-12 shrink-0 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-body-sm tracking-[1.4px] uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{(key === "Profile" && (setupRequired || !identityVerified)) || (key === "Payouts" && (setupRequired || !paymentConnected)) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}
+      {NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`flex h-12 shrink-0 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-body-sm tracking-[1.4px] uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{/* Payouts only: identity is verified as part of the creator's application, so Profile never flags it. */}{key === "Payouts" && (setupRequired || !paymentConnected) ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}
     </nav>
   );
 
@@ -425,22 +426,15 @@ export default function ManageAccount({
                       </div>
                     </div>
                     <TextField label="Display name" placeholder="Your display name" value={displayName} onChange={(value) => { setDisplayName(value); setSaved(false); }} />
-                    {/* TextField has no multi-line mode, so the bio's box borrows
-                        its classes: same radius, padding, border and focus ring. */}
-                    <div className="flex w-full flex-col items-start gap-1">
-                      <div className="flex w-full items-start justify-between gap-1">
-                        <label htmlFor="manage-account-bio" className="text-body-sm font-medium text-portal-text">About me</label>
-                        <span className="text-body-sm text-portal-placeholder">{bio.length} / 160</span>
-                      </div>
-                      <textarea
-                        id="manage-account-bio"
-                        value={bio}
-                        maxLength={160}
-                        placeholder="Tell shoppers a little about yourself"
-                        onChange={(e) => { setBio(e.target.value); setSaved(false); }}
-                        className="h-[120px] w-full resize-none rounded-[6px] border border-portal-border bg-transparent px-4 py-3 text-body-sm text-portal-text outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-portal-placeholder focus:border-portal-dark focus:ring-2 focus:ring-portal-surface"
-                      />
-                    </div>
+                    <TextArea
+                      label="About me"
+                      aside={<span className="text-body-sm text-portal-placeholder">{bio.length} / 160</span>}
+                      value={bio}
+                      maxLength={160}
+                      placeholder="Tell shoppers a little about yourself"
+                      onChange={(value) => { setBio(value); setSaved(false); }}
+                      heightClassName="h-[120px]"
+                    />
                     <TextField label="Username" placeholder="" value="@charlotte" locked onChange={() => {}} hint="Your storefront url and every affiliate link you have shared use this. It cannot be changed." />
                   </div>
                 </div>

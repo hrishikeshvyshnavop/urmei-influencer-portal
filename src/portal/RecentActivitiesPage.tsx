@@ -2,19 +2,22 @@ import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
 import { requestProductTour } from "./tour-status";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { loadShopActivities } from "../shop/activity-log";
 import ActivityRow from "./components/ActivityRow";
 import Pagination from "@/components/Pagination";
+import { PeriodFilter } from "../shop/components/PeriodFilter";
+import type { StatPeriodId } from "../shop/data/stats";
 import { navigate } from "../router";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PAGE_SIZE = 8;
 
 export default function RecentActivitiesPage() {
-  const [period, setPeriod] = useState("7");
+  const [period, setPeriod] = useState<StatPeriodId>("7");
   const [page, setPage] = useState(1);
-  const cutoff = Date.now() - Number(period) * DAY_MS;
+  // Read once on mount so a re-render never shifts the window under the list.
+  const [now] = useState(Date.now);
+  const cutoff = period === "all" ? 0 : now - Number(period) * DAY_MS;
   const activities = loadShopActivities().filter((activity) => activity.at >= cutoff);
   const pageCount = Math.max(1, Math.ceil(activities.length / PAGE_SIZE));
   const currentPage = Math.min(page, pageCount);
@@ -25,6 +28,7 @@ export default function RecentActivitiesPage() {
       className="motion-page bg-portal-card text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
+      footerBelowFold
     >
 
       <main className="mx-auto flex-1 w-full max-w-[794px] px-6 pb-12 lg:px-0">
@@ -32,14 +36,7 @@ export default function RecentActivitiesPage() {
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
             <a href="/home">Home</a><ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} /><span className="text-portal-muted">Recent Activities</span>
           </nav>
-          <Select value={period} onValueChange={(value) => { setPeriod(value); setPage(1); }}>
-            <SelectTrigger aria-label="Activity period" className="w-[128px] whitespace-nowrap text-portal-text"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7">Last 7 Days</SelectItem>
-              <SelectItem value="30">Last 30 Days</SelectItem>
-              <SelectItem value="90">Last 90 Days</SelectItem>
-            </SelectContent>
-          </Select>
+          <PeriodFilter label="Activity period" value={period} onChange={(next) => { setPeriod(next); setPage(1); }} />
         </div>
 
         <section className="pt-2">

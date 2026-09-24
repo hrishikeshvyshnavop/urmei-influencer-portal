@@ -254,10 +254,12 @@ export default function Home({
             </div>
           ) : null}
           {hasShopItems && isShopPublished ? (
-            // The same five totals the shop's own row shows, from the same
-            // module — Home used to hardcode zeros and a "TOTAL PRODUCTS"
-            // column the design has since dropped.
-            <StatsRow stats={statsRowEntries(shopItems, "home")} />
+            // The same row My Shop shows — the same six totals and the same
+            // "Showing:" period selector — built by the same module.
+            <StatsRow
+              stats={statsRowEntries(shopItems, "home")}
+              showPeriod
+            />
           ) : null}
         </section>
 

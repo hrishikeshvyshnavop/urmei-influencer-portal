@@ -103,16 +103,22 @@ export const STAT_SPECS: Record<StatMetric, MetricSpec> = {
 }
 
 /**
- * The windows the stat pages' period selector offers. Only the closed "Last 7
- * Days" state is drawn (Figma `1619:39559`), so the open list is conventional:
- * the delta line below a breakdown's total reads against whichever window is
- * chosen.
+ * The windows the stats period filter offers, everywhere it appears — the
+ * stats row on Home and My Shop, the breakdown pages and a product's stats.
+ * Only closed states are drawn ("All time" on the row, `236:24886`; "Last 7
+ * Days" on a breakdown, `1619:39559`), so the open list is conventional.
+ * `previous` is what a breakdown's delta line compares against; "All time"
+ * has no earlier window, so it drops that line. The shop figures have no
+ * dated history behind them yet, so the choice doesn't change the numbers.
  */
 export const STAT_PERIODS = [
+  { id: 'all', label: 'All time', previous: null },
   { id: '7', label: 'Last 7 Days', previous: 'previous 7 days' },
   { id: '30', label: 'Last 30 Days', previous: 'previous 30 days' },
   { id: '90', label: 'Last 90 Days', previous: 'previous 90 days' },
 ] as const
+
+export type StatPeriodId = (typeof STAT_PERIODS)[number]['id']
 
 export type ProductStats = {
   clicks: number

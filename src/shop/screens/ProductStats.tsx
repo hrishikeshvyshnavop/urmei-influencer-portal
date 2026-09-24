@@ -2,11 +2,10 @@ import { useState, type ReactNode } from 'react'
 import AppShell from '../../portal/components/AppShell'
 import { requestProductTour } from '../../portal/tour-status'
 import { Breadcrumb } from '../components/Breadcrumb'
-import { PeriodSelect } from '../components/PeriodSelect'
+import { PeriodFilter } from '../components/PeriodFilter'
 import { ProductListingCard } from '../components/ShopProductCard'
 import { affiliateLinkFor, formatShopDate, hasLiveLink } from '../data/shop'
 import {
-  STAT_PERIODS,
   ORIGIN_CRUMBS,
   STAT_SPECS,
   statsBreakdownHash,
@@ -88,7 +87,6 @@ export function ProductStats({
   const [items] = useState(loadShopItems)
   const [tab, setTab] = useState<Tab>('Sales')
   const [copied, setCopied] = useState(false)
-  const [period, setPeriod] = useState<string>(STAT_PERIODS[0].id)
 
   const item: ShopItem | undefined = items.find((row) => row.id === itemId)
 
@@ -140,7 +138,7 @@ export function ProductStats({
         <div className="flex w-full max-w-[794px] flex-col items-start">
           <div className="flex w-full items-center justify-between py-sm">
             <Breadcrumb items={crumbsFor(origin, via, product.name)} />
-            <PeriodSelect options={STAT_PERIODS} value={period} onChange={setPeriod} />
+            <PeriodFilter />
           </div>
 
           <div className="flex w-full flex-col items-start gap-lg lg:flex-row">

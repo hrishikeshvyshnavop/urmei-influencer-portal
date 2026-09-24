@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import AppShell from '../../portal/components/AppShell'
 import SetupBanner from '../../portal/components/SetupBanner'
 import { requestProductTour } from '../../portal/tour-status'
@@ -15,16 +14,6 @@ import { StoreCard } from '../components/StoreCard'
 import { Tabs } from '../components/Tabs'
 import type { ShopItem } from '../types'
 import { navigate } from '../../router'
-
-/** The stats card's "Showing:" windows. Only the closed "All time" state is
- *  drawn (Figma `236:24886`); the shop figures have no dated history behind
- *  them yet, so the choice is presentational until a sales engine exists. */
-const STATS_PERIODS = [
-  { id: 'all', label: 'All time' },
-  { id: '7', label: 'Last 7 days' },
-  { id: '30', label: 'Last 30 days' },
-  { id: '90', label: 'Last 90 days' },
-] as const
 
 type MyShopProps = {
   items: ShopItem[]
@@ -66,7 +55,6 @@ export function MyShop({
   onRemoveFromShop,
   onReorderFavorite,
 }: MyShopProps) {
-  const [statsPeriod, setStatsPeriod] = useState<string>(STATS_PERIODS[0].id)
   const favoriteItems = items.filter((item) => item.favorite)
   const isEmpty = items.length === 0
   // Adding a product resolves a blocked publish attempt immediately, even
@@ -123,7 +111,7 @@ export function MyShop({
             {(published || blocked) && (
               <StatsRow
                 stats={statsRowEntries(items, 'shop')}
-                period={{ options: STATS_PERIODS, value: statsPeriod, onChange: setStatsPeriod }}
+                showPeriod
               />
             )}
           </div>
@@ -154,7 +142,10 @@ export function MyShop({
               ) : isEmpty ? (
                 <EmptyShop onBrowse={onBrowse} />
               ) : (
-                <div className="grid w-full grid-cols-4 gap-lg">
+                // Columns of at least 280px, as on the storefront: four across
+                // the 1200px column, stepping down to three and then two as
+                // the window narrows instead of squeezing four cards into it.
+                <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-lg">
                   {visibleItems.map((item) => (
                     <ShopProductCard
                       key={item.id}

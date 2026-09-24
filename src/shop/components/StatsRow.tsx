@@ -1,5 +1,5 @@
 import { ChevronRight } from 'lucide-react'
-import { PeriodSelect, type PeriodOption } from './PeriodSelect'
+import { PeriodFilter } from './PeriodFilter'
 
 export type StatEntry = {
   label: string
@@ -45,31 +45,27 @@ export function StatColumn({ label, value, href }: StatEntry) {
  * The shop totals under the store card (Figma `1619:39241`) — the product
  * count and the five metrics, on Home and My Shop alike — each metric column
  * a link into its breakdown page. Dividers sit between columns, not
- * around them. My Shop passes `period` for the "Showing: All time" selector
+ * around them. Both pages pass `showPeriod` for the "Showing: All time" filter
  * pinned to the card's top-right corner (`236:24886`), which also grows the
- * card's top edge to make room; Home's row has none.
+ * card's top edge to make room.
  */
 export function StatsRow({
   stats,
-  period,
+  showPeriod = false,
 }: {
   stats: StatEntry[]
-  period?: {
-    options: readonly PeriodOption[]
-    value: string
-    onChange: (next: string) => void
-  }
+  showPeriod?: boolean
 }) {
   return (
     <div
       className={[
         'flex w-full flex-col rounded-lg border border-border-muted bg-surface-secondary-100 px-[28px] pb-xxl',
-        period ? 'gap-[17px] pt-[15px]' : 'items-center pt-xxl',
+        showPeriod ? 'gap-[17px] pt-[15px]' : 'items-center pt-xxl',
       ].join(' ')}
     >
-      {period && (
+      {showPeriod && (
         <div className="flex w-full justify-end">
-          <PeriodSelect prefix="Showing:" {...period} />
+          <PeriodFilter prefix="Showing:" />
         </div>
       )}
       <div className="flex w-full items-stretch">

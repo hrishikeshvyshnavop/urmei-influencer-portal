@@ -4,7 +4,7 @@ import AppShell from "../../portal/components/AppShell";
 import { SearchField } from "../../portal/components/SearchField";
 import { requestProductTour } from "../../portal/tour-status";
 import { Breadcrumb } from "../components/Breadcrumb";
-import { PeriodSelect } from "../components/PeriodSelect";
+import { PeriodFilter } from "../components/PeriodFilter";
 import {
   ORIGIN_CRUMBS,
   STAT_PERIODS,
@@ -17,6 +17,7 @@ import {
   type StatsOrigin,
 } from "../data/stats";
 import { loadShopItems } from "../shop-items-store";
+import { useStatsPeriod } from "../stats-period";
 import { navigate } from "../../router";
 
 /**
@@ -41,7 +42,7 @@ export function StatBreakdown({
   const root = ORIGIN_CRUMBS[origin];
   const [items] = useState(loadShopItems);
   const [query, setQuery] = useState("");
-  const [period, setPeriod] = useState<string>(STAT_PERIODS[0].id);
+  const period = useStatsPeriod();
 
   const totals = useMemo(() => shopTotals(items), [items]);
   const total = totals[metric];
@@ -60,8 +61,8 @@ export function StatBreakdown({
   }, [items, metric, query]);
 
   const { up: trendUp, percent: trendPercent } = trendFor(metric, total);
-  const previousLabel = (STAT_PERIODS.find((row) => row.id === period) ?? STAT_PERIODS[0])
-    .previous;
+  // Null for "All time": there is no earlier window to compare against.
+  const previousLabel = STAT_PERIODS.find((row) => row.id === period)?.previous;
 
   return (
     <AppShell
@@ -85,11 +86,7 @@ export function StatBreakdown({
                 { label: spec.crumb },
               ]}
             />
-            <PeriodSelect
-              options={STAT_PERIODS}
-              value={period}
-              onChange={setPeriod}
-            />
+            <PeriodFilter />
           </div>
 
           <section className="flex h-[131px] w-full flex-col items-center justify-center gap-xs rounded-md bg-surface-secondary-300 px-md py-md-2">
@@ -100,7 +97,7 @@ export function StatBreakdown({
               {spec.format(total)}
               {spec.heroSuffix ? ` ${spec.heroSuffix}` : ""}
             </p>
-            {spec.trend && (
+            {spec.trend && previousLabel && (
               <p className="flex items-center gap-1 text-body-sm font-medium text-text-secondary-700">
                 <span
                   className={[
