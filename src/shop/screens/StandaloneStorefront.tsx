@@ -11,7 +11,9 @@ import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
 import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
+import { StorefrontReviews } from '../components/StorefrontReviews'
 import { Toast } from '../components/Toast'
+import { reviewsForShop } from '../data/reviews'
 import { SHOP_URL } from '../data/shop'
 import { useHasOverflowX } from '../hooks/useHasOverflowX'
 import { CONTENT_COLUMN } from '../layout'
@@ -227,6 +229,14 @@ export function StandaloneStorefront() {
   const clearSelection = () => setSelectedItem(null)
 
   const showFavorite = items.length > 0 && favoriteItems.length > 0
+  // "<Name>'s Reviews" sits between Favorite Picks and All Picks, as in the
+  // in-app preview (Figma `957:29042`); with no favorites it leads straight
+  // into All Picks.
+  const reviews = reviewsForShop(items)
+  const reviewsSection =
+    reviews.length > 0 ? (
+      <StorefrontReviews reviews={reviews} ownerName={name} onSelect={setSelectedItem} />
+    ) : null
   const picks =
     items.length === 0 ? (
       <EmptyStorefront name={name} />
@@ -306,10 +316,11 @@ export function StandaloneStorefront() {
                   onSelect={setSelectedItem}
                 />
               ) : (
-                picks
+                reviewsSection ?? picks
               )}
             </div>
-            {showFavorite && picks}
+            {showFavorite && reviewsSection}
+            {(showFavorite || reviewsSection) && picks}
           </>
         )}
       </main>

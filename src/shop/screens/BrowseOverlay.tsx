@@ -28,6 +28,11 @@ type BrowseOverlayProps = {
    *  for `children` while shaped like the view about to appear. Views that
    *  don't pass one skip the loading state entirely. */
   skeleton?: ReactNode
+  /** Scrolls the body back to the top when it changes, without the skeleton a
+   *  `scrollKey` change plays — a new search within the results view, which
+   *  would otherwise keep the old scroll position and snap when the new list
+   *  is shorter. */
+  scrollResetKey?: string
 }
 
 /**
@@ -49,6 +54,7 @@ export function BrowseOverlay({
   title = 'Browse and find products to add',
   scrollKey,
   skeleton,
+  scrollResetKey,
 }: BrowseOverlayProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -150,8 +156,18 @@ export function BrowseOverlay({
       if (!isInsideBody(event.target)) event.preventDefault()
     }
     const scrollKeys = new Set(['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '])
+    // Typing is never a scroll. A field — or any dialog stacked over the
+    // overlay (request a sample, write a review), which portals to `body` and
+    // so sits outside it — owns its keys: blocking Space there swallowed every
+    // space typed into those textareas.
+    const ownsKeys = (target: EventTarget | null) =>
+      target instanceof Element &&
+      (target.matches('input, textarea, select, [contenteditable]') ||
+        target.closest('[aria-modal="true"]') !== null)
     const onKeyDown = (event: KeyboardEvent) => {
-      if (scrollKeys.has(event.key) && !isInsideOverlay(event.target)) event.preventDefault()
+      if (scrollKeys.has(event.key) && !isInsideOverlay(event.target) && !ownsKeys(event.target)) {
+        event.preventDefault()
+      }
     }
 
     // The page keeps its own scroll control while the overlay is up — a second
@@ -202,6 +218,10 @@ export function BrowseOverlay({
       document.body.style.scrollbarWidth = previousBodyScrollbarWidth
     }
   }, [])
+
+  useEffect(() => {
+    bodyRef.current?.scrollTo(0, 0)
+  }, [scrollResetKey])
 
   useEffect(() => {
     bodyRef.current?.scrollTo(0, 0)

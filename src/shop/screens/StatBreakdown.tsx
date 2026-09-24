@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
-import { ArrowDown, ArrowUp, ChevronRight, Search } from "lucide-react";
+import { ArrowDown, ArrowUp, ChevronRight } from "lucide-react";
 import AppShell from "../../portal/components/AppShell";
+import { SearchField } from "../../portal/components/SearchField";
 import { requestProductTour } from "../../portal/tour-status";
 import { Breadcrumb } from "../components/Breadcrumb";
-import { PeriodSelect } from "../components/PeriodSelect";
+import { PeriodFilter } from "../components/PeriodFilter";
 import {
   ORIGIN_CRUMBS,
+  STAT_PERIODS,
   STAT_SPECS,
   productStatsHash,
   statsForProduct,
@@ -15,18 +17,8 @@ import {
   type StatsOrigin,
 } from "../data/stats";
 import { loadShopItems } from "../shop-items-store";
+import { useStatsPeriod } from "../stats-period";
 import { navigate } from "../../router";
-
-/**
- * The windows the period selector offers. Only the closed "Last 7 Days" state
- * is drawn (Figma `1619:39559`), so the open list is conventional: the delta
- * line below the total reads against whichever window is chosen.
- */
-const PERIODS = [
-  { id: "7", label: "Last 7 Days", previous: "previous 7 days" },
-  { id: "30", label: "Last 30 Days", previous: "previous 30 days" },
-  { id: "90", label: "Last 90 Days", previous: "previous 90 days" },
-] as const;
 
 /**
  * One metric's breakdown: the shop's total for it, then every product in the
@@ -36,7 +28,7 @@ const PERIODS = [
  *
  * One screen for all five because the frames are one template — what varies
  * per metric (label, formatting, row unit, the "nothing to report" wording,
- * and whether a period selector and trend line appear at all) lives in
+ * and whether the trend line appears at all) lives in
  * `STAT_SPECS`.
  */
 export function StatBreakdown({
@@ -50,7 +42,7 @@ export function StatBreakdown({
   const root = ORIGIN_CRUMBS[origin];
   const [items] = useState(loadShopItems);
   const [query, setQuery] = useState("");
-  const [period, setPeriod] = useState<string>(PERIODS[0].id);
+  const period = useStatsPeriod();
 
   const totals = useMemo(() => shopTotals(items), [items]);
   const total = totals[metric];
@@ -69,8 +61,8 @@ export function StatBreakdown({
   }, [items, metric, query]);
 
   const { up: trendUp, percent: trendPercent } = trendFor(metric, total);
-  const previousLabel = (PERIODS.find((row) => row.id === period) ?? PERIODS[0])
-    .previous;
+  // Null for "All time": there is no earlier window to compare against.
+  const previousLabel = STAT_PERIODS.find((row) => row.id === period)?.previous;
 
   return (
     <AppShell
@@ -80,7 +72,7 @@ export function StatBreakdown({
         navigate("/help-center");
       }}
     >
-      <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
+      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
         <div className="flex w-full max-w-[794px] flex-col items-start">
           <div className="flex w-full items-center justify-between py-sm">
             <Breadcrumb
@@ -94,9 +86,7 @@ export function StatBreakdown({
                 { label: spec.crumb },
               ]}
             />
-            {spec.trend && (
-              <PeriodSelect options={PERIODS} value={period} onChange={setPeriod} />
-            )}
+            <PeriodFilter />
           </div>
 
           <section className="flex h-[131px] w-full flex-col items-center justify-center gap-xs rounded-md bg-surface-secondary-300 px-md py-md-2">
@@ -107,7 +97,7 @@ export function StatBreakdown({
               {spec.format(total)}
               {spec.heroSuffix ? ` ${spec.heroSuffix}` : ""}
             </p>
-            {spec.trend && (
+            {spec.trend && previousLabel && (
               <p className="flex items-center gap-1 text-body-sm font-medium text-text-secondary-700">
                 <span
                   className={[
@@ -137,22 +127,15 @@ export function StatBreakdown({
             )}
           </section>
 
-          <label className="mt-ten flex w-full items-end justify-end py-sm">
-            <span className="sr-only">Search product</span>
-            <span className="flex w-[300px] items-center gap-sm rounded-sm border border-border-default bg-surface-secondary-100 px-md-sm py-sm">
-              <Search
-                aria-hidden="true"
-                className="size-4 shrink-0 text-text-secondary-700"
-                strokeWidth={1.5}
-              />
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="Search product"
-                className="w-full min-w-px bg-transparent text-body-sm text-text-secondary-1000 outline-none placeholder:text-text-secondary-700"
-              />
-            </span>
-          </label>
+          <div className="mt-ten flex w-full justify-end py-sm">
+            <SearchField
+              value={query}
+              onChange={setQuery}
+              placeholder="Search product"
+              aria-label="Search product"
+              className="w-[300px] max-w-full"
+            />
+          </div>
 
           <ul className="flex w-full flex-col items-start">
             {rows.map(({ item, value }) => (

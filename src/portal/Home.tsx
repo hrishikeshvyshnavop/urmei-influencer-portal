@@ -12,7 +12,7 @@ import { MAX_FAVORITES } from "../shop/limits";
 import { loadPublishedAt, loadShopItems, saveShopItems } from "../shop/shop-items-store";
 import { logShopActivity } from "../shop/activity-log";
 import { StatsRow } from "../shop/components/StatsRow";
-import { homeStatsRowEntries, productStatsHash } from "../shop/data/stats";
+import { productStatsHash, statsRowEntries } from "../shop/data/stats";
 import ShopUrl from "./components/ShopUrl";
 import { PRODUCTS } from "../shop/data/catalogue";
 import { affiliateLinkFor, hasLiveLink } from "../shop/data/shop";
@@ -254,10 +254,12 @@ export default function Home({
             </div>
           ) : null}
           {hasShopItems && isShopPublished ? (
-            // The same five totals the shop's own row shows, from the same
-            // module — Home used to hardcode zeros and a "TOTAL PRODUCTS"
-            // column the design has since dropped.
-            <StatsRow stats={homeStatsRowEntries(shopItems)} />
+            // The same row My Shop shows — the same six totals and the same
+            // "Showing:" period selector — built by the same module.
+            <StatsRow
+              stats={statsRowEntries(shopItems, "home")}
+              showPeriod
+            />
           ) : null}
         </section>
 

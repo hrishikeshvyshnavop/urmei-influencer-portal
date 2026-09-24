@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Plus, X } from "lucide-react";
 import Button from "./Button";
+import TextArea from "./TextArea";
 import type { SampleReview } from "../sample-requests";
 
 const RATINGS = Array.from({ length: 10 }, (_, index) => index + 1);
@@ -191,16 +192,15 @@ export default function WriteReviewModal({
 
             <Reveal open={rating !== null} className="pt-6">
               <div className="flex w-full flex-col gap-4">
-                <label className="flex h-[152px] w-full flex-col gap-1">
-                  {/* Keeps the last prompt while collapsed; there is none before a score. */}
-                  <span className="pb-0.5 text-body-sm font-medium text-portal-text">{promptFor(rating ?? 10)}</span>
-                  <textarea
-                    value={text}
-                    onChange={(event) => setText(event.target.value)}
-                    placeholder="Share your thoughts about this product…"
-                    className="min-h-0 w-full flex-1 resize-none rounded-[6px] border border-portal-border bg-portal-light px-3.5 py-3 text-body-sm text-portal-text outline-none placeholder:text-portal-placeholder focus:border-portal-dark"
-                  />
-                </label>
+                {/* Keeps the last prompt while collapsed; there is none before a score.
+                    124px box + label keeps the design's 152px block. */}
+                <TextArea
+                  label={promptFor(rating ?? 10)}
+                  value={text}
+                  onChange={setText}
+                  placeholder="Share your thoughts about this product…"
+                  heightClassName="h-[124px]"
+                />
 
                 <div className="flex w-full flex-col gap-2.5">
                   <div className="flex w-full flex-col">

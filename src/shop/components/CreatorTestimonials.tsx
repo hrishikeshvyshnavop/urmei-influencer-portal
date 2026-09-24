@@ -134,7 +134,12 @@ function WhatCreatorsSay({ product, ownReview }: { product: Product; ownReview?:
           </div>
           <div className="flex items-center gap-md-sm">
             <CarouselButton direction="previous" onClick={() => step(-1)} />
-            <p className="text-body-sm whitespace-nowrap text-text-secondary-900" aria-live="polite">
+            {/* Fixed width, tabular digits: the arrows stay put as the count changes. */}
+            <p
+              className="text-center text-body-sm whitespace-nowrap text-text-secondary-900 tabular-nums"
+              style={{ minWidth: `${String(testimonials.length).length * 2 + 3}ch` }}
+              aria-live="polite"
+            >
               {index + 1} / {testimonials.length}
             </p>
             <CarouselButton direction="next" onClick={() => step(1)} />

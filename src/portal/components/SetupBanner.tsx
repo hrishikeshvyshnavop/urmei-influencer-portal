@@ -58,10 +58,14 @@ export default function SetupBanner() {
       : "To publish your shop, you need to verify your identity and add bank details";
 
   return (
+    // The band is full-bleed; its content sits in the same centred 1440px
+    // column as the header and the page, so above 1440px the message and
+    // "Fix Issues" line up with them instead of hugging the window edges.
     <aside
-      className="sticky top-[88px] z-20 flex w-full flex-col items-start justify-between gap-3 border-b border-[#e6e5e4] bg-[#fffefd] px-6 py-3 sm:flex-row sm:items-center lg:px-[120px]"
+      className="sticky top-[88px] z-20 w-full border-b border-[#e6e5e4] bg-[#fffefd]"
       aria-label="Account setup required"
     >
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col items-start justify-between gap-3 px-6 py-3 sm:flex-row sm:items-center lg:px-[120px]">
       <div className="flex min-w-0 items-start gap-3 sm:items-center">
         <img
           src="/urmei/icon-triangle-alert.svg"
@@ -79,6 +83,7 @@ export default function SetupBanner() {
       >
         Fix Issues
       </Button>
+      </div>
     </aside>
   );
 }

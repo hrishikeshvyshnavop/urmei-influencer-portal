@@ -272,7 +272,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   // Derived from the live `query` (not `overlay.query`, frozen at the last
   // Enter/suggestion submit) so results/empty-vs-all track every keystroke,
   // including clearing the box back down to nothing.
-  const results = overlay?.kind === 'results' ? searchProducts(query) : []
+  // Results follow the *submitted* search, not the box's live text: clearing
+  // the box or typing a new keyword leaves the list alone until Enter, so the
+  // page doesn't reflow (and jump) on every keystroke.
+  const results = overlay?.kind === 'results' ? searchProducts(overlay.query) : []
 
   /** Builds the favorite/remove/affiliate-link controls for the standalone
    *  Product Detail page of an item already in the shop. */
@@ -338,6 +341,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
         <BrowseOverlay
           onClose={() => setOverlay(null)}
           scrollKey={overlay.kind === 'detail' ? `detail:${overlay.product.id}` : overlay.kind}
+          scrollResetKey={overlay.kind === 'results' ? overlay.query : undefined}
           skeleton={
             overlay.kind === 'catalogue' ? (
               <CatalogueHomeSkeleton />

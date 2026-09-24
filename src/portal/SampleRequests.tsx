@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
+import { SearchField } from "./components/SearchField";
 import WriteReviewModal from "./components/WriteReviewModal";
 import { Toast } from "../shop/components/Toast";
 import { requestProductTour } from "./tour-status";
@@ -42,7 +43,7 @@ export default function SampleRequests() {
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
     >
-      <main className="mx-auto min-h-[calc(100vh-88px)] w-full max-w-[794px] px-6 pb-14 lg:px-0">
+      <main className="mx-auto flex-1 w-full max-w-[794px] px-6 pb-14 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
           <a href="/home">Home</a>
           <ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} />
@@ -52,17 +53,13 @@ export default function SampleRequests() {
         <h1 className="sr-only">Sample Requests</h1>
 
         <div className="pb-4">
-          <label className="flex w-full items-center gap-2 rounded-[6px] border border-portal-border px-3 py-2 sm:w-[343px]">
-            <Search aria-hidden="true" className="size-4 shrink-0 text-portal-text" strokeWidth={1.5} />
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search"
-              aria-label="Search sample requests"
-              className="min-w-0 flex-1 bg-transparent text-body-sm text-portal-text outline-none placeholder:text-portal-muted"
-            />
-          </label>
+          <SearchField
+            value={query}
+            onChange={setQuery}
+            placeholder="Search"
+            aria-label="Search sample requests"
+            className="w-full sm:w-[343px]"
+          />
         </div>
 
         {requests.length === 0 ? (

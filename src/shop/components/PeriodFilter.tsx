@@ -1,32 +1,39 @@
 import { useRef, useState } from 'react'
+import { STAT_PERIODS, type StatPeriodId } from '../data/stats'
+import { setStatsPeriod, useStatsPeriod } from '../stats-period'
 import { FloatingPanel } from './FloatingPanel'
 import { Icon } from './Icon'
 
-export type PeriodOption = { id: string; label: string }
-
-type PeriodSelectProps<T extends PeriodOption> = {
-  options: readonly T[]
-  value: string
-  onChange: (next: string) => void
-  /** Muted lead-in before the selection — My Shop's stats card reads
-   *  "Showing: All time" (Figma `236:24886`); the stat pages have none. */
-  prefix?: string
-}
-
 /**
- * The borderless period dropdown the stats surfaces share: a text trigger with
- * a chevron that opens a right-aligned list. Only closed states are drawn, so
- * the open list is conventional.
+ * The period filter — the one component every period choice in the product
+ * uses: the stats row on Home and My Shop, the breakdown pages, a product's
+ * stats page and Recent Activities. It always offers `STAT_PERIODS`. Left
+ * uncontrolled it reads and sets the shared stats period (`stats-period.ts`),
+ * so every stats surface shows the same choice; pass `value`/`onChange` to
+ * filter something else, as Recent Activities does. A borderless text trigger
+ * with a chevron that opens a right-aligned list; only closed states are
+ * drawn, so the open list is conventional.
  */
-export function PeriodSelect<T extends PeriodOption>({
-  options,
-  value,
-  onChange,
+export function PeriodFilter({
   prefix,
-}: PeriodSelectProps<T>) {
+  value: controlledValue,
+  onChange,
+  label = 'Period',
+}: {
+  /** Muted lead-in before the selection — the stats row reads "Showing:
+   *  All time" (Figma `236:24886`); the stat pages have none. */
+  prefix?: string
+  value?: StatPeriodId
+  onChange?: (next: StatPeriodId) => void
+  /** Accessible name, e.g. "Activity period". */
+  label?: string
+}) {
+  const sharedValue = useStatsPeriod()
+  const value = controlledValue ?? sharedValue
+  const choose = onChange ?? setStatsPeriod
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const selected = options.find((option) => option.id === value) ?? options[0]!
+  const selected = STAT_PERIODS.find((option) => option.id === value) ?? STAT_PERIODS[0]
 
   return (
     <>
@@ -35,6 +42,7 @@ export function PeriodSelect<T extends PeriodOption>({
         type="button"
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-label={`${label}: ${selected.label}`}
         onClick={() => setOpen((current) => !current)}
         className="flex items-center gap-sm rounded-sm px-2 py-1 text-body-sm font-medium text-text-secondary-1000"
       >
@@ -53,18 +61,18 @@ export function PeriodSelect<T extends PeriodOption>({
         align="right"
         className="flex flex-col items-start overflow-clip rounded-md border border-border-default bg-surface-secondary-100 shadow-[0_4px_4px_rgba(0,0,0,0.05)]"
       >
-        {options.map((option) => (
+        {STAT_PERIODS.map((option) => (
           <button
             key={option.id}
             type="button"
             role="option"
             aria-selected={option.id === value}
             onClick={() => {
-              onChange(option.id)
+              choose(option.id)
               setOpen(false)
             }}
             className={[
-              'w-full px-md py-sm text-left text-body-sm hover:bg-surface-secondary-300',
+              'w-full px-md py-sm text-left text-body-sm capitalize hover:bg-surface-secondary-300',
               option.id === value
                 ? 'font-medium text-text-secondary-1000'
                 : 'text-text-secondary-700',

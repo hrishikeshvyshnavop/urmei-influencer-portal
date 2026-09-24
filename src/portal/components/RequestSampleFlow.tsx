@@ -2,6 +2,7 @@ import { useEffect, useId, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { Plus, X } from "lucide-react";
 import Button from "./Button";
+import TextArea from "./TextArea";
 import AddressFormModal from "./AddressFormModal";
 import { Toast } from "../../shop/components/Toast";
 import type { Product } from "../../shop/types";
@@ -178,15 +179,14 @@ function RequestSampleModals({
 
         {/* The no-address frame drops the message box until there is somewhere to send the sample. */}
         {selected ? (
-          <label className="flex flex-col gap-2">
-            <span className="text-body-md font-medium text-portal-text">Request Message</span>
-            <textarea
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
-              placeholder="Tell the brand why you'd like to try this product..."
-              className="h-[88px] resize-none rounded-[6px] border border-portal-border bg-portal-light p-3 text-body-sm text-portal-text outline-none placeholder:text-portal-muted focus:border-portal-dark"
-            />
-          </label>
+          <TextArea
+            label="Request Message"
+            labelClassName="pb-1 text-body-md font-medium text-portal-text"
+            value={message}
+            onChange={setMessage}
+            placeholder="Tell the brand why you'd like to try this product..."
+            heightClassName="h-[88px]"
+          />
         ) : null}
 
         <Button
