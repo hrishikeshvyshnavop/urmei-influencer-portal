@@ -207,20 +207,19 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center">
+    <div className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100">
       {/* `position: sticky` can't live *inside* `ScaledBox` — its offsets are
           resolved in the box's pre-transform coordinate space, so a stuck
           element drifts by `scrollY × (1 - scale)`, which grows without bound
           as you scroll. Sticking an untransformed wrapper and scaling its
-          contents instead keeps the chrome pinned exactly. Both boxes share a
+          contents instead keeps the chrome pinned exactly. The bars span the
+          window, as on Home; each scales only its contents, at the page's
           design width, so they resolve to the same scale. */}
-      <div className="sticky top-0 z-30 flex w-full justify-center">
-        <ScaledBox width={1440} className="flex flex-col items-start">
-          <StorefrontHeader onClose={onClose} />
-          {selectedItem && (
-            <CreatorMarketBar name={name} country={country} onBack={() => setSelectedItem(null)} />
-          )}
-        </ScaledBox>
+      <div className="sticky top-0 z-30 flex w-full flex-col">
+        <StorefrontHeader onClose={onClose} />
+        {selectedItem && (
+          <CreatorMarketBar name={name} country={country} onBack={() => setSelectedItem(null)} designWidth={1440} />
+        )}
       </div>
 
       <div className="flex w-full flex-1 justify-center">
@@ -263,10 +262,11 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
               </>
             )}
           </main>
-
-          <AppFooter />
         </ScaledBox>
       </div>
+
+      {/* Outside the scaled box, so it spans the window as on every other page. */}
+      <AppFooter />
     </div>
   )
 }

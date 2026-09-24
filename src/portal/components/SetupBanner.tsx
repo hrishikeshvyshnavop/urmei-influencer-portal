@@ -1,5 +1,4 @@
 import Button from "./Button";
-import { VERIFICATION_STORAGE_KEY } from "../VerificationPartner";
 import { PAYMENT_STORAGE_KEY } from "../bank-account";
 import { isSetupRequired } from "../setup-status";
 import { navigate } from "../../router";
@@ -15,24 +14,17 @@ function hasCompletedAction(storageKey: string) {
 }
 
 /** Skipping onboarding counts the same as never finishing it — both leave the
- *  profile incomplete, so publishing stays blocked either way. */
+ *  profile incomplete, so publishing stays blocked either way. Identity is
+ *  verified as part of the creator's application, so the bank account is the
+ *  only thing setup still waits on. */
 export function isProfileSetupComplete(): boolean {
-  return (
-    hasCompletedAction(VERIFICATION_STORAGE_KEY) &&
-    hasCompletedAction(PAYMENT_STORAGE_KEY) &&
-    !isSetupRequired()
-  );
+  return hasCompletedAction(PAYMENT_STORAGE_KEY) && !isSetupRequired();
 }
 
-/** Where "Fix Issues" should send the user: identity
- *  first, then payment, matching the order `Onboarding.tsx` presents them in.
- *  Deep-links into Manage Account's matching section rather than the
- *  standalone onboarding accordion, so verifying happens from the user's
- *  profile. */
+/** Where "Fix Issues" should send the user: Manage Account's Payouts section,
+ *  rather than the standalone onboarding accordion. */
 export function getSetupManageAccountRoute(): string {
-  return hasCompletedAction(VERIFICATION_STORAGE_KEY)
-    ? "/manage-account/payouts"
-    : "/manage-account/identity";
+  return "/manage-account/payouts";
 }
 
 /**
@@ -44,18 +36,9 @@ export function getSetupManageAccountRoute(): string {
 export default function SetupBanner() {
   if (isProfileSetupComplete()) return null;
 
-  const identityVerified = hasCompletedAction(VERIFICATION_STORAGE_KEY);
-  const bankAdded = hasCompletedAction(PAYMENT_STORAGE_KEY);
-  // The design words the bank-only case exactly this way; the other two follow
-  // its phrasing and name only what is actually still missing, so the banner
-  // never asks for something the user has already done. (Skipping setup shows
-  // the both-missing line, and Manage Account clears the skip flag as soon as
-  // identity and bank are both on file.)
-  const message = identityVerified
-    ? "To publish your shop, you need to add bank details"
-    : bankAdded
-      ? "To publish your shop, you need to verify your identity"
-      : "To publish your shop, you need to verify your identity and add bank details";
+  // The design's wording (Figma `1602:37660`). Manage Account clears the skip
+  // flag as soon as a bank account is on file.
+  const message = "To publish your shop, you need to add bank details";
 
   return (
     // The band is full-bleed; its content sits in the same centred 1440px

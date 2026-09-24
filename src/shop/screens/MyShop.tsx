@@ -87,6 +87,7 @@ export function MyShop({
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate('/help-center') }}
+      footerBelowFold
     >
       <SetupBanner />
       <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-8 pb-16 lg:px-[120px]">
