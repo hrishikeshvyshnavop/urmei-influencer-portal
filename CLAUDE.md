@@ -4,6 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 > **Note on `AGENTS.md`:** The repo also contains `AGENTS.md`, which describes a customized Next.js setup. That guidance is **stale** — the project was migrated off Next.js to Vite + React (commit `bee914a`). There is no Next.js here; ignore the "read `node_modules/next/dist/docs/`" instruction. This file reflects the actual stack.
 >
+> **Note on Figma files:** node ids in comments come from two files. Most (`916:*`, `1030:*`, `15xx:*`–`16xx:*`) are the work file `FdmVPJo1j4t8s9gej1H7Yb`; the storefront PDP's newer revision (`236:*`) is `cehltPtMoGWEtKbF7k3MQQ`. Comments citing the second name the file.
+>
 > **Note on the repo name:** the directory and `package.json` are still named `samara` from an earlier marketing-site project. Those files were removed — this repo now contains only the URMEI creator portal.
 
 ## Commands

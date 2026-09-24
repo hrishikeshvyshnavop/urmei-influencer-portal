@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BookOpen, FlaskConical, Info } from 'lucide-react'
+import { BookOpen, FlaskConical, Info, Undo2 } from 'lucide-react'
 import { Accordion } from './Accordion'
 import { Button } from './Button'
 import { Icon } from './Icon'
@@ -32,7 +32,8 @@ function Radio({ selected }: { selected: boolean }) {
 
 /**
  * The customer-facing product page inside the storefront preview (Figma
- * `916:66643`). The design's own e-commerce header (nav links, search, cart)
+ * `236:19966` in file `cehltPtMoGWEtKbF7k3MQQ`; first built from `916:66643`
+ * in the old work file). The design's own e-commerce header (nav links, search, cart)
  * is deliberately skipped — the preview already has `StorefrontHeader` — and
  * the creator market bar above it is rendered by `StorefrontPreview`, which
  * owns the sticky block. The purchase block is replaced by a notify-me notice
@@ -333,6 +334,30 @@ export function StorefrontProductDetail({
                 { icon: Info, title: 'Product Details', body: product.details.productDetails },
                 { icon: FlaskConical, title: 'Ingredients', body: product.details.ingredients },
                 { icon: BookOpen, title: 'How To Use', body: product.details.howToUse },
+                {
+                  // Open on arrival, as the design draws it. The button is
+                  // inert like Add To Bag — there's no postal-code flow yet.
+                  icon: '/urmei/pdp/truck.svg',
+                  title: 'Check Delivery Cost',
+                  defaultOpen: true,
+                  body: (
+                    <div className="flex w-full items-center justify-between">
+                      <p className="min-w-px flex-1 text-body-sm font-medium text-text-secondary-700">
+                        Enter Postal Code to view delivery charges.
+                      </p>
+                      {/* The design's fill is surface/secondary/200 (#fdfdfd),
+                          all but invisible on the page — kept as drawn. The
+                          #595959 label has no token. */}
+                      <button
+                        type="button"
+                        className="shrink-0 bg-surface-secondary-200 px-[18px] py-md-sm text-body-md font-medium whitespace-nowrap text-[#595959]"
+                      >
+                        Enter Postal Code
+                      </button>
+                    </div>
+                  ),
+                },
+                { icon: Undo2, title: 'Authenticity & Return Policy', body: product.details.returns },
               ]}
             />
           </div>
