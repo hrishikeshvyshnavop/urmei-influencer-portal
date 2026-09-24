@@ -14,7 +14,7 @@ import AppHeader from "./AppHeader";
  *  the fold.
  *
  *  `footerBelowFold` is the exception, for a screen whose footer should never
- *  share the first screenful (Recent Activities): the header and content fill
+ *  share the first screenful (Recent Activities, My Shop, Sample Requests): the header and content fill
  *  at least the whole window, so the footer always starts just under it. */
 export default function AppShell({
   children,

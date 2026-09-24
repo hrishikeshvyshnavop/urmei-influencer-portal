@@ -42,6 +42,7 @@ export default function SampleRequests() {
       className="bg-portal-light text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
+      footerBelowFold
     >
       <main className="mx-auto flex-1 w-full max-w-[794px] px-6 pb-14 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
