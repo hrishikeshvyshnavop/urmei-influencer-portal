@@ -1,10 +1,9 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, ChevronRight, Search } from "lucide-react";
 import AppShell from "../../portal/components/AppShell";
 import { requestProductTour } from "../../portal/tour-status";
 import { Breadcrumb } from "../components/Breadcrumb";
-import { FloatingPanel } from "../components/FloatingPanel";
-import { Icon } from "../components/Icon";
+import { PeriodSelect } from "../components/PeriodSelect";
 import {
   ORIGIN_CRUMBS,
   STAT_SPECS,
@@ -16,6 +15,7 @@ import {
   type StatsOrigin,
 } from "../data/stats";
 import { loadShopItems } from "../shop-items-store";
+import { navigate } from "../../router";
 
 /**
  * The windows the period selector offers. Only the closed "Last 7 Days" state
@@ -27,68 +27,6 @@ const PERIODS = [
   { id: "30", label: "Last 30 Days", previous: "previous 30 days" },
   { id: "90", label: "Last 90 Days", previous: "previous 90 days" },
 ] as const;
-
-function PeriodSelect({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (next: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const selected = PERIODS.find((period) => period.id === value) ?? PERIODS[0];
-
-  return (
-    <>
-      <button
-        ref={triggerRef}
-        type="button"
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        onClick={() => setOpen((current) => !current)}
-        className="flex items-center gap-sm rounded-sm px-2 py-1 text-body-sm font-medium text-text-secondary-1000"
-      >
-        {selected.label}
-        <Icon
-          name="chevron-down"
-          srcSize={24}
-          className={open ? "rotate-180" : ""}
-        />
-      </button>
-
-      <FloatingPanel
-        open={open}
-        onClose={() => setOpen(false)}
-        triggerRef={triggerRef}
-        width={180}
-        align="right"
-        className="flex flex-col items-start overflow-clip rounded-md border border-border-default bg-surface-secondary-100 shadow-[0_4px_4px_rgba(0,0,0,0.05)]"
-      >
-        {PERIODS.map((period) => (
-          <button
-            key={period.id}
-            type="button"
-            role="option"
-            aria-selected={period.id === value}
-            onClick={() => {
-              onChange(period.id);
-              setOpen(false);
-            }}
-            className={[
-              "w-full px-md py-sm text-left text-body-sm hover:bg-surface-secondary-300",
-              period.id === value
-                ? "font-medium text-text-secondary-1000"
-                : "text-text-secondary-700",
-            ].join(" ")}
-          >
-            {period.label}
-          </button>
-        ))}
-      </FloatingPanel>
-    </>
-  );
-}
 
 /**
  * One metric's breakdown: the shop's total for it, then every product in the
@@ -139,7 +77,7 @@ export function StatBreakdown({
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
       onShowHelp={() => {
-        window.location.hash = "#/help-center";
+        navigate("/help-center");
       }}
     >
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
@@ -150,13 +88,15 @@ export function StatBreakdown({
                 {
                   label: root.label,
                   onClick: () => {
-                    window.location.hash = root.hash;
+                    navigate(root.hash);
                   },
                 },
                 { label: spec.crumb },
               ]}
             />
-            {spec.trend && <PeriodSelect value={period} onChange={setPeriod} />}
+            {spec.trend && (
+              <PeriodSelect options={PERIODS} value={period} onChange={setPeriod} />
+            )}
           </div>
 
           <section className="flex h-[131px] w-full flex-col items-center justify-center gap-xs rounded-md bg-surface-secondary-300 px-md py-md-2">

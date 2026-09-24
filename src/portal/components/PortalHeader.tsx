@@ -43,7 +43,7 @@ export default function PortalHeader({
         <header className="relative flex h-full items-center justify-between px-[64px] py-6">
           <div className="flex h-full min-w-px flex-1 flex-col items-start gap-[10px] py-[15px]">
             <a
-              href="#/apply"
+              href="/apply"
               onClick={() => window.scrollTo(0, 0)}
               className="flex w-fit items-center gap-[3.569px]"
               aria-label="URMEI — go to home"

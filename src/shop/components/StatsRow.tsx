@@ -1,4 +1,5 @@
 import { ChevronRight } from 'lucide-react'
+import { PeriodSelect, type PeriodOption } from './PeriodSelect'
 
 export type StatEntry = {
   label: string
@@ -33,11 +34,33 @@ export function StatColumn({ label, value, href }: StatEntry) {
 /**
  * The five shop totals under the store card (Figma `1619:39241`), each column
  * a link into that metric's breakdown page. Dividers sit between columns, not
- * around them.
+ * around them. My Shop passes `period` for the "Showing: All time" selector
+ * pinned to the card's top-right corner (`236:24886`), which also grows the
+ * card's top edge to make room; Home's row has none.
  */
-export function StatsRow({ stats }: { stats: StatEntry[] }) {
+export function StatsRow({
+  stats,
+  period,
+}: {
+  stats: StatEntry[]
+  period?: {
+    options: readonly PeriodOption[]
+    value: string
+    onChange: (next: string) => void
+  }
+}) {
   return (
-    <div className="flex w-full flex-col items-center rounded-lg border border-border-muted bg-surface-secondary-100 px-[28px] py-xxl">
+    <div
+      className={[
+        'flex w-full flex-col rounded-lg border border-border-muted bg-surface-secondary-100 px-[28px] pb-xxl',
+        period ? 'gap-[17px] pt-[15px]' : 'items-center pt-xxl',
+      ].join(' ')}
+    >
+      {period && (
+        <div className="flex w-full justify-end">
+          <PeriodSelect prefix="Showing:" {...period} />
+        </div>
+      )}
       <div className="flex w-full items-stretch">
         {stats.map((stat, index) => (
           <div key={stat.label} className="flex min-w-px flex-1 items-stretch">

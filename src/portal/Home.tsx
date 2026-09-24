@@ -22,6 +22,8 @@ import { BrowseOverlay } from "../shop/screens/BrowseOverlay";
 import { ProductDetail, type ShopMode } from "../shop/screens/ProductDetail";
 import { setShopItemCount } from "../shop/shop-status";
 import { Toast } from "../shop/components/Toast";
+import RequestSampleFlow from "./components/RequestSampleFlow";
+import { navigate } from "../router";
 
 const productImages = [
   { productId: "laneige-water-bank", image: "/urmei/home/product-1.png", title: "Water Bank Blue Hyaluronic Cream" },
@@ -77,10 +79,9 @@ type HomeToast = {
   action?: { label: string; onClick: () => void };
 };
 
-/** Hoisted out of the toast's action object: assigning `window.location.hash`
- *  inside an object literal trips `react-hooks/immutability`. */
+/** The toast's "View shop" action. */
 function goToShop() {
-  window.location.hash = "#/shop";
+  navigate("/shop");
 }
 
 export default function Home({
@@ -99,6 +100,7 @@ export default function Home({
   const [openQuestion, setOpenQuestion] = useState<number | null>(null);
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
+  const [sampleProduct, setSampleProduct] = useState<Product | null>(null);
   const [toast, setToast] = useState<HomeToast | null>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
@@ -202,7 +204,7 @@ export default function Home({
     <AppShell
       className="bg-[#fffefd] text-portal-text"
       onShowTour={requestProductTour}
-      onShowHelp={() => { window.location.hash = "#/help-center"; }}
+      onShowHelp={() => { navigate("/help-center"); }}
     >
 
       <SetupBanner />
@@ -246,7 +248,7 @@ export default function Home({
                   <div className="min-w-0 flex-1"><h2 className="text-body-xxl font-medium">Create online shop</h2><p className="text-body-md text-portal-muted">Curate your products and publish your shop to start earning.</p></div>
                 )}
               </div>
-              <Button variant="portal" className="w-full sm:w-auto" onClick={() => { window.location.hash = "#/shop"; }}>
+              <Button variant="portal" className="w-full sm:w-auto" onClick={() => { navigate("/shop"); }}>
                 Setup Shop
               </Button>
             </div>
@@ -311,7 +313,7 @@ export default function Home({
         </section>
 
         <section id="help-center" className="scroll-mt-24 py-6">
-          <div className="flex items-center justify-between"><h2 className="track-section text-body-md font-medium uppercase">Help Center</h2><a href="#/help-center" className="flex items-center gap-2 text-body-sm font-medium">View All <ChevronRight size={16} /></a></div>
+          <div className="flex items-center justify-between"><h2 className="track-section text-body-md font-medium uppercase">Help Center</h2><a href="/help-center" className="flex items-center gap-2 text-body-sm font-medium">View All <ChevronRight size={16} /></a></div>
           <div className="mt-2">
             {questions.map(([question, answer], index) => {
               const expanded = openQuestion === index;
@@ -358,10 +360,16 @@ export default function Home({
             product={viewingProduct}
             hideBreadcrumb
             onAddToShop={() => { setPendingProduct(viewingProduct); setViewingProduct(null); }}
+            onRequestSample={() => setSampleProduct(viewingProduct)}
             shopMode={shopModeFor(viewingProduct)}
+            // Other creators' reviews and the "Write a Review" nudge, led by
+            // this creator's own review once they've written one.
+            showReviews
           />
         </BrowseOverlay>
       ) : null}
+
+      <RequestSampleFlow product={sampleProduct} onClose={() => setSampleProduct(null)} />
 
       {toast ? <Toast message={toast.message} variant={toast.variant} action={toast.action} /> : null}
     </AppShell>

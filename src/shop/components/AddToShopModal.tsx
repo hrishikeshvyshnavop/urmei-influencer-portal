@@ -66,6 +66,19 @@ export function AddToShopModal({
     if (closing) finishClose(closing)
   }
 
+  // Escape cancels, like the close button. Re-bound every render so it sees
+  // the current `closing` state.
+  useEffect(() => {
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return
+      // An open variant dropdown takes the key first.
+      if (document.querySelector('[data-radix-popper-content-wrapper], [role="listbox"]')) return
+      requestClose('cancel')
+    }
+    window.addEventListener('keydown', onEscape)
+    return () => window.removeEventListener('keydown', onEscape)
+  })
+
   useEffect(() => () => {
     if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current)
   }, [])

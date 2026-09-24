@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import AppShell from '../../portal/components/AppShell'
 import SetupBanner from '../../portal/components/SetupBanner'
 import { requestProductTour } from '../../portal/tour-status'
@@ -13,6 +14,17 @@ import { statsRowEntries } from '../data/stats'
 import { StoreCard } from '../components/StoreCard'
 import { Tabs } from '../components/Tabs'
 import type { ShopItem } from '../types'
+import { navigate } from '../../router'
+
+/** The stats card's "Showing:" windows. Only the closed "All time" state is
+ *  drawn (Figma `236:24886`); the shop figures have no dated history behind
+ *  them yet, so the choice is presentational until a sales engine exists. */
+const STATS_PERIODS = [
+  { id: 'all', label: 'All time' },
+  { id: '7', label: 'Last 7 days' },
+  { id: '30', label: 'Last 30 days' },
+  { id: '90', label: 'Last 90 days' },
+] as const
 
 type MyShopProps = {
   items: ShopItem[]
@@ -54,6 +66,7 @@ export function MyShop({
   onRemoveFromShop,
   onReorderFavorite,
 }: MyShopProps) {
+  const [statsPeriod, setStatsPeriod] = useState<string>(STATS_PERIODS[0].id)
   const favoriteItems = items.filter((item) => item.favorite)
   const isEmpty = items.length === 0
   // Adding a product resolves a blocked publish attempt immediately, even
@@ -85,7 +98,7 @@ export function MyShop({
     <AppShell
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
-      onShowHelp={() => { window.location.hash = '#/help-center' }}
+      onShowHelp={() => { navigate('/help-center') }}
     >
       <SetupBanner />
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-8 pb-16 lg:px-[120px]">
@@ -108,7 +121,10 @@ export function MyShop({
               onViewShop={onViewShop}
             />
             {(published || blocked) && (
-              <StatsRow stats={statsRowEntries(items)} />
+              <StatsRow
+                stats={statsRowEntries(items)}
+                period={{ options: STATS_PERIODS, value: statsPeriod, onChange: setStatsPeriod }}
+              />
             )}
           </div>
         </section>

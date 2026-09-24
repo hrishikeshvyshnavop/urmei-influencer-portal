@@ -1,0 +1,101 @@
+import { useState } from "react";
+import { ChevronRight, Search } from "lucide-react";
+import AppShell from "./components/AppShell";
+import { requestProductTour } from "./tour-status";
+import { loadSampleRequests, STATUS_LABELS, type SampleRequest } from "./sample-requests";
+import { navigate } from "../router";
+
+/** Sample Requests list (Figma `1030:27226`): a search box over one card per
+ *  request — the product row opens its details, and the white strip under it
+ *  carries the creator's review or the "Add a review" prompt. */
+export default function SampleRequests() {
+  const [query, setQuery] = useState("");
+  const normalizedQuery = query.trim().toLowerCase();
+  const requests = loadSampleRequests().filter((request) =>
+    request.productName.toLowerCase().includes(normalizedQuery),
+  );
+
+  return (
+    <AppShell
+      className="bg-portal-light text-portal-text"
+      onShowTour={requestProductTour}
+      onShowHelp={() => { navigate("/help-center"); }}
+    >
+      <main className="mx-auto min-h-[calc(100vh-88px)] w-full max-w-[794px] px-6 pb-14 lg:px-0">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
+          <a href="/home">Home</a>
+          <ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} />
+          <span className="text-portal-muted">Sample Requests</span>
+        </nav>
+
+        <h1 className="sr-only">Sample Requests</h1>
+
+        <div className="pb-4">
+          <label className="flex w-full items-center gap-2 rounded-[6px] border border-portal-border px-3 py-2 sm:w-[343px]">
+            <Search aria-hidden="true" className="size-4 shrink-0 text-portal-text" strokeWidth={1.5} />
+            <input
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search"
+              aria-label="Search sample requests"
+              className="min-w-0 flex-1 bg-transparent text-body-sm text-portal-text outline-none placeholder:text-portal-muted"
+            />
+          </label>
+        </div>
+
+        {requests.length === 0 ? (
+          <p className="py-4 text-body-sm text-portal-muted">
+            {normalizedQuery ? `No sample requests match “${query.trim()}”.` : "You haven't requested any samples yet."}
+          </p>
+        ) : (
+          <ul className="flex flex-col gap-4">
+            {requests.map((request) => (
+              <li key={request.id}>
+                <SampleRequestCard request={request} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </main>
+    </AppShell>
+  );
+}
+
+function SampleRequestCard({ request }: { request: SampleRequest }) {
+  return (
+    <article className="overflow-clip rounded-[10px] bg-portal-surface">
+      <a
+        href={`/sample-requests/${encodeURIComponent(request.id)}`}
+        className="flex items-center gap-4 rounded-[10px] px-4 py-5 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-portal-dark"
+      >
+        <img src={request.image} alt="" className="size-14 shrink-0 rounded-[10px] object-cover" />
+        <span className="flex min-w-0 flex-1 flex-col gap-2">
+          <span className="truncate text-body-md font-medium text-portal-text">{request.productName}</span>
+          <span className="flex items-center gap-2 text-body-sm text-portal-muted">
+            <span>Qty {request.quantity}</span>
+            <span aria-hidden="true" className="size-[3px] shrink-0 rounded-full bg-portal-muted" />
+            <span>{request.size}</span>
+            <StatusPill>{STATUS_LABELS[request.status]}</StatusPill>
+          </span>
+        </span>
+        <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-portal-text" strokeWidth={1.5} />
+      </a>
+
+      <div className="flex items-center gap-3 rounded-[10px] border border-portal-surface bg-portal-light px-4 py-3 drop-shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
+        <span className="flex shrink-0 items-center rounded-full bg-portal-star p-[4.5px]">
+          <img src="/urmei/sample-requests/star.svg" alt="" width={15.9091} height={15.9091} className="block size-[15.9091px]" />
+        </span>
+        <p className="min-w-0 flex-1 text-body-sm text-portal-muted">{request.review?.text ?? "Add a review"}</p>
+      </div>
+    </article>
+  );
+}
+
+function StatusPill({ children }: { children: string }) {
+  return (
+    <span className="shrink-0 rounded-full bg-portal-pill px-3 py-0.5 text-body-sm font-medium text-portal-dark">
+      {children}
+    </span>
+  );
+}

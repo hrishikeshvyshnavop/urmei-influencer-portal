@@ -26,7 +26,7 @@ export default function HelpCenter() {
 
       <main className="mx-auto min-h-[calc(100vh-88px)] w-full max-w-[794px] px-6 pb-12 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
-          <a href="#/home">Home</a>
+          <a href="/home">Home</a>
           <ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} />
           <span className="text-portal-muted">Help Center</span>
         </nav>

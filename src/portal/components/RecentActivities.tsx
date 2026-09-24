@@ -1,6 +1,7 @@
 import { ChevronRight } from "lucide-react";
 import { loadShopActivities } from "../../shop/activity-log";
 import ActivityRow from "./ActivityRow";
+import { navigate } from "../../router";
 
 const VISIBLE_COUNT = 3;
 
@@ -18,7 +19,7 @@ export default function RecentActivities() {
         <button
           type="button"
           onClick={() => {
-            window.location.hash = "#/recent-activities";
+            navigate("/recent-activities");
           }}
           className="flex shrink-0 cursor-pointer items-center gap-2 overflow-clip text-body-sm font-medium whitespace-nowrap text-portal-text"
         >
