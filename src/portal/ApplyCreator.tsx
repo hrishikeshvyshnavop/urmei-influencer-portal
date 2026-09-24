@@ -164,7 +164,11 @@ export default function ApplyCreator({
   return (
     <PortalFormLayout animate={false}>
       <form
-        className="flex w-full max-w-[940px] flex-col gap-6 px-6 pt-[136px] pb-16 sm:px-12 lg:px-[100px]"
+        /* The design's form column (Figma `1583:87424`): the content starts at
+           the header's bottom edge — 96px, not a gap below it — with 40px
+           between the page header, the sections and the terms block, and 64px
+           of tail. */
+        className="flex w-full max-w-[940px] flex-col gap-10 px-6 pt-[96px] pb-16 sm:px-12 lg:px-[100px]"
         onInvalidCapture={(event) => {
           event.preventDefault();
           scrollToFirstError(event.currentTarget);

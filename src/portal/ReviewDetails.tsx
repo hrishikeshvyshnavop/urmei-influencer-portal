@@ -71,7 +71,9 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
   return (
     <PortalFormLayout hideLanguageSelector hideHeaderBackdrop>
       <form
-        className="flex w-full max-w-[940px] flex-col gap-8 px-6 pt-[120px] pb-16 sm:px-12 lg:px-[100px]"
+        /* Same column as the apply form (Figma `1583:87871`): content starts
+           at the header's bottom edge, 40px between blocks. */
+        className="flex w-full max-w-[940px] flex-col gap-10 px-6 pt-[96px] pb-16 sm:px-12 lg:px-[100px]"
         onInvalidCapture={(event) => {
           event.preventDefault();
           scrollToFirstError(event.currentTarget);
