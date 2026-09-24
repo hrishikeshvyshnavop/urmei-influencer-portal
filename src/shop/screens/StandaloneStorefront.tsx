@@ -300,12 +300,12 @@ export function StandaloneStorefront() {
                 <StorefrontProfileCard onCopyLink={copyShopLink} />
               </div>
               {/* Nothing here ships to the selected market. Sits in the same
-                  36px column as the card rather than tucked under it the way
-                  the preview does — the edge frame's column is 952px tall,
-                  which is 200 + 36 + 88 + 36 + 592. */}
+                  36px column as the creator card rather than tucked under it
+                  the way the preview does, which is how the edge frame
+                  (`1616:66073`) stacks it. */}
               {items.length > 0 && !hasAvailableItems && (
                 <div className={CONTENT_COLUMN}>
-                  <NoAvailabilityNotice />
+                  <NoAvailabilityNotice country={country} allowCountryChange />
                 </div>
               )}
               {showFavorite ? (

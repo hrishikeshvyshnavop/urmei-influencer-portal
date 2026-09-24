@@ -236,7 +236,7 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
               <>
                 <div className="flex w-full flex-col gap-md-2 px-margin pt-md-2">
                   <StorefrontProfileCard onCopyLink={onCopyShopLink} />
-                  {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice />}
+                  {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice country={country} />}
                 </div>
 
                 {items.length === 0 ? (

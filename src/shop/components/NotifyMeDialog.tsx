@@ -8,8 +8,10 @@ import type { Product } from '../types'
  * design literal like the site header's cart count: this storefront has no
  * shopper account behind it to read a real address from, and the design's whole
  * point is that a signed-in shopper doesn't have to type one. (The confirmation
- * frame spells a different address, `sara@example.com` — reusing this one keeps
- * the two steps talking about the same inbox.)
+ * frames spell other addresses — `sara@example.com` in `916:*` and
+ * `charlotte@gmail.com` in the `1616:67001` revision — but the latter is the
+ * creator's own name, and this storefront is hers, so a neutral shopper address
+ * is kept and used by both steps.)
  */
 const ACCOUNT_EMAIL = 'sara.tan@gmail.com'
 
