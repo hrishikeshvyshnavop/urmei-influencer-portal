@@ -388,3 +388,29 @@ html body[data-scroll-locked] {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* A full-width band whose background has to reach the window's edges from
+   inside `ScaledBox`, which pins its content to the 1440px design width: past
+   1440px wide, a band's own box stops at the box's edge and the page shows
+   either side of it (the storefront preview's favorite-picks gradient). The
+   background goes on this pseudo-element — `before:bg-*` utilities on the
+   band — which spans the full viewport, centred on the band, behind its
+   content. The band itself carries none: a translucent gradient painted on
+   both would double up inside the 1440px column and show a seam at its edge.
+   The page wrapper clips the overflow sideways so it never adds a scroll. */
+.bleed-x {
+  position: relative;
+  isolation: isolate;
+}
+.bleed-x::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  /* 100vw alone falls short below 1440px, where `ScaledBox` scales down and
+     the viewport's width is measured in the box's larger, unscaled units. */
+  width: max(100%, 100vw);
+  translate: -50% 0;
+  z-index: -1;
+  pointer-events: none;
+}

@@ -53,7 +53,7 @@ function FavoritePicks({
   }
 
   return (
-    <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-500/0 to-surface-tertiary-500 py-3xl">
+    <section className="bleed-x flex w-full flex-col items-center gap-md-2 py-3xl before:bg-gradient-to-b before:from-surface-tertiary-500/0 before:to-surface-tertiary-500">
       <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           {ownerName}&rsquo;s favorite picks
@@ -207,7 +207,7 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100">
+    <div className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100">
       {/* `position: sticky` can't live *inside* `ScaledBox` — its offsets are
           resolved in the box's pre-transform coordinate space, so a stuck
           element drifts by `scrollY × (1 - scale)`, which grows without bound

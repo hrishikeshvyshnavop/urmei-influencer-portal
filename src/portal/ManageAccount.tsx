@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Camera, IdCard, Landmark, MapPin, Pencil, ShieldCheck, Trash2, TriangleAlert } from "lucide-react";
+import { Landmark, MapPin, Pencil, Trash2, TriangleAlert } from "lucide-react";
 import type { ReactNode } from "react";
 import Button from "./components/Button";
 import FieldGrid from "./components/FieldGrid";
@@ -10,7 +10,6 @@ import SetDefaultsModal from "./components/SetDefaultsModal";
 import ProfilePhoto from "./components/ProfilePhoto";
 import { PROFILE_PHOTO_KEY } from "./profile-photo";
 import SocialAccountRow, { type SocialPlatform } from "./components/SocialAccountRow";
-import { VERIFICATION_MESSAGE_TYPE, VERIFICATION_STORAGE_KEY } from "./VerificationPartner";
 import AppFooter from "./components/AppFooter";
 import AppHeader from "./components/AppHeader";
 import { CropModal } from "./SetProfilePhoto";
@@ -56,15 +55,6 @@ const latestEligibleBirthday = (() => {
   date.setFullYear(date.getFullYear() - 18);
   return date;
 })();
-
-function isIdentityVerified() {
-  try {
-    const saved = window.localStorage.getItem(VERIFICATION_STORAGE_KEY);
-    return saved ? (JSON.parse(saved) as { status?: string }).status === "complete" : false;
-  } catch {
-    return false;
-  }
-}
 
 export type ManageAccountSection = "Profile" | "Social accounts" | "Payouts" | "Shipping addresses";
 
@@ -143,8 +133,6 @@ export default function ManageAccount({
   const [saved, setSaved] = useState(false);
   const [activeSection, setActiveSection] = useState<ManageAccountSection>(initialSection);
   const [connectedSocials, setConnectedSocials] = useState(["instagram", "tiktok"]);
-  const [identityVerified, setIdentityVerified] = useState(isIdentityVerified);
-  const [identityPending, setIdentityPending] = useState(false);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(readBankAccount);
   const [setupRequired, setSetupRequired] = useState(isSetupRequired);
   const [shippingAddresses, setShippingAddresses] = useState(readShippingAddresses);
@@ -174,24 +162,6 @@ export default function ManageAccount({
   }, [setupRequired, paymentConnected]);
 
   useEffect(() => {
-    const syncIdentity = () => {
-      if (isIdentityVerified()) {
-        setIdentityVerified(true);
-        setIdentityPending(false);
-      }
-    };
-    const receiveIdentity = (event: MessageEvent) => {
-      if (event.origin === window.location.origin && event.data?.type === VERIFICATION_MESSAGE_TYPE && event.data?.status === "complete") syncIdentity();
-    };
-    window.addEventListener("storage", syncIdentity);
-    window.addEventListener("message", receiveIdentity);
-    return () => {
-      window.removeEventListener("storage", syncIdentity);
-      window.removeEventListener("message", receiveIdentity);
-    };
-  }, []);
-
-  useEffect(() => {
     const bannerEl = bannerRef.current;
     const updateOffset = () => {
       // Header (and banner, when shown) plus `main`'s py-8: where the rail
@@ -218,21 +188,6 @@ export default function ManageAccount({
       window.removeEventListener("message", receivePayment);
     };
   }, []);
-
-  const startIdentityVerification = () => {
-    setIdentityPending(true);
-    const partnerUrl = new URL("/verify/partner", window.location.origin);
-    const width = 520;
-    const height = 720;
-    const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
-    const top = Math.max(0, window.screenY + (window.outerHeight - height) / 2);
-    const popup = window.open(partnerUrl, "urmei-verification-partner", `popup=yes,width=${width},height=${height},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`);
-    if (popup) popup.focus();
-    else {
-      setIdentityPending(false);
-      navigate("/verify");
-    }
-  };
 
   const updateProfilePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -266,7 +221,7 @@ export default function ManageAccount({
 
   const railNav = (
     <nav aria-label="Account settings" className="flex w-full shrink-0 gap-[2px] overflow-x-auto sm:flex-col">
-      {NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`flex h-12 shrink-0 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-body-sm tracking-[1.4px] uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{/* Payouts only, and only while no bank account is on file: the setup-required flag also waits on identity, which Profile covers, so it would keep flagging a Payouts section that is already done. */}{key === "Payouts" && !paymentConnected ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}
+      {NAV_ITEMS.map(({ key, label }) => <button key={key} type="button" onClick={() => setActiveSection(key)} className={`flex h-12 shrink-0 cursor-pointer items-center gap-2 rounded-md px-3 text-left text-body-sm tracking-[1.4px] uppercase ${key === activeSection ? "bg-portal-tick font-medium text-portal-text" : "text-portal-muted"}`}><span className="min-w-0 flex-1">{label}</span>{/* Payouts only, and only while no bank account is on file. */}{key === "Payouts" && !paymentConnected ? <TriangleAlert aria-label="Setup required" className="size-4 shrink-0 text-[#f59e0b]" strokeWidth={1.75} /> : null}</button>)}
     </nav>
   );
 
@@ -439,18 +394,6 @@ export default function ManageAccount({
                       <TextField label="Username" placeholder="" value="@charlotte" locked onChange={() => {}} hint="Your storefront url and every affiliate link you have shared use this. It cannot be changed." />
                     </div>
                   </div>
-
-                  {!identityVerified ? (
-                    <div className="flex w-full flex-col gap-5">
-                      <SectionHeader title="Identity" description="Verify your identity to complete your shop setup and enable payouts." />
-                      <div className="flex flex-col gap-4 rounded-lg border border-portal-border bg-portal-light p-5">
-                        <p className="text-body-sm text-portal-muted">You&#39;ll need the following</p>
-                        <div className="flex flex-col gap-1 text-body-sm text-portal-muted"><p className="flex items-center gap-2"><IdCard className="size-4" strokeWidth={1.5} />Government-issued photo ID</p><p className="flex items-center gap-2"><Camera className="size-4" strokeWidth={1.5} />Camera-enabled device</p><p className="flex items-center gap-2"><ShieldCheck className="size-4" strokeWidth={1.5} />Personal details matching your account</p></div>
-                        <div className="flex items-center gap-3"><Button variant="portal" disabled={identityPending} onClick={startIdentityVerification}>{identityPending ? "Verifying…" : "Start secure verification"}</Button><span className="text-body-xs text-portal-muted">Usually takes 3-5 minutes</span></div>
-                        <p className="text-body-xs text-portal-muted opacity-80">Your documents are processed securely by our verification partner. URMEI only receives the verification result and required identity data.</p>
-                      </div>
-                    </div>
-                  ) : null}
 
                   <div className="flex w-full flex-col gap-5">
                     <SectionHeader title="Personal Information" description="None of this appears on your storefront." />
