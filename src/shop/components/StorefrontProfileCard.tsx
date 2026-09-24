@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { Check } from 'lucide-react'
 import ProfilePhoto from '../../portal/components/ProfilePhoto'
 import { getSavedBio, getSavedDisplayName } from '../../portal/profile-status'
 import { FOLLOWER_STATS } from '../data/shop'
@@ -21,6 +22,14 @@ type StorefrontProfileCardProps = {
  */
 export function StorefrontProfileCard({ onCopyLink }: StorefrontProfileCardProps) {
   const [following, setFollowing] = useState(false)
+  // The copy icon turns into a green tick for a moment after copying, the
+  // same confirmation the Shop URL field gives (`portal/components/ShopUrl`).
+  const [copied, setCopied] = useState(false)
+  useEffect(() => {
+    if (!copied) return
+    const timer = window.setTimeout(() => setCopied(false), 1800)
+    return () => window.clearTimeout(timer)
+  }, [copied])
   const name = getSavedDisplayName('Charlotte')
   const bio = getSavedBio()
 
@@ -68,11 +77,18 @@ export function StorefrontProfileCard({ onCopyLink }: StorefrontProfileCardProps
 
         <button
           type="button"
-          onClick={onCopyLink}
+          onClick={() => {
+            onCopyLink()
+            setCopied(true)
+          }}
           className="flex shrink-0 items-center gap-sm rounded-md px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
         >
           Copy shop Link
-          <Icon name="copy" />
+          {copied ? (
+            <Check aria-hidden="true" className="size-4 shrink-0 text-text-success" strokeWidth={2} />
+          ) : (
+            <Icon name="copy" />
+          )}
         </button>
       </div>
 

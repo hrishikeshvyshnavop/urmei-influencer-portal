@@ -90,8 +90,7 @@ export function useIdentityVerification({
    *  so a second call re-uses the same popup rather than stacking another. */
   const startVerification = () => {
     setStatus("pending");
-    const partnerUrl = new URL(window.location.href);
-    partnerUrl.hash = "#/verify/partner";
+    const partnerUrl = new URL("/verify/partner", window.location.origin);
     const width = 520;
     const height = 720;
     const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);

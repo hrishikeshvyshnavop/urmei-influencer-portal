@@ -24,7 +24,7 @@ export const STAT_METRICS = [
 export type StatMetric = (typeof STAT_METRICS)[number]
 
 type MetricSpec = {
-  /** Hash segment for the breakdown page, e.g. `#/shop/stats/commission-pending`. */
+  /** Hash segment for the breakdown page, e.g. `/shop/stats/commission-pending`. */
   slug: string
   /** Uppercase label on the stats row, and the hero label on the breakdown. */
   label: string
@@ -179,9 +179,9 @@ export function trendFor(metric: StatMetric, total: number) {
 export type StatsOrigin = 'home' | 'shop'
 
 export const ORIGIN_CRUMBS: Record<StatsOrigin, { label: string; hash: string }> = {
-  home: { label: 'Home', hash: '#/home' },
+  home: { label: 'Home', hash: '/home' },
   // The nav item and the shop's own product-detail crumb both say "My Shop".
-  shop: { label: 'My Shop', hash: '#/shop' },
+  shop: { label: 'My Shop', hash: '/shop' },
 }
 
 /** A deep link with no origin reads as the shop's, which is where these live. */
@@ -189,19 +189,19 @@ export function parseStatsOrigin(value: string | null): StatsOrigin {
   return value === 'home' ? 'home' : 'shop'
 }
 
-/** `#/shop/stats/clicks?from=home` — one metric's breakdown. */
+/** `/shop/stats/clicks?from=home` — one metric's breakdown. */
 export function statsBreakdownHash(metric: StatMetric, origin: StatsOrigin) {
-  return `#/shop/stats/${STAT_SPECS[metric].slug}?from=${origin}`
+  return `/shop/stats/${STAT_SPECS[metric].slug}?from=${origin}`
 }
 
 /**
- * `#/shop/stats/product/a2?from=home&via=clicks` — one product's stats. `via`
+ * `/shop/stats/product/a2?from=home&via=clicks` — one product's stats. `via`
  * is the breakdown the user came through, and is absent when they arrived
  * straight from a product's performance card.
  */
 export function productStatsHash(itemId: string, origin: StatsOrigin, via?: StatMetric) {
   const trail = `from=${origin}${via ? `&via=${STAT_SPECS[via].slug}` : ''}`
-  return `#/shop/stats/product/${encodeURIComponent(itemId)}?${trail}`
+  return `/shop/stats/product/${encodeURIComponent(itemId)}?${trail}`
 }
 
 function entryFor(
@@ -231,7 +231,7 @@ export function statsRowEntries(items: ShopItem[]) {
 export function homeStatsRowEntries(items: ShopItem[]) {
   const totals = shopTotals(items)
   return [
-    { label: 'TOTAL PRODUCTS', value: String(items.length), href: '#/shop' },
+    { label: 'TOTAL PRODUCTS', value: String(items.length), href: '/shop' },
     entryFor('clicks', totals, 'home'),
     entryFor('sales', totals, 'home'),
     entryFor('commissionOwned', totals, 'home'),

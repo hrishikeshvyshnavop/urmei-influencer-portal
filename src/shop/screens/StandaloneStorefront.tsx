@@ -1,4 +1,4 @@
-import { useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
@@ -11,6 +11,7 @@ import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
 import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
+import { Toast } from '../components/Toast'
 import { SHOP_URL } from '../data/shop'
 import { useHasOverflowX } from '../hooks/useHasOverflowX'
 import { CONTENT_COLUMN } from '../layout'
@@ -209,8 +210,18 @@ export function StandaloneStorefront() {
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
 
+  const [linkCopied, setLinkCopied] = useState(false)
+  useEffect(() => {
+    if (!linkCopied) return
+    // Matches the toast's own 3.2s lifecycle animation.
+    const timer = window.setTimeout(() => setLinkCopied(false), 3200)
+    return () => window.clearTimeout(timer)
+  }, [linkCopied])
+
+  // Same wording as the in-app preview's toast (`shop/App.tsx`).
   const copyShopLink = () => {
     navigator.clipboard?.writeText(SHOP_URL).catch(() => {})
+    setLinkCopied(true)
   }
 
   const clearSelection = () => setSelectedItem(null)
@@ -309,6 +320,8 @@ export function StandaloneStorefront() {
       {!selectedItem && <div className="h-[80px] w-full shrink-0" />}
 
       <AppFooter />
+
+      {linkCopied ? <Toast message="Shop link copied to clipboard" /> : null}
     </div>
   )
 }

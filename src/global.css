@@ -17,12 +17,17 @@
   --color-portal-surface: #f8f8f8; /* surface/secondary/300 */
   --color-portal-dark: #403e3c; /* surface/primary/500 */
   --color-portal-alert: #ee4442; /* surface/other/alert */
+  --color-portal-alert-tint: #fdecec; /* sample request cancelled callout (1030:27579) */
   --color-portal-success: #66bb6a; /* border/color/success */
   --color-portal-success-text: #28802c; /* typography/color/other/success */
   --color-portal-notice: #a07539; /* social requirement note */
   --color-portal-card: #fdfdfd; /* surface/secondary/200 */
   --color-portal-tint: #efece9; /* surface/tertiary/500 */
   --color-portal-tick: #f2efed; /* typography/color/tertiary/100 */
+  --color-portal-pill: #e7e2df; /* sample request status pill */
+  --color-portal-star: #fac978; /* sample request review star well; middle of the rating scale */
+  --color-portal-rating-low: #f69896; /* rating scale, "Not for me" end (1030:31329) */
+  --color-portal-rating-high: #89b98a; /* rating scale, "Loved it!" end (1030:31023) */
   --color-portal-step: #262320; /* surface/primary/900 */
   --color-portal-warn-bg: #fef3c7; /* verification: warning icon well */
   --color-portal-info-bg: #e0f2fe; /* verification: in-progress icon well */
@@ -243,6 +248,18 @@ html body[data-scroll-locked] {
 }
 
 /* Minimal motion language: short, functional, and shared across the portal. */
+/* "What Creators Say" slides: the incoming quote enters from the side the
+   pager moved toward (next -> from the right, previous -> from the left). */
+@keyframes carousel-in-next {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes carousel-in-prev {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 @keyframes portal-enter {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -358,6 +375,10 @@ html body[data-scroll-locked] {
 .motion-popover[data-state="closed"] { animation: portal-popover-out 120ms ease-in both; }
 .motion-product-detail { animation: product-detail-enter var(--motion-base) ease-out both; }
 .motion-toast { animation: toast-lifecycle 3200ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.motion-carousel-next { animation: carousel-in-next var(--motion-base) var(--ease-portal) both; }
+.motion-carousel-prev { animation: carousel-in-prev var(--motion-base) var(--ease-portal) both; }
+/* The author line trails the quote by a hair so the slide reads as one move. */
+.motion-carousel-trail { animation-delay: 30ms; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

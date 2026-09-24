@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { ChevronRight, CircleHelp, Info, LogOut, X } from "lucide-react";
+import { ChevronRight, CircleHelp, FileText, Info, LogOut, Star, X } from "lucide-react";
 import Button from "./Button";
 import ProfilePhoto from "./ProfilePhoto";
 import {
@@ -10,13 +10,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+/** The header's account menu (Figma `1030:27082`). */
 export default function ProfileMenu({
   onShowProfile,
+  onShowSampleRequests,
+  onShowReviews,
   onShowTour,
   onShowHelp,
   onLogout,
 }: {
   onShowProfile: () => void;
+  onShowSampleRequests?: () => void;
+  onShowReviews?: () => void;
   onShowTour: () => void;
   onShowHelp: () => void;
   onLogout: () => void;
@@ -69,6 +74,20 @@ export default function ProfileMenu({
           </DropdownMenuItem>
 
           <DropdownMenuItem
+            onSelect={onShowSampleRequests}
+            className="flex w-full cursor-pointer items-center gap-2 border-b border-portal-surface p-4 text-body-md font-medium text-portal-text"
+          >
+            <FileText aria-hidden="true" className="size-[22px] shrink-0" strokeWidth={1.5} />
+            Sample Requests
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onSelect={onShowReviews}
+            className="flex w-full cursor-pointer items-center gap-2 border-b border-portal-surface p-4 text-body-md font-medium text-portal-text"
+          >
+            <Star aria-hidden="true" className="size-[22px] shrink-0" strokeWidth={1.5} />
+            Your Reviews
+          </DropdownMenuItem>
+          <DropdownMenuItem
             onSelect={onShowTour}
             className="flex w-full cursor-pointer items-center gap-2 border-b border-portal-surface p-4 text-body-md font-medium text-portal-text"
           >
@@ -80,7 +99,7 @@ export default function ProfileMenu({
             className="flex w-full cursor-pointer items-center gap-2 border-b border-portal-surface p-4 text-body-md font-medium text-portal-text"
           >
             <CircleHelp aria-hidden="true" className="size-[22px] shrink-0" strokeWidth={1.5} />
-            Help Center
+            Resources/help
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => setConfirmLogout(true)}

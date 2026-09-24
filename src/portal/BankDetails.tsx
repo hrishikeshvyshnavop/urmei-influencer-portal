@@ -1,7 +1,7 @@
 import { useState } from "react";
 import FieldGrid from "./components/FieldGrid";
 import SetupStep from "./components/SetupStep";
-import { BANK_FIELDS, saveBankAccount } from "./bank-account";
+import { BANK_FIELDS, isBankAccountComplete, saveBankAccount } from "./bank-account";
 
 type BankDetailsProps = {
   onAddAccount: () => void;
@@ -33,10 +33,7 @@ export default function BankDetails({
       onSkip={onSkip}
       onSubmit={() => {
         setShowErrors(true);
-        const complete = BANK_FIELDS.every(
-          (field) => field.optional || (values[field.name] ?? "").trim(),
-        );
-        if (!complete) return;
+        if (!isBankAccountComplete(values)) return;
         saveBankAccount(values);
         onAddAccount();
       }}

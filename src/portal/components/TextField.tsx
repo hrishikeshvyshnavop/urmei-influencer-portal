@@ -106,14 +106,15 @@ export default function TextField({
       </div>
 
       <div
-        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 focus-within:ring-2 focus-within:ring-portal-surface ${
+        className={`flex w-full items-center gap-1 overflow-clip rounded-[6px] border border-solid px-4 py-3 transition-[border-color,background-color,box-shadow] duration-200 ${
           locked
-            ? "border-portal-surface bg-portal-surface"
+            ? // Read-only: no focus ring or border change — nothing to type into.
+              "cursor-not-allowed select-none border-portal-surface bg-portal-surface"
             : error
               ? // Stays red on focus: the field is wrong, and clicking into it
                 // to fix it is not a reason to stop saying so.
-                "border-portal-alert focus-within:border-portal-alert"
-              : "border-portal-border focus-within:border-portal-dark"
+                "border-portal-alert focus-within:border-portal-alert focus-within:ring-2 focus-within:ring-portal-surface"
+              : "border-portal-border focus-within:border-portal-dark focus-within:ring-2 focus-within:ring-portal-surface"
         }`}
       >
         <div className="relative flex min-w-px flex-1 items-center gap-1">

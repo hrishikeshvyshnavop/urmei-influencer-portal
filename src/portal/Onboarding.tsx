@@ -160,8 +160,7 @@ export default function Onboarding({
   const connectPayment = () => {
     setPayment("pending");
     setOpen(2);
-    const partnerUrl = new URL(window.location.href);
-    partnerUrl.hash = "#/payment/partner";
+    const partnerUrl = new URL("/payment/partner", window.location.origin);
     const width = 520;
     const height = 720;
     const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
@@ -180,8 +179,7 @@ export default function Onboarding({
 
   const startVerification = () => {
     setIdentity("pending");
-    const partnerUrl = new URL(window.location.href);
-    partnerUrl.hash = "#/verify/partner";
+    const partnerUrl = new URL("/verify/partner", window.location.origin);
     const width = 520;
     const height = 720;
     const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);

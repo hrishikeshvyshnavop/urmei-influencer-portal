@@ -100,6 +100,23 @@ export function BrowseOverlay({
     [],
   )
 
+  // Escape closes the overlay — unless something is stacked on top of it (the
+  // add-to-shop and request-sample modals, the review modal, an open select or
+  // menu), in which case that layer owns the key and closes first. Re-bound
+  // every render so the handler always sees the current `closing` state.
+  useEffect(() => {
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape' || event.defaultPrevented) return
+      const layerAbove = document.querySelector(
+        '[aria-modal="true"], [data-radix-popper-content-wrapper], [role="menu"], [role="listbox"]',
+      )
+      if (layerAbove) return
+      requestClose()
+    }
+    window.addEventListener('keydown', onEscape)
+    return () => window.removeEventListener('keydown', onEscape)
+  })
+
   // Locking scroll via `overflow: hidden` (with or without also pinning
   // `body` to `position: fixed`) breaks every `position: sticky` element on
   // the page behind this overlay: sticky needs an actual scrolling box to

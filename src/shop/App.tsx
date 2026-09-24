@@ -5,6 +5,7 @@ import { AddToShopModal } from './components/AddToShopModal'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
+import RequestSampleFlow from '../portal/components/RequestSampleFlow'
 import { getSetupManageAccountRoute, isProfileSetupComplete } from '../portal/components/SetupBanner'
 import { EMPTY_FILTERS, PRODUCTS, searchProducts, type ProductFilters } from './data/catalogue'
 import { SHOP_URL, affiliateLinkFor, hasLiveLink } from './data/shop'
@@ -33,6 +34,7 @@ import {
 } from './shop-items-store'
 import { setPublishBlocked as setPublishBlockedShared, setShopItemCount, setShopPublished } from './shop-status'
 import type { OverlayView, Product, ShopItem } from './types'
+import { navigate, routeUrl } from '../router'
 
 /** Simulated backend flakiness for reordering favorite items — Figma documents
  *  both a success (frame 02) and a failure (frame 04) outcome for the same
@@ -66,6 +68,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   )
   const [pendingProduct, setPendingProduct] = useState<Product | null>(() => initialAddProductId ? PRODUCTS.find((item) => item.id === initialAddProductId) ?? null : null)
   const [toast, setToast] = useState<ToastState | null>(null)
+  const [sampleProduct, setSampleProduct] = useState<Product | null>(null)
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
   const [removalCandidate, setRemovalCandidate] = useState<ShopItem | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
@@ -121,7 +124,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
 
   /** Selecting a brand pre-checks it in the Filters panel instead of typing
    *  it into the search box — matches the standalone Brands page's own
-   *  `#/shop/brand/:name` entry point (see `initialBrandFilter` above). */
+   *  `/shop/brand/:name` entry point (see `initialBrandFilter` above). */
   function selectBrand(name: string) {
     setInitialFilters({ ...EMPTY_FILTERS, brands: [name] })
     setQuery('')
@@ -300,6 +303,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           item={viewingItem}
           shopMode={shopModeFor(viewingItem, true)}
           onBackToShop={() => setViewingItemId(null)}
+          onRequestSample={() => setSampleProduct(viewingItem.product)}
         />
       ) : (
         <MyShop
@@ -315,7 +319,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
             // so pointing at the deployed URL from a dev server opened a
             // *different* app with a different (usually empty) shop — the
             // storefront looked broken when the data simply wasn't there.
-            window.open(`${window.location.origin}${window.location.pathname}#/shop/view`, '_blank')
+            window.open(routeUrl('/shop/view'), '_blank')
           }}
           published={publishedAt !== null}
           publishedAt={publishedAt}
@@ -381,6 +385,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
               onBackToCatalogue={openCatalogue}
               onBackToResults={() => setOverlay({ kind: 'results', query: overlay.query })}
               onAddToShop={() => setPendingProduct(overlay.product)}
+              onRequestSample={() => setSampleProduct(overlay.product)}
             />
           )}
         </BrowseOverlay>
@@ -406,7 +411,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           hasProducts={items.length > 0}
           onClose={() => setPublishOpen(false)}
           onPublish={confirmPublish}
-          onCompleteProfile={() => { window.location.hash = getSetupManageAccountRoute() }}
+          onCompleteProfile={() => { navigate(getSetupManageAccountRoute()) }}
         />
       )}
 
@@ -418,6 +423,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onConfirm={() => performRemoveFromShop(removalCandidate)}
         />
       )}
+
+      <RequestSampleFlow product={sampleProduct} onClose={() => setSampleProduct(null)} />
 
       {toast && (
         <Toast message={toast.message} variant={toast.variant} action={toast.action} />
