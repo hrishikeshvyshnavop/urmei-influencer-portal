@@ -76,9 +76,9 @@ export function saveBankAccount(account: Partial<BankAccount>) {
 /**
  * Figma `1583:88109` (the frame is misnamed "Adding shipping address"; its
  * content is the bank step). Asterisked labels are the design's required
- * fields; bank code, payout currency and account type carry none. Payout
- * currency has no chevron in either frame, so it's a plain input rather than
- * a select.
+ * fields; SWIFT/BIC code, payout currency and account type carry none. Payout
+ * currency is a select over the portal's five markets, worded the way the
+ * payout provider returns it ("SGD - Singapore Dollar").
  */
 export const BANK_FIELDS: FieldSpec[] = [
   {
@@ -95,7 +95,7 @@ export const BANK_FIELDS: FieldSpec[] = [
     placeholder: "",
     required: true,
   },
-  { name: "bankCode", label: "Bank code", placeholder: "", optional: true },
+  { name: "bankCode", label: "SWIFT/BIC Code", placeholder: "", optional: true },
   {
     name: "accountHolderType",
     label: "Account holder type",
@@ -106,8 +106,15 @@ export const BANK_FIELDS: FieldSpec[] = [
   {
     name: "payoutCurrency",
     label: "Payout currency",
-    placeholder: "",
+    placeholder: "Choose payout currency",
     optional: true,
+    options: [
+      "SGD - Singapore Dollar",
+      "MYR - Malaysian Ringgit",
+      "IDR - Indonesian Rupiah",
+      "THB - Thai Baht",
+      "VND - Vietnamese Dong",
+    ],
   },
   {
     name: "accountType",

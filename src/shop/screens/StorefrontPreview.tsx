@@ -11,6 +11,8 @@ import { StorefrontHeader } from '../components/StorefrontHeader'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontReviews } from '../components/StorefrontReviews'
+import { reviewsForShop } from '../data/reviews'
 import { useHasOverflowX } from '../hooks/useHasOverflowX'
 import { CONTENT_COLUMN } from '../layout'
 import type { ShopItem } from '../types'
@@ -250,6 +252,11 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
                         onSelect={setSelectedItem}
                       />
                     )}
+                    <StorefrontReviews
+                      reviews={reviewsForShop(items)}
+                      ownerName={name}
+                      onSelect={setSelectedItem}
+                    />
                     <AllPicks items={items} country={country} onSelect={setSelectedItem} />
                   </>
                 )}

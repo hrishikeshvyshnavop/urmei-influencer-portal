@@ -3,10 +3,11 @@ import { Button } from './Button'
 import { STAT_SPECS, statsForProduct } from '../data/stats'
 import { StatColumn } from './StatsRow'
 import type { Product } from '../types'
+import { navigate } from '../../router'
 
 /**
- * The "PERFORMACE" block on a shop item's product-detail page (Figma
- * `1605:43038`) — kept spelled as designed.
+ * The "PERFORMANCE" block on a shop item's product-detail page (Figma
+ * `1605:43038`; spelling corrected in `1030:25509`).
  *
  * Four columns drawn exactly like My Shop's stats row, plus a "View other
  * stats" cell. Every column and the button lead to this product's own stats
@@ -33,10 +34,10 @@ export function PerformanceStats({
   ]
 
   return (
-    <div className="flex w-full flex-col items-end gap-3xl px-margin pb-5xl">
+    <div className="flex w-full flex-col items-end gap-3xl">
       <div className="flex h-[52px] w-full items-center overflow-clip">
         <div className="flex flex-col gap-xs whitespace-nowrap">
-          <p className="text-body-xl font-medium text-text-secondary-1000">PERFORMACE</p>
+          <p className="text-body-xl font-medium text-text-secondary-1000">PERFORMANCE</p>
           <p className="text-body-md text-text-secondary-700">How this product is doing in your shop</p>
         </div>
       </div>
@@ -55,7 +56,7 @@ export function PerformanceStats({
             <Button
               variant="outline"
               onClick={() => {
-                window.location.hash = statsHref
+                navigate(statsHref)
               }}
             >
               View other stats

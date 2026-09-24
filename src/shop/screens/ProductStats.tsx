@@ -14,6 +14,7 @@ import {
 } from '../data/stats'
 import { loadPublishedAt, loadShopItems } from '../shop-items-store'
 import type { ShopItem } from '../types'
+import { navigate } from '../../router'
 
 const TABS = ['Sales', 'Performance', 'Details'] as const
 type Tab = (typeof TABS)[number]
@@ -29,7 +30,7 @@ function crumbsFor(origin: StatsOrigin, via: StatMetric | undefined, productName
     {
       label: root.label,
       onClick: () => {
-        window.location.hash = root.hash
+        navigate(root.hash)
       },
     },
     ...(via
@@ -37,7 +38,7 @@ function crumbsFor(origin: StatsOrigin, via: StatMetric | undefined, productName
           {
             label: STAT_SPECS[via].crumb,
             onClick: () => {
-              window.location.hash = statsBreakdownHash(via, origin)
+              navigate(statsBreakdownHash(via, origin))
             },
           },
         ]
@@ -94,7 +95,7 @@ export function ProductStats({
         className="bg-surface-secondary-100"
         onShowTour={requestProductTour}
         onShowHelp={() => {
-          window.location.hash = '#/help-center'
+          navigate('/help-center')
         }}
       >
         <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
@@ -129,7 +130,7 @@ export function ProductStats({
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
       onShowHelp={() => {
-        window.location.hash = '#/help-center'
+        navigate('/help-center')
       }}
     >
       <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">

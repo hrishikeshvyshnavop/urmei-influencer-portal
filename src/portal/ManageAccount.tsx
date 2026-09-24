@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import Button from "./components/Button";
 import FieldGrid from "./components/FieldGrid";
 import FormModal from "./components/FormModal";
+import AddressFormModal from "./components/AddressFormModal";
+import SetDefaultsModal from "./components/SetDefaultsModal";
 import ProfilePhoto from "./components/ProfilePhoto";
 import { PROFILE_PHOTO_KEY } from "./profile-photo";
 import SocialAccountRow, { type SocialPlatform } from "./components/SocialAccountRow";
@@ -13,10 +15,20 @@ import AppHeader from "./components/AppHeader";
 import { CropModal } from "./SetProfilePhoto";
 import TextField from "./components/TextField";
 import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, readBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
-import { ADDRESS_FIELDS_BY_COUNTRY, type FieldSpec } from "./form-fields";
+import { type FieldSpec } from "./form-fields";
+import {
+  addressLines,
+  readShippingAddresses,
+  removeShippingAddress,
+  saveShippingAddresses,
+  setAddressDefaults,
+  upsertShippingAddress,
+  type ShippingAddress,
+} from "./shipping-addresses";
 import { clearSetupRequired, isSetupRequired } from "./setup-status";
 import { getSavedBio, getSavedDisplayName, saveBio, saveDisplayName } from "./profile-status";
 import { requestProductTour } from "./tour-status";
+import { navigate } from "../router";
 
 const socialPlatforms: SocialPlatform[] = [
   { id: "instagram", name: "Instagram", handle: "@charlotte_tan" },
@@ -31,37 +43,6 @@ const initialProfile = {
   phone: "+65 9123 4567",
   dob: "1998-01-15",
 };
-
-/**
- * The address modal's fields (Figma `1619:58187`): a label of its own, then the
- * same street schema profile setup collects, then country and the recipient's
- * phone.
- */
-const ADDRESS_MODAL_FIELDS: FieldSpec[] = [
-  { name: "label", label: "Address Label", placeholder: "", fullWidth: true },
-  ...ADDRESS_FIELDS_BY_COUNTRY.Singapore.map((field) => {
-    // Floor and unit are optional here — plenty of addresses have neither —
-    // and a house number is not a number ("12A", the design's own value).
-    if (field.name === "floorNo" || field.name === "unitNumber") return { ...field, optional: true };
-    if (field.name === "blockNo") return { ...field, numericOnly: false };
-    return field;
-  }),
-  {
-    name: "country",
-    label: "Country",
-    placeholder: "Select",
-    autoComplete: "country-name",
-    options: ["Singapore", "Malaysia", "Indonesia", "Thailand", "Vietnam"],
-  },
-  {
-    name: "phone",
-    label: "Recipient phone",
-    placeholder: "",
-    type: "tel",
-    autoComplete: "tel",
-    fullWidth: true,
-  },
-];
 
 /**
  * The bank modal (Figma `1619:59252`) asks for exactly what profile setup asks
@@ -83,39 +64,6 @@ const BANK_MODAL_FIELDS: FieldSpec[] = [
   // this frame does not. `optional` still drives which ones must be filled.
   return [{ ...field, required: false, fullWidth: name === "accountHolderType" }];
 });
-
-/** A saved address: its own id and default flag, plus the form's own values. */
-type ShippingAddress = { id: string; isDefault: boolean; fields: Record<string, string> };
-
-const initialAddresses: ShippingAddress[] = [
-  {
-    id: "a1",
-    isDefault: true,
-    fields: { label: "Home", blockNo: "12A", street: "Orchard Boulevard", building: "Camden Medical Centre", floorNo: "03", unitNumber: "28", postalCode: "520101", country: "Singapore", phone: "+65 9123 4567" },
-  },
-  {
-    id: "a2",
-    isDefault: false,
-    fields: { label: "Vietnam studio", blockNo: "88", street: "Nguyen Hue, District 1", building: "", floorNo: "", unitNumber: "", postalCode: "700000", country: "Vietnam", phone: "+84 90 123 4567" },
-  },
-];
-
-const emptyAddressFields: Record<string, string> = { label: "", blockNo: "", street: "", building: "", floorNo: "", unitNumber: "", postalCode: "", country: "Singapore", phone: "" };
-
-/**
- * The two lines the design prints under an address label: the street, then
- * everything that locates it inside the street. Both drop what is missing, so
- * an address with no floor, unit or building still reads cleanly.
- */
-function addressLines(fields: Record<string, string>) {
-  const street = [[fields.blockNo, fields.street].filter(Boolean).join(" "), fields.building].filter(Boolean).join(", ");
-  const within = [
-    fields.floorNo ? `Floor ${fields.floorNo}` : "",
-    fields.unitNumber ? `Unit ${fields.unitNumber}` : "",
-    [fields.country, fields.postalCode].filter(Boolean).join(" "),
-  ].filter(Boolean).join(", ");
-  return [street, within].filter(Boolean);
-}
 
 const latestEligibleBirthday = (() => {
   const date = new Date();
@@ -214,15 +162,21 @@ export default function ManageAccount({
   const [identityPending, setIdentityPending] = useState(false);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(readBankAccount);
   const [setupRequired, setSetupRequired] = useState(isSetupRequired);
-  const [shippingAddresses, setShippingAddresses] = useState(initialAddresses);
-  const [addressDraft, setAddressDraft] = useState<ShippingAddress | null>(null);
-  const [addressErrors, setAddressErrors] = useState(false);
+  const [shippingAddresses, setShippingAddresses] = useState(readShippingAddresses);
+  // `undefined` is closed; `null` is adding a new address.
+  const [editingAddress, setEditingAddress] = useState<ShippingAddress | null | undefined>(undefined);
+  const [settingDefaultsFor, setSettingDefaultsFor] = useState<ShippingAddress | null>(null);
   const [bankDraft, setBankDraft] = useState<Record<string, string> | null>(null);
   const [bankErrors, setBankErrors] = useState(false);
   const bannerRef = useRef<HTMLElement>(null);
   const [stickyOffset, setStickyOffset] = useState(120);
   const paymentConnected = bankAccount !== null;
   const profileDirty = displayName !== savedProfile.displayName || bio !== savedProfile.bio || phone !== savedProfile.phone || dob !== savedProfile.dob;
+
+  // The request-a-sample modal reads the same record.
+  useEffect(() => {
+    saveShippingAddresses(shippingAddresses);
+  }, [shippingAddresses]);
 
   useEffect(() => {
     if (setupRequired && identityVerified && paymentConnected) {
@@ -279,8 +233,7 @@ export default function ManageAccount({
 
   const startIdentityVerification = () => {
     setIdentityPending(true);
-    const partnerUrl = new URL(window.location.href);
-    partnerUrl.hash = "#/verify/partner";
+    const partnerUrl = new URL("/verify/partner", window.location.origin);
     const width = 520;
     const height = 720;
     const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
@@ -289,7 +242,7 @@ export default function ManageAccount({
     if (popup) popup.focus();
     else {
       setIdentityPending(false);
-      window.location.hash = "#/verify";
+      navigate("/verify");
     }
   };
 
@@ -307,24 +260,11 @@ export default function ManageAccount({
     event.target.value = "";
   };
 
-  const openAddressModal = (address?: ShippingAddress) => {
-    setAddressDraft(address ? { ...address, fields: { ...address.fields } } : { id: "", isDefault: shippingAddresses.length === 0, fields: { ...emptyAddressFields } });
-    setAddressErrors(false);
-  };
+  const openAddressModal = (address?: ShippingAddress) => setEditingAddress(address ?? null);
 
-  const saveAddress = () => {
-    if (!addressDraft) return;
-    setAddressErrors(true);
-    const complete = ADDRESS_MODAL_FIELDS.every((field) => field.optional || (addressDraft.fields[field.name] ?? "").trim());
-    if (!complete) return;
-    const nextId = addressDraft.id || `address-${Date.now()}`;
-    const nextAddress = { ...addressDraft, id: nextId };
-    setShippingAddresses((current) => {
-      let next = addressDraft.id ? current.map((item) => (item.id === addressDraft.id ? nextAddress : item)) : [...current, nextAddress];
-      if (nextAddress.isDefault || current.length === 0) next = next.map((item) => ({ ...item, isDefault: item.id === nextId }));
-      return next;
-    });
-    setAddressDraft(null);
+  const saveAddress = (address: ShippingAddress) => {
+    setShippingAddresses((current) => upsertShippingAddress(current, address).addresses);
+    setEditingAddress(undefined);
   };
 
   const saveBank = () => {
@@ -347,7 +287,7 @@ export default function ManageAccount({
     <div className="min-h-screen bg-portal-light text-portal-text">
       <AppHeader
         onShowTour={requestProductTour}
-        onShowHelp={() => { window.location.hash = "#/help-center"; }}
+        onShowHelp={() => { navigate("/help-center"); }}
       />
 
       {setupRequired || !identityVerified || !paymentConnected ? (
@@ -407,7 +347,7 @@ export default function ManageAccount({
                         <p className="text-body-sm text-portal-muted">{[bankAccount.bankName, bankAccount.accountType].filter(Boolean).join(" | ")}</p>
                         <div className="text-body-sm text-portal-muted">
                           <p>Account number : {bankAccount.bankAccountNumber}</p>
-                          {bankAccount.bankCode ? <p>Bank code : {bankAccount.bankCode}</p> : null}
+                          {bankAccount.bankCode ? <p>SWIFT/BIC Code : {bankAccount.bankCode}</p> : null}
                           <p>Account holder type : {bankAccount.accountHolderType}</p>
                         </div>
                         {bankAccount.payoutCurrency ? <p className="text-body-sm text-portal-muted">Payout currency : {bankAccount.payoutCurrency}</p> : null}
@@ -430,8 +370,8 @@ export default function ManageAccount({
               shippingAddresses.length > 0 ? (
                 <>
                   <SectionHeader
-                    title="Shipping address"
-                    description="Manage where brands send your product samples."
+                    title="Addresses"
+                    description="One address book. Mark which address is your default shipping and which is your default billing."
                     action={<Button variant="portal" onClick={() => openAddressModal()}>Add Address</Button>}
                   />
                   <div className="overflow-hidden rounded-lg border border-portal-border bg-portal-light">
@@ -440,7 +380,8 @@ export default function ManageAccount({
                         <div className="flex min-w-px flex-1 flex-col items-start gap-[6px]">
                           <div className="flex w-full flex-wrap items-center gap-2">
                             <p className="text-body-sm font-medium">{address.fields.label}</p>
-                            {address.isDefault ? <span className="rounded-full bg-portal-tick px-2 py-[3px] text-body-sm font-medium">For sample shipping</span> : null}
+                            {address.isDefaultBilling ? <span className="rounded-full bg-portal-tick px-2 py-[3px] text-body-sm font-medium">Default billing</span> : null}
+                            {address.isDefaultShipping ? <span className="rounded-full bg-portal-tick px-2 py-[3px] text-body-sm font-medium">Default shipping</span> : null}
                           </div>
                           <div className="text-body-sm text-portal-muted">
                             {addressLines(address.fields).map((line) => <p key={line}>{line}</p>)}
@@ -448,18 +389,17 @@ export default function ManageAccount({
                           <p className="text-body-sm text-portal-muted">{address.fields.phone}</p>
                         </div>
                         <div className="flex shrink-0 items-center gap-2">
-                          {!address.isDefault ? (
-                            <Button variant="portalOutline" onClick={() => setShippingAddresses((current) => current.map((item) => ({ ...item, isDefault: item.id === address.id })))}>
-                              Mark as Samples Sending Address
+                          {/* Nothing left to set once an address holds both
+                              defaults (Figma `786:29152`). */}
+                          {!(address.isDefaultShipping && address.isDefaultBilling) ? (
+                            <Button variant="portalOutline" onClick={() => setSettingDefaultsFor(address)}>
+                              Set As
                             </Button>
                           ) : null}
                           <IconButton
                             label="Delete address"
                             tone="alert"
-                            onClick={() => setShippingAddresses((current) => {
-                              const remaining = current.filter((item) => item.id !== address.id);
-                              return address.isDefault && remaining.length > 0 ? remaining.map((item, itemIndex) => ({ ...item, isDefault: itemIndex === 0 })) : remaining;
-                            })}
+                            onClick={() => setShippingAddresses((current) => removeShippingAddress(current, address.id))}
                           >
                             <Trash2 className="size-4" strokeWidth={1.5} />
                           </IconButton>
@@ -530,29 +470,23 @@ export default function ManageAccount({
         </div>
       </main>
       <AppFooter />
-      {addressDraft ? (
-        <FormModal
-          title={addressDraft.id ? "Edit shipping address" : "Add shipping address"}
-          submitLabel="Save Address"
-          onSubmit={saveAddress}
-          onClose={() => setAddressDraft(null)}
-        >
-          <FieldGrid
-            fields={ADDRESS_MODAL_FIELDS}
-            values={addressDraft.fields}
-            showErrors={addressErrors}
-            onChange={(name, value) => setAddressDraft((current) => current && { ...current, fields: { ...current.fields, [name]: value } })}
-          />
-          <label className="flex w-full cursor-pointer items-center gap-[10px] text-body-sm">
-            <input
-              type="checkbox"
-              checked={addressDraft.isDefault}
-              onChange={(event) => setAddressDraft((current) => current && { ...current, isDefault: event.target.checked })}
-              className="size-[18px] rounded-xs border border-portal-border accent-portal-dark"
-            />
-            Set this as my shipping address for samples products.
-          </label>
-        </FormModal>
+      {settingDefaultsFor ? (
+        <SetDefaultsModal
+          address={settingDefaultsFor}
+          onClose={() => setSettingDefaultsFor(null)}
+          onConfirm={(defaults) => {
+            setShippingAddresses((current) => setAddressDefaults(current, settingDefaultsFor.id, defaults));
+            setSettingDefaultsFor(null);
+          }}
+        />
+      ) : null}
+      {editingAddress !== undefined ? (
+        <AddressFormModal
+          address={editingAddress ?? undefined}
+          isFirst={shippingAddresses.length === 0}
+          onSave={saveAddress}
+          onClose={() => setEditingAddress(undefined)}
+        />
       ) : null}
       {bankDraft ? (
         <FormModal

@@ -2,6 +2,7 @@ import Button from "./Button";
 import { VERIFICATION_STORAGE_KEY } from "../VerificationPartner";
 import { PAYMENT_STORAGE_KEY } from "../bank-account";
 import { isSetupRequired } from "../setup-status";
+import { navigate } from "../../router";
 
 function hasCompletedAction(storageKey: string) {
   try {
@@ -30,8 +31,8 @@ export function isProfileSetupComplete(): boolean {
  *  profile. */
 export function getSetupManageAccountRoute(): string {
   return hasCompletedAction(VERIFICATION_STORAGE_KEY)
-    ? "#/manage-account/payouts"
-    : "#/manage-account/identity";
+    ? "/manage-account/payouts"
+    : "/manage-account/identity";
 }
 
 /**
@@ -73,7 +74,7 @@ export default function SetupBanner() {
         variant="portalLink"
         className="shrink-0 underline"
         onClick={() => {
-          window.location.hash = getSetupManageAccountRoute();
+          navigate(getSetupManageAccountRoute());
         }}
       >
         Fix Issues

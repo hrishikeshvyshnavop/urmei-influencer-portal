@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { loadShopActivities } from "../shop/activity-log";
 import ActivityRow from "./components/ActivityRow";
 import Pagination from "@/components/Pagination";
+import { navigate } from "../router";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const PAGE_SIZE = 8;
@@ -23,13 +24,13 @@ export default function RecentActivitiesPage() {
     <AppShell
       className="motion-page bg-portal-card text-portal-text"
       onShowTour={requestProductTour}
-      onShowHelp={() => { window.location.hash = "#/help-center"; }}
+      onShowHelp={() => { navigate("/help-center"); }}
     >
 
       <main className="mx-auto min-h-[calc(100vh-88px)] w-full max-w-[794px] px-6 pb-12 lg:px-0">
         <div className="flex items-center justify-between">
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
-            <a href="#/home">Home</a><ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} /><span className="text-portal-muted">Recent Activities</span>
+            <a href="/home">Home</a><ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} /><span className="text-portal-muted">Recent Activities</span>
           </nav>
           <Select value={period} onValueChange={(value) => { setPeriod(value); setPage(1); }}>
             <SelectTrigger aria-label="Activity period" className="w-[128px] whitespace-nowrap text-portal-text"><SelectValue /></SelectTrigger>

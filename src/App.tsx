@@ -21,52 +21,52 @@ import HelpCenter from "./portal/HelpCenter";
 import Brands from "./portal/Brands";
 import RecentActivitiesPage from "./portal/RecentActivitiesPage";
 import ManageAccount from "./portal/ManageAccount";
+import SampleRequests from "./portal/SampleRequests";
+import YourReviews from "./portal/YourReviews";
+import SampleRequestDetails from "./portal/SampleRequestDetails";
 import ShopExperience from "./shop/App";
 import { ProductStats } from "./shop/screens/ProductStats";
 import { StatBreakdown } from "./shop/screens/StatBreakdown";
 import { metricFromSlug, parseStatsOrigin } from "./shop/data/stats";
 import { StandaloneStorefront } from "./shop/screens/StandaloneStorefront";
+import { currentRoute, navigate as navigateTo, routeUrl, subscribe } from "./router";
 
-// This project has no router, so the portal screens are selected by hash.
-function subscribe(onChange: () => void) {
-  window.addEventListener("hashchange", onChange);
-  return () => window.removeEventListener("hashchange", onChange);
-}
-
-function navigate(hash: string) {
-  window.location.hash = hash;
+// This project has no router library: the portal screen is picked from the
+// URL path (`router.ts`), which also owns navigation and link handling.
+function navigate(path: string) {
+  navigateTo(path);
   window.scrollTo(0, 0);
 }
 
-function openFlowWindow(hash: string, name: string) {
-  const popupUrl = new URL(window.location.href);
-  popupUrl.hash = hash;
+function openFlowWindow(path: string, name: string) {
   const width = 680;
   const height = 760;
   const left = Math.max(0, window.screenX + (window.outerWidth - width) / 2);
   const top = Math.max(0, window.screenY + (window.outerHeight - height) / 2);
   const popup = window.open(
-    popupUrl,
+    routeUrl(path),
     name,
     `popup=yes,width=${width},height=${height},left=${Math.round(left)},top=${Math.round(top)},resizable=yes,scrollbars=yes`,
   );
 
   if (popup) popup.focus();
-  else navigate(hash);
+  else navigate(path);
 }
 
-function continueInOpener(hash: string) {
+function continueInOpener(path: string) {
   if (window.opener && !window.opener.closed) {
-    window.opener.location.hash = hash;
+    // Same origin, so the opener's own history can be driven from here —
+    // it moves without reloading, keeping whatever state it had.
+    navigateTo(path, { target: window.opener });
     window.opener.focus();
     window.setTimeout(() => window.close(), 350);
     return;
   }
-  navigate(hash);
+  navigate(path);
 }
 
-const toLogin = () => navigate("#/login");
-const toHome = () => navigate("#/home");
+const toLogin = () => navigate("/login");
+const toHome = () => navigate("/home");
 const skipSetup = () => {
   markSetupRequired();
   toHome();
@@ -102,7 +102,7 @@ function consumeTourAfterLogin() {
  * The first arrival uses the empty Home state from Figma. The product tour
  * (`ProductTour`, rendered once at the `App` level below) is a full-screen
  * overlay reachable from any screen's profile menu, not something tied to
- * Home — `#/home/tour` remains linkable as a direct way to trigger it.
+ * Home — `/home/tour` remains linkable as a direct way to trigger it.
  */
 /** Beat before the tour fades in after profile setup, so it reads as a
  *  deliberate welcome rather than popping in over Home's own entrance —
@@ -144,67 +144,71 @@ function screenFor(fullHash: string) {
   const params = new URLSearchParams(queryAt === -1 ? "" : fullHash.slice(queryAt + 1));
   const origin = parseStatsOrigin(params.get("from"));
 
-  // Longest first: `#/shop/stats/product/<id>` also matches the metric prefix.
-  if (hash.startsWith("#/shop/stats/product/")) {
+  // Longest first: `/shop/stats/product/<id>` also matches the metric prefix.
+  if (hash.startsWith("/shop/stats/product/")) {
     return (
       <ProductStats
-        itemId={decodeURIComponent(hash.slice("#/shop/stats/product/".length))}
+        itemId={decodeURIComponent(hash.slice("/shop/stats/product/".length))}
         origin={origin}
         via={metricFromSlug(params.get("via") ?? "") ?? undefined}
       />
     );
   }
-  if (hash.startsWith("#/shop/stats/")) {
-    const metric = metricFromSlug(hash.slice("#/shop/stats/".length));
+  if (hash.startsWith("/shop/stats/")) {
+    const metric = metricFromSlug(hash.slice("/shop/stats/".length));
     // An unknown metric falls through to the shop rather than a blank page.
     if (metric) return <StatBreakdown metric={metric} origin={origin} />;
     return <ShopExperience />;
   }
-  if (hash.startsWith("#/shop/search/")) {
-    return <ShopExperience initialSearch={decodeURIComponent(hash.slice("#/shop/search/".length))} />;
+  if (hash.startsWith("/sample-requests/")) {
+    const requestId = decodeURIComponent(hash.slice("/sample-requests/".length));
+    return <SampleRequestDetails key={requestId} requestId={requestId} />;
   }
-  if (hash.startsWith("#/shop/brand/")) {
-    return <ShopExperience initialBrandFilter={decodeURIComponent(hash.slice("#/shop/brand/".length))} />;
+  if (hash.startsWith("/shop/search/")) {
+    return <ShopExperience initialSearch={decodeURIComponent(hash.slice("/shop/search/".length))} />;
   }
-  if (hash.startsWith("#/shop/add/")) {
-    return <ShopExperience initialAddProductId={decodeURIComponent(hash.slice("#/shop/add/".length))} />;
+  if (hash.startsWith("/shop/brand/")) {
+    return <ShopExperience initialBrandFilter={decodeURIComponent(hash.slice("/shop/brand/".length))} />;
   }
-  if (hash.startsWith("#/shop/product/")) {
-    return <ShopExperience initialProductId={decodeURIComponent(hash.slice("#/shop/product/".length))} />;
+  if (hash.startsWith("/shop/add/")) {
+    return <ShopExperience initialAddProductId={decodeURIComponent(hash.slice("/shop/add/".length))} />;
+  }
+  if (hash.startsWith("/shop/product/")) {
+    return <ShopExperience initialProductId={decodeURIComponent(hash.slice("/shop/product/".length))} />;
   }
 
   switch (hash) {
     // Request flow
-    case "#/apply":
+    case "/apply":
       return (
         <ApplyLanding
-          onApply={() => navigate("#/apply/form")}
+          onApply={() => navigate("/apply/form")}
           onLogin={toLogin}
         />
       );
-    case "#/apply/form":
+    case "/apply/form":
       return (
         <ApplyCreator
-          onBack={() => navigate("#/apply")}
-          onSubmit={() => navigate("#/apply/success")}
+          onBack={() => navigate("/apply")}
+          onSubmit={() => navigate("/apply/success")}
         />
       );
-    case "#/apply/success":
+    case "/apply/success":
       return (
         <ApplySuccess
           onBackToLogin={toLogin}
-          onPreviewApproval={() => openFlowWindow("#/approval-preview", "urmei-application-review")}
+          onPreviewApproval={() => openFlowWindow("/approval-preview", "urmei-application-review")}
         />
       );
-    case "#/approval-preview":
+    case "/approval-preview":
       return (
-        <ApprovalPreview onApproved={() => navigate("#/approval-email")} />
+        <ApprovalPreview onApproved={() => navigate("/approval-email")} />
       );
-    case "#/approval-email":
+    case "/approval-email":
       return (
         <ApprovalEmail
           email="charlotte.tan@email.com"
-          onOpenPortal={() => continueInOpener("#/login")}
+          onOpenPortal={() => continueInOpener("/login")}
         />
       );
 
@@ -212,32 +216,32 @@ function screenFor(fullHash: string) {
     // Profile setup — four numbered steps behind an unnumbered review of what
     // the application captured (Figma `1583:87724`). Identity verification is
     // no longer part of it: that happens on the apply form now.
-    case "#/profile/review":
-      return <ReviewDetails onContinue={() => navigate("#/profile/photo")} />;
-    case "#/profile/photo":
-      return <SetProfilePhoto onContinue={() => navigate("#/profile/username")} />;
-    case "#/profile/username":
+    case "/profile/review":
+      return <ReviewDetails onContinue={() => navigate("/profile/photo")} />;
+    case "/profile/photo":
+      return <SetProfilePhoto onContinue={() => navigate("/profile/username")} />;
+    case "/profile/username":
       return (
         <FinishProfile
-          onSubmit={() => navigate("#/profile/shipping")}
-          onBack={() => navigate("#/profile/photo")}
+          onSubmit={() => navigate("/profile/shipping")}
+          onBack={() => navigate("/profile/photo")}
         />
       );
-    case "#/profile/shipping":
+    case "/profile/shipping":
       return (
         <ShippingAddress
-          onAddAddress={() => navigate("#/profile/bank")}
-          onBack={() => navigate("#/profile/username")}
+          onAddAddress={() => navigate("/profile/bank")}
+          onBack={() => navigate("/profile/username")}
           // Skip on step 3 skips the step, not the flow: bank details are
           // what actually unblock publishing, so they still get asked.
-          onSkip={() => navigate("#/profile/bank")}
+          onSkip={() => navigate("/profile/bank")}
         />
       );
-    case "#/profile/bank":
+    case "/profile/bank":
       return (
         <BankDetails
           onAddAccount={finishSetup}
-          onBack={() => navigate("#/profile/shipping")}
+          onBack={() => navigate("/profile/shipping")}
           onSkip={skipSetup}
         />
       );
@@ -249,15 +253,15 @@ function screenFor(fullHash: string) {
     // These are no longer part of first-time setup — identity is verified on
     // the apply form and payout details are step 4 — but `ManageAccount`
     // still sends the creator here to re-verify or reconnect.
-    case "#/verify":
+    case "/verify":
       return <Onboarding onFinish={finishSetup} onSkip={skipSetup} />;
-    case "#/verify/partner":
+    case "/verify/partner":
       return <VerificationPartner />;
-    case "#/verify/failed":
+    case "/verify/failed":
       return (
         <Onboarding identityStatus="failed" onFinish={finishSetup} onSkip={skipSetup} />
       );
-    case "#/verify/verified":
+    case "/verify/verified":
       return (
         <Onboarding
           identityStatus="complete"
@@ -265,7 +269,7 @@ function screenFor(fullHash: string) {
           onSkip={skipSetup}
         />
       );
-    case "#/payment":
+    case "/payment":
       return (
         <Onboarding
           identityStatus="complete"
@@ -274,7 +278,7 @@ function screenFor(fullHash: string) {
           onSkip={skipSetup}
         />
       );
-    case "#/payment/pending":
+    case "/payment/pending":
       return (
         <Onboarding
           identityStatus="complete"
@@ -283,7 +287,7 @@ function screenFor(fullHash: string) {
           onSkip={skipSetup}
         />
       );
-    case "#/payment/failed":
+    case "/payment/failed":
       return (
         <Onboarding
           identityStatus="complete"
@@ -292,7 +296,7 @@ function screenFor(fullHash: string) {
           onSkip={skipSetup}
         />
       );
-    case "#/payment/complete":
+    case "/payment/complete":
       return (
         <Onboarding
           identityStatus="complete"
@@ -301,32 +305,36 @@ function screenFor(fullHash: string) {
           onSkip={skipSetup}
         />
       );
-    case "#/payment/partner":
+    case "/payment/partner":
       return <PaymentPartner />;
-    case "#/home":
+    case "/home":
       return <HomeScreen />;
-    case "#/home/tour":
+    case "/home/tour":
       return <HomeScreen forceTour />;
-    case "#/help-center":
+    case "/help-center":
       return <HelpCenter />;
-    case "#/brands":
+    case "/brands":
       return <Brands />;
-    case "#/recent-activities":
+    case "/recent-activities":
       return <RecentActivitiesPage />;
-    case "#/manage-account":
+    case "/sample-requests":
+      return <SampleRequests />;
+    case "/reviews":
+      return <YourReviews />;
+    case "/manage-account":
       return <ManageAccount />;
-    case "#/manage-account/identity":
+    case "/manage-account/identity":
       return <ManageAccount initialSection="Profile" />;
-    case "#/manage-account/payouts":
+    case "/manage-account/payouts":
       return <ManageAccount initialSection="Payouts" />;
-    case "#/shop":
+    case "/shop":
       return <ShopExperience />;
-    case "#/shop/browse":
+    case "/shop/browse":
       return <ShopExperience initialBrowse />;
-    case "#/shop/view":
+    case "/shop/view":
       return <StandaloneStorefront />;
 
-    case "#/login":
+    case "/login":
       return (
         <Login
           onLogIn={() => {
@@ -335,16 +343,16 @@ function screenFor(fullHash: string) {
             } catch {
               // The login and onboarding flow still works without storage.
             }
-            navigate("#/profile/review");
+            navigate("/profile/review");
           }}
-          onApply={() => navigate("#/apply/form")}
+          onApply={() => navigate("/apply/form")}
         />
       );
 
     default:
       return (
         <ApplyLanding
-          onApply={() => navigate("#/apply/form")}
+          onApply={() => navigate("/apply/form")}
           onLogin={toLogin}
         />
       );
@@ -352,7 +360,7 @@ function screenFor(fullHash: string) {
 }
 
 export default function App() {
-  const hash = useSyncExternalStore(subscribe, () => window.location.hash);
+  const hash = useSyncExternalStore(subscribe, currentRoute);
   // Owned here rather than per-screen so the tour is one overlay that can
   // open on top of whichever page requested it (see `tour-status.ts`)
   // instead of forcing a navigation to Home first.
@@ -366,7 +374,7 @@ export default function App() {
 
   const finishTour = () => {
     setShowTour(false);
-    navigate("#/shop");
+    navigate("/shop");
   };
 
   return (

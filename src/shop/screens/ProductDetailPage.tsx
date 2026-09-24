@@ -4,11 +4,13 @@ import { requestProductTour } from '../../portal/tour-status'
 import { ScaledBox } from '../components/ScaledBox'
 import { ProductDetail, type ShopMode } from './ProductDetail'
 import type { ShopItem } from '../types'
+import { navigate } from '../../router'
 
 type ProductDetailPageProps = {
   item: ShopItem
   shopMode: ShopMode
   onBackToShop: () => void
+  onRequestSample?: () => void
 }
 
 /**
@@ -19,8 +21,8 @@ type ProductDetailPageProps = {
  * after confirming "Add to shop" from the catalogue (Figma `1144:62070`), which
  * keeps the browse overlay's scrim and stays inside `BrowseOverlay`.
  */
-export function ProductDetailPage({ item, shopMode, onBackToShop }: ProductDetailPageProps) {
-  // This is an in-place state swap within `#/shop`, not a hash change, so
+export function ProductDetailPage({ item, shopMode, onBackToShop, onRequestSample }: ProductDetailPageProps) {
+  // This is an in-place state swap within `/shop`, not a hash change, so
   // App.tsx's hash-based `scrollTo(0, 0)` never runs — without this, opening
   // the page keeps whatever scroll position My Shop was left at.
   useEffect(() => {
@@ -31,7 +33,7 @@ export function ProductDetailPage({ item, shopMode, onBackToShop }: ProductDetai
     <AppShell
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
-      onShowHelp={() => { window.location.hash = '#/help-center' }}
+      onShowHelp={() => { navigate('/help-center') }}
     >
       <div className="flex w-full flex-1 justify-center">
         <ScaledBox width={1440} className="flex flex-col items-start">
@@ -39,6 +41,7 @@ export function ProductDetailPage({ item, shopMode, onBackToShop }: ProductDetai
             product={item.product}
             breadcrumbItems={[{ label: 'My Shop', onClick: onBackToShop }, { label: item.product.name }]}
             shopMode={shopMode}
+            onRequestSample={onRequestSample}
           />
         </ScaledBox>
       </div>

@@ -34,7 +34,7 @@ export default function AppFooter() {
               {links.map((link) => (
                 <a
                   key={link}
-                  href={link === "Help Center" ? "#/help-center" : link === "Top Brands" ? "#/brands" : "#"}
+                  href={link === "Help Center" ? "/help-center" : link === "Top Brands" ? "/brands" : "#"}
                   className="block text-body-md"
                 >
                   {link}
