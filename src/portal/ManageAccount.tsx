@@ -3,6 +3,7 @@ import { Camera, IdCard, Landmark, MapPin, Pencil, ShieldCheck, Trash2, Triangle
 import type { ReactNode } from "react";
 import Button from "./components/Button";
 import FieldGrid from "./components/FieldGrid";
+import ConfirmDialog from "./components/ConfirmDialog";
 import FormModal from "./components/FormModal";
 import AddressFormModal from "./components/AddressFormModal";
 import SetDefaultsModal from "./components/SetDefaultsModal";
@@ -14,8 +15,7 @@ import AppFooter from "./components/AppFooter";
 import AppHeader from "./components/AppHeader";
 import { CropModal } from "./SetProfilePhoto";
 import TextField from "./components/TextField";
-import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, readBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
-import { type FieldSpec } from "./form-fields";
+import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, isBankAccountComplete, readBankAccount, removeBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
 import {
   addressLines,
   readShippingAddresses,
@@ -49,22 +49,6 @@ const initialProfile = {
  * for, in its own order: holder and bank, then the numbers, then holder type
  * across the row, then account type beside the payout currency.
  */
-const BANK_MODAL_FIELDS: FieldSpec[] = [
-  "accountHolderName",
-  "bankName",
-  "bankAccountNumber",
-  "bankCode",
-  "accountHolderType",
-  "accountType",
-  "payoutCurrency",
-].flatMap((name) => {
-  const field = BANK_FIELDS.find((item) => item.name === name);
-  if (!field) return [];
-  // No asterisks in the modal — profile setup marks the same fields required,
-  // this frame does not. `optional` still drives which ones must be filled.
-  return [{ ...field, required: false, fullWidth: name === "accountHolderType" }];
-});
-
 const latestEligibleBirthday = (() => {
   const date = new Date();
   date.setHours(23, 59, 59, 999);
@@ -168,6 +152,7 @@ export default function ManageAccount({
   const [settingDefaultsFor, setSettingDefaultsFor] = useState<ShippingAddress | null>(null);
   const [bankDraft, setBankDraft] = useState<Record<string, string> | null>(null);
   const [bankErrors, setBankErrors] = useState(false);
+  const [confirmBankDelete, setConfirmBankDelete] = useState(false);
   const bannerRef = useRef<HTMLElement>(null);
   const [stickyOffset, setStickyOffset] = useState(120);
   const paymentConnected = bankAccount !== null;
@@ -270,8 +255,7 @@ export default function ManageAccount({
   const saveBank = () => {
     if (!bankDraft) return;
     setBankErrors(true);
-    const complete = BANK_MODAL_FIELDS.every((field) => field.optional || (bankDraft[field.name] ?? "").trim());
-    if (!complete) return;
+    if (!isBankAccountComplete(bankDraft)) return;
     saveBankAccount(bankDraft);
     setBankAccount(readBankAccount());
     setBankDraft(null);
@@ -347,14 +331,20 @@ export default function ManageAccount({
                         <p className="text-body-sm text-portal-muted">{[bankAccount.bankName, bankAccount.accountType].filter(Boolean).join(" | ")}</p>
                         <div className="text-body-sm text-portal-muted">
                           <p>Account number : {bankAccount.bankAccountNumber}</p>
-                          {bankAccount.bankCode ? <p>SWIFT/BIC Code : {bankAccount.bankCode}</p> : null}
+                          {bankAccount.bankCode ? <p>SWIFT / BIC Code : {bankAccount.bankCode}</p> : null}
                           <p>Account holder type : {bankAccount.accountHolderType}</p>
                         </div>
                         {bankAccount.payoutCurrency ? <p className="text-body-sm text-portal-muted">Payout currency : {bankAccount.payoutCurrency}</p> : null}
                       </div>
-                      <IconButton label="Edit bank details" onClick={() => { setBankDraft({ ...bankAccount }); setBankErrors(false); }}>
-                        <Pencil className="size-4" strokeWidth={1.5} />
-                      </IconButton>
+                      {/* Delete then edit, as on the address cards (Figma `236:19018`). */}
+                      <div className="flex shrink-0 items-center gap-2">
+                        <IconButton label="Delete bank details" tone="alert" onClick={() => setConfirmBankDelete(true)}>
+                          <Trash2 className="size-4" strokeWidth={1.5} />
+                        </IconButton>
+                        <IconButton label="Edit bank details" onClick={() => { setBankDraft({ ...bankAccount }); setBankErrors(false); }}>
+                          <Pencil className="size-4" strokeWidth={1.5} />
+                        </IconButton>
+                      </div>
                     </div>
                   </div>
                 </>
@@ -423,8 +413,8 @@ export default function ManageAccount({
               <div className="flex w-full flex-col gap-10">
                 <div className="flex w-full flex-col gap-5">
                   <SectionHeader title="Profile" description="This is what shoppers see on your storefront." />
-                  <div className="flex flex-col gap-5 rounded-lg border border-portal-border bg-portal-light p-6">
-                    <div className="flex items-end gap-5">
+                  <div className="flex flex-col gap-4 rounded-lg border border-portal-border bg-portal-light p-6">
+                    <div className="flex items-end gap-5 pb-1">
                       <span className="relative size-[88px] shrink-0 overflow-hidden rounded-full">
                         <ProfilePhoto key={photoVersion} fallback="/urmei/home/profile-dropdown-avatar.png" alt="Profile photo" />
                       </span>
@@ -434,9 +424,24 @@ export default function ManageAccount({
                         <p className="text-body-sm text-portal-muted">Square image, at least 400×400. JPG or PNG, up to 5 MB.</p>
                       </div>
                     </div>
-                    <label className="flex flex-col gap-1.5 text-body-sm font-medium">Display name<input value={displayName} onChange={(e) => { setDisplayName(e.target.value); setSaved(false); }} className="rounded-sm border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label>
-                    <label className="flex flex-col gap-1.5 text-body-sm font-medium"><span className="flex justify-between"><span>About me</span><span className="font-normal text-portal-placeholder">{bio.length} / 160</span></span><textarea value={bio} maxLength={160} onChange={(e) => { setBio(e.target.value); setSaved(false); }} className="h-[120px] resize-none rounded-sm border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label>
-                    <label className="flex flex-col gap-1.5 text-body-sm font-medium">Username<input value="@charlotte" readOnly className="rounded-sm border border-portal-surface bg-portal-surface px-4 py-3 font-normal text-portal-placeholder outline-none" /><span className="font-normal text-portal-muted">Your storefront url and every affiliate link you have shared use this. It cannot be changed.</span></label>
+                    <TextField label="Display name" placeholder="Your display name" value={displayName} onChange={(value) => { setDisplayName(value); setSaved(false); }} />
+                    {/* TextField has no multi-line mode, so the bio's box borrows
+                        its classes: same radius, padding, border and focus ring. */}
+                    <div className="flex w-full flex-col items-start gap-1">
+                      <div className="flex w-full items-start justify-between gap-1">
+                        <label htmlFor="manage-account-bio" className="text-body-sm font-medium text-portal-text">About me</label>
+                        <span className="text-body-sm text-portal-placeholder">{bio.length} / 160</span>
+                      </div>
+                      <textarea
+                        id="manage-account-bio"
+                        value={bio}
+                        maxLength={160}
+                        placeholder="Tell shoppers a little about yourself"
+                        onChange={(e) => { setBio(e.target.value); setSaved(false); }}
+                        className="h-[120px] w-full resize-none rounded-[6px] border border-portal-border bg-transparent px-4 py-3 text-body-sm text-portal-text outline-none transition-[border-color,box-shadow] duration-200 placeholder:text-portal-placeholder focus:border-portal-dark focus:ring-2 focus:ring-portal-surface"
+                      />
+                    </div>
+                    <TextField label="Username" placeholder="" value="@charlotte" locked onChange={() => {}} hint="Your storefront url and every affiliate link you have shared use this. It cannot be changed." />
                   </div>
                 </div>
 
@@ -454,11 +459,13 @@ export default function ManageAccount({
 
                 <div className="flex w-full flex-col gap-5">
                   <SectionHeader title="Personal Information" description="None of this appears on your storefront." />
-                  <div className="grid gap-5 rounded-lg border border-portal-border bg-portal-light p-6 sm:grid-cols-2">
-                    <label className="flex flex-col gap-1.5 text-body-sm font-medium">First name<input value="Charlotte" readOnly className="rounded-sm border border-portal-surface bg-portal-surface px-4 py-3 font-normal text-portal-placeholder" /></label>
-                    <label className="flex flex-col gap-1.5 text-body-sm font-medium">Last name<input value="Tan" readOnly className="rounded-sm border border-portal-surface bg-portal-surface px-4 py-3 font-normal text-portal-placeholder" /></label>
-                    <label className="flex flex-col gap-1.5 text-body-sm font-medium sm:col-span-2">Email address<input value="charlotte@gmail.com" readOnly className="rounded-sm border border-portal-surface bg-portal-surface px-4 py-3 font-normal text-portal-placeholder" /><span className="font-normal text-portal-muted">Changing your email sends a confirmation link to both the old and new address.</span></label>
-                    <label className="flex flex-col gap-1.5 text-body-sm font-medium">Phone number<input type="tel" inputMode="tel" autoComplete="tel" value={phone} onChange={(e) => { setPhone(e.target.value); setSaved(false); }} className="rounded-sm border border-portal-border px-4 py-3 font-normal outline-none focus:border-portal-dark" /></label>
+                  <div className="grid grid-cols-1 gap-4 rounded-lg border border-portal-border bg-portal-light p-6 sm:grid-cols-2">
+                    <TextField label="First name" placeholder="" value="Charlotte" locked onChange={() => {}} />
+                    <TextField label="Last name" placeholder="" value="Tan" locked onChange={() => {}} />
+                    <div className="sm:col-span-2">
+                      <TextField label="Email address" type="email" placeholder="" value="charlotte@gmail.com" locked onChange={() => {}} hint="Changing your email sends a confirmation link to both the old and new address." />
+                    </div>
+                    <TextField label="Phone number" type="tel" autoComplete="tel" placeholder="+65 9123 4567" value={phone} onChange={(value) => { setPhone(value); setSaved(false); }} />
                     <TextField label="DOB" placeholder="DD MMM YYYY" value={dob} icon="calendar" latestDate={latestEligibleBirthday} onChange={(value) => { setDob(value); setSaved(false); }} />
                   </div>
                 </div>
@@ -488,6 +495,23 @@ export default function ManageAccount({
           onClose={() => setEditingAddress(undefined)}
         />
       ) : null}
+      {confirmBankDelete ? (
+        <ConfirmDialog
+          title="Delete bank details?"
+          cancelLabel="Keep Details"
+          confirmLabel="Delete"
+          confirmVariant="portalDestructive"
+          onClose={() => setConfirmBankDelete(false)}
+          onConfirm={() => {
+            removeBankAccount();
+            setBankAccount(null);
+            setConfirmBankDelete(false);
+          }}
+        >
+          URMEI won&#39;t be able to send your payouts until you add a bank account again, and your shop can&#39;t be
+          published without one.
+        </ConfirmDialog>
+      ) : null}
       {bankDraft ? (
         <FormModal
           title={bankAccount ? "Edit bank details" : "Add bank details"}
@@ -496,7 +520,7 @@ export default function ManageAccount({
           onClose={() => setBankDraft(null)}
         >
           <FieldGrid
-            fields={BANK_MODAL_FIELDS}
+            fields={BANK_FIELDS}
             values={bankDraft}
             showErrors={bankErrors}
             onChange={(name, value) => setBankDraft((current) => ({ ...current, [name]: value }))}

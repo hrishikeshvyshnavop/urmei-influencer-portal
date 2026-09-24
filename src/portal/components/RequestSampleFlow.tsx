@@ -124,11 +124,11 @@ function RequestSampleModals({
   }
 
   return (
-    <ModalShell title="Request a sample product" onClose={onClose} className="bg-portal-surface">
-      <div className="flex flex-col gap-6 px-6 pt-4 pb-6">
+    <ModalShell title="Request a sample product" onClose={onClose} className="bg-portal-surface shadow-[0px_8px_24px_0px_rgba(0,0,0,0.15)]">
+      <div className="flex flex-col gap-5 px-6 pt-4 pb-6">
         <div className="flex items-center gap-4">
           <img src={product.heroImage} alt="" className="size-[90px] shrink-0 rounded-[10px] object-cover" />
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
             <p className="truncate text-body-md font-medium text-portal-text">{product.name}</p>
             <p className="flex items-center gap-2 text-body-sm text-portal-muted">
               <span>Qty 1</span>
@@ -142,14 +142,14 @@ function RequestSampleModals({
           <div className="flex min-h-8 items-center justify-between">
             <p className="text-body-md font-medium text-portal-text">Deliver to</p>
             {selected ? (
-              <Button variant="portalOutline" className="bg-portal-light" onClick={() => setStep("select")}>
+              <Button variant="portalOutline" onClick={() => setStep("select")}>
                 Change
               </Button>
             ) : null}
           </div>
           {selected ? (
-            <div className="rounded-[6px] bg-portal-light p-4">
-              <AddressSummary address={selected} />
+            <div className="bg-portal-light p-4">
+              <AddressSummary address={selected} layout="delivery" />
             </div>
           ) : (
             <div className="flex flex-col items-center gap-3 rounded-md border border-dashed border-portal-border bg-portal-light p-6 text-center">
@@ -237,7 +237,7 @@ function SelectAddressModal({
   const groupName = useId();
 
   return (
-    <ModalShell title="Select delivery address" onClose={onClose} className="bg-portal-light">
+    <ModalShell title="Select delivery address" onClose={onClose} className="bg-portal-light shadow-[0px_12px_40px_0px_rgba(0,0,0,0.18)]">
       <div className="flex flex-col gap-4 bg-portal-surface px-6 pt-4 pb-6">
         <fieldset className="flex flex-col gap-3 rounded-[10px] border border-portal-border p-4">
           <legend className="float-left mb-3 w-full text-body-md font-medium text-portal-text">Deliver to</legend>
@@ -259,7 +259,7 @@ function SelectAddressModal({
                     {choice === address.id ? <span className="size-[9px] rounded-full bg-portal-dark" /> : null}
                   </span>
                 </span>
-                <AddressSummary address={address} />
+                <AddressSummary address={address} layout="option" />
               </label>
             ))}
           </div>
@@ -285,25 +285,39 @@ function SelectAddressModal({
   );
 }
 
-/** The design's address card body: "label, postal code", then the street on
- *  one line and the recipient phone under it. */
-function AddressSummary({ address }: { address: ShippingAddress }) {
+/** The address card body, both set in body-sm with 6px between rows.
+ *  - `delivery` — the request modal's "Deliver to" card (Figma `1030:27963`):
+ *    the label alone, the address over two lines, the phone as its own row.
+ *  - `option` — a "Select delivery address" radio card (`1030:28744`): "label,
+ *    postal code", the address on one line with the phone directly under it. */
+function AddressSummary({ address, layout }: { address: ShippingAddress; layout: "delivery" | "option" }) {
   const { fields } = address;
+  const lines = addressLines(fields);
   return (
-    <div className="flex min-w-0 flex-1 flex-col gap-2">
-      <p className="text-body-lg font-medium text-portal-text">
-        {[fields.label, fields.postalCode].filter(Boolean).join(", ")}
+    <div className="flex min-w-0 flex-1 flex-col gap-[6px] text-body-sm">
+      <p className="font-medium text-portal-text">
+        {layout === "option" ? [fields.label, fields.postalCode].filter(Boolean).join(", ") : fields.label}
       </p>
-      <div className="text-body-md text-portal-muted">
-        <p>{addressLines(fields).join(", ")}</p>
-        {fields.phone ? <p>{fields.phone}</p> : null}
-      </div>
+      {layout === "option" ? (
+        <div className="text-portal-muted">
+          <p>{lines.join(" ")}</p>
+          {fields.phone ? <p>{fields.phone}</p> : null}
+        </div>
+      ) : (
+        <>
+          <div className="text-portal-muted">
+            {lines.map((line) => <p key={line}>{line}</p>)}
+          </div>
+          {fields.phone ? <p className="text-portal-muted">{fields.phone}</p> : null}
+        </>
+      )}
     </div>
   );
 }
 
 /** The 525px request-flow modal: backdrop, scroll lock, Escape, and a bordered
- *  header with the 40px close button. */
+ *  header with the 40px close button. Surface and shadow come in through
+ *  `className` — the two frames differ on both. */
 function ModalShell({
   title,
   onClose,
@@ -340,7 +354,7 @@ function ModalShell({
       aria-modal="true"
       aria-labelledby={titleId}
     >
-      <div className={`motion-modal-panel my-auto flex w-[525px] max-w-full flex-col overflow-clip rounded-[10px] border border-portal-border shadow-[0px_8px_24px_0px_rgba(0,0,0,0.15)] ${className}`}>
+      <div className={`motion-modal-panel my-auto flex w-[525px] max-w-full flex-col overflow-clip rounded-[10px] border border-portal-border ${className}`}>
         <div className="flex items-center justify-between border-b border-portal-border px-6 py-4">
           <h2 id={titleId} className="min-w-0 flex-1 text-body-xl text-portal-text">{title}</h2>
           <button

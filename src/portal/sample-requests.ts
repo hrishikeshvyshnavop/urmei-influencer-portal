@@ -194,6 +194,13 @@ export function loadSampleRequests(): SampleRequest[] {
   });
 }
 
+/** Whether the creator already has a live (not cancelled) request for this
+ *  product — the product page then greys out Request sample (Figma
+ *  `1030:27989`). Cancelling frees the product to be requested again. */
+export function hasSampleRequest(productId: string) {
+  return loadSampleRequests().some((request) => request.productId === productId && request.status !== "cancelled");
+}
+
 /** The review prompt shows on every request, whatever its status, until the
  *  creator has written one. Dev note `1030:31426` gated it on delivery; that
  *  was relaxed on request so the nudge is always there, matching the list. */

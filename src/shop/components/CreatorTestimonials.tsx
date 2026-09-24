@@ -116,9 +116,15 @@ function WhatCreatorsSay({ product, ownReview }: { product: Product; ownReview?:
                   className="size-full rounded-[18px] object-cover"
                 />
               )}
-              <span className="absolute -right-[3px] -bottom-px flex size-4 items-center justify-center overflow-clip rounded-full bg-border-success p-xs">
-                <img src="/urmei/pdp/badge-check.svg" alt="" width={8} height={8} className="block size-2" />
-              </span>
+              {/* The storefront reviews' blue verified badge, kept at the same
+                  scale to the avatar (17.78px on 40px there, 16px on 36px here). */}
+              <img
+                src="/urmei/reviews/badge-check.svg"
+                alt=""
+                width={17.7778}
+                height={17.7778}
+                className="absolute -right-[3px] -bottom-px block size-4"
+              />
             </span>
             <p className="text-body-md font-medium whitespace-nowrap text-text-secondary-1000">
               {current.author}

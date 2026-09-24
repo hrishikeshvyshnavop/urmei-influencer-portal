@@ -5,6 +5,7 @@ import { CreatorTestimonials } from '../components/CreatorTestimonials'
 import { Icon } from '../components/Icon'
 import { PerformanceStats } from '../components/PerformanceStats'
 import type { Product } from '../types'
+import { hasSampleRequest } from '../../portal/sample-requests'
 
 type BreadcrumbItem = { label: string; onClick?: () => void }
 
@@ -84,6 +85,9 @@ export function ProductDetail({
 }: ProductDetailProps) {
   const showPerformance = Boolean(shopMode?.showPerformance)
   const showReviewSection = showReviews || showPerformance
+  // Read each render: the request modal files through storage, and closing it
+  // re-renders this page, so the button greys out as soon as it is submitted.
+  const sampleRequested = hasSampleRequest(product.id)
 
   // Not-yet-added products have no chosen variant, so fall back to the
   // catalogue's default — Figma (980:25543) shows the size on this page
@@ -249,12 +253,15 @@ export function ProductDetail({
                       <div className="h-[40px] w-px bg-border-default" />
                       <StatPair label="Available Regions" value={product.regions.join(', ')} />
                     </div>
-                    {/* Figma `1030:27801` — the sample request sits inside the commission card. */}
+                    {/* Figma `1030:27801` — the sample request sits inside the commission card.
+                        Once requested it stays put but greys out (`1030:27989`). */}
                     {onRequestSample && (
                       <button
                         type="button"
                         onClick={onRequestSample}
-                        className="flex w-full items-center justify-center gap-sm rounded-lg bg-surface-secondary-300 px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
+                        disabled={sampleRequested}
+                        title={sampleRequested ? 'You have already requested a sample of this product' : undefined}
+                        className="flex w-full cursor-pointer items-center justify-center gap-sm rounded-lg bg-surface-secondary-300 px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize disabled:cursor-not-allowed disabled:text-text-secondary-500"
                       >
                         Request sample
                       </button>

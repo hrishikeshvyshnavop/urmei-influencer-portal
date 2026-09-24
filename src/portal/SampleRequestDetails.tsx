@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
-import { ChevronRight, Info, X } from "lucide-react";
+import { ChevronRight, Info } from "lucide-react";
 import AppShell from "./components/AppShell";
 import Button from "./components/Button";
 import SectionTitle from "./components/SectionTitle";
+import ConfirmDialog from "./components/ConfirmDialog";
 import WriteReviewModal from "./components/WriteReviewModal";
 import { Toast } from "../shop/components/Toast";
 import { requestProductTour } from "./tour-status";
@@ -108,15 +108,20 @@ export default function SampleRequestDetails({ requestId }: { requestId: string 
       </main>
 
       {confirmCancel && request ? (
-        <CancelConfirm
-          productName={request.productName}
+        <ConfirmDialog
+          title="Cancel this sample request?"
+          cancelLabel="Keep Request"
+          confirmLabel="Cancel Request"
           onClose={() => setConfirmCancel(false)}
           onConfirm={() => {
             cancelSampleRequest(request.id);
             setRequest(findSampleRequest(request.id));
             setConfirmCancel(false);
           }}
-        />
+        >
+          Urmei won't fulfil {request.productName} once you cancel - you can request a new sample of it later if
+          you change your mind.
+        </ConfirmDialog>
       ) : null}
 
       {writingReview && request ? (
@@ -299,68 +304,5 @@ function Disclosure({ children }: { children: string }) {
       <Info aria-hidden="true" className="size-4 shrink-0" strokeWidth={1.5} />
       {children}
     </p>
-  );
-}
-
-/** Same shell as the profile menu's logout confirmation. */
-function CancelConfirm({
-  productName,
-  onClose,
-  onConfirm,
-}: {
-  productName: string;
-  onClose: () => void;
-  onConfirm: () => void;
-}) {
-  useEffect(() => {
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previousOverflow;
-    };
-  }, []);
-
-  return createPortal(
-    <div
-      className="motion-modal-backdrop fixed inset-0 z-[70] flex items-center justify-center bg-[rgba(0,0,0,0.5)] p-4"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="cancel-request-title"
-      onKeyDown={(event) => {
-        if (event.key === "Escape") onClose();
-      }}
-    >
-      <div className="motion-modal-panel w-[444px] max-w-full overflow-hidden rounded-[10px] border border-portal-border bg-portal-light">
-        <div className="flex items-center justify-between border-b border-portal-border px-6 py-4">
-          <h2 id="cancel-request-title" className="min-w-0 flex-1 text-body-xl font-semibold text-portal-text">
-            Cancel this sample request?
-          </h2>
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close cancel confirmation"
-            autoFocus
-            className="flex size-10 cursor-pointer items-center justify-center rounded-lg border border-portal-border"
-          >
-            <X aria-hidden="true" className="size-4" strokeWidth={1.5} />
-          </button>
-        </div>
-        <div className="flex flex-col gap-4 px-6 pt-4 pb-6">
-          <p className="text-body-sm text-portal-muted">
-            Urmei won't fulfil {productName} once you cancel - you can request a new sample of it later if
-            you change your mind.
-          </p>
-          <div className="flex w-full gap-2">
-            <Button variant="portalOutline" className="min-w-0 flex-1" onClick={onClose}>
-              Keep Request
-            </Button>
-            <Button variant="portal" className="min-w-0 flex-1" onClick={onConfirm}>
-              Cancel Request
-            </Button>
-          </div>
-        </div>
-      </div>
-    </div>,
-    document.body,
   );
 }

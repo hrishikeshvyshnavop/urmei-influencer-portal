@@ -73,12 +73,27 @@ export function saveBankAccount(account: Partial<BankAccount>) {
   }
 }
 
+/** Deletes the payout account (Manage Account's trash button, Figma
+ *  `236:19018`). Dropping the whole marker, not blanking its fields, is what
+ *  puts `SetupBanner` back to asking for bank details. */
+export function removeBankAccount() {
+  try {
+    window.localStorage.removeItem(PAYMENT_STORAGE_KEY);
+  } catch {
+    // Without storage there was nothing saved to remove.
+  }
+}
+
 /**
  * Figma `1583:88109` (the frame is misnamed "Adding shipping address"; its
- * content is the bank step). Asterisked labels are the design's required
- * fields; SWIFT/BIC code, payout currency and account type carry none. Payout
+ * content is the bank step). Every field is required — the design left SWIFT/BIC
+ * code, payout currency and account type optional, which was changed on request. Payout
  * currency is a select over the portal's five markets, worded the way the
  * payout provider returns it ("SGD - Singapore Dollar").
+ *
+ * Profile setup and Manage Account's Add/Edit bank details modal both render
+ * this list as-is, so the two forms read identically. Account holder type
+ * spans the row so the seven fields pair up with no field left alone.
  */
 export const BANK_FIELDS: FieldSpec[] = [
   {
@@ -94,20 +109,30 @@ export const BANK_FIELDS: FieldSpec[] = [
     label: "Bank account number",
     placeholder: "",
     required: true,
+    // Digits only, on both forms: typed or pasted dashes and spaces are dropped.
+    numericOnly: true,
   },
-  { name: "bankCode", label: "SWIFT/BIC Code", placeholder: "", optional: true },
+  { name: "bankCode", label: "SWIFT/BIC Code", placeholder: "", required: true },
   {
     name: "accountHolderType",
     label: "Account holder type",
     placeholder: "Choose account holder type",
     required: true,
     options: ["Individual", "Business"],
+    fullWidth: true,
+  },
+  {
+    name: "accountType",
+    label: "Account type",
+    placeholder: "Choose account type",
+    required: true,
+    options: ["Savings", "Current"],
   },
   {
     name: "payoutCurrency",
     label: "Payout currency",
     placeholder: "Choose payout currency",
-    optional: true,
+    required: true,
     options: [
       "SGD - Singapore Dollar",
       "MYR - Malaysian Ringgit",
@@ -116,11 +141,10 @@ export const BANK_FIELDS: FieldSpec[] = [
       "VND - Vietnamese Dong",
     ],
   },
-  {
-    name: "accountType",
-    label: "Account type",
-    placeholder: "Choose account type",
-    optional: true,
-    options: ["Savings", "Current"],
-  },
 ];
+
+/** Whether a bank form has every field filled — the one check both the setup
+ *  step and Manage Account's modal submit through. */
+export function isBankAccountComplete(values: Record<string, string>) {
+  return BANK_FIELDS.every((field) => field.optional || (values[field.name] ?? "").trim());
+}

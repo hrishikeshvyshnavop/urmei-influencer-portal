@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import Button from "./Button";
 import type { SampleReview } from "../sample-requests";
 
@@ -17,6 +17,14 @@ function ringClass(rating: number) {
   if (rating <= 4) return "shadow-[0_0_0_1px_white,0_0_0_2.5px_var(--color-portal-rating-low)]";
   if (rating <= 6) return "shadow-[0_0_0_1px_white,0_0_0_2.5px_var(--color-portal-star)]";
   return "shadow-[0_0_0_1px_white,0_0_0_2.5px_var(--color-portal-rating-high)]";
+}
+
+/** Hovering an unpicked score previews its band: the border takes the colour
+ *  the selection ring would. */
+function hoverClass(rating: number) {
+  if (rating <= 4) return "hover:border-portal-rating-low hover:bg-portal-surface";
+  if (rating <= 6) return "hover:border-portal-star hover:bg-portal-surface";
+  return "hover:border-portal-rating-high hover:bg-portal-surface";
 }
 
 /** Unfolds its children by animating the row from 0fr to 1fr, so the modal
@@ -126,11 +134,26 @@ export default function WriteReviewModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="write-review-title"
-        className="motion-modal-panel flex max-h-full w-[520px] max-w-full flex-col gap-4 overflow-y-auto rounded-[10px] bg-portal-light p-6"
+        className="motion-modal-panel flex max-h-full w-[520px] max-w-full flex-col overflow-hidden rounded-[10px] border border-portal-border bg-portal-light"
       >
-        <h2 id="write-review-title" className="text-body-xl font-semibold text-portal-text">
-          How would you rate this product?
-        </h2>
+        {/* The portal's modal header — title, divider and the 40px bordered
+            close button, as in FormModal and ConfirmDialog. It stays put
+            while the body scrolls. */}
+        <div className="flex shrink-0 items-center justify-between gap-4 border-b border-portal-border px-6 py-4">
+          <h2 id="write-review-title" className="min-w-0 flex-1 text-body-xl font-semibold text-portal-text">
+            How would you rate this product?
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="flex size-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-portal-border"
+          >
+            <X aria-hidden="true" className="size-4" strokeWidth={1.5} />
+          </button>
+        </div>
+
+        <div className="flex flex-col gap-4 overflow-y-auto px-6 pt-4 pb-6">
 
         {/* The two reveals carry their own top padding in place of the
             column gaps, so nothing is reserved before a score is picked. */}
@@ -151,8 +174,8 @@ export default function WriteReviewModal({
                       aria-checked={rating === value}
                       autoFocus={value === 1 && rating === null}
                       onClick={() => setRating(value)}
-                      className={`flex size-10 shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-[10px] border border-portal-border bg-white text-body-md font-medium text-black transition-shadow ${
-                        rating === value ? ringClass(value) : ""
+                      className={`flex size-10 shrink-0 cursor-pointer items-center justify-center overflow-clip rounded-[10px] border border-portal-border bg-white text-body-md font-medium text-black transition-[box-shadow,border-color,background-color] ${
+                        rating === value ? ringClass(value) : hoverClass(value)
                       }`}
                     >
                       {value}
@@ -253,6 +276,7 @@ export default function WriteReviewModal({
               Submit Review
             </Button>
           </Reveal>
+        </div>
         </div>
       </div>
     </div>,

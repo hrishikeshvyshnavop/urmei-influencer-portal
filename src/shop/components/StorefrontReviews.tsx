@@ -28,13 +28,11 @@ function ReviewCard({ review, onSelect }: { review: CreatorReview; onSelect: (it
         onClick={() => onSelect(review.item)}
         className="flex w-full items-center gap-md rounded-lg bg-surface-secondary-300 px-md py-fourteen text-left"
       >
-        <span className="flex min-w-0 flex-1 items-center gap-md">
-          <img src={product.shopCardImage} alt="" className="size-[56px] shrink-0 rounded-lg object-cover" />
-          <span className="flex min-w-0 flex-1 flex-col items-start">
-            <span className="w-full text-body-sm text-text-secondary-700 uppercase">{product.brand}</span>
-            <span className="w-full truncate text-body-md font-medium text-text-secondary-1000">
-              {product.name}
-            </span>
+        {/* Brand over name only — Figma `915:28650` dropped the thumbnail. */}
+        <span className="flex min-w-0 flex-1 flex-col items-start">
+          <span className="w-full text-body-sm text-text-secondary-700 uppercase">{product.brand}</span>
+          <span className="w-full truncate text-body-sm font-medium text-text-secondary-1000">
+            {product.name}
           </span>
         </span>
         <span className="flex w-[40px] shrink-0 items-center justify-center p-md-sm">
@@ -82,7 +80,7 @@ function ReviewCard({ review, onSelect }: { review: CreatorReview; onSelect: (it
 }
 
 /**
- * "CHARLOTTE'S REVIEWS" (Figma `957:29042`) — between the favorite strip and
+ * "CHARLOTTE'S REVIEWS" (Figma `957:29042`, updated `915:28650`) — between the favorite strip and
  * All Picks: a titled sidebar with a page counter, and two review cards, each
  * a product header over the creator's verified review and attached photos.
  */
