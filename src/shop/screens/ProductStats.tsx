@@ -2,9 +2,11 @@ import { useState, type ReactNode } from 'react'
 import AppShell from '../../portal/components/AppShell'
 import { requestProductTour } from '../../portal/tour-status'
 import { Breadcrumb } from '../components/Breadcrumb'
+import { PeriodSelect } from '../components/PeriodSelect'
 import { ProductListingCard } from '../components/ShopProductCard'
 import { affiliateLinkFor, formatShopDate, hasLiveLink } from '../data/shop'
 import {
+  STAT_PERIODS,
   ORIGIN_CRUMBS,
   STAT_SPECS,
   statsBreakdownHash,
@@ -86,6 +88,7 @@ export function ProductStats({
   const [items] = useState(loadShopItems)
   const [tab, setTab] = useState<Tab>('Sales')
   const [copied, setCopied] = useState(false)
+  const [period, setPeriod] = useState<string>(STAT_PERIODS[0].id)
 
   const item: ShopItem | undefined = items.find((row) => row.id === itemId)
 
@@ -98,7 +101,7 @@ export function ProductStats({
           navigate('/help-center')
         }}
       >
-        <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
+        <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
           <div className="flex w-full max-w-[794px] flex-col items-start">
             <div className="w-full py-sm">
               <Breadcrumb items={crumbsFor(origin, via, 'Stats')} />
@@ -133,10 +136,11 @@ export function ProductStats({
         navigate('/help-center')
       }}
     >
-      <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
+      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-center px-6 pt-8 pb-16">
         <div className="flex w-full max-w-[794px] flex-col items-start">
-          <div className="w-full py-sm">
+          <div className="flex w-full items-center justify-between py-sm">
             <Breadcrumb items={crumbsFor(origin, via, product.name)} />
+            <PeriodSelect options={STAT_PERIODS} value={period} onChange={setPeriod} />
           </div>
 
           <div className="flex w-full flex-col items-start gap-lg lg:flex-row">

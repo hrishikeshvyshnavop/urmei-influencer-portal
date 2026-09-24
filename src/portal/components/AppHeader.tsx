@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Bell, Search, X } from "lucide-react";
+import { Bell, Search } from "lucide-react";
 import LanguageSelector from "./LanguageSelector";
+import { SearchField } from "./SearchField";
 import NotificationsDrawer from "./NotificationsDrawer";
 import ProfileMenu from "./ProfileMenu";
 import { markNotificationsAsRead, useHasUnreadNotifications } from "../notification-status";
@@ -71,33 +72,28 @@ export default function AppHeader({
           </div>
           <div className="flex items-center gap-3 lg:gap-6">
           <div className="relative hidden w-[300px] lg:block">
-            <form onSubmit={(event) => { event.preventDefault(); submitSearch(); }} className="flex items-center gap-2 rounded-[6px] border border-portal-border px-3 py-2 focus-within:border-portal-dark" role="search">
-              <Search size={16} className="shrink-0 text-portal-muted" />
-              <input
-                type="search"
-                value={searchQuery}
-                onChange={(event) => { setSearchQuery(event.target.value); setActiveSuggestion(-1); }}
-                onFocus={() => setSearchFocused(true)}
-                onBlur={() => window.setTimeout(() => setSearchFocused(false), 120)}
-                onKeyDown={(event) => {
-                  if (!showSuggestions) return;
-                  if (event.key === "ArrowDown") { event.preventDefault(); setActiveSuggestion((current) => (current + 1) % searchSuggestions.length); }
-                  if (event.key === "ArrowUp") { event.preventDefault(); setActiveSuggestion((current) => current <= 0 ? searchSuggestions.length - 1 : current - 1); }
-                  if (event.key === "Escape") { setSearchFocused(false); setActiveSuggestion(-1); }
-                  if (event.key === "Enter" && activeSuggestion >= 0) { event.preventDefault(); selectSuggestion(searchSuggestions[activeSuggestion]); }
-                }}
-                role="combobox"
-                aria-autocomplete="list"
-                aria-expanded={showSuggestions}
-                aria-controls="header-search-suggestions"
-                aria-activedescendant={activeSuggestion >= 0 ? `header-search-suggestion-${activeSuggestion}` : undefined}
-                aria-label="Search products and brands"
-                placeholder="Find products and brands"
-                className="min-w-0 flex-1 bg-transparent text-body-sm outline-none placeholder:text-portal-muted [&::-webkit-search-cancel-button]:hidden"
-              />
-              {searchQuery ? <button type="button" aria-label="Clear search" onMouseDown={(event) => event.preventDefault()} onClick={() => { setSearchQuery(""); setActiveSuggestion(-1); }} className="flex size-5 items-center justify-center rounded-sm text-portal-muted"><X size={14} /></button> : null}
-              <button type="submit" disabled={!searchQuery.trim()} className="sr-only">Search</button>
-            </form>
+            <SearchField
+              value={searchQuery}
+              onChange={(next) => { setSearchQuery(next); setActiveSuggestion(-1); }}
+              onSubmit={submitSearch}
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => window.setTimeout(() => setSearchFocused(false), 120)}
+              onKeyDown={(event) => {
+                if (!showSuggestions) return;
+                if (event.key === "ArrowDown") { event.preventDefault(); setActiveSuggestion((current) => (current + 1) % searchSuggestions.length); }
+                if (event.key === "ArrowUp") { event.preventDefault(); setActiveSuggestion((current) => current <= 0 ? searchSuggestions.length - 1 : current - 1); }
+                if (event.key === "Escape") { setSearchFocused(false); setActiveSuggestion(-1); }
+                if (event.key === "Enter" && activeSuggestion >= 0) { event.preventDefault(); selectSuggestion(searchSuggestions[activeSuggestion]); }
+              }}
+              role="combobox"
+              aria-autocomplete="list"
+              aria-expanded={showSuggestions}
+              aria-controls="header-search-suggestions"
+              aria-activedescendant={activeSuggestion >= 0 ? `header-search-suggestion-${activeSuggestion}` : undefined}
+              aria-label="Search products and brands"
+              placeholder="Find products and brands"
+              className="w-full"
+            />
             {showSuggestions ? <ul id="header-search-suggestions" role="listbox" className="absolute top-[calc(100%+8px)] z-50 w-full overflow-hidden rounded-[6px] border border-portal-border bg-white py-1 shadow-[0_8px_24px_rgba(34,34,34,0.12)]">
               {searchSuggestions.map((suggestion, index) => <li key={suggestion.id} id={`header-search-suggestion-${index}`} role="option" aria-selected={activeSuggestion === index}>
                 <button type="button" onMouseDown={(event) => event.preventDefault()} onMouseEnter={() => setActiveSuggestion(index)} onClick={() => selectSuggestion(suggestion)} className={`flex w-full items-center gap-3 px-3 py-2 text-left ${activeSuggestion === index ? "bg-portal-tick" : "bg-white"}`}>

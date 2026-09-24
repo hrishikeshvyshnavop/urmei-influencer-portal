@@ -293,7 +293,7 @@ export default function ManageAccount({
         </aside>
       ) : null}
 
-      <main className="mx-auto flex min-h-[calc(100vh-88px)] w-full max-w-[1440px] flex-col gap-xl px-6 py-8 lg:px-[120px]">
+      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col gap-xl px-6 py-8 lg:px-[120px]">
         {/* The page title sits above both columns in the design, so the rail's
             first pill lines up with the section header beside it. */}
         <h1 className="text-body-xxl">Manage Your Account</h1>

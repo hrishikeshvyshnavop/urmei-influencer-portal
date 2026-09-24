@@ -50,7 +50,7 @@ export default function SampleRequestDetails({ requestId }: { requestId: string 
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
     >
-      <main className="mx-auto min-h-[calc(100vh-88px)] w-full max-w-[994px] px-6 py-5 lg:px-0">
+      <main className="mx-auto flex-1 w-full max-w-[994px] px-6 py-5 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1 py-4 text-body-sm">
           <a href="/home" className="shrink-0">Home</a>
           <ChevronRight aria-hidden="true" className="size-4 shrink-0 text-portal-muted" strokeWidth={1.5} />

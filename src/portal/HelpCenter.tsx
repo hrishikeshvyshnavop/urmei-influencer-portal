@@ -24,7 +24,7 @@ export default function HelpCenter() {
       onShowHelp={() => window.scrollTo({ top: 0, behavior: "smooth" })}
     >
 
-      <main className="mx-auto min-h-[calc(100vh-88px)] w-full max-w-[794px] px-6 pb-12 lg:px-0">
+      <main className="mx-auto flex-1 w-full max-w-[794px] px-6 pb-12 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
           <a href="/home">Home</a>
           <ChevronRight aria-hidden="true" className="size-4 text-portal-muted" strokeWidth={1.5} />

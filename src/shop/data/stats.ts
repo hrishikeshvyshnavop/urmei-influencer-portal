@@ -41,8 +41,8 @@ type MetricSpec = {
    */
   rowEmpty: string
   /**
-   * Only clicks and sales carry the period selector and the "vs. previous
-   * 7 days" delta; the commission frames draw neither.
+   * Only clicks and sales carry the "vs. previous 7 days" delta; the
+   * commission frames draw none. Every page has the period selector.
    */
   trend: boolean
   /** Hero value suffix — total sales reads "320 UNITS" (`1619:40010`). */
@@ -101,6 +101,18 @@ export const STAT_SPECS: Record<StatMetric, MetricSpec> = {
     trend: false,
   },
 }
+
+/**
+ * The windows the stat pages' period selector offers. Only the closed "Last 7
+ * Days" state is drawn (Figma `1619:39559`), so the open list is conventional:
+ * the delta line below a breakdown's total reads against whichever window is
+ * chosen.
+ */
+export const STAT_PERIODS = [
+  { id: '7', label: 'Last 7 Days', previous: 'previous 7 days' },
+  { id: '30', label: 'Last 30 Days', previous: 'previous 30 days' },
+  { id: '90', label: 'Last 90 Days', previous: 'previous 90 days' },
+] as const
 
 export type ProductStats = {
   clicks: number
@@ -216,26 +228,19 @@ function entryFor(
   }
 }
 
-/** My Shop's row: all five metrics (Figma `1619:39241`). */
-export function statsRowEntries(items: ShopItem[]) {
-  const totals = shopTotals(items)
-  return STAT_METRICS.map((metric) => entryFor(metric, totals, 'shop'))
-}
-
 /**
- * Home's row is a different five (Figma `1584:90876`): it opens on the product
- * count and drops commission pending, where My Shop — the page you manage the
- * products on — carries pending and no count. Total products has no breakdown
- * page of its own, so its chevron goes to the shop.
+ * The stats row Home and My Shop both show: the product count, then all five
+ * metrics. The two designs each carried a different five — Home (Figma
+ * `1584:90876`) had the count and no commission pending, My Shop
+ * (`1619:39241`) the reverse — and they were unified on request so the pages
+ * read the same. Total products has no breakdown page: from Home it links to
+ * the shop, and on the shop itself it is not a link at all.
  */
-export function homeStatsRowEntries(items: ShopItem[]) {
+export function statsRowEntries(items: ShopItem[], origin: 'home' | 'shop') {
   const totals = shopTotals(items)
   return [
-    { label: 'TOTAL PRODUCTS', value: String(items.length), href: '/shop' },
-    entryFor('clicks', totals, 'home'),
-    entryFor('sales', totals, 'home'),
-    entryFor('commissionOwned', totals, 'home'),
-    entryFor('commissionSettled', totals, 'home'),
+    { label: 'TOTAL PRODUCTS', value: String(items.length), href: origin === 'home' ? '/shop' : undefined },
+    ...STAT_METRICS.map((metric) => entryFor(metric, totals, origin)),
   ]
 }
 

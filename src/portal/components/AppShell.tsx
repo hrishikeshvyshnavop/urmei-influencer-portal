@@ -5,7 +5,13 @@ import AppHeader from "./AppHeader";
 /** Full page chrome — header, page content, footer — shared by every
  *  signed-in screen (Home, Help Center, Recent Activities, My Shop). Screens
  *  only ever differ in what sits between the header and footer, plus a few
- *  callbacks the header's profile menu needs. */
+ *  callbacks the header's profile menu needs.
+ *
+ *  A screen's `<main>` takes `flex-1` to fill whatever height the header
+ *  leaves, so a short page still ends on the footer at the bottom of the
+ *  window. Don't size it off the viewport (`min-h-[calc(100vh-88px)]`): that
+ *  ignores the setup banner under the header and pushes the footer below
+ *  the fold. */
 export default function AppShell({
   children,
   className = "",

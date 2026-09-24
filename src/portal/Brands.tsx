@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { ChevronRight, Search } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
+import { SearchField } from "./components/SearchField";
 import { requestProductTour } from "./tour-status";
 import { BRAND_DIRECTORY_TILES } from "../shop/data/brand-directory";
 import { navigate } from "../router";
@@ -28,16 +29,13 @@ export default function Brands() {
 
           <h1 className="track-section w-full text-body-md font-medium uppercase">Brands</h1>
 
-          <div className="flex w-[343px] max-w-full items-center gap-2 rounded-[6px] border border-portal-border px-3 py-2">
-            <Search aria-hidden="true" size={16} className="shrink-0 text-portal-muted" />
-            <input
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Find brands"
-              aria-label="Find brands"
-              className="w-full bg-transparent text-body-sm text-portal-text outline-none placeholder:text-portal-muted"
-            />
-          </div>
+          <SearchField
+            value={query}
+            onChange={setQuery}
+            placeholder="Find brands"
+            aria-label="Find brands"
+            className="w-[343px] max-w-full"
+          />
         </div>
 
         <div className="grid w-full grid-cols-2 gap-x-5 gap-y-6 py-6 sm:grid-cols-3 lg:grid-cols-5">

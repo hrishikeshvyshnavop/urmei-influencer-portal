@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { COUNTRIES } from '../../portal/country-status'
+import { SearchField } from '../../portal/components/SearchField'
 import {
   CATEGORY_TREE,
   COMMISSION_BUCKETS,
@@ -251,16 +252,13 @@ export function FiltersSidebar({
         selected={filters.brands.map((brand) => ({ value: brand, label: toTitleCase(brand) }))}
         onRemoveSelected={(brand) => onChange({ ...filters, brands: toggleInList(filters.brands, brand) })}
       >
-        <div className="flex w-full items-center gap-sm rounded-sm border border-border-default px-md-sm py-sm">
-          <Icon name="search" />
-          <input
-            type="text"
-            value={brandSearch}
-            onChange={(event) => onBrandSearchChange(event.target.value)}
-            placeholder="Search brands"
-            className="w-full text-body-sm text-text-secondary-1000 placeholder:text-text-secondary-700 focus:outline-none"
-          />
-        </div>
+        <SearchField
+          value={brandSearch}
+          onChange={onBrandSearchChange}
+          placeholder="Search brands"
+          aria-label="Search brands"
+          className="w-full"
+        />
         {visibleBrands.map((brand) => (
           <FilterRow key={brand}>
             <Checkbox
@@ -307,7 +305,7 @@ export function FiltersSidebar({
       </FilterGroup>
 
       <FilterGroup
-        label="Rating"
+        label="Customer Rating"
         open={openGroups.has('Rating')}
         onToggle={() => onToggleGroup('Rating')}
         selected={filters.ratingThresholds.map((min) => ({

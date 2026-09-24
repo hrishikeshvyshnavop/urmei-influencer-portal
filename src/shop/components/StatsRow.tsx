@@ -4,8 +4,10 @@ import { PeriodSelect, type PeriodOption } from './PeriodSelect'
 export type StatEntry = {
   label: string
   value: string
-  /** Where the stat's own breakdown page lives. */
-  href: string
+  /** Where the stat's own breakdown page lives. Without one the column is
+   *  plain text with no chevron — My Shop's Total products, which would only
+   *  point back at the page it sits on. */
+  href?: string
 }
 
 /**
@@ -15,25 +17,34 @@ export type StatEntry = {
  * columns inside a different shell.
  */
 export function StatColumn({ label, value, href }: StatEntry) {
-  return (
-    <a
-      href={href}
-      className="flex min-w-px flex-1 flex-col items-center justify-center gap-ten rounded-md px-2 py-md-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface-secondary-1000"
-    >
+  const body = (
+    <>
       <p className="text-body-xxl font-semibold whitespace-nowrap text-text-secondary-1000">
         {value}
       </p>
       <p className="flex items-center gap-1 text-body-xs font-medium tracking-[0.5px] whitespace-nowrap text-text-secondary-700 uppercase">
         {label}
-        <ChevronRight aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.5} />
+        {href && <ChevronRight aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.5} />}
       </p>
+    </>
+  )
+  const layout = 'flex min-w-px flex-1 flex-col items-center justify-center gap-ten rounded-md px-2 py-md-sm'
+  return href ? (
+    <a
+      href={href}
+      className={`${layout} focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-surface-secondary-1000`}
+    >
+      {body}
     </a>
+  ) : (
+    <div className={layout}>{body}</div>
   )
 }
 
 /**
- * The five shop totals under the store card (Figma `1619:39241`), each column
- * a link into that metric's breakdown page. Dividers sit between columns, not
+ * The shop totals under the store card (Figma `1619:39241`) — the product
+ * count and the five metrics, on Home and My Shop alike — each metric column
+ * a link into its breakdown page. Dividers sit between columns, not
  * around them. My Shop passes `period` for the "Showing: All time" selector
  * pinned to the card's top-right corner (`236:24886`), which also grows the
  * card's top edge to make room; Home's row has none.
