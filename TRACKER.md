@@ -1,0 +1,53 @@
+# Work Tracker
+
+Tick each box as the work moves forward. A row's status is its furthest ticked box.
+
+Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free number, and IDs are never reused or renumbered, so a task keeps its ID as it moves between sections.
+
+| Status | Meaning |
+| --- | --- |
+| ⬜ Not started | Not committed yet (idea, or edits still in the working tree) |
+| 📝 Committed | Committed locally, not on the remote yet |
+| ⬆️ Pushed | On `origin` (`main` or a feature branch) |
+| 🟢 Live | Deployed and checked on the Vercel site |
+
+Last updated: 2026-09-25
+
+## In progress
+
+| ID | Work | Branch | Committed | Pushed | Live | Status |
+| --- | --- | --- | :-: | :-: | :-: | --- |
+| T-01 | Period filter as radio list, adds Last 14 Days, All Time last (Figma `350:44963`) | — | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-02 | Shared `RadioDot` for the sort and period lists | — | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-03 | Drop Total Products from the stats row | — | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-04 | Profile photo picker (`ProfilePhotoPicker.tsx`) | — | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-05 | Manage Account / Your Reviews / Creator Testimonials edits | — | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-06 | Profile photo pans in any direction in the crop modal (`daaa15c`) | `main` | [x] | [ ] | [ ] | 📝 Committed |
+
+## Shipped to `main`
+
+These commits are pushed to `origin/main`. Tick **Live** once you've checked them on the deployed site.
+
+| ID | Work | Commit | Committed | Pushed | Live | Status |
+| --- | --- | --- | :-: | :-: | :-: | --- |
+| T-07 | Call it Commission Earned, not Commission Owned | `26b8fa8` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-08 | Improve layout handling for viewport widths | `7b7cd38` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-09 | Refactor Manage Account, storefront styling | `43158cd` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-10 | Delivery cost and return policy on the storefront product page | `c543a3a` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-11 | Apply and review forms start at the header's edge | `34a779f` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-12 | Name the empty market and offer a way out | `2496599` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-13 | Manage Account setup requirements | `97c7033` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-14 | Replace the apply landing hero image | `7ed607a` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-15 | One shared stats period across the portal | `e50f508` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-16 | Unified search inputs, stat-page period filters, review details | `ae35577` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-17 | Sample requests, bank details and account forms match the designs | `459f9b1` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-18 | Serve `index.html` for every path on Vercel | `2649aa0` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-19 | Route by URL path instead of the hash | `4be977e` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-20 | Split addresses into default shipping and billing | `15e2555` | [x] | [x] | [ ] | ⬆️ Pushed |
+
+## Backlog
+
+| ID | Work | Committed | Pushed | Live | Status |
+| --- | --- | :-: | :-: | :-: | --- |
+| T-21 | Convert `public/urmei/apply-hero.png` to WebP | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-22 | Fix lint error in `src/shop/activity-log.ts:101` (irregular whitespace) | [ ] | [ ] | [ ] | ⬜ Not started |
