@@ -74,4 +74,4 @@ This is the **URMEI creator portal** — a set of standalone full-screen auth an
 
 Assets exported from Figma live in `public/urmei/` and are referenced by absolute path (e.g. `src="/urmei/side-panel.jpg"`). Icons are exported SVGs, not hand-written markup — several are raw vector fragments positioned by the percentage insets the Figma output specifies, so keep the nested wrapper spans when copying one.
 
-`public/urmei/apply-hero.png` is the 2.5 MB Figma export used by the apply landing page; convert it to WebP before shipping to production.
+`public/urmei/apply-hero.webp` is the apply landing hero, converted from the 1.4 MB Figma PNG export (quality 82, alpha kept, ~52 KB). Export new photos the same way rather than shipping raw PNGs.
