@@ -8,11 +8,10 @@ import FormModal from "./components/FormModal";
 import AddressFormModal from "./components/AddressFormModal";
 import SetDefaultsModal from "./components/SetDefaultsModal";
 import ProfilePhoto from "./components/ProfilePhoto";
-import { saveProfilePhoto } from "./profile-photo";
 import SocialAccountRow, { type SocialPlatform } from "./components/SocialAccountRow";
 import AppFooter from "./components/AppFooter";
 import AppHeader from "./components/AppHeader";
-import { CropModal } from "./SetProfilePhoto";
+import ProfilePhotoPicker, { PHOTO_MAX_MB } from "./components/ProfilePhotoPicker";
 import TextArea from "./components/TextArea";
 import TextField from "./components/TextField";
 import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, isBankAccountComplete, readBankAccount, removeBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
@@ -120,9 +119,7 @@ export default function ManageAccount({
 }: {
   initialSection?: ManageAccountSection;
 } = {}) {
-  const photoInput = useRef<HTMLInputElement>(null);
   const [photoVersion, setPhotoVersion] = useState(0);
-  const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState(initialProfile.displayName);
   const [bio, setBio] = useState(initialProfile.bio);
   const [phone, setPhone] = useState(initialProfile.phone);
@@ -186,18 +183,6 @@ export default function ManageAccount({
       window.removeEventListener("message", receivePayment);
     };
   }, []);
-
-  const updateProfilePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      if (typeof reader.result !== "string") return;
-      setPendingPhoto(reader.result);
-    });
-    reader.readAsDataURL(file);
-    event.target.value = "";
-  };
 
   const openAddressModal = (address?: ShippingAddress) => setEditingAddress(address ?? null);
 
@@ -371,11 +356,18 @@ export default function ManageAccount({
                         <span className="relative size-[88px] shrink-0 overflow-hidden rounded-full">
                           <ProfilePhoto key={photoVersion} fallback="/urmei/home/profile-dropdown-avatar.png" alt="Profile photo" />
                         </span>
-                        <div className="flex flex-col items-start gap-2">
-                          <input ref={photoInput} type="file" accept="image/jpeg,image/png" onChange={updateProfilePhoto} className="hidden" />
-                          <Button variant="portalOutline" onClick={() => photoInput.current?.click()}>Change Photo</Button>
-                          <p className="text-body-sm text-portal-muted">Square image, at least 400×400. JPG or PNG, up to 5 MB.</p>
-                        </div>
+                        <ProfilePhotoPicker onSave={() => setPhotoVersion((current) => current + 1)}>
+                          {({ pick, error }) => (
+                            <div className="flex flex-col items-start gap-2">
+                              <Button variant="portalOutline" onClick={pick}>Change Photo</Button>
+                              {error ? (
+                                <p className="text-body-sm text-portal-alert" role="alert">{error}</p>
+                              ) : (
+                                <p className="text-body-sm text-portal-muted">Square image, at least 400×400. JPG or PNG, up to {PHOTO_MAX_MB} MB.</p>
+                              )}
+                            </div>
+                          )}
+                        </ProfilePhotoPicker>
                       </div>
                       <TextField label="Display name" placeholder="Your display name" value={displayName} onChange={(value) => { setDisplayName(value); setSaved(false); }} />
                       <TextArea
@@ -461,17 +453,6 @@ export default function ManageAccount({
             onChange={(name, value) => setBankDraft((current) => ({ ...current, [name]: value }))}
           />
         </FormModal>
-      ) : null}
-      {pendingPhoto ? (
-        <CropModal
-          src={pendingPhoto}
-          onCancel={() => setPendingPhoto(null)}
-          onApply={(crop) => {
-            saveProfilePhoto({ src: pendingPhoto, crop });
-            setPendingPhoto(null);
-            setPhotoVersion((current) => current + 1);
-          }}
-        />
       ) : null}
     </div>
   );
