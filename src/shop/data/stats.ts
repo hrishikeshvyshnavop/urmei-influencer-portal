@@ -237,19 +237,15 @@ function entryFor(
 }
 
 /**
- * The stats row Home and My Shop both show: the product count, then all five
- * metrics. The two designs each carried a different five — Home (Figma
- * `1584:90876`) had the count and no commission pending, My Shop
- * (`1619:39241`) the reverse — and they were unified on request so the pages
- * read the same. Total products has no breakdown page: from Home it links to
- * the shop, and on the shop itself it is not a link at all.
+ * The stats row Home and My Shop both show: all five metrics. The two designs
+ * each carried a different set — Home (Figma `1584:90876`) had a product count
+ * and no commission pending, My Shop (`1619:39241`) the reverse — and they were
+ * unified on request so the pages read the same; the product count was later
+ * dropped from both.
  */
 export function statsRowEntries(items: ShopItem[], origin: 'home' | 'shop') {
   const totals = shopTotals(items)
-  return [
-    { label: 'TOTAL PRODUCTS', value: String(items.length), href: origin === 'home' ? '/shop' : undefined },
-    ...STAT_METRICS.map((metric) => entryFor(metric, totals, origin)),
-  ]
+  return STAT_METRICS.map((metric) => entryFor(metric, totals, origin))
 }
 
 /** Resolves a hash segment back to a metric, or null for an unknown one. */

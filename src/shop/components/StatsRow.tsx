@@ -5,8 +5,7 @@ export type StatEntry = {
   label: string
   value: string
   /** Where the stat's own breakdown page lives. Without one the column is
-   *  plain text with no chevron — My Shop's Total products, which would only
-   *  point back at the page it sits on. */
+   *  plain text with no chevron. */
   href?: string
 }
 
@@ -42,10 +41,10 @@ export function StatColumn({ label, value, href }: StatEntry) {
 }
 
 /**
- * The shop totals under the store card (Figma `1619:39241`) — the product
- * count and the five metrics, on Home and My Shop alike — each metric column
+ * The shop totals under the store card (Figma `1619:39241`) — the five
+ * metrics, on Home and My Shop alike — each metric column
  * a link into its breakdown page. Dividers sit between columns, not
- * around them. Both pages pass `showPeriod` for the "Showing: All time" filter
+ * around them. Both pages pass `showPeriod` for the "Showing: All Time" filter
  * pinned to the card's top-right corner (`236:24886`), which also grows the
  * card's top edge to make room.
  */
