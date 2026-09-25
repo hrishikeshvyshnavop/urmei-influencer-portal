@@ -51,4 +51,4 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 | ID | Work | Committed | Pushed | Live | Status |
 | --- | --- | :-: | :-: | :-: | --- |
 | T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
-| T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [ ] | [ ] | 📝 Committed |
+| T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [x] | [ ] | ⬆️ Pushed |
