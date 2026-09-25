@@ -61,7 +61,7 @@ export function StatBreakdown({
   }, [items, metric, query]);
 
   const { up: trendUp, percent: trendPercent } = trendFor(metric, total);
-  // Null for "All time": there is no earlier window to compare against.
+  // Null for "All Time": there is no earlier window to compare against.
   const previousLabel = STAT_PERIODS.find((row) => row.id === period)?.previous;
 
   return (

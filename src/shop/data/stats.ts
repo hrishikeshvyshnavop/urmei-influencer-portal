@@ -106,17 +106,18 @@ export const STAT_SPECS: Record<StatMetric, MetricSpec> = {
 /**
  * The windows the stats period filter offers, everywhere it appears — the
  * stats row on Home and My Shop, the breakdown pages and a product's stats.
- * Only closed states are drawn ("All time" on the row, `236:24886`; "Last 7
- * Days" on a breakdown, `1619:39559`), so the open list is conventional.
- * `previous` is what a breakdown's delta line compares against; "All time"
+ * The open list is Figma `350:44963` (file `cehltPtMoGWEtKbF7k3MQQ`): the
+ * dated windows shortest first, then "All Time", which is also the default.
+ * `previous` is what a breakdown's delta line compares against; "All Time"
  * has no earlier window, so it drops that line. The shop figures have no
  * dated history behind them yet, so the choice doesn't change the numbers.
  */
 export const STAT_PERIODS = [
-  { id: 'all', label: 'All time', previous: null },
   { id: '7', label: 'Last 7 Days', previous: 'previous 7 days' },
+  { id: '14', label: 'Last 14 Days', previous: 'previous 14 days' },
   { id: '30', label: 'Last 30 Days', previous: 'previous 30 days' },
   { id: '90', label: 'Last 90 Days', previous: 'previous 90 days' },
+  { id: 'all', label: 'All Time', previous: null },
 ] as const
 
 export type StatPeriodId = (typeof STAT_PERIODS)[number]['id']
