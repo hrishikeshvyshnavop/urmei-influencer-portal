@@ -246,89 +246,94 @@ export function StandaloneStorefront() {
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100">
-      {/* The site header stays put while the page scrolls, and on a product
-          page the market bar sticks under it — so which market's prices you're
-          looking at, and whose shop, stay on screen the whole way down. Both
-          live in one sticky wrapper rather than sticking separately: stacked
-          `top-0` / `top-[88px]` offsets would have to be kept in step with the
-          header's height by hand, whereas one wrapper just carries whatever is
-          inside it. Plain CSS sticky works here because this screen, unlike the
-          in-app preview, has no `ScaledBox` transform above it to break it.
+      {/* The footer never shares the first screenful, however short the shop
+          or product page: everything above it fills at least the window, the
+          same rule as `AppShell`'s `footerBelowFold`. */}
+      <div className="flex min-h-screen w-full flex-col items-center">
+        {/* The site header stays put while the page scrolls, and on a product
+            page the market bar sticks under it — so which market's prices you're
+            looking at, and whose shop, stay on screen the whole way down. Both
+            live in one sticky wrapper rather than sticking separately: stacked
+            `top-0` / `top-[88px]` offsets would have to be kept in step with the
+            header's height by hand, whereas one wrapper just carries whatever is
+            inside it. Plain CSS sticky works here because this screen, unlike the
+            in-app preview, has no `ScaledBox` transform above it to break it.
 
-          The breadcrumb is deliberately left out of the wrapper — it's page
-          content, not chrome, and scrolls away with the rest. */}
-      <div className="sticky top-0 z-30 flex w-full flex-col items-center">
-        <StorefrontPublicHeader />
-        {selectedItem && (
-          /* A product page swaps the site breadcrumb for the market bar, which
-             states whose picks these are and which market's prices and stock
-             are being shown (Figma `916:66693`). The page's own breadcrumb
-             comes back from inside `StorefrontProductDetail`, as the product's
-             shelf path. */
-          <CreatorMarketBar name={name} country={country} onBack={clearSelection} />
-        )}
-      </div>
-
-      {!selectedItem && (
-        /* Static, like the site nav above it: the shelves above this page have
-           no screens to point at yet. */
-        <div className={CONTENT_COLUMN}>
-          <StorefrontBreadcrumb
-            items={[{ label: 'Home' }, { label: 'Creators' }, { label: name }]}
-          />
+            The breadcrumb is deliberately left out of the wrapper — it's page
+            content, not chrome, and scrolls away with the rest. */}
+        <div className="sticky top-0 z-30 flex w-full flex-col items-center">
+          <StorefrontPublicHeader />
+          {selectedItem && (
+            /* A product page swaps the site breadcrumb for the market bar, which
+               states whose picks these are and which market's prices and stock
+               are being shown (Figma `916:66693`). The page's own breadcrumb
+               comes back from inside `StorefrontProductDetail`, as the product's
+               shelf path. */
+            <CreatorMarketBar name={name} country={country} onBack={clearSelection} />
+          )}
         </div>
-      )}
 
-      <main className="flex w-full flex-col items-center">
-        {selectedItem ? (
+        {!selectedItem && (
+          /* Static, like the site nav above it: the shelves above this page have
+             no screens to point at yet. */
           <div className={CONTENT_COLUMN}>
-            <StorefrontProductDetail
-              item={selectedItem}
-              country={country}
-              creatorName={name}
-              onBack={clearSelection}
+            <StorefrontBreadcrumb
+              items={[{ label: 'Home' }, { label: 'Creators' }, { label: name }]}
             />
           </div>
-        ) : (
-          <>
-            {/* The 36px gap belongs between the profile card and the *first*
-                section only (Figma `916:65747` wraps exactly those two). The
-                page frame itself has no gap, so every section after the first
-                is spaced by its own 36px top padding alone. */}
-            <div className="flex w-full flex-col items-center gap-3xl">
-              <div className={CONTENT_COLUMN}>
-                <StorefrontProfileCard onCopyLink={copyShopLink} />
-              </div>
-              {/* Nothing here ships to the selected market. Sits in the same
-                  36px column as the creator card rather than tucked under it
-                  the way the preview does, which is how the edge frame
-                  (`1616:66073`) stacks it. */}
-              {items.length > 0 && !hasAvailableItems && (
-                <div className={CONTENT_COLUMN}>
-                  <NoAvailabilityNotice country={country} allowCountryChange />
-                </div>
-              )}
-              {showFavorite ? (
-                <FavoritePicks
-                  items={favoriteItems}
-                  country={country}
-                  ownerName={name}
-                  onSelect={setSelectedItem}
-                />
-              ) : (
-                reviewsSection ?? picks
-              )}
-            </div>
-            {showFavorite && reviewsSection}
-            {(showFavorite || reviewsSection) && picks}
-          </>
         )}
-      </main>
 
-      {/* Figma `916:65859` — breathing room between the last section and the
-          footer, on top of the section's own bottom padding. A product page
-          brings its own, shorter (64px) spacer. */}
-      {!selectedItem && <div className="h-[80px] w-full shrink-0" />}
+        <main className="flex w-full flex-1 flex-col items-center">
+          {selectedItem ? (
+            <div className={CONTENT_COLUMN}>
+              <StorefrontProductDetail
+                item={selectedItem}
+                country={country}
+                creatorName={name}
+                onBack={clearSelection}
+              />
+            </div>
+          ) : (
+            <>
+              {/* The 36px gap belongs between the profile card and the *first*
+                  section only (Figma `916:65747` wraps exactly those two). The
+                  page frame itself has no gap, so every section after the first
+                  is spaced by its own 36px top padding alone. */}
+              <div className="flex w-full flex-col items-center gap-3xl">
+                <div className={CONTENT_COLUMN}>
+                  <StorefrontProfileCard onCopyLink={copyShopLink} />
+                </div>
+                {/* Nothing here ships to the selected market. Sits in the same
+                    36px column as the creator card rather than tucked under it
+                    the way the preview does, which is how the edge frame
+                    (`1616:66073`) stacks it. */}
+                {items.length > 0 && !hasAvailableItems && (
+                  <div className={CONTENT_COLUMN}>
+                    <NoAvailabilityNotice country={country} allowCountryChange />
+                  </div>
+                )}
+                {showFavorite ? (
+                  <FavoritePicks
+                    items={favoriteItems}
+                    country={country}
+                    ownerName={name}
+                    onSelect={setSelectedItem}
+                  />
+                ) : (
+                  reviewsSection ?? picks
+                )}
+              </div>
+              {showFavorite && reviewsSection}
+              {(showFavorite || reviewsSection) && picks}
+            </>
+          )}
+        </main>
+
+        {/* Figma `916:65859` — breathing room between the last section and the
+            footer, on top of the section's own bottom padding. A product page
+            brings its own, shorter (64px) spacer. */}
+        {!selectedItem && <div className="h-[80px] w-full shrink-0" />}
+      </div>
 
       <AppFooter />
 
