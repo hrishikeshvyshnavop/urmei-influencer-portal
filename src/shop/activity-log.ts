@@ -98,7 +98,7 @@ export function formatActivityTime(at: number): string {
   const now = new Date()
   const time = date
     .toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
-    .replace(/ /g, ' ')
+    .replace(/\u202f/g, ' ') // the narrow no-break space toLocaleString puts before AM/PM
 
   if (isSameDay(date, now)) return `Today, ${time}`
 

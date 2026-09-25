@@ -24,7 +24,7 @@ import {
   upsertShippingAddress,
   type ShippingAddress,
 } from "./shipping-addresses";
-import { clearSetupRequired, isSetupRequired } from "./setup-status";
+import { clearSetupRequired } from "./setup-status";
 import { getSavedBio, getSavedDisplayName, saveBio, saveDisplayName } from "./profile-status";
 import { requestProductTour } from "./tour-status";
 import { navigate } from "../router";
@@ -129,7 +129,6 @@ export default function ManageAccount({
   const [activeSection, setActiveSection] = useState<ManageAccountSection>(initialSection);
   const [connectedSocials, setConnectedSocials] = useState(["instagram", "tiktok"]);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(readBankAccount);
-  const [setupRequired, setSetupRequired] = useState(isSetupRequired);
   const [shippingAddresses, setShippingAddresses] = useState(readShippingAddresses);
   // `undefined` is closed; `null` is adding a new address.
   const [editingAddress, setEditingAddress] = useState<ShippingAddress | null | undefined>(undefined);
@@ -147,14 +146,13 @@ export default function ManageAccount({
     saveShippingAddresses(shippingAddresses);
   }, [shippingAddresses]);
 
+  // Identity is verified as part of the creator's application, so the bank
+  // account is the only thing setup still waits on: once one is on file the
+  // stored setup-required marker is cleared, and the banner follows
+  // `paymentConnected` alone.
   useEffect(() => {
-    // Identity is verified as part of the creator's application, so the bank
-    // account is the only thing setup still waits on.
-    if (setupRequired && paymentConnected) {
-      clearSetupRequired();
-      setSetupRequired(false);
-    }
-  }, [setupRequired, paymentConnected]);
+    if (paymentConnected) clearSetupRequired();
+  }, [paymentConnected]);
 
   useEffect(() => {
     const bannerEl = bannerRef.current;
@@ -167,7 +165,7 @@ export default function ManageAccount({
     const observer = new ResizeObserver(updateOffset);
     if (bannerEl) observer.observe(bannerEl);
     return () => observer.disconnect();
-  }, [setupRequired, paymentConnected]);
+  }, [paymentConnected]);
 
   useEffect(() => {
     // Payout details can also arrive from profile setup in another tab, or
@@ -216,7 +214,7 @@ export default function ManageAccount({
           onShowHelp={() => { navigate("/help-center"); }}
         />
 
-        {setupRequired || !paymentConnected ? (
+        {!paymentConnected ? (
           <aside
             ref={bannerRef}
             className="sticky top-[88px] z-20 flex w-full items-center justify-center gap-3 border-b border-[#e6e5e4] bg-portal-light px-6 py-3 lg:px-[120px]"

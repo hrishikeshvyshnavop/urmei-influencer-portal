@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Button from "./components/Button";
 import Checkbox from "./components/Checkbox";
 import { IdentityVerificationCard } from "./components/IdentityVerificationCard";
@@ -133,9 +133,13 @@ export default function ApplyCreator({
   const [consentedToData, setConsentedToData] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
-  useEffect(() => {
+  // Follow a country change made elsewhere (the header's switcher) into the
+  // form, adjusting state during render rather than in an effect.
+  const [syncedCountry, setSyncedCountry] = useState(selectedCountry);
+  if (syncedCountry !== selectedCountry) {
+    setSyncedCountry(selectedCountry);
     setValues((current) => ({ ...current, country: selectedCountry }));
-  }, [selectedCountry]);
+  }
 
   const setField = (name: string, value: string) =>
     setValues((current) => ({ ...current, [name]: value }));
