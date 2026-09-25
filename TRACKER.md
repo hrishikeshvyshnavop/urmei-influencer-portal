@@ -2,7 +2,7 @@
 
 Tick each box as the work moves forward. A row's status is its furthest ticked box.
 
-Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free number, and IDs are never reused or renumbered, so a task keeps its ID as it moves between sections.
+Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free number, and IDs are never reused or renumbered, so a task keeps its ID as it moves between sections. Each commit message starts with its task's ID and title (`T-23: …`), so `git log --grep T-23` finds the work.
 
 | Status | Meaning |
 | --- | --- |
@@ -23,7 +23,7 @@ Last updated: 2026-09-25
 | T-04 | One profile photo picker for setup and Manage Account (`db1642d`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-05 | Review photos in Your Reviews and What Creators Say (`0d08e10`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-06 | Profile photo pans in any direction in the crop modal (`daaa15c`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
-T-22 | 2. When I add a product review with an image, the review is displayed without the  image.
+| T-23 | Review photos match Figma `1030:29096` (48px, 8px corners, 14px under the text) in What Creators Say, Your Reviews and a sample request's Your review card, via shared `ReviewPhotos` (`git log --grep T-23`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 
 ## Shipped to `main`
 
@@ -52,3 +52,4 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 | --- | --- | :-: | :-: | :-: | --- |
 | T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [x] | [ ] | ⬆️ Pushed |
+t-23 user able to multi selcte the image when it comes to the add reviews and attch image

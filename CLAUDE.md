@@ -60,6 +60,7 @@ This is the **URMEI creator portal** — a set of standalone full-screen auth an
   - `SearchField.tsx` — the one search box, used by the header, the catalogue, Brands, Sample Requests, Your Reviews, the stat pages and the filter rail's brand search: 40px, the Figma search glyph, a border that darkens when focused or filled, a clear button. Pass `onSubmit` for a submitting `role="search"` form; callers set only the width. Autocomplete lists stay with their screens. Don't hand-roll a search input.
   - `OtpInput.tsx` — the login screen's six code boxes; uncontrolled, cleared by remounting with a new `key`.
   - `ProfilePhotoPicker.tsx` — the one way to set the profile photo, used by setup step 1 and Manage Account: a hidden JPG/PNG input, the `PHOTO_MAX_MB` (2) check, the crop modal (the photo pans in any direction under a fixed 1:1 square the corners resize) and `saveProfilePhoto`. Screens pass a render prop that draws their own trigger and hint and gets `{ pick, error }`; the error replaces the hint. `ProfilePhoto.tsx`'s `CroppedPhoto` draws the saved crop (and the older `offset`/`cropScale` records) at any avatar size. Don't build another upload-and-crop flow.
+  - `ReviewPhotos.tsx` — a written review's attached photos (Figma `1030:29096`): up to three 48px thumbnails, 8px corners, 8px apart, set 14px under the review text. What Creators Say, Your Reviews and a sample request's "Your review" card all use it; renders nothing without photos.
   - `Checkbox.tsx`, `SocialAccountRow.tsx`.
 
 ## Styling conventions

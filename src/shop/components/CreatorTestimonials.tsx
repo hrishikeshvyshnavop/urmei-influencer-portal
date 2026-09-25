@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ProfilePhoto from '../../portal/components/ProfilePhoto'
 import WriteReviewModal from '../../portal/components/WriteReviewModal'
+import ReviewPhotos from '../../portal/components/ReviewPhotos'
 import { getSavedDisplayName } from '../../portal/profile-status'
 import { loadSampleRequests, type SampleReview } from '../../portal/sample-requests'
 import {
@@ -103,18 +104,7 @@ function WhatCreatorsSay({ product, ownReview }: { product: Product; ownReview?:
         {/* Keyed on the page so each change remounts and replays the slide. */}
         <div key={index} className={`flex w-full flex-col items-start gap-fourteen ${slide}`}>
           <blockquote className="text-body-lg font-medium text-text-secondary-1000">"{current.text}"</blockquote>
-          {current.photos?.length ? (
-            <div className="flex items-center gap-sm">
-              {current.photos.slice(0, 3).map((photo, photoIndex) => (
-                <img
-                  key={photoIndex}
-                  src={photo}
-                  alt={`Review photo ${photoIndex + 1}`}
-                  className="size-[48px] shrink-0 rounded-md object-cover"
-                />
-              ))}
-            </div>
-          ) : null}
+          <ReviewPhotos photos={current.photos} />
         </div>
         <div className="flex w-full items-center justify-between">
           <div key={index} className={`flex items-center gap-md ${slide} ${slide ? 'motion-carousel-trail' : ''}`}>
