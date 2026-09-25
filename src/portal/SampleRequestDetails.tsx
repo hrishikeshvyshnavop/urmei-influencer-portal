@@ -50,6 +50,7 @@ export default function SampleRequestDetails({ requestId }: { requestId: string 
       className="bg-portal-light text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
+      footerBelowFold
     >
       <main className="mx-auto flex-1 w-full max-w-[994px] px-6 py-5 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1 py-4 text-body-sm">

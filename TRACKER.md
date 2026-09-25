@@ -25,6 +25,7 @@ Last updated: 2026-09-25
 | T-06 | Profile photo pans in any direction in the crop modal (`daaa15c`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-23 | Review photos match Figma `1030:29096` (48px, 8px corners, 14px under the text) in What Creators Say, Your Reviews and a sample request's Your review card, via shared `ReviewPhotos` (`git log --grep T-23`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-24 | Keep the footer below the fold on the public storefront (`/shop/view`), however short the shop or product page (`git log --grep T-24`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-25 | Keep the footer below the fold on a sample request's details page (`/sample-requests/<id>`) (`git log --grep T-25`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-24 | Pick several photos at once when writing a review — each loads in its own spinner tile, picks past the 3-photo cap are ignored, and a broken file drops out while the rest are kept (`git log --grep T-24`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 
 ## Shipped to `main`
