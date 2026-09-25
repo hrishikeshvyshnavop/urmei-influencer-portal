@@ -17,12 +17,13 @@ Last updated: 2026-09-25
 
 | ID | Work | Branch | Committed | Pushed | Live | Status |
 | --- | --- | --- | :-: | :-: | :-: | --- |
-| T-01 | Period filter as radio list, adds Last 14 Days, All Time last (Figma `350:44963`) | — | [ ] | [ ] | [ ] | ⬜ Not started |
-| T-02 | Shared `RadioDot` for the sort and period lists | — | [ ] | [ ] | [ ] | ⬜ Not started |
-| T-03 | Drop Total Products from the stats row | — | [ ] | [ ] | [ ] | ⬜ Not started |
-| T-04 | Profile photo picker (`ProfilePhotoPicker.tsx`) | — | [ ] | [ ] | [ ] | ⬜ Not started |
-| T-05 | Manage Account / Your Reviews / Creator Testimonials edits | — | [ ] | [ ] | [ ] | ⬜ Not started |
-| T-06 | Profile photo pans in any direction in the crop modal (`daaa15c`) | `main` | [x] | [ ] | [ ] | 📝 Committed |
+| T-01 | Period filter as radio list, adds Last 14 Days, All Time last (Figma `350:44963`) (`cfa61bb`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-02 | Shared `RadioDot` for the sort and period lists (`04310da`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-03 | Drop Total Products from the stats row (`018c7ef`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-04 | One profile photo picker for setup and Manage Account (`db1642d`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-05 | Review photos in Your Reviews and What Creators Say (`0d08e10`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-06 | Profile photo pans in any direction in the crop modal (`daaa15c`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+T-22 | 2. When I add a product review with an image, the review is displayed without the  image.
 
 ## Shipped to `main`
 
@@ -49,5 +50,5 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 
 | ID | Work | Committed | Pushed | Live | Status |
 | --- | --- | :-: | :-: | :-: | --- |
-| T-21 | Convert `public/urmei/apply-hero.png` to WebP | [ ] | [ ] | [ ] | ⬜ Not started |
-| T-22 | Fix lint error in `src/shop/activity-log.ts:101` (irregular whitespace) | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [ ] | [ ] | 📝 Committed |
