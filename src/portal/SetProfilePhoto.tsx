@@ -1,14 +1,12 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Button from "./components/Button";
 import PortalLayout from "./components/PortalLayout";
+import { CroppedPhoto } from "./components/ProfilePhoto";
 import { SETUP_STEP_COUNT } from "./components/SetupStep";
-import { PROFILE_PHOTO_KEY, readProfilePhoto } from "./profile-photo";
+import { readProfilePhoto, saveProfilePhoto, type PhotoCrop } from "./profile-photo";
 
-const CROP_SIZE = 298;
-const CROP_BAND = 28;
-const PREVIEW_SIZE = 160;
-const PREVIEW_BAND = (CROP_BAND / CROP_SIZE) * PREVIEW_SIZE;
+const MIN_CROP_SCALE = 0.55;
 
 function CornerBracket({
   position,
@@ -29,39 +27,80 @@ function CornerBracket({
 
 type CropModalProps = {
   src: string;
-  offset: number;
-  onOffsetChange: (offset: number) => void;
-  cropScale: number;
-  onCropScaleChange: (scale: number) => void;
   onCancel: () => void;
-  onApply: () => void;
+  onApply: (crop: PhotoCrop) => void;
 };
 
-export function CropModal({
-  src,
-  offset,
-  onOffsetChange,
-  cropScale,
-  onCropScaleChange,
-  onCancel,
-  onApply,
-}: CropModalProps) {
-  const cropArea = useRef<HTMLDivElement>(null);
-  const drag = useRef<{ startY: number; startOffset: number } | null>(null);
+/**
+ * The photo pans freely under a fixed square that the corners resize. The
+ * photo is scaled to cover the 298×354 stage and can only travel as far as it
+ * still covers the square, so a tall photo moves up and down, a wide one side
+ * to side, and shrinking the square frees up both. Pan is kept in stage
+ * widths so the framing survives the stage resizing with the viewport.
+ */
+export function CropModal({ src, onCancel, onApply }: CropModalProps) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [stage, setStage] = useState({ width: 0, height: 0 });
+  const [aspect, setAspect] = useState<number | null>(null);
+  const [cropScale, setCropScale] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const drag = useRef<{ startX: number; startY: number; startPan: { x: number; y: number } } | null>(null);
   const resize = useRef<{ startY: number; startScale: number; direction: number } | null>(null);
 
-  const clamp = (value: number) => Math.max(-1, Math.min(1, value));
-  const maxOffset = () => {
-    const size = cropArea.current?.clientWidth ?? CROP_SIZE;
-    return size * (CROP_BAND / CROP_SIZE + (1 - cropScale) / 2);
-  };
-  const startResize =
-    (direction: number): React.PointerEventHandler<HTMLButtonElement> =>
-    (event) => {
-      event.stopPropagation();
-      resize.current = { startY: event.clientY, startScale: cropScale, direction };
-      event.currentTarget.setPointerCapture(event.pointerId);
+  useLayoutEffect(() => {
+    const element = stageRef.current;
+    if (!element) return;
+    const measure = () => setStage({ width: element.clientWidth, height: element.clientHeight });
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  // Geometry in px for the current stage; the photo is cover-fitted to it.
+  const geometry = (scale: number) => {
+    const ratio = aspect ?? stage.width / Math.max(stage.height, 1);
+    const photoWidth = Math.max(stage.width, stage.height * ratio);
+    const photoHeight = photoWidth / ratio;
+    const square = scale * stage.width;
+    return {
+      photoWidth,
+      photoHeight,
+      square,
+      // How far the photo may travel each way and still cover the square.
+      maxX: Math.max(0, (photoWidth - square) / 2),
+      maxY: Math.max(0, (photoHeight - square) / 2),
     };
+  };
+
+  const clampPan = (next: { x: number; y: number }, scale: number) => {
+    const { maxX, maxY } = geometry(scale);
+    const width = Math.max(stage.width, 1);
+    const clamp = (value: number, max: number) => Math.max(-max, Math.min(max, value * width)) / width;
+    return { x: clamp(next.x, maxX), y: clamp(next.y, maxY) };
+  };
+
+  const { photoWidth, photoHeight, square } = geometry(cropScale);
+  const panPx = { x: pan.x * stage.width, y: pan.y * stage.width };
+
+  const startResize = (direction: number, event: React.PointerEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    resize.current = { startY: event.clientY, startScale: cropScale, direction };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const endGesture = () => {
+    drag.current = null;
+    resize.current = null;
+  };
+
+  const apply = () => {
+    onApply({
+      x: ((photoWidth - square) / 2 - panPx.x) / photoWidth,
+      y: ((photoHeight - square) / 2 - panPx.y) / photoWidth,
+      size: square / photoWidth,
+    });
+  };
 
   return (
     <div
@@ -103,60 +142,74 @@ export function CropModal({
             </div>
 
             <div
-              ref={cropArea}
-              className="relative h-[calc(min(298px,calc(100vw-80px))*354/298)] w-full overflow-hidden rounded-[4px] bg-[#b0ada9] select-none"
+              className="relative h-[calc(min(298px,calc(100vw-80px))*354/298)] w-full touch-none overflow-hidden rounded-[4px] bg-[#b0ada9] select-none"
               onPointerDown={(event) => {
-                drag.current = { startY: event.clientY, startOffset: offset };
+                drag.current = { startX: event.clientX, startY: event.clientY, startPan: pan };
                 event.currentTarget.setPointerCapture(event.pointerId);
               }}
               onPointerMove={(event) => {
+                const width = Math.max(stage.width, 1);
                 if (resize.current) {
-                  const size = cropArea.current?.clientWidth ?? CROP_SIZE;
-                  onCropScaleChange(
-                    Math.max(
-                      0.55,
-                      Math.min(
-                        1,
-                        resize.current.startScale +
-                          (resize.current.direction * 2 * (event.clientY - resize.current.startY)) / size,
-                      ),
+                  const nextScale = Math.max(
+                    MIN_CROP_SCALE,
+                    Math.min(
+                      1,
+                      resize.current.startScale +
+                        (resize.current.direction * 2 * (event.clientY - resize.current.startY)) / width,
                     ),
                   );
+                  setCropScale(nextScale);
+                  // A bigger square leaves the photo less room to travel.
+                  setPan((current) => clampPan(current, nextScale));
                   return;
                 }
                 if (!drag.current) return;
-                onOffsetChange(
-                  clamp(
-                    drag.current.startOffset +
-                      (event.clientY - drag.current.startY) / maxOffset(),
+                const { startX, startY, startPan } = drag.current;
+                setPan(
+                  clampPan(
+                    {
+                      x: startPan.x + (event.clientX - startX) / width,
+                      y: startPan.y + (event.clientY - startY) / width,
+                    },
+                    cropScale,
                   ),
                 );
               }}
-              onPointerUp={() => {
-                drag.current = null;
-                resize.current = null;
-              }}
+              onPointerUp={endGesture}
+              onPointerCancel={endGesture}
             >
-              <div className="absolute inset-y-0 left-1/2 aspect-[298/354] max-w-full -translate-x-1/2 cursor-grab active:cursor-grabbing">
+              <div
+                ref={stageRef}
+                className="absolute inset-y-0 left-1/2 aspect-[298/354] max-w-full -translate-x-1/2 cursor-grab active:cursor-grabbing"
+              >
                 <img
                   src={src}
                   alt="Selected profile photo"
                   draggable={false}
-                  style={{
-                    transform: `translateY(calc(${offset} * (${CROP_BAND} + (1 - ${cropScale}) * ${CROP_SIZE / 2}) / 354 * 100%))`,
+                  onLoad={(event) => {
+                    const { naturalWidth, naturalHeight } = event.currentTarget;
+                    // An SVG without intrinsic dimensions reports 0×0.
+                    setAspect(naturalWidth && naturalHeight ? naturalWidth / naturalHeight : 1);
                   }}
-                  className="pointer-events-none size-full max-w-none object-cover will-change-transform"
+                  style={{
+                    width: photoWidth,
+                    height: photoHeight,
+                    left: (stage.width - photoWidth) / 2,
+                    top: (stage.height - photoHeight) / 2,
+                    transform: `translate(${panPx.x}px, ${panPx.y}px)`,
+                  }}
+                  className={`pointer-events-none absolute max-w-none will-change-transform ${aspect ? "" : "invisible"}`}
                 />
 
-                {/* Dimmed bands above and below the 1:1 crop window */}
+                {/* Dimmed surround outside the 1:1 crop window */}
                 <div
                   style={{ width: `${cropScale * 100}%` }}
-                  className="absolute top-1/2 left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 border-2 border-solid border-portal-border shadow-[0_0_0_999px_rgba(34,34,34,0.28)]"
+                  className="absolute top-1/2 left-1/2 aspect-square -translate-x-1/2 -translate-y-1/2 border border-solid border-portal-light shadow-[0_0_0_999px_rgba(34,34,34,0.28)]"
                 >
-                  <CornerBracket onPointerDown={startResize(-1)} position="-top-0.5 -left-0.5 cursor-nwse-resize border-t-2 border-l-2" />
-                  <CornerBracket onPointerDown={startResize(-1)} position="-top-0.5 -right-0.5 cursor-nesw-resize border-t-2 border-r-2" />
-                  <CornerBracket onPointerDown={startResize(1)} position="-bottom-0.5 -left-0.5 cursor-nesw-resize border-b-2 border-l-2" />
-                  <CornerBracket onPointerDown={startResize(1)} position="-right-0.5 -bottom-0.5 cursor-nwse-resize border-b-2 border-r-2" />
+                  <CornerBracket onPointerDown={(event) => startResize(-1, event)} position="-top-px -left-px cursor-nwse-resize! border-t-3 border-l-3" />
+                  <CornerBracket onPointerDown={(event) => startResize(-1, event)} position="-top-px -right-px cursor-nesw-resize! border-t-3 border-r-3" />
+                  <CornerBracket onPointerDown={(event) => startResize(1, event)} position="-bottom-px -left-px cursor-nesw-resize! border-b-3 border-l-3" />
+                  <CornerBracket onPointerDown={(event) => startResize(1, event)} position="-right-px -bottom-px cursor-nwse-resize! border-b-3 border-r-3" />
                 </div>
 
                 <div className="pointer-events-none absolute top-1/2 left-1/2 flex size-[24px] -translate-x-1/2 -translate-y-1/2 items-center justify-center overflow-clip rounded-[6px] bg-[rgba(64,62,60,0.7)] p-1">
@@ -185,7 +238,7 @@ export function CropModal({
           >
             Cancel
           </button>
-          <Button variant="portal" onClick={onApply}>
+          <Button variant="portal" onClick={apply} disabled={!aspect || !stage.width}>
             Apply crop
           </Button>
         </div>
@@ -207,8 +260,6 @@ export default function SetProfilePhoto({ onContinue }: SetProfilePhotoProps) {
   // Seeded from storage so returning here — via Back from step 2, or a
   // reload — finds the photo already applied rather than an empty circle.
   const [photo, setPhoto] = useState(readProfilePhoto);
-  const [offset, setOffset] = useState(0);
-  const [cropScale, setCropScale] = useState(1);
 
   const pickFile = () => fileInput.current?.click();
 
@@ -219,8 +270,6 @@ export default function SetProfilePhoto({ onContinue }: SetProfilePhotoProps) {
     reader.addEventListener("load", () => {
       if (typeof reader.result !== "string") return;
       setPending(reader.result);
-      setOffset(0);
-      setCropScale(1);
     });
     reader.readAsDataURL(file);
     event.target.value = "";
@@ -248,25 +297,7 @@ export default function SetProfilePhoto({ onContinue }: SetProfilePhotoProps) {
           {photo ? (
             <>
               <div className="motion-feedback relative size-[160px] shrink-0 overflow-hidden rounded-full">
-                <img
-                  src={photo.src}
-                  alt="Your profile photo"
-                  style={{
-                    width: PREVIEW_SIZE / photo.cropScale,
-                    height:
-                      ((PREVIEW_SIZE + PREVIEW_BAND * 2) / photo.cropScale),
-                    left: -((1 - photo.cropScale) * PREVIEW_SIZE) / (2 * photo.cropScale),
-                    top:
-                      -(
-                        PREVIEW_BAND +
-                        ((1 - photo.cropScale) * PREVIEW_SIZE) / 2 -
-                        photo.offset *
-                          (PREVIEW_BAND +
-                            ((1 - photo.cropScale) * PREVIEW_SIZE) / 2)
-                      ) / photo.cropScale,
-                  }}
-                  className="absolute max-w-none object-cover"
-                />
+                <CroppedPhoto photo={photo} alt="Your profile photo" />
               </div>
               <button
                 type="button"
@@ -345,22 +376,11 @@ export default function SetProfilePhoto({ onContinue }: SetProfilePhotoProps) {
         ? createPortal(
             <CropModal
               src={pending}
-              offset={offset}
-              onOffsetChange={setOffset}
-              cropScale={cropScale}
-              onCropScaleChange={setCropScale}
               onCancel={() => setPending(null)}
-              onApply={() => {
-                const nextPhoto = { src: pending, offset, cropScale };
+              onApply={(crop) => {
+                const nextPhoto = { src: pending, crop };
                 setPhoto(nextPhoto);
-                try {
-                  window.localStorage.setItem(
-                    PROFILE_PHOTO_KEY,
-                    JSON.stringify(nextPhoto),
-                  );
-                } catch {
-                  // The preview still works when browser storage is unavailable.
-                }
+                saveProfilePhoto(nextPhoto);
                 setPending(null);
               }}
             />,

@@ -8,7 +8,7 @@ import FormModal from "./components/FormModal";
 import AddressFormModal from "./components/AddressFormModal";
 import SetDefaultsModal from "./components/SetDefaultsModal";
 import ProfilePhoto from "./components/ProfilePhoto";
-import { PROFILE_PHOTO_KEY } from "./profile-photo";
+import { saveProfilePhoto } from "./profile-photo";
 import SocialAccountRow, { type SocialPlatform } from "./components/SocialAccountRow";
 import AppFooter from "./components/AppFooter";
 import AppHeader from "./components/AppHeader";
@@ -123,8 +123,6 @@ export default function ManageAccount({
   const photoInput = useRef<HTMLInputElement>(null);
   const [photoVersion, setPhotoVersion] = useState(0);
   const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
-  const [photoOffset, setPhotoOffset] = useState(0);
-  const [photoCropScale, setPhotoCropScale] = useState(1);
   const [displayName, setDisplayName] = useState(initialProfile.displayName);
   const [bio, setBio] = useState(initialProfile.bio);
   const [phone, setPhone] = useState(initialProfile.phone);
@@ -195,8 +193,6 @@ export default function ManageAccount({
     const reader = new FileReader();
     reader.addEventListener("load", () => {
       if (typeof reader.result !== "string") return;
-      setPhotoOffset(0);
-      setPhotoCropScale(1);
       setPendingPhoto(reader.result);
     });
     reader.readAsDataURL(file);
@@ -469,17 +465,9 @@ export default function ManageAccount({
       {pendingPhoto ? (
         <CropModal
           src={pendingPhoto}
-          offset={photoOffset}
-          onOffsetChange={setPhotoOffset}
-          cropScale={photoCropScale}
-          onCropScaleChange={setPhotoCropScale}
           onCancel={() => setPendingPhoto(null)}
-          onApply={() => {
-            try {
-              window.localStorage.setItem(PROFILE_PHOTO_KEY, JSON.stringify({ src: pendingPhoto, offset: photoOffset, cropScale: photoCropScale }));
-            } catch {
-              // The selected photo remains optional when browser storage is unavailable.
-            }
+          onApply={(crop) => {
+            saveProfilePhoto({ src: pendingPhoto, crop });
             setPendingPhoto(null);
             setPhotoVersion((current) => current + 1);
           }}
