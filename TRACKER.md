@@ -24,6 +24,7 @@ Last updated: 2026-09-25
 | T-05 | Review photos in Your Reviews and What Creators Say (`0d08e10`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-06 | Profile photo pans in any direction in the crop modal (`daaa15c`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-23 | Review photos match Figma `1030:29096` (48px, 8px corners, 14px under the text) in What Creators Say, Your Reviews and a sample request's Your review card, via shared `ReviewPhotos` (`git log --grep T-23`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-24 | Pick several photos at once when writing a review — each loads in its own spinner tile, picks past the 3-photo cap are ignored, and a broken file drops out while the rest are kept (`git log --grep T-24`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 
 ## Shipped to `main`
 
@@ -52,4 +53,3 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 | --- | --- | :-: | :-: | :-: | --- |
 | T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [x] | [ ] | ⬆️ Pushed |
-t-23 user able to multi selcte the image when it comes to the add reviews and attch image
