@@ -143,7 +143,16 @@ function ReviewCard({ entry, onOpenProduct }: { entry: ReviewEntry; onOpenProduc
           {entry.review.rating}/10
           <span className="sr-only"> rating</span>
         </span>
-        <span className="min-w-0 flex-1 text-body-sm text-portal-muted">{entry.review.text}</span>
+        <span className="flex min-w-0 flex-1 flex-col gap-2.5">
+          <span className="text-body-sm text-portal-muted">{entry.review.text}</span>
+          {entry.review.photos.length > 0 ? (
+            <span className="flex items-center gap-2">
+              {entry.review.photos.map((photo, index) => (
+                <img key={index} src={photo} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
+              ))}
+            </span>
+          ) : null}
+        </span>
       </span>
     </>
   );

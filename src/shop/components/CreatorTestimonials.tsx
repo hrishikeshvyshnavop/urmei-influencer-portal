@@ -52,7 +52,7 @@ function ownReviewFor(product: Product): SampleReview | undefined {
   )
 }
 
-type Slide = { author: string; avatar?: string; month: string; text: string; own: boolean }
+type Slide = { author: string; avatar?: string; month: string; text: string; photos?: string[]; own: boolean }
 
 /**
  * "What Creators Say" (Figma `1030:25483`): one other creator's quote at a
@@ -65,7 +65,7 @@ function WhatCreatorsSay({ product, ownReview }: { product: Product; ownReview?:
   // "<Name> (You)" (Figma `1030:30435`), ahead of other creators'.
   const testimonials: Slide[] = [
     ...(ownReview
-      ? [{ author: getSavedDisplayName('Charlotte'), month: reviewMonth(ownReview.writtenAt), text: ownReview.text, own: true }]
+      ? [{ author: getSavedDisplayName('Charlotte'), month: reviewMonth(ownReview.writtenAt), text: ownReview.text, photos: ownReview.photos, own: true }]
       : []),
     ...testimonialsFor(product).map((testimonial) => ({ ...testimonial, own: false })),
   ]
@@ -102,6 +102,13 @@ function WhatCreatorsSay({ product, ownReview }: { product: Product; ownReview?:
         <blockquote key={index} className={`text-body-lg font-medium text-text-secondary-1000 ${slide}`}>
           "{current.text}"
         </blockquote>
+        {current.photos?.length ? (
+          <div key={`photos-${index}`} className={`flex items-center gap-sm ${slide}`}>
+            {current.photos.slice(0, 3).map((photo, photoIndex) => (
+              <img key={photoIndex} src={photo} alt="" className="size-[48px] shrink-0 rounded-md object-cover" />
+            ))}
+          </div>
+        ) : null}
         <div className="flex w-full items-center justify-between">
           <div key={index} className={`flex items-center gap-md ${slide} ${slide ? 'motion-carousel-trail' : ''}`}>
             <span className="relative size-9 shrink-0">
