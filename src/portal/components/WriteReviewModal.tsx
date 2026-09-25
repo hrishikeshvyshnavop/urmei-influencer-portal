@@ -78,9 +78,11 @@ function scalePhoto(file: File): Promise<string> {
 /**
  * "How would you rate this product?" (Figma `1030:30661`). Opens as the bare
  * 1–10 scale (`1030:30801`); picking a score unfolds the comment box and the
- * optional photos (`1030:30831` onwards). A photo shows a spinner tile while
- * it is read (`1030:30894`), a removable thumbnail once added (`1030:31213`),
- * and "Upload failed" when the file can't be used (`1030:31106`). Submit
+ * optional photos (`1030:30831` onwards). Several photos can be picked at
+ * once; each holds its place as a spinner tile while it is read
+ * (`1030:30894`), then turns into a removable thumbnail (`1030:31213`), and a
+ * file that can't be used drops out with "Upload failed" (`1030:31106`)
+ * while the rest are kept. Picks past the three-photo cap are ignored. Submit
  * needs a score and some text; photos stay optional.
  */
 export default function WriteReviewModal({
@@ -92,8 +94,9 @@ export default function WriteReviewModal({
 }) {
   const [rating, setRating] = useState<number | null>(null);
   const [text, setText] = useState("");
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [uploading, setUploading] = useState(false);
+  // One slot per picked photo, in pick order; `src` is null while it loads.
+  const [slots, setSlots] = useState<{ id: number; src: string | null }[]>([]);
+  const nextSlotId = useRef(0);
   const [uploadFailed, setUploadFailed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -105,20 +108,26 @@ export default function WriteReviewModal({
     };
   }, []);
 
-  async function addPhoto(file: File | undefined) {
-    if (!file) return;
+  function addPhotos(files: File[]) {
+    const picked = files
+      .slice(0, MAX_PHOTOS - slots.length)
+      .map((file) => ({ id: nextSlotId.current++, file }));
+    if (picked.length === 0) return;
     setUploadFailed(false);
-    setUploading(true);
-    try {
-      const photo = await scalePhoto(file);
-      setPhotos((current) => [...current, photo].slice(0, MAX_PHOTOS));
-    } catch {
-      setUploadFailed(true);
-    } finally {
-      setUploading(false);
+    setSlots((current) => [...current, ...picked.map(({ id }) => ({ id, src: null }))]);
+    for (const { id, file } of picked) {
+      scalePhoto(file).then(
+        (src) => setSlots((current) => current.map((slot) => (slot.id === id ? { id, src } : slot))),
+        () => {
+          setSlots((current) => current.filter((slot) => slot.id !== id));
+          setUploadFailed(true);
+        },
+      );
     }
   }
 
+  const photos = slots.flatMap((slot) => (slot.src ? [slot.src] : []));
+  const uploading = slots.length > photos.length;
   const canSubmit = rating !== null && text.trim().length > 0 && !uploading;
 
   return createPortal(
@@ -216,31 +225,34 @@ export default function WriteReviewModal({
                   </div>
 
                   <div className="flex w-full items-center gap-3">
-                    {photos.map((photo, index) => (
-                      <span key={photo} className="relative size-12 shrink-0 rounded-[10px] border border-portal-border">
-                        <img src={photo} alt="" className="size-full rounded-[10px] object-cover" />
-                        <button
-                          type="button"
-                          aria-label={`Remove photo ${index + 1}`}
-                          onClick={() => setPhotos((current) => current.filter((item) => item !== photo))}
-                          className="absolute top-[-9px] left-[31px] flex size-6 cursor-pointer items-center justify-center overflow-clip rounded-full bg-portal-dark p-1"
+                    {slots.map(({ id, src }, index) =>
+                      src ? (
+                        <span key={id} className="relative size-12 shrink-0 rounded-[10px] border border-portal-border">
+                          <img src={src} alt="" className="size-full rounded-[10px] object-cover" />
+                          <button
+                            type="button"
+                            aria-label={`Remove photo ${index + 1}`}
+                            onClick={() => setSlots((current) => current.filter((slot) => slot.id !== id))}
+                            className="absolute top-[-9px] left-[31px] flex size-6 cursor-pointer items-center justify-center overflow-clip rounded-full bg-portal-dark p-1"
+                          >
+                            <img src="/urmei/sample-requests/photo-remove.svg" alt="" width={16} height={16} className="block size-4" />
+                          </button>
+                        </span>
+                      ) : (
+                        <span
+                          key={id}
+                          role="status"
+                          aria-label="Uploading photo"
+                          className="flex shrink-0 items-center rounded-[10px] border border-dashed border-portal-border p-3"
                         >
-                          <img src="/urmei/sample-requests/photo-remove.svg" alt="" width={16} height={16} className="block size-4" />
-                        </button>
-                      </span>
-                    ))}
-                    {uploading ? (
-                      <span
-                        role="status"
-                        aria-label="Uploading photo"
-                        className="flex shrink-0 items-center rounded-[10px] border border-dashed border-portal-border p-3"
-                      >
-                        <img src="/urmei/sample-requests/upload-loader.svg" alt="" width={21} height={21} className="motion-spin-soft block size-[21px]" />
-                      </span>
-                    ) : photos.length < MAX_PHOTOS ? (
+                          <img src="/urmei/sample-requests/upload-loader.svg" alt="" width={21} height={21} className="motion-spin-soft block size-[21px]" />
+                        </span>
+                      ),
+                    )}
+                    {slots.length < MAX_PHOTOS ? (
                       <button
                         type="button"
-                        aria-label="Add photo"
+                        aria-label="Add photos"
                         onClick={() => fileInputRef.current?.click()}
                         className="flex shrink-0 cursor-pointer items-center rounded-[10px] border border-dashed border-portal-border p-3"
                       >
@@ -251,9 +263,10 @@ export default function WriteReviewModal({
                       ref={fileInputRef}
                       type="file"
                       accept="image/*"
+                      multiple
                       className="hidden"
                       onChange={(event) => {
-                        void addPhoto(event.target.files?.[0]);
+                        addPhotos(Array.from(event.target.files ?? []));
                         event.target.value = "";
                       }}
                     />

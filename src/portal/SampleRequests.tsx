@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
 import { SearchField } from "./components/SearchField";
+import ReviewPhotos from "./components/ReviewPhotos";
 import WriteReviewModal from "./components/WriteReviewModal";
 import { Toast } from "../shop/components/Toast";
 import { requestProductTour } from "./tour-status";
@@ -101,7 +102,7 @@ function SampleRequestCard({ request, onWriteReview }: { request: SampleRequest;
     </span>
   );
   const stripClass =
-    "flex w-full items-center gap-3 rounded-[10px] border border-portal-surface bg-portal-light px-4 py-3 drop-shadow-[0px_4px_10px_rgba(0,0,0,0.03)]";
+    "flex w-full gap-3 rounded-[10px] border border-portal-surface bg-portal-light px-4 py-3 drop-shadow-[0px_4px_10px_rgba(0,0,0,0.03)]";
 
   return (
     <article className="overflow-clip rounded-[10px] bg-portal-surface">
@@ -127,15 +128,20 @@ function SampleRequestCard({ request, onWriteReview }: { request: SampleRequest;
           type="button"
           onClick={onWriteReview}
           aria-label={`Add a review for ${request.productName}`}
-          className={`${stripClass} cursor-pointer text-left hover:bg-portal-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-portal-dark`}
+          className={`${stripClass} cursor-pointer items-center text-left hover:bg-portal-surface focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-portal-dark`}
         >
           {star}
           <span className="min-w-0 flex-1 text-body-sm text-portal-muted">Add a review</span>
         </button>
       ) : (
-        <div className={stripClass}>
+        // With photos the star stays level with the first line of text, as on
+        // Your Reviews, instead of centring on the text-and-photos block.
+        <div className={`${stripClass} ${request.review?.photos?.length ? "items-start" : "items-center"}`}>
           {star}
-          <p className="min-w-0 flex-1 text-body-sm text-portal-muted">{request.review?.text}</p>
+          <div className="flex min-w-0 flex-1 flex-col gap-3.5">
+            <p className="text-body-sm text-portal-muted">{request.review?.text}</p>
+            <ReviewPhotos photos={request.review?.photos} />
+          </div>
         </div>
       )}
     </article>
