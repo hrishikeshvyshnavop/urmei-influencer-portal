@@ -1,5 +1,6 @@
 import type { SampleReview } from '../../portal/sample-requests'
 import type { Product } from '../types'
+import { SERUM_PHOTOS } from './reviews'
 
 /** One other creator's word on a product — the PDP's "What Creators Say"
  *  carousel (Figma `1030:25483`). */
@@ -9,6 +10,9 @@ export type CreatorTestimonial = {
   /** "MARCH 2026" — the month the review was written, as the design prints it. */
   month: string
   text: string
+  /** Photos attached to the review, shown as up to three 48px thumbnails
+   *  under the quote (Figma `1030:29096`); most quotes have none. */
+  photos?: string[]
 }
 
 /** Placeholder portraits (randomuser.me), one per creator so no two quotes
@@ -27,6 +31,7 @@ const TESTIMONIALS: CreatorTestimonial[] = [
     avatar: avatar(1),
     month: 'March 2026',
     text: "This serum genuinely transformed my skincare routine — lightweight, fast-absorbing, and gentle enough for daily use. It's one of the few products in my shop I've personally repurchased.",
+    photos: SERUM_PHOTOS,
   },
   {
     author: 'Mei Lin',
