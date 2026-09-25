@@ -8,14 +8,13 @@ import AppHeader from "./AppHeader";
  *  callbacks the header's profile menu needs.
  *
  *  A screen's `<main>` takes `flex-1` to fill whatever height the header
- *  leaves, so a short page still ends on the footer at the bottom of the
- *  window. Don't size it off the viewport (`min-h-[calc(100vh-88px)]`): that
- *  ignores the setup banner under the header and pushes the footer below
- *  the fold.
+ *  leaves. Don't size it off the viewport (`min-h-[calc(100vh-88px)]`): that
+ *  ignores the setup banner under the header.
  *
- *  `footerBelowFold` is the exception, for a screen whose footer should never
- *  share the first screenful (Recent Activities, My Shop, Sample Requests, a request's details page and Your Reviews — see the "Footer below the fold" rule in CLAUDE.md): the header and content fill
- *  at least the whole window, so the footer always starts just under it. */
+ *  Every screen passes `footerBelowFold` ("Footer below the fold" in
+ *  CLAUDE.md): the header and content fill at least the whole window, so the
+ *  footer never shares the first screenful and always starts just under it.
+ *  Without it a short page ends on the footer at the bottom of the window. */
 export default function AppShell({
   children,
   className = "",

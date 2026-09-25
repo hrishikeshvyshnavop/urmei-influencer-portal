@@ -93,6 +93,7 @@ export function ProductStats({
   if (!item) {
     return (
       <AppShell
+        footerBelowFold
         className="bg-surface-secondary-100"
         onShowTour={requestProductTour}
         onShowHelp={() => {
@@ -128,6 +129,7 @@ export function ProductStats({
 
   return (
     <AppShell
+      footerBelowFold
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
       onShowHelp={() => {

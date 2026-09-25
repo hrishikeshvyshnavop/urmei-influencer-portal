@@ -66,6 +66,7 @@ export function StatBreakdown({
 
   return (
     <AppShell
+      footerBelowFold
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
       onShowHelp={() => {

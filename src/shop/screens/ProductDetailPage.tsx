@@ -31,6 +31,7 @@ export function ProductDetailPage({ item, shopMode, onBackToShop, onRequestSampl
 
   return (
     <AppShell
+      footerBelowFold
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate('/help-center') }}

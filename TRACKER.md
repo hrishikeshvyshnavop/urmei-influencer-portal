@@ -27,6 +27,7 @@ Last updated: 2026-09-25
 | T-24 | Keep the footer below the fold on the public storefront (`/shop/view`), however short the shop or product page (`git log --grep T-24`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-25 | Keep the footer below the fold on a sample request's details page (`/sample-requests/<id>`) (`git log --grep T-25`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-26 | Keep the footer below the fold on Your Reviews (`/reviews`), and add the "Footer below the fold" rule to CLAUDE.md (`git log --grep T-26`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-27 | Apply "Footer below the fold" to every remaining page: Home, Help Center, Brands, stat breakdowns, product stats, a My Shop item's page and the in-app storefront preview (`git log --grep T-27`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-24 | Pick several photos at once when writing a review — each loads in its own spinner tile, picks past the 3-photo cap are ignored, and a broken file drops out while the rest are kept (`git log --grep T-24`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 
 ## Shipped to `main`
