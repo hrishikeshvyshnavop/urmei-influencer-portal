@@ -239,7 +239,10 @@ export default function TextField({
         ) : null}
       </div>
       {error ? (
-        <p className="text-body-xs text-portal-alert" role="alert">
+        // The Inputbox error variant carries the same info glyph as the hint
+        // (Figma `2660:54172`), at 4px rather than the hint's 2px.
+        <p className="flex items-center gap-1 text-body-xs text-portal-alert" role="alert">
+          <Info aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.5} />
           {error}
         </p>
       ) : hint ? (

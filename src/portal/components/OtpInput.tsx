@@ -9,6 +9,10 @@ type OtpInputProps = {
   /** Fires with the digits entered so far, e.g. `"2304"`. */
   onChange: (code: string) => void;
   autoFocus?: boolean;
+  /** Rings every box red — the code as a whole was wrong (Figma `2660:54281`). */
+  error?: boolean;
+  /** Locks the row, e.g. after too many wrong codes (Figma `2660:54384`). */
+  disabled?: boolean;
 };
 
 /**
@@ -21,7 +25,13 @@ type OtpInputProps = {
  * left. The caller clears the row by remounting it with a new `key`, which is
  * what "Resend OTP" does.
  */
-export default function OtpInput({ label, onChange, autoFocus = false }: OtpInputProps) {
+export default function OtpInput({
+  label,
+  onChange,
+  autoFocus = false,
+  error = false,
+  disabled = false,
+}: OtpInputProps) {
   const boxes = useRef<Array<HTMLInputElement | null>>([]);
   const [digits, setDigits] = useState<string[]>(() =>
     Array.from({ length: OTP_LENGTH }, () => ""),
@@ -75,6 +85,8 @@ export default function OtpInput({ label, onChange, autoFocus = false }: OtpInpu
           // character, so the length is enforced in `write` instead.
           aria-label={`${label} digit ${index + 1} of ${OTP_LENGTH}`}
           autoFocus={autoFocus && index === 0}
+          disabled={disabled}
+          aria-invalid={error || undefined}
           value={digit}
           onChange={(event) => write(index, event.target.value)}
           onKeyDown={(event) => {
@@ -90,8 +102,10 @@ export default function OtpInput({ label, onChange, autoFocus = false }: OtpInpu
             }
           }}
           onFocus={(event) => event.currentTarget.select()}
-          className={`flex h-12 min-w-px flex-1 items-center justify-center rounded-[6px] border border-solid bg-portal-light px-4 py-3 text-center text-body-md font-medium text-portal-text outline-none transition-[border-color,box-shadow] duration-200 focus:border-portal-dark focus:ring-2 focus:ring-portal-surface ${
-            digit ? "border-portal-body" : "border-portal-border"
+          className={`flex h-12 min-w-px flex-1 items-center justify-center rounded-[6px] border border-solid bg-portal-light px-4 py-3 text-center text-body-md font-medium text-portal-text outline-none transition-[border-color,box-shadow] duration-200 focus:ring-2 focus:ring-portal-surface disabled:cursor-not-allowed ${
+            error
+              ? "border-portal-alert focus:border-portal-alert"
+              : `focus:border-portal-dark ${digit ? "border-portal-body" : "border-portal-border"}`
           }`}
         />
       ))}

@@ -21,10 +21,14 @@ export function IdentityVerificationCard({
   status,
   onStart,
   onRestart,
+  disabled = false,
 }: {
   status: StepStatus;
   onStart: () => void;
   onRestart: () => void;
+  /** Holds "Start verification" until the personal details it checks
+   *  against are filled in (Figma `2660:53901`). */
+  disabled?: boolean;
 }) {
   return (
     <div className="flex w-full flex-col items-start gap-[6px]">
@@ -118,7 +122,7 @@ export function IdentityVerificationCard({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <Button variant="portal" onClick={onStart}>
+              <Button variant="portal" onClick={onStart} disabled={disabled}>
                 Start verification
               </Button>
               <p className="text-body-xs whitespace-nowrap text-portal-muted">
