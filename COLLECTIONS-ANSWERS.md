@@ -16,7 +16,7 @@ Answered 2026-10-06. Requirement and full options: `REQUIREMENT-COLLECTIONS.md`.
 | 6 | Cover image | None; shown through its first few product images |
 | 7 | Reordering | Not in the MVP; newest first |
 | 8 | Deleting a collection | Products stay in My Shop |
-| 9 | Hiding a collection | Each collection has its own visible/hidden toggle |
+| 9 | Hiding a collection | No hide feature: every collection shows once the shop is published (changed 2026-10-06) |
 | 10 | Adding products | Only from products already in My Shop |
 | 11 | Storefront | Pinterest-style board grid; opening a board shows its products |
 | 12 | Shareable link | Each collection gets its own link, e.g. `/shop/view/<collection>` |
@@ -57,7 +57,9 @@ Not in the MVP. The newest comes first.
 They stay in My Shop. Only the grouping is removed.
 
 **Q9. Can a creator hide one collection without unpublishing the whole shop?**
-Yes. Each collection has its own visible/hidden toggle.
+No. Every collection goes live when the shop is published. There is no hidden state, badge or "Hide from storefront" action.
+
+_Changed 2026-10-06: the first answer was a per-collection visible/hidden toggle._
 
 **Q10. Where are products added to a collection from?**
 Only from products already in My Shop.

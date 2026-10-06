@@ -49,7 +49,7 @@ Follow-up from Nelson Seh:
 | Cover image | None; first few product images |
 | Reordering | Not in MVP; newest first |
 | Deleting a collection | Products stay in My Shop |
-| Hiding a collection | Per-collection visible/hidden toggle |
+| Hiding a collection | **No hide feature** (changed 2026-10-06): every collection shows on the storefront once the shop is published |
 | Adding products | Only from My Shop |
 | Storefront | Pinterest-style board grid; a board opens its products |
 | Shareable link | Each collection gets its own link, e.g. `/shop/view/<collection>` |
@@ -58,7 +58,7 @@ Follow-up from Nelson Seh:
 | Stats / activity log | Neither in MVP |
 | Post-MVP photos/videos, "follow a creator" | Undecided |
 
-Note: the board grid, per-collection links and hide toggle go beyond the client's "not too many adjustments" for the MVP.
+Note: the board grid and per-collection links go beyond the client's "not too many adjustments" for the MVP.
 
 **Current scope: Figma designs only.** Design every screen the decisions above need, desktop and mobile, in the Work File. The codebase does not change until the designs are approved and a new task is opened for the build.
 
@@ -130,7 +130,9 @@ Each question lists its options, followed by the answer chosen on 2026-10-06.
 - b) No, every collection goes live when the shop is published
 - c) Collections can be saved as drafts and published one at a time
 
-**Answer:** a) Yes, each collection has its own visible or hidden toggle
+**Answer:** b) No. Every collection goes live when the shop is published.
+
+_Changed 2026-10-06: the first answer was a) a per-collection visible/hidden toggle. It was dropped, so there is no hidden state, badge or "Hide from storefront" action._
 
 **Q10. Where are products added to a collection from?**
 - a) Only from products already in My Shop
