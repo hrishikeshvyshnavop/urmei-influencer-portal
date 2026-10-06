@@ -32,6 +32,11 @@ Last updated: 2026-10-06.
 | [Collections] Flow — Empty Collection Page \| 06.10.26 | Flows | `2780:67176` | ✅ |
 | [Collections] Flow — Copy Collection Link \| 06.10.26 | Flows | `2781:67699` | ✅ |
 | [Collections] Flow — Storefront Without Collections \| 06.10.26 | Flows | `2782:68420` | 🟡 |
+| [Collections] Flow — Unpublished Shop \| 06.10.26 | Flows | `2786:68996` | 🟡 |
+| [Collections] Flow — Favorites Are Now Collections \| 06.10.26 | Flows | `2787:69374` | 🟡 |
+| [Collections] Flow — Collection Name Errors \| 06.10.26 | Flows | `2788:69743` | 🟡 |
+| [Collections] Flow — Storefront Preview \| 06.10.26 | Flows | `2788:239935` | 🟡 |
+| [Collections] Flow — Edit and Delete from Collection Page \| 06.10.26 | Flows | `2789:70752` | 🟡 |
 | Collections — Mobile (WIP) \| 06.10.26 | Hrishi Workspace `751:80091` | `2767:51554` | 🧪 |
 
 ## Flows
@@ -156,6 +161,54 @@ Section `2782:68420`.
     3. Nothing in it is available in the shopper's market.
     4. It was renamed, if the link is built from the name. This is open decision 8.
 
+### Flow 5: Unpublished shop 🟡
+
+Section `2786:68996`. The shop has never been published, so it has no live links. This follows the existing `hasLiveLink` rule.
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.22 | Collection page: Shop Info card shows "Publish shop to get your URL" and Publish Shop; Copy Link disabled (annotation) | `2786:69003` | ⬜ |
+| 11.23 | Board ⋮ menu: Copy collection link greyed out; Edit and Delete still work (annotation) | `2786:69408` | ⬜ |
+
+### Flow 6: Favorites are now Collections 🟡
+
+Section `2787:69374`. An existing creator's first visit after launch (Q13).
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.24 | All Picks with the `Notification Banner` component: "Favorites are now Collections…", a **View Collections** action, and a badge on the Collections tab | `2787:69381` | ⬜ |
+| 11.25 | Collections tab after View Collections; annotation on the migrated "Favourites" (old order, #1, banner shows once) | `2787:69782` | ⬜ |
+
+### Flow 7: Collection name errors 🟡
+
+Section `2788:69743`. Uses the `Inputbox` Error variant. The same errors apply in Edit (11.4).
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.26 | Name required: "Enter a collection name" | `2788:69750` | ⬜ |
+| 11.27 | Too long: "45/40 · Use 40 characters or fewer" | `2788:70108` | ⬜ |
+| 11.28 | Duplicate: "You already have a collection called …"; Development annotation (open decision 9) | `2788:70448` | ⬜ |
+
+### Flow 8: Storefront preview 🟡
+
+Section `2788:239935`.
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.29 | Collections grid: cursor on Preview Storefront | `2788:239942` | ⬜ |
+| 11.30 | "Your shop preview": Favorite Picks replaced by the Collections row from 04.1, in the creator's order, empty ones hidden (annotation) | `2788:240237` | ⬜ |
+
+### Flow 9: Edit and delete from the collection page 🟡
+
+Section `2789:70752`.
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.31 | Edit Details opens the Edit dialog over the collection page (Favourites, 10/40, 48/100) | `2789:70759` | ⬜ |
+| 11.32 | ⋮ menu under the more button: Delete collection | `2789:70963` | ⬜ |
+| 11.33 | Delete confirmation: "Favourites" will be removed; its 4 products stay | `2789:71394` | ⬜ |
+| 11.34 | Back on the grid, Collections (2), positions renumbered, toast "Favourites deleted. Its products are still in your shop." | `2789:71559` | ⬜ |
+
 ### Reordering in the approved flows (2026-10-06)
 
 The grids in 11.14 (`2779:67017`), 11.15 (`2780:67183`), 11.20 (`2781:68015`) and 11.21 (`2781:68313`) now show the "#n on storefront" strip. The empty board reads "Not on storefront yet".
@@ -180,3 +233,4 @@ These are also on the review notes panel `2764:66588`:
 6. Breadcrumbs on product pages stay category-based.
 7. ~~Reordering~~: decided 2026-10-06. It's in scope (Flow F).
 8. **Collection link format (dev):** if the link is built from the collection name, renaming breaks every link already shared. Use a fixed id in the link, or redirect old links to the new name.
+9. **Unique collection names:** we assumed names must be unique per creator, ignoring case. This keeps links unique (11.28). Confirm with the client.
