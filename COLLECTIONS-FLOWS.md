@@ -120,7 +120,7 @@ New screens added on 2026-10-06: 01.3 Collection Created toast `2801:71721`, 02.
 
 Covers are named `NN.0 <Sub-section> — Cover`. **Every** sub-section now uses the `Cover` component with a path-style title, e.g. "Board ⋮ → Delete collection → Delete" (clean-up, 2026-10-06).
 
-**Product page: remove from a collection (2026-10-06).** On the creator product page, each collection chip now has a ✕ (library `x` icon, coloured `typography/color/secondary/700`). The chip's gap and padding use `spacing/sm` and `spacing/md-sm`. Clicking ✕ removes the product from that collection only; it stays in the shop. Clicking the chip still opens the collection.
+**Product page: remove from a collection (2026-10-06).** On the creator product page, each collection chip now has a ✕. It's the library **`_Tag x close`** (Size=lg, resized to 18×18 with a 14px icon), the same close the applied-filter tags in Search & Filter use. The first version used the raw 24px `x` icon, which looked too big and was replaced. The chip's gap and padding use `spacing/sm` and `spacing/md-sm`. Clicking ✕ removes the product from that collection only; it stays in the shop. Clicking the chip still opens the collection.
 - **New screens:** 07.2 cursor on the ✕ of "My morning routine" (`2813:256881`), then 07.3 showing "In 1 collection" and the toast "Removed from My morning routine. Still in your shop." (`2813:256997`).
 - **Annotation and cover:** the 07.1 "New" annotation mentions the ✕, and the cover now reads "My Shop → product page → add to or remove from a collection".
 
