@@ -27,10 +27,11 @@ Last updated: 2026-10-06.
 | › Review notes panel | | `2764:66588` | 🔒 |
 | › 11 - Collections in My Shop | | `2764:66613` | 🔒 |
 | › 04 - Creator Collections on the Storefront | | `2757:65060` | 🔒 |
-| [Collections] Add-on — Reorder Collections \| 06.10.26 | Flows | `2771:66587` | 💡 |
+| [Collections] Flow — Reorder Collections \| 06.10.26 | Flows | `2771:66587` | 🟡 |
 | [Collections] Flow — Collection Detail \| 06.10.26 | Flows | `2777:67314` | ✅ |
 | [Collections] Flow — Empty Collection Page \| 06.10.26 | Flows | `2780:67176` | ✅ |
-| [Collections] Flow — Copy Collection Link \| 06.10.26 | Flows | `2781:67699` | 🟡 |
+| [Collections] Flow — Copy Collection Link \| 06.10.26 | Flows | `2781:67699` | ✅ |
+| [Collections] Flow — Storefront Without Collections \| 06.10.26 | Flows | `2782:68420` | 🟡 |
 | Collections — Mobile (WIP) \| 06.10.26 | Hrishi Workspace `751:80091` | `2767:51554` | 🧪 |
 
 ## Flows
@@ -87,13 +88,14 @@ Section `2757:65060`. Cover `2757:65061`.
 | 04.2 | Collection page at its own link | `2757:65695` | `2770:53181` |
 | 04.3 | Product page opened from a collection | `2763:66163` | `2770:53816` |
 
-### Flow F: Reorder collections 💡
+### Flow F: Reorder collections 🟡 (in scope since 2026-10-06)
 
-Section `2771:66587`. Conflicts with Q7 ("no reordering in the MVP"). Keep it out of the review until the client agrees.
+Section `2771:66587`, renamed from "Add-on". Cover `2783:69343`. Q7 is now updated: creators set the order and the storefront follows it. Every Collections grid in Flows 1–3 now shows the position strip. Review Round 1 is locked and does not have it yet.
 
 | # | Screen | Desktop | Mobile |
 |---|---|---|---|
-| 11.10 | Position strip "#n on storefront" with ‹ › arrows (the existing Reorder Favorite pattern) | `2771:66588` | ⬜ |
+| 11.10 | Position strip "#n on storefront" with ‹ › arrows (the existing Reorder Favorite pattern); cursor on a › | `2771:66588` | ⬜ |
+| 11.10a | After the move: My morning routine now #3, toast "My morning routine moved to #3" | `2783:69022` | ⬜ |
 
 ### Flow 1: Collection detail ✅ (approved 2026-10-06)
 
@@ -116,7 +118,7 @@ Section `2780:67176`. Cover `2780:67177`.
 | 11.16 | Empty collection page: "0 products", Copy Link disabled (hidden from shoppers), empty box, Go to All Picks | `2780:67260` | ⬜ |
 | 11.17 | All Picks tab after Go to All Picks, cursor on a product's ⋮ (continues into Flow B) | `2780:67668` | ⬜ |
 
-### Flow 3: Copy collection link 🟡
+### Flow 3: Copy collection link ✅ (approved 2026-10-06)
 
 Section `2781:67699`. Cover `2781:67700`. A creator can copy a collection's link from two places.
 
@@ -127,11 +129,24 @@ Section `2781:67699`. Cover `2781:67700`. A creator can copy a collection's link
 | 11.20 | Collections grid › board ⋮ menu: Copy collection link (hover) | `2781:68015` | ⬜ |
 | 11.21 | Grid with toast "Link to My morning routine copied" | `2781:68313` | ⬜ |
 
+### Flow 4: Storefront without collections 🟡
+
+Section `2782:68420`.
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 04.4 | Storefront when a creator has no collections, or all are empty: the Collections row is hidden | `2782:68431` | ⬜ |
+| 04.5 | A shared link to a deleted or empty collection: "This collection isn't available", a Visit Charlotte's Storefront button, and More collections from Charlotte | `2782:68945` | ⬜ |
+
+### Reordering in the approved flows (2026-10-06)
+
+The grids in 11.14 (`2779:67017`), 11.15 (`2780:67183`), 11.20 (`2781:68015`) and 11.21 (`2781:68313`) now show the "#n on storefront" strip. The empty board reads "Not on storefront yet".
+
 ## Planned (one at a time, after approval)
 
 | Flow | Screens | Status |
 |---|---|---|
-| 4 | Storefront with no collections (the collections row is hidden) | ⬜ |
+| — | Show reordering in the next client review round (Round 1 is locked) | ⬜ |
 | — | Mobile for Flow 1 and Flow F | ⬜ |
 | — | Move the mobile WIP frames into review once approved | ⬜ |
 
@@ -145,4 +160,4 @@ These are also on the review notes panel `2764:66588`:
 4. The shopper top bar names the collection only when the shopper arrives from it.
 5. The product page row shows only the collections that contain the product.
 6. Breadcrumbs on product pages stay category-based.
-7. Reordering (Flow F): does the client want it in the MVP?
+7. ~~Reordering~~: decided 2026-10-06. It's in scope (Flow F).

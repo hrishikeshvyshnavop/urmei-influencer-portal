@@ -47,7 +47,7 @@ Follow-up from Nelson Seh:
 | New shop | Starts with one "Favourites" collection, renamable |
 | Name / description | Name required (max 40), description optional (max 100) |
 | Cover image | None; first few product images |
-| Reordering | Not in MVP; newest first |
+| Reordering | **Creators set the order with ‹ › arrows; the storefront follows it** (changed 2026-10-06) |
 | Deleting a collection | Products stay in My Shop |
 | Hiding a collection | **No hide feature** (changed 2026-10-06): every collection shows on the storefront once the shop is published |
 | Adding products | Only from My Shop |
@@ -116,7 +116,9 @@ Each question lists its options, followed by the answer chosen on 2026-10-06.
 - b) Collections only; products stay in the order they were added
 - c) Not in the MVP: newest first
 
-**Answer:** c) Not in the MVP: newest first
+**Answer:** b) Collections only, by arrows, not drag and drop. Creators set the order of their collections with the ‹ › arrows under each board. The storefront shows collections in that order. A new collection starts at #1 and can be moved; an empty one says "Not on storefront yet" until it has a product. Each move saves at once (toast "<collection> moved to #n"). Products inside a collection are not reordered in the MVP.
+
+_Changed 2026-10-06: the first answer was c) not in the MVP, newest first._
 
 **Q8. What happens to the products when a collection is deleted?**
 - a) They stay in My Shop; only the grouping is removed
@@ -261,6 +263,12 @@ The locked final design is the main file's page `794:24650` (`cehltPtMoGWEtKbF7k
 4. **Shopper top bar:** it names the collection only when the shopper arrives from it, and otherwise keeps "[Creator]'s Picks".
 5. **Product page row:** it shows only the collections that contain the product, not all of the creator's collections.
 6. **Breadcrumbs:** they stay category-based on product pages (see above).
+
+### Reordering (added 2026-10-06)
+
+- Reordering is now in scope, using the pattern from 11.10, which is the old Reorder Favorite strip: "#n on storefront" with ‹ › arrows under each board. There's no separate reorder mode.
+- Flows 1–3 were updated so every Collections grid shows the strip.
+- The locked Review Round 1 section was **not** changed, so the client hasn't seen reordering yet. Show it in the next review round.
 
 ### Not designed yet
 
