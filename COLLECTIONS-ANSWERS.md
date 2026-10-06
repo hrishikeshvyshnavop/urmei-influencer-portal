@@ -51,7 +51,7 @@ No. A collection is shown through its first few product images.
 ### Managing collections
 
 **Q7. Can creators reorder collections and the products inside them?**
-Yes, for collections. Creators set the order of their collections with the ‹ › arrows under each board. The storefront shows collections in that order. A new collection starts at #1 and can be moved; an empty one says "Not on storefront yet" until it has a product. Each move saves at once (toast "<collection> moved to #n"). Products inside a collection are not reordered in the MVP.
+Yes, for collections. Creators set the order of their collections with the ‹ › arrows under each board. The storefront shows collections in that order. A new collection starts at #1 and can be moved; an empty one says "Not on storefront yet" until it has a product. Each move saves at once with **no toast**: the board moving is the feedback, as in the old Reorder Favorite flow (decided 2026-10-06). If saving fails, the order snaps back with the old error toast, "Couldn't save the new order, we put it back the way it was". Products inside a collection are not reordered in the MVP.
 
 _Changed 2026-10-06: the first answer was "not in the MVP, newest first"._
 

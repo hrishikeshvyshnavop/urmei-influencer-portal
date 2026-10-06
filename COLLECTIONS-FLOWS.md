@@ -35,20 +35,21 @@ Every Collections design is in **one section** on the flows page `2650:50683`: *
 | 07 | Creator Product Page | `2792:108199` | D |
 | 08 | Open Collection & Remove a Product | `2777:67314` | 1 |
 | 09 | Empty Collection Page | `2780:67176` | 2 |
-| 10 | Edit and Delete from Collection Page | `2789:70752` | 9 |
-| 11 | Reorder Collections | `2771:66587` | F |
-| 12 | Copy Collection Link | `2781:67699` | 3 |
-| 13 | Unpublished Shop | `2786:68996` | 5 |
-| 14 | Storefront Preview | `2788:239935` | 8 |
-| 15 | Collections on the Storefront | `2757:65060` | E |
-| 16 | Storefront Without Collections | `2782:68420` | 4 |
+| 10 | Edit from Collection Page | `2805:249371` | 9 |
+| 11 | Delete from Collection Page | `2789:70752` | 9 |
+| 12 | Reorder Collections | `2771:66587` | F |
+| 13 | Copy Collection Link | `2781:67699` | 3 |
+| 14 | Unpublished Shop | `2786:68996` | 5 |
+| 15 | Storefront Preview | `2788:239935` | 8 |
+| 16 | Collections on the Storefront | `2757:65060` | E |
+| 17 | Storefront Without Collections | `2782:68420` | 4 |
 
 Journey groups:
 - **Managing collections:** 01–04, Create, Edit and Delete (split out of the old "Collections" sub-section on 2026-10-06), then Empty Collections
 - **Filling a collection:** 05–07
-- **Inside a collection:** 08–11
-- **Sharing:** 12–14
-- **Shopper:** 15–16
+- **Inside a collection:** 08–12
+- **Sharing:** 13–15
+- **Shopper:** 16–17
 
 > Order check: sub-sections 04–07 now read Empty Collections → Add to Collection → Name Errors → Creator Product Page. They appear to have been moved in Figma after the approved order, which was Name Errors → Empty → Product Page → Add. The current Figma order is kept.
 
@@ -91,7 +92,6 @@ Frames were renamed to `NN.S <Sub-section> — <State> — <Device>` to match th
 | 11.33 | 10.3 | `2789:71394` |
 | 11.34 | 10.4 | `2789:71559` |
 | 11.10 | 11.1 | `2771:66588` |
-| 11.10a | 11.2 | `2783:69022` |
 | 11.18 | 12.1 | `2781:67717` |
 | 11.19 | 12.2 | `2781:67860` |
 | 11.20 | 12.3 | `2781:68015` |
@@ -114,7 +114,9 @@ New screens added on 2026-10-06: 01.3 Collection Created toast `2801:71721`, 02.
   - **Edit:** 10.1 page with the cursor on Edit Details `2803:72325` → 10.2 Edit dialog ("Favourites" renamed to "My all-time favourites") → 10.3 page with the new name and a "Collection updated" toast `2803:72698`.
   - **Delete:** 10.4 page with the cursor on ⋮ `2803:73083` → 10.5 menu → 10.6 confirmation → 10.7 grid with a "deleted" toast.
 - **12 Copy Collection Link** now has two rows, each with a Cover: from the collection page (12.1–12.2), and from the board ⋮ menu (12.3–12.4).
-- **11 Reorder Collections, toast check:** the old Reorder Favorite flow showed **no** success toast after a move, only an error toast ("Couldn't save the new order, we put it back the way it was"). Ours shows a success toast (11.2) and has no error state yet. The proposal is to match the old behaviour; waiting on the user.
+- **12 Reorder Collections, no toast after a move (decided 2026-10-06):** to match the old Reorder Favorite flow, the screen after the order change, with its "moved to #n" toast, was removed (`2783:69022`). The flow is now the cover plus 12.1. A failed save would use the old error toast ("Couldn't save the new order, we put it back the way it was"). That screen isn't drawn yet.
+- **Split, 2026-10-06:** "Edit and Delete from Collection Page" is now two sub-sections, **10 Edit from Collection Page** (`2805:249371`) and **11 Delete from Collection Page** (`2789:70752`), each with its own cover.
+- **Disabled states, 2026-10-06:** a disabled button always uses the Button component's `State=Disabled` variant, never opacity. That's how the file builds Preview Storefront, Publish shop and the old Favorites arrows. The 22 end-of-row ‹ › reorder arrows were switched from 40% opacity to `Button=Outlined icon, Size=sm, State=Disabled`. Copy Link (14.1) already used `Button=Outlined, Size=md, State=Disabled`. One exception: `Item Dropdown` has no Disabled state, so the greyed "Copy collection link" menu item (14.2) still uses opacity until a Disabled state is added to that component.
 
 Covers are named `NN.0 <Sub-section> — Cover` and use the `Cover` component (path-style title) in 01–05.
 
@@ -187,7 +189,6 @@ Section `2771:66587`, renamed from "Add-on". Cover `2783:69343`. Q7 is now updat
 | # | Screen | Desktop | Mobile |
 |---|---|---|---|
 | 11.10 | Position strip "#n on storefront" with ‹ › arrows (the existing Reorder Favorite pattern); cursor on a › | `2771:66588` | ⬜ |
-| 11.10a | After the move: My morning routine now #3, toast "My morning routine moved to #3" | `2783:69022` | ⬜ |
 
 ### Flow 1: Open collection & remove a product ✅ (approved 2026-10-06; renamed from "Collection Detail")
 

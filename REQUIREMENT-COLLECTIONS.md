@@ -116,7 +116,7 @@ Each question lists its options, followed by the answer chosen on 2026-10-06.
 - b) Collections only; products stay in the order they were added
 - c) Not in the MVP: newest first
 
-**Answer:** b) Collections only, by arrows, not drag and drop. Creators set the order of their collections with the ‹ › arrows under each board. The storefront shows collections in that order. A new collection starts at #1 and can be moved; an empty one says "Not on storefront yet" until it has a product. Each move saves at once (toast "<collection> moved to #n"). Products inside a collection are not reordered in the MVP.
+**Answer:** b) Collections only, by arrows, not drag and drop. Creators set the order of their collections with the ‹ › arrows under each board. The storefront shows collections in that order. A new collection starts at #1 and can be moved; an empty one says "Not on storefront yet" until it has a product. Each move saves at once with **no toast**: the board moving is the feedback, as in the old Reorder Favorite flow (decided 2026-10-06). If saving fails, the order snaps back with the old error toast, "Couldn't save the new order, we put it back the way it was". Products inside a collection are not reordered in the MVP.
 
 _Changed 2026-10-06: the first answer was c) not in the MVP, newest first._
 
