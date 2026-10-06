@@ -33,7 +33,7 @@ Every Collections design is in **one section** on the flows page `2650:50683`: *
 | 05 | Add to Collection | `2792:71522` | B |
 | 06 | Collection Name Errors | `2788:69743` | 7 |
 | 07 | Creator Product Page | `2792:108199` | D |
-| 08 | Collection Detail | `2777:67314` | 1 |
+| 08 | Open Collection & Remove a Product | `2777:67314` | 1 |
 | 09 | Empty Collection Page | `2780:67176` | 2 |
 | 10 | Edit and Delete from Collection Page | `2789:70752` | 9 |
 | 11 | Reorder Collections | `2771:66587` | F |
@@ -181,7 +181,7 @@ Section `2771:66587`, renamed from "Add-on". Cover `2783:69343`. Q7 is now updat
 | 11.10 | Position strip "#n on storefront" with ‹ › arrows (the existing Reorder Favorite pattern); cursor on a › | `2771:66588` | ⬜ |
 | 11.10a | After the move: My morning routine now #3, toast "My morning routine moved to #3" | `2783:69022` | ⬜ |
 
-### Flow 1: Collection detail ✅ (approved 2026-10-06)
+### Flow 1: Open collection & remove a product ✅ (approved 2026-10-06; renamed from "Collection Detail")
 
 Section `2777:67314`. Cover `2777:67315`.
 
