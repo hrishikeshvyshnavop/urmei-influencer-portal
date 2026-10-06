@@ -47,6 +47,7 @@ How a client change goes from message to design to build. It's based on the Coll
 - **Tokens:** bind spacing and padding to `spacing/*`, radius to `border/radius/*`, and colours to library variables.
 - **Annotations:** use the file's `Annotation` component, one simple sentence each, with the dot on the exact element. The card sits outside the screen; stretch the leader if needed. Category is Info, or Development for dev decisions.
 - **Toasts:** reversible removals get **Undo** (Toast `Show Button` → "Undo") and no confirmation dialog. Confirmation dialogs are only for destructive actions (delete, remove from shop).
+- **Empty states:** clone the "Favorite Slot 1 / Empty" box (Work File copy of the main file's 03.6 "Your shop is empty", `1347:38109`). It has a dashed box, a 64px icon well with a library icon, a Medium 20 title and Regular 12 body (hugging, no wrap), and a primary button, or an outlined one inside a dialog. Make the page containers hug so the footer moves down.
 - **Frames:** full pages end at the footer, with no clipping and no blank strip below it. Dialog views are 1440×900 (desktop) or 375×812 (mobile).
 - **Check:** take one screenshot per finished flow, and fix what it shows before reporting.
 

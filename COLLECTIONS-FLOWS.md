@@ -134,6 +134,19 @@ Covers are named `NN.0 <Sub-section> — Cover`. **Every** sub-section now uses 
 
 **Footer spacing (15.2):** the storefront preview frame had a fixed height that left 104px blank under the footer. It now hugs its content. No other Collections screen had the same gap.
 
+**Empty states, matched to the main design (2026-10-06).** The pattern comes from "Your shop is empty" on 03.6 Publish Shop (main file `1347:38109`; the Work File copy is the "Favorite Slot 1 / Empty" box):
+- **Box:** a dashed box (2px, 8/6 dash, 10px corners, surface fill).
+- **Icon:** a 64px round icon well.
+- **Text:** a Medium 20 title over a Regular 12 body, from tokens. Both hug their text and don't wrap.
+- **Action:** a primary button.
+
+Our three empty states were rebuilt from that box:
+- **04.1 No collections:** `layout-grid` icon, "No collections yet", **+ New Collection**.
+- **09.2 Empty collection page:** `shopping-bag` icon, "No products in this collection yet", **Go to All Picks**. Its page container now hugs, so the footer sits below the box.
+- **05.8 Add to collection dialog:** same pattern, compact (300px). The button is **outlined** so it doesn't compete with the dialog's Save.
+
+The mobile WIP empty states on Hrishi Workspace still use the old dashed box.
+
 **Clean-up, 2026-10-06:**
 - **Covers:** the 7 old-style covers (04, 06, 09, 12, 14, 15, 16) were replaced with the Cover component.
 - **Annotation names:** 7 were renumbered to their current screen, e.g. `Annotation / 06.3`.
