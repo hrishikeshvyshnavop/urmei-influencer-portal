@@ -13,6 +13,7 @@ Last updated: 2026-10-06.
 | Status | Meaning |
 |---|---|
 | 🔒 In review | In `[Collections] Review Round 1`. Locked: don't edit. |
+| ✅ Approved | Approved by you; not in client review yet. |
 | 🟡 Awaiting approval | Built and waiting for your go-ahead. |
 | 🧪 WIP | Draft on Hrishi Workspace. Not in review yet. |
 | 💡 Add-on | Outside the agreed decisions. Needs client sign-off. |
@@ -27,7 +28,8 @@ Last updated: 2026-10-06.
 | › 11 - Collections in My Shop | | `2764:66613` | 🔒 |
 | › 04 - Creator Collections on the Storefront | | `2757:65060` | 🔒 |
 | [Collections] Add-on — Reorder Collections \| 06.10.26 | Flows | `2771:66587` | 💡 |
-| [Collections] Flow — Collection Detail \| 06.10.26 | Flows | `2777:67314` | 🟡 |
+| [Collections] Flow — Collection Detail \| 06.10.26 | Flows | `2777:67314` | ✅ |
+| [Collections] Flow — Empty Collection Page \| 06.10.26 | Flows | `2780:67176` | 🟡 |
 | Collections — Mobile (WIP) \| 06.10.26 | Hrishi Workspace `751:80091` | `2767:51554` | 🧪 |
 
 ## Flows
@@ -92,7 +94,7 @@ Section `2771:66587`. Conflicts with Q7 ("no reordering in the MVP"). Keep it ou
 |---|---|---|---|
 | 11.10 | Position strip "#n on storefront" with ‹ › arrows (the existing Reorder Favorite pattern) | `2771:66588` | ⬜ |
 
-### Flow 1: Collection detail 🟡
+### Flow 1: Collection detail ✅ (approved 2026-10-06)
 
 Section `2777:67314`. Cover `2777:67315`.
 
@@ -103,11 +105,20 @@ Section `2777:67314`. Cover `2777:67315`.
 | 11.13 | Toast "Removed from Favourites. Still in your shop." Cursor on All collections. | `2777:68123` | ⬜ |
 | 11.14 | Back to All Collections: the grid, Favourites now 3 products | `2779:67017` | ⬜ |
 
+### Flow 2: Empty collection page 🟡
+
+Section `2780:67176`. Cover `2780:67177`.
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.15 | Collections grid (4): the creator opens the empty "Night-time reset" board | `2780:67183` | ⬜ |
+| 11.16 | Empty collection page: "0 products", Copy Link disabled (hidden from shoppers), empty box, Go to All Picks | `2780:67260` | ⬜ |
+| 11.17 | All Picks tab after Go to All Picks, cursor on a product's ⋮ (continues into Flow B) | `2780:67668` | ⬜ |
+
 ## Planned (one at a time, after approval)
 
 | Flow | Screens | Status |
 |---|---|---|
-| 2 | Empty collection page (0 products, Go to All Picks) | ⬜ |
 | 3 | Copy collection link confirmation | ⬜ |
 | 4 | Storefront with no collections (the collections row is hidden) | ⬜ |
 | — | Mobile for Flow 1 and Flow F | ⬜ |
