@@ -39,6 +39,26 @@ Last updated: 2026-10-06.
 | [Collections] Flow — Edit and Delete from Collection Page \| 06.10.26 | Flows | `2789:70752` | 🟡 |
 | Collections — Mobile (WIP) \| 06.10.26 | Hrishi Workspace `751:80091` | `2767:51554` | 🧪 |
 
+## Layout on the flows page
+
+The Collections sections sit in **one vertical column** at the right of the flows page (`2650:50683`). Left edges are aligned at x = 67298, with 400px between sections, read top to bottom. Review Round 1 stayed where it was. Only the other sections were moved, and nothing inside any section changed (2026-10-06).
+
+| # | Section | Id | Flow |
+|---|---|---|---|
+| 1 | [Collections] Review Round 1 | `2764:66587` | A–E (locked) |
+| 2 | Flow — Reorder Collections | `2771:66587` | F |
+| 3 | Flow — Collection Detail | `2777:67314` | 1 |
+| 4 | Flow — Empty Collection Page | `2780:67176` | 2 |
+| 5 | Flow — Copy Collection Link | `2781:67699` | 3 |
+| 6 | Flow — Storefront Without Collections | `2782:68420` | 4 |
+| 7 | Flow — Unpublished Shop | `2786:68996` | 5 |
+| 8 | Flow — Favorites Are Now Collections | `2787:69374` | 6 |
+| 9 | Flow — Collection Name Errors | `2788:69743` | 7 |
+| 10 | Flow — Storefront Preview | `2788:239935` | 8 |
+| 11 | Flow — Edit and Delete from Collection Page | `2789:70752` | 9 |
+
+New Collections sections go at the bottom of this column, 400px below the last one. Mobile drafts stay on Hrishi Workspace (`2767:51554`).
+
 ## Flows
 
 ### Flow A: Manage collections (My Shop) 🔒
