@@ -12,52 +12,38 @@ Last updated: 2026-10-06.
 
 | Status | Meaning |
 |---|---|
-| 🔒 In review | In `[Collections] Review Round 1`. Locked: don't edit. |
+| 🔒 Shared | Shown to the client in round 1 (01 and 02). Now editable. |
 | ✅ Approved | Approved by you; not in client review yet. |
 | 🟡 Awaiting approval | Built and waiting for your go-ahead. |
 | 🧪 WIP | Draft on Hrishi Workspace. Not in review yet. |
 | 💡 Add-on | Outside the agreed decisions. Needs client sign-off. |
 | ⬜ Planned | Not built yet. |
 
-## Sections
+## Figma structure
 
-| Section | Page | Id | Status |
+Every Collections design is in **one section** on the flows page `2650:50683`: **[Influencer] Collections | 06.10.26** (`2764:66587`). It used to be "Review Round 1". On 2026-10-06 it became the main home for collections and their related flows, and it is no longer a locked review snapshot.
+
+Inside it, top to bottom, left edges aligned, 200px apart:
+
+| # | Sub-section | Id | Flows |
 |---|---|---|---|
-| [Collections] Review Round 1 \| 06.10.26 | Flows `2650:50683` | `2764:66587` | 🔒 |
-| › Review notes panel | | `2764:66588` | 🔒 |
-| › 11 - Collections in My Shop | | `2764:66613` | 🔒 |
-| › 04 - Creator Collections on the Storefront | | `2757:65060` | 🔒 |
-| [Collections] Flow — Reorder Collections \| 06.10.26 | Flows | `2771:66587` | 🟡 |
-| [Collections] Flow — Collection Detail \| 06.10.26 | Flows | `2777:67314` | ✅ |
-| [Collections] Flow — Empty Collection Page \| 06.10.26 | Flows | `2780:67176` | ✅ |
-| [Collections] Flow — Copy Collection Link \| 06.10.26 | Flows | `2781:67699` | ✅ |
-| [Collections] Flow — Storefront Without Collections \| 06.10.26 | Flows | `2782:68420` | 🟡 |
-| [Collections] Flow — Unpublished Shop \| 06.10.26 | Flows | `2786:68996` | 🟡 |
-| [Collections] Flow — Favorites Are Now Collections \| 06.10.26 | Flows | `2787:69374` | 🟡 |
-| [Collections] Flow — Collection Name Errors \| 06.10.26 | Flows | `2788:69743` | 🟡 |
-| [Collections] Flow — Storefront Preview \| 06.10.26 | Flows | `2788:239935` | 🟡 |
-| [Collections] Flow — Edit and Delete from Collection Page \| 06.10.26 | Flows | `2789:70752` | 🟡 |
-| Collections — Mobile (WIP) \| 06.10.26 | Hrishi Workspace `751:80091` | `2767:51554` | 🧪 |
+| — | Overview / Collections (what's in, open decisions, still to do) | `2791:71522` | — |
+| 01 | Collections in My Shop | `2764:66613` | A, B, C, D |
+| 02 | Collections on the Storefront | `2757:65060` | E |
+| 03 | Reorder Collections | `2771:66587` | F |
+| 04 | Collection Detail | `2777:67314` | 1 |
+| 05 | Empty Collection Page | `2780:67176` | 2 |
+| 06 | Copy Collection Link | `2781:67699` | 3 |
+| 07 | Storefront Without Collections | `2782:68420` | 4 |
+| 08 | Unpublished Shop | `2786:68996` | 5 |
+| 09 | Favorites Are Now Collections | `2787:69374` | 6 |
+| 10 | Collection Name Errors | `2788:69743` | 7 |
+| 11 | Storefront Preview | `2788:239935` | 8 |
+| 12 | Edit and Delete from Collection Page | `2789:70752` | 9 |
 
-## Layout on the flows page
-
-The Collections sections sit in **one vertical column** at the right of the flows page (`2650:50683`). Left edges are aligned at x = 67298, with 400px between sections, read top to bottom. Review Round 1 stayed where it was. Only the other sections were moved, and nothing inside any section changed (2026-10-06).
-
-| # | Section | Id | Flow |
-|---|---|---|---|
-| 1 | [Collections] Review Round 1 | `2764:66587` | A–E (locked) |
-| 2 | Flow — Reorder Collections | `2771:66587` | F |
-| 3 | Flow — Collection Detail | `2777:67314` | 1 |
-| 4 | Flow — Empty Collection Page | `2780:67176` | 2 |
-| 5 | Flow — Copy Collection Link | `2781:67699` | 3 |
-| 6 | Flow — Storefront Without Collections | `2782:68420` | 4 |
-| 7 | Flow — Unpublished Shop | `2786:68996` | 5 |
-| 8 | Flow — Favorites Are Now Collections | `2787:69374` | 6 |
-| 9 | Flow — Collection Name Errors | `2788:69743` | 7 |
-| 10 | Flow — Storefront Preview | `2788:239935` | 8 |
-| 11 | Flow — Edit and Delete from Collection Page | `2789:70752` | 9 |
-
-New Collections sections go at the bottom of this column, 400px below the last one. Mobile drafts stay on Hrishi Workspace (`2767:51554`).
+- **Frame names unchanged:** frames keep their `11.x` / `04.x` names, so the ids and links in this file still match.
+- **New collection flows** go in as the next numbered sub-section at the bottom.
+- **Mobile drafts** stay on Hrishi Workspace › Collections — Mobile (WIP) `2767:51554` until they're approved.
 
 ## Flows
 

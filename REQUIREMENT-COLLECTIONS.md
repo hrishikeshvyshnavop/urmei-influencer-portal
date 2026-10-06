@@ -207,6 +207,8 @@ _Changed 2026-10-06: the first answer was a) a per-collection visible/hidden tog
 
 ### Where the screens are
 
+> **Update 2026-10-06:** everything now lives in one section on the flows page, **[Influencer] Collections** `2764:66587` (formerly Review Round 1), with sub-sections 01–12. See `COLLECTIONS-FLOWS.md` › Figma structure. The ids in the table below still apply.
+
 Work File `FdmVPJo1j4t8s9gej1H7Yb`.
 
 | What | Where | Id |
