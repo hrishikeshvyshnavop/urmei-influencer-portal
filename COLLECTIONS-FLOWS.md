@@ -120,6 +120,12 @@ New screens added on 2026-10-06: 01.3 Collection Created toast `2801:71721`, 02.
 
 Covers are named `NN.0 <Sub-section> — Cover`. **Every** sub-section now uses the `Cover` component with a path-style title, e.g. "Board ⋮ → Delete collection → Delete" (clean-up, 2026-10-06).
 
+**Product page: remove from a collection (2026-10-06).** On the creator product page, each collection chip now has a ✕ (library `x` icon, coloured `typography/color/secondary/700`). The chip's gap and padding use `spacing/sm` and `spacing/md-sm`. Clicking ✕ removes the product from that collection only; it stays in the shop. Clicking the chip still opens the collection.
+- **New screens:** 07.2 cursor on the ✕ of "My morning routine" (`2813:256881`), then 07.3 showing "In 1 collection" and the toast "Removed from My morning routine. Still in your shop." (`2813:256997`).
+- **Annotation and cover:** the 07.1 "New" annotation mentions the ✕, and the cover now reads "My Shop → product page → add to or remove from a collection".
+
+**Footer spacing (15.2):** the storefront preview frame had a fixed height that left 104px blank under the footer. It now hugs its content. No other Collections screen had the same gap.
+
 **Clean-up, 2026-10-06:**
 - **Covers:** the 7 old-style covers (04, 06, 09, 12, 14, 15, 16) were replaced with the Cover component.
 - **Annotation names:** 7 were renumbered to their current screen, e.g. `Annotation / 06.3`.
