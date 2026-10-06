@@ -108,6 +108,14 @@ Frames were renamed to `NN.S <Sub-section> — <State> — <Device>` to match th
 
 New screens added on 2026-10-06: 01.3 Collection Created toast `2801:71721`, 02.3 Collection Updated toast `2801:72068`, 03.1 Card Menu Delete collection `2801:72385`, 03.3 Collection Deleted toast `2801:72668`. 01.2 is now filled in ("Night-time reset").
 
+**Detailed flows (2026-10-06):**
+
+- **10 Edit and Delete from Collection Page** now has two rows, each with its own Cover:
+  - **Edit:** 10.1 page with the cursor on Edit Details `2803:72325` → 10.2 Edit dialog ("Favourites" renamed to "My all-time favourites") → 10.3 page with the new name and a "Collection updated" toast `2803:72698`.
+  - **Delete:** 10.4 page with the cursor on ⋮ `2803:73083` → 10.5 menu → 10.6 confirmation → 10.7 grid with a "deleted" toast.
+- **12 Copy Collection Link** now has two rows, each with a Cover: from the collection page (12.1–12.2), and from the board ⋮ menu (12.3–12.4).
+- **11 Reorder Collections, toast check:** the old Reorder Favorite flow showed **no** success toast after a move, only an error toast ("Couldn't save the new order, we put it back the way it was"). Ours shows a success toast (11.2) and has no error state yet. The proposal is to match the old behaviour; waiting on the user.
+
 Covers are named `NN.0 <Sub-section> — Cover` and use the `Cover` component (path-style title) in 01–05.
 
 ## Flows
