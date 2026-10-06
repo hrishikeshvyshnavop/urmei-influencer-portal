@@ -21,31 +21,90 @@ Last updated: 2026-10-06.
 
 ## Figma structure
 
-Every Collections design is in **one section** on the flows page `2650:50683`: **[Influencer] Collections | 06.10.26** (`2764:66587`). Each flow is its own sub-section, stacked top to bottom, left-aligned, 200px apart (2026-10-06):
+Every Collections design is in **one section** on the flows page `2650:50683`: **[Influencer] Collections | 06.10.26** (`2764:66587`). Sub-sections follow the **user journey** (approved 2026-10-06), stacked top to bottom, left-aligned, 200px apart. Each sub-section has its cover first, then screens 200px apart; edge cases are stacked under their default screen.
 
-| # | Sub-section | Id | Flow |
+| # | Sub-section | Id | Flow (below) |
 |---|---|---|---|
-| 01 | Collections | `2764:66613` | A (11.0–11.5) |
-| 02 | Add to Collection | `2792:71522` | B (11.6–11.8, 11.7a/b) |
-| 03 | Empty Collections | `2792:108198` | C (11.1a, 11.1b) |
-| 04 | Creator Product Page | `2792:108199` | D (11.9) |
-| 05 | Collections on the Storefront | `2757:65060` | E (04.0–04.3) |
-| 06 | Reorder Collections | `2771:66587` | F |
+| 01 | Favorites Are Now Collections | `2787:69374` | 6 |
+| 02 | Collections | `2764:66613` | A |
+| 03 | Collection Name Errors | `2788:69743` | 7 |
+| 04 | Empty Collections | `2792:108198` | C |
+| 05 | Creator Product Page | `2792:108199` | D |
+| 06 | Add to Collection | `2792:71522` | B |
 | 07 | Collection Detail | `2777:67314` | 1 |
 | 08 | Empty Collection Page | `2780:67176` | 2 |
-| 09 | Copy Collection Link | `2781:67699` | 3 |
-| 10 | Storefront Without Collections | `2782:68420` | 4 |
-| 11 | Unpublished Shop | `2786:68996` | 5 |
-| 12 | Favorites Are Now Collections | `2787:69374` | 6 |
-| 13 | Collection Name Errors | `2788:69743` | 7 |
-| 14 | Storefront Preview | `2788:239935` | 8 |
-| 15 | Edit and Delete from Collection Page | `2789:70752` | 9 |
+| 09 | Edit and Delete from Collection Page | `2789:70752` | 9 |
+| 10 | Reorder Collections | `2771:66587` | F |
+| 11 | Copy Collection Link | `2781:67699` | 3 |
+| 12 | Unpublished Shop | `2786:68996` | 5 |
+| 13 | Storefront Preview | `2788:239935` | 8 |
+| 14 | Collections on the Storefront | `2757:65060` | E |
+| 15 | Storefront Without Collections | `2782:68420` | 4 |
 
-- **Frame names unchanged:** frames keep their `11.x` / `04.x` names, so the ids below still match.
-- **New flows** go in as the next numbered sub-section at the bottom.
+Journey groups:
+- **Creator getting started:** 01–04
+- **Filling a collection:** 05–06
+- **Managing:** 07–10
+- **Sharing:** 11–13
+- **Shopper:** 14–15
+
+- **New flows** go in where they fit in the journey. Renumber everything after them.
 - **Mobile drafts** stay on Hrishi Workspace › Collections — Mobile (WIP) `2767:51554`.
 
-> **Deleted from the file (noticed 2026-10-06):** the 01 mobile frames 11.1–11.5, the empty-board options A–E frame (`2760:65839`) and the Collections overview panel (`2791:71522`). They no longer exist on any page. They can be restored from Figma's version history, or rebuilt if they're still needed.
+> **Deleted from the file (noticed 2026-10-06):** the old mobile frames 11.1–11.5, the empty-board options A–E frame (`2760:65839`) and the overview panel (`2791:71522`). Restore them from Figma's version history, or rebuild them if they're still needed.
+
+### Frame names: old → new
+
+Frames were renamed to `NN.S <Sub-section> — <State> — <Device>` to match their sub-section (2026-10-06). The ids didn't change. The flow tables below still use the old numbers.
+
+| Old | New | Id |
+|---|---|---|
+| 11.24 | 01.1 | `2787:69381` |
+| 11.25 | 01.2 | `2787:69782` |
+| 11.1 | 02.1 | `2750:146644` |
+| 11.2 | 02.2 | `2750:146556` |
+| 11.3 | 02.3 | `2750:146310` |
+| 11.4 | 02.4 | `2750:146394` |
+| 11.5 | 02.5 | `2750:146476` |
+| 11.26 | 03.1 | `2788:69750` |
+| 11.27 | 03.2 | `2788:70108` |
+| 11.28 | 03.3 | `2788:70448` |
+| 11.1a | 04.1 | `2758:65509` |
+| 11.1b | 04.2 | `2758:65790` |
+| 11.9 | 05.1 | `2763:65814` |
+| 11.6 | 06.1 | `2753:64411` |
+| 11.7 | 06.2 | `2753:64849` |
+| 11.8 | 06.3 | `2753:65379` |
+| 11.7a | 06.4 | `2755:64723` |
+| 11.7b | 06.5 | `2755:65115` |
+| 11.11 | 07.1 | `2777:67321` |
+| 11.12 | 07.2 | `2777:67713` |
+| 11.13 | 07.3 | `2777:68123` |
+| 11.14 | 07.4 | `2779:67017` |
+| 11.15 | 08.1 | `2780:67183` |
+| 11.16 | 08.2 | `2780:67260` |
+| 11.17 | 08.3 | `2780:67668` |
+| 11.31 | 09.1 | `2789:70759` |
+| 11.32 | 09.2 | `2789:70963` |
+| 11.33 | 09.3 | `2789:71394` |
+| 11.34 | 09.4 | `2789:71559` |
+| 11.10 | 10.1 | `2771:66588` |
+| 11.10a | 10.2 | `2783:69022` |
+| 11.18 | 11.1 | `2781:67717` |
+| 11.19 | 11.2 | `2781:67860` |
+| 11.20 | 11.3 | `2781:68015` |
+| 11.21 | 11.4 | `2781:68313` |
+| 11.22 | 12.1 | `2786:69003` |
+| 11.23 | 12.2 | `2786:69408` |
+| 11.29 | 13.1 | `2788:239942` |
+| 11.30 | 13.2 | `2788:240237` |
+| 04.1 | 14.1 | `2757:65132` |
+| 04.2 | 14.2 | `2757:65695` |
+| 04.3 | 14.3 | `2763:66163` |
+| 04.4 | 15.1 | `2782:68431` |
+| 04.5 | 15.2 | `2782:68945` |
+
+Covers are named `NN.0 <Sub-section> — Cover`.
 
 ## Flows
 
