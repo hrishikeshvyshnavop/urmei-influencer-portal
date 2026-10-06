@@ -21,29 +21,31 @@ Last updated: 2026-10-06.
 
 ## Figma structure
 
-Every Collections design is in **one section** on the flows page `2650:50683`: **[Influencer] Collections | 06.10.26** (`2764:66587`). It used to be "Review Round 1". On 2026-10-06 it became the main home for collections and their related flows, and it is no longer a locked review snapshot.
+Every Collections design is in **one section** on the flows page `2650:50683`: **[Influencer] Collections | 06.10.26** (`2764:66587`). Each flow is its own sub-section, stacked top to bottom, left-aligned, 200px apart (2026-10-06):
 
-Inside it, top to bottom, left edges aligned, 200px apart:
-
-| # | Sub-section | Id | Flows |
+| # | Sub-section | Id | Flow |
 |---|---|---|---|
-| — | Overview / Collections (what's in, open decisions, still to do) | `2791:71522` | — |
-| 01 | Collections in My Shop | `2764:66613` | A, B, C, D |
-| 02 | Collections on the Storefront | `2757:65060` | E |
-| 03 | Reorder Collections | `2771:66587` | F |
-| 04 | Collection Detail | `2777:67314` | 1 |
-| 05 | Empty Collection Page | `2780:67176` | 2 |
-| 06 | Copy Collection Link | `2781:67699` | 3 |
-| 07 | Storefront Without Collections | `2782:68420` | 4 |
-| 08 | Unpublished Shop | `2786:68996` | 5 |
-| 09 | Favorites Are Now Collections | `2787:69374` | 6 |
-| 10 | Collection Name Errors | `2788:69743` | 7 |
-| 11 | Storefront Preview | `2788:239935` | 8 |
-| 12 | Edit and Delete from Collection Page | `2789:70752` | 9 |
+| 01 | Collections | `2764:66613` | A (11.0–11.5) |
+| 02 | Add to Collection | `2792:71522` | B (11.6–11.8, 11.7a/b) |
+| 03 | Empty Collections | `2792:108198` | C (11.1a, 11.1b) |
+| 04 | Creator Product Page | `2792:108199` | D (11.9) |
+| 05 | Collections on the Storefront | `2757:65060` | E (04.0–04.3) |
+| 06 | Reorder Collections | `2771:66587` | F |
+| 07 | Collection Detail | `2777:67314` | 1 |
+| 08 | Empty Collection Page | `2780:67176` | 2 |
+| 09 | Copy Collection Link | `2781:67699` | 3 |
+| 10 | Storefront Without Collections | `2782:68420` | 4 |
+| 11 | Unpublished Shop | `2786:68996` | 5 |
+| 12 | Favorites Are Now Collections | `2787:69374` | 6 |
+| 13 | Collection Name Errors | `2788:69743` | 7 |
+| 14 | Storefront Preview | `2788:239935` | 8 |
+| 15 | Edit and Delete from Collection Page | `2789:70752` | 9 |
 
-- **Frame names unchanged:** frames keep their `11.x` / `04.x` names, so the ids and links in this file still match.
-- **New collection flows** go in as the next numbered sub-section at the bottom.
-- **Mobile drafts** stay on Hrishi Workspace › Collections — Mobile (WIP) `2767:51554` until they're approved.
+- **Frame names unchanged:** frames keep their `11.x` / `04.x` names, so the ids below still match.
+- **New flows** go in as the next numbered sub-section at the bottom.
+- **Mobile drafts** stay on Hrishi Workspace › Collections — Mobile (WIP) `2767:51554`.
+
+> **Deleted from the file (noticed 2026-10-06):** the 01 mobile frames 11.1–11.5, the empty-board options A–E frame (`2760:65839`) and the Collections overview panel (`2791:71522`). They no longer exist on any page. They can be restored from Figma's version history, or rebuilt if they're still needed.
 
 ## Flows
 
@@ -53,11 +55,11 @@ Section `2764:66613`, row 1. Cover `2750:146638`.
 
 | # | Screen | Desktop | Mobile |
 |---|---|---|---|
-| 11.1 | Collections tab: board grid and New Collection | `2750:146644` | `2747:62796` |
-| 11.2 | Create collection dialog | `2750:146556` | `2748:231758` |
-| 11.3 | Board ⋮ menu: Edit details, Copy collection link, Delete collection | `2750:146310` | `2748:232054` |
-| 11.4 | Edit collection dialog | `2750:146394` | `2748:232323` |
-| 11.5 | Delete collection confirmation | `2750:146476` | `2748:232618` |
+| 11.1 | Collections tab: board grid and New Collection | `2750:146644` | deleted |
+| 11.2 | Create collection dialog | `2750:146556` | deleted |
+| 11.3 | Board ⋮ menu: Edit details, Copy collection link, Delete collection | `2750:146310` | deleted |
+| 11.4 | Edit collection dialog | `2750:146394` | deleted |
+| 11.5 | Delete collection confirmation | `2750:146476` | deleted |
 
 ### Flow B: Add a product to collections 🔒 (mobile 🧪)
 
@@ -79,7 +81,7 @@ Section `2764:66613`, row 3. Cover `2758:65461`.
 |---|---|---|---|
 | 11.1a | No collections yet | `2758:65509` | `2767:51671` |
 | 11.1b | A collection with no products | `2758:65790` | `2767:51943` |
-| — | Empty board: options A–E (decision needed) | `2760:65839` | — |
+| — | Empty board: options A–E (decision needed) | deleted (`2760:65839`) | — |
 
 ### Flow D: Creator product page 🔒 (mobile 🧪)
 
