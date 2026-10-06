@@ -138,6 +138,24 @@ Section `2782:68420`.
 | 04.4 | Storefront when a creator has no collections, or all are empty: the Collections row is hidden | `2782:68431` | ⬜ |
 | 04.5 | A shared link to a deleted or empty collection: "This collection isn't available", a Visit Charlotte's Storefront button, and More collections from Charlotte | `2782:68945` | ⬜ |
 
+**How shoppers get here.** Shown on the screens as the file's `Annotation` component: category Info, plus one Development note.
+
+- **04.4: the creator's main storefront** (`urmei.com/shop/<creator>`).
+  - **Reached from:** the creator's bio link, URMEI's Creators listing or search, or the Creators › Creator breadcrumb or top bar on a product page.
+  - **Why the Collections row is hidden:**
+    1. A new creator: the shop starts with an empty Favourites.
+    2. The creator deleted all their collections.
+    3. Every collection is empty.
+    4. Nothing is available in the shopper's market (see 01.3, "no picks in this market").
+  - **What the shopper sees:** no empty box or message.
+- **04.5: a collection's own link** (`urmei.com/shop/<creator>/<collection>`).
+  - **Reached from:** outside only, through a link the creator shared earlier (Instagram, a story, a message, a bookmark). Never from inside the storefront, because collection rows only show collections the shopper can open.
+  - **Why the collection can't be shown:**
+    1. It was deleted after the link was shared.
+    2. Every product was removed.
+    3. Nothing in it is available in the shopper's market.
+    4. It was renamed, if the link is built from the name. This is open decision 8.
+
 ### Reordering in the approved flows (2026-10-06)
 
 The grids in 11.14 (`2779:67017`), 11.15 (`2780:67183`), 11.20 (`2781:68015`) and 11.21 (`2781:68313`) now show the "#n on storefront" strip. The empty board reads "Not on storefront yet".
@@ -161,3 +179,4 @@ These are also on the review notes panel `2764:66588`:
 5. The product page row shows only the collections that contain the product.
 6. Breadcrumbs on product pages stay category-based.
 7. ~~Reordering~~: decided 2026-10-06. It's in scope (Flow F).
+8. **Collection link format (dev):** if the link is built from the collection name, renaming breaks every link already shared. Use a fixed id in the link, or redirect old links to the new name.

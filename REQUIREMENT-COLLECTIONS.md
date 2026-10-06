@@ -270,6 +270,12 @@ The locked final design is the main file's page `794:24650` (`cehltPtMoGWEtKbF7k
 - Flows 1–3 were updated so every Collections grid shows the strip.
 - The locked Review Round 1 section was **not** changed, so the client hasn't seen reordering yet. Show it in the next review round.
 
+### Collection links (added 2026-10-06)
+
+- **Storefront without collections (04.4):** shoppers reach the main storefront from the creator's bio link, the Creators listing, or a product page. The Collections row is hidden when the creator has no collections, all are empty, or nothing is available in the shopper's market.
+- **Collection no longer available (04.5):** reached only from an outside link the creator shared earlier, when the collection has since been deleted or emptied, or has nothing for the shopper's market.
+- **Open decision for dev:** a link built from the collection name breaks when the creator renames it. Use a fixed id, or redirect old links.
+
 ### Not designed yet
 
 - Collection detail in My Shop: open a board, remove a product from a collection.
