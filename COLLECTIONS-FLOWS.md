@@ -29,7 +29,8 @@ Last updated: 2026-10-06.
 | › 04 - Creator Collections on the Storefront | | `2757:65060` | 🔒 |
 | [Collections] Add-on — Reorder Collections \| 06.10.26 | Flows | `2771:66587` | 💡 |
 | [Collections] Flow — Collection Detail \| 06.10.26 | Flows | `2777:67314` | ✅ |
-| [Collections] Flow — Empty Collection Page \| 06.10.26 | Flows | `2780:67176` | 🟡 |
+| [Collections] Flow — Empty Collection Page \| 06.10.26 | Flows | `2780:67176` | ✅ |
+| [Collections] Flow — Copy Collection Link \| 06.10.26 | Flows | `2781:67699` | 🟡 |
 | Collections — Mobile (WIP) \| 06.10.26 | Hrishi Workspace `751:80091` | `2767:51554` | 🧪 |
 
 ## Flows
@@ -105,7 +106,7 @@ Section `2777:67314`. Cover `2777:67315`.
 | 11.13 | Toast "Removed from Favourites. Still in your shop." Cursor on All collections. | `2777:68123` | ⬜ |
 | 11.14 | Back to All Collections: the grid, Favourites now 3 products | `2779:67017` | ⬜ |
 
-### Flow 2: Empty collection page 🟡
+### Flow 2: Empty collection page ✅ (approved 2026-10-06)
 
 Section `2780:67176`. Cover `2780:67177`.
 
@@ -115,11 +116,21 @@ Section `2780:67176`. Cover `2780:67177`.
 | 11.16 | Empty collection page: "0 products", Copy Link disabled (hidden from shoppers), empty box, Go to All Picks | `2780:67260` | ⬜ |
 | 11.17 | All Picks tab after Go to All Picks, cursor on a product's ⋮ (continues into Flow B) | `2780:67668` | ⬜ |
 
+### Flow 3: Copy collection link 🟡
+
+Section `2781:67699`. Cover `2781:67700`. A creator can copy a collection's link from two places.
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.18 | Collection page: cursor on Copy Link | `2781:67717` | ⬜ |
+| 11.19 | Toast "Collection link copied" | `2781:67860` | ⬜ |
+| 11.20 | Collections grid › board ⋮ menu: Copy collection link (hover) | `2781:68015` | ⬜ |
+| 11.21 | Grid with toast "Link to My morning routine copied" | `2781:68313` | ⬜ |
+
 ## Planned (one at a time, after approval)
 
 | Flow | Screens | Status |
 |---|---|---|
-| 3 | Copy collection link confirmation | ⬜ |
 | 4 | Storefront with no collections (the collections row is hidden) | ⬜ |
 | — | Mobile for Flow 1 and Flow F | ⬜ |
 | — | Move the mobile WIP frames into review once approved | ⬜ |
