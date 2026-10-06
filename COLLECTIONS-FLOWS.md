@@ -124,6 +124,12 @@ Covers are named `NN.0 <Sub-section> — Cover`. **Every** sub-section now uses 
 - **New screens:** 07.2 cursor on the ✕ of "My morning routine" (`2813:256881`), then 07.3 showing "In 1 collection" and the toast "Removed from My morning routine. Still in your shop." (`2813:256997`).
 - **Annotation and cover:** the 07.1 "New" annotation mentions the ✕, and the cover now reads "My Shop → product page → add to or remove from a collection".
 
+**07 Creator Product Page, now a proper flow (2026-10-06).** Two rows, each with a Cover:
+- **Add:** 07.1 product page (annotations; cursor on Add To Collection) → 07.2 Add to collection dialog over the page, ticking "Copy my wedding look", cursor on Save (`2817:72990`) → 07.3 "In 3 collections" with the toast "Added to Copy my wedding look" (`2817:73472`).
+- **Remove:** 07.4 cursor on a chip's ✕ → 07.5 toast "Removed from My morning routine. Still in your shop." with **Undo** → 07.6 (edge case, stacked under 07.5) removing a collection's last product: "…It's now empty and hidden from your storefront." with **Undo** (`2817:73831`).
+
+**Undo rule (2026-10-06):** removing a product from a collection has **no confirmation dialog**, because it's reversible and the product stays in the shop. The toast instead shows an **Undo** action, using the Toast component's `Show Button`, relabelled "Undo" with no icon. This applies on the product page (07.5, 07.6) and the collection page (08.3). If it was the collection's last product, the toast also says the collection is now hidden from the storefront. Confirmation dialogs stay only on destructive actions: Delete collection and Remove from shop.
+
 **Footer spacing (15.2):** the storefront preview frame had a fixed height that left 104px blank under the footer. It now hugs its content. No other Collections screen had the same gap.
 
 **Clean-up, 2026-10-06:**
