@@ -26,27 +26,31 @@ Every Collections design is in **one section** on the flows page `2650:50683`: *
 
 | # | Sub-section | Id | Flow (below) |
 |---|---|---|---|
-| 01 | Collections | `2764:66613` | A |
-| 02 | Collection Name Errors | `2788:69743` | 7 |
-| 03 | Empty Collections | `2792:108198` | C |
-| 04 | Creator Product Page | `2792:108199` | D |
+| 01 | Create Collection | `2764:66613` | A |
+| 02 | Edit Collection | `2801:72058` | A |
+| 03 | Delete Collection | `2801:72375` | A |
+| 04 | Empty Collections | `2792:108198` | C |
 | 05 | Add to Collection | `2792:71522` | B |
-| 06 | Collection Detail | `2777:67314` | 1 |
-| 07 | Empty Collection Page | `2780:67176` | 2 |
-| 08 | Edit and Delete from Collection Page | `2789:70752` | 9 |
-| 09 | Reorder Collections | `2771:66587` | F |
-| 10 | Copy Collection Link | `2781:67699` | 3 |
-| 11 | Unpublished Shop | `2786:68996` | 5 |
-| 12 | Storefront Preview | `2788:239935` | 8 |
-| 13 | Collections on the Storefront | `2757:65060` | E |
-| 14 | Storefront Without Collections | `2782:68420` | 4 |
+| 06 | Collection Name Errors | `2788:69743` | 7 |
+| 07 | Creator Product Page | `2792:108199` | D |
+| 08 | Collection Detail | `2777:67314` | 1 |
+| 09 | Empty Collection Page | `2780:67176` | 2 |
+| 10 | Edit and Delete from Collection Page | `2789:70752` | 9 |
+| 11 | Reorder Collections | `2771:66587` | F |
+| 12 | Copy Collection Link | `2781:67699` | 3 |
+| 13 | Unpublished Shop | `2786:68996` | 5 |
+| 14 | Storefront Preview | `2788:239935` | 8 |
+| 15 | Collections on the Storefront | `2757:65060` | E |
+| 16 | Storefront Without Collections | `2782:68420` | 4 |
 
 Journey groups:
-- **Creator getting started:** 01–03
-- **Filling a collection:** 04–05
-- **Managing:** 06–09
-- **Sharing:** 10–12
-- **Shopper:** 13–14
+- **Managing collections:** 01–04, Create, Edit and Delete (split out of the old "Collections" sub-section on 2026-10-06), then Empty Collections
+- **Filling a collection:** 05–07
+- **Inside a collection:** 08–11
+- **Sharing:** 12–14
+- **Shopper:** 15–16
+
+> Order check: sub-sections 04–07 now read Empty Collections → Add to Collection → Name Errors → Creator Product Page. They appear to have been moved in Figma after the approved order, which was Name Errors → Empty → Product Page → Add. The current Figma order is kept.
 
 - **New flows** go in where they fit in the journey. Renumber everything after them.
 - **Mobile drafts** stay on Hrishi Workspace › Collections — Mobile (WIP) `2767:51554`.
@@ -61,48 +65,50 @@ Frames were renamed to `NN.S <Sub-section> — <State> — <Device>` to match th
 |---|---|---|
 | 11.1 | 01.1 | `2750:146644` |
 | 11.2 | 01.2 | `2750:146556` |
-| 11.3 | 01.3 | `2750:146310` |
-| 11.4 | 01.4 | `2750:146394` |
-| 11.5 | 01.5 | `2750:146476` |
-| 11.26 | 02.1 | `2788:69750` |
-| 11.27 | 02.2 | `2788:70108` |
-| 11.28 | 02.3 | `2788:70448` |
-| 11.1a | 03.1 | `2758:65509` |
-| 11.1b | 03.2 | `2758:65790` |
-| 11.9 | 04.1 | `2763:65814` |
+| 11.3 | 02.1 | `2750:146310` |
+| 11.4 | 02.2 | `2750:146394` |
+| 11.5 | 03.2 | `2750:146476` |
+| 11.26 | 06.1 | `2788:69750` |
+| 11.27 | 06.2 | `2788:70108` |
+| 11.28 | 06.3 | `2788:70448` |
+| 11.1a | 04.1 | `2758:65509` |
+| 11.1b | 04.2 | `2758:65790` |
+| 11.9 | 07.1 | `2763:65814` |
 | 11.6 | 05.1 | `2753:64411` |
 | 11.7 | 05.6 | `2753:64849` |
 | 11.8 | 05.5 | `2753:65379` |
 | 11.7a | 05.7 | `2755:64723` |
 | 11.7b | 05.8 | `2755:65115` |
-| 11.11 | 06.1 | `2777:67321` |
-| 11.12 | 06.2 | `2777:67713` |
-| 11.13 | 06.3 | `2777:68123` |
-| 11.14 | 06.4 | `2779:67017` |
-| 11.15 | 07.1 | `2780:67183` |
-| 11.16 | 07.2 | `2780:67260` |
-| 11.17 | 07.3 | `2780:67668` |
-| 11.31 | 08.1 | `2789:70759` |
-| 11.32 | 08.2 | `2789:70963` |
-| 11.33 | 08.3 | `2789:71394` |
-| 11.34 | 08.4 | `2789:71559` |
-| 11.10 | 09.1 | `2771:66588` |
-| 11.10a | 09.2 | `2783:69022` |
-| 11.18 | 10.1 | `2781:67717` |
-| 11.19 | 10.2 | `2781:67860` |
-| 11.20 | 10.3 | `2781:68015` |
-| 11.21 | 10.4 | `2781:68313` |
-| 11.22 | 11.1 | `2786:69003` |
-| 11.23 | 11.2 | `2786:69408` |
-| 11.29 | 12.1 | `2788:239942` |
-| 11.30 | 12.2 | `2788:240237` |
-| 04.1 | 13.1 | `2757:65132` |
-| 04.2 | 13.2 | `2757:65695` |
-| 04.3 | 13.3 | `2763:66163` |
-| 04.4 | 14.1 | `2782:68431` |
-| 04.5 | 14.2 | `2782:68945` |
+| 11.11 | 08.1 | `2777:67321` |
+| 11.12 | 08.2 | `2777:67713` |
+| 11.13 | 08.3 | `2777:68123` |
+| 11.14 | 08.4 | `2779:67017` |
+| 11.15 | 09.1 | `2780:67183` |
+| 11.16 | 09.2 | `2780:67260` |
+| 11.17 | 09.3 | `2780:67668` |
+| 11.31 | 10.1 | `2789:70759` |
+| 11.32 | 10.2 | `2789:70963` |
+| 11.33 | 10.3 | `2789:71394` |
+| 11.34 | 10.4 | `2789:71559` |
+| 11.10 | 11.1 | `2771:66588` |
+| 11.10a | 11.2 | `2783:69022` |
+| 11.18 | 12.1 | `2781:67717` |
+| 11.19 | 12.2 | `2781:67860` |
+| 11.20 | 12.3 | `2781:68015` |
+| 11.21 | 12.4 | `2781:68313` |
+| 11.22 | 13.1 | `2786:69003` |
+| 11.23 | 13.2 | `2786:69408` |
+| 11.29 | 14.1 | `2788:239942` |
+| 11.30 | 14.2 | `2788:240237` |
+| 04.1 | 15.1 | `2757:65132` |
+| 04.2 | 15.2 | `2757:65695` |
+| 04.3 | 15.3 | `2763:66163` |
+| 04.4 | 16.1 | `2782:68431` |
+| 04.5 | 16.2 | `2782:68945` |
 
-Covers are named `NN.0 <Sub-section> — Cover`.
+New screens added on 2026-10-06: 01.3 Collection Created toast `2801:71721`, 02.3 Collection Updated toast `2801:72068`, 03.1 Card Menu Delete collection `2801:72385`, 03.3 Collection Deleted toast `2801:72668`. 01.2 is now filled in ("Night-time reset").
+
+Covers are named `NN.0 <Sub-section> — Cover` and use the `Cover` component (path-style title) in 01–05.
 
 ## Flows
 
