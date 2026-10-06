@@ -71,10 +71,10 @@ Frames were renamed to `NN.S <Sub-section> — <State> — <Device>` to match th
 | 11.1b | 03.2 | `2758:65790` |
 | 11.9 | 04.1 | `2763:65814` |
 | 11.6 | 05.1 | `2753:64411` |
-| 11.7 | 05.2 | `2753:64849` |
-| 11.8 | 05.3 | `2753:65379` |
-| 11.7a | 05.4 | `2755:64723` |
-| 11.7b | 05.5 | `2755:65115` |
+| 11.7 | 05.6 | `2753:64849` |
+| 11.8 | 05.5 | `2753:65379` |
+| 11.7a | 05.7 | `2755:64723` |
+| 11.7b | 05.8 | `2755:65115` |
 | 11.11 | 06.1 | `2777:67321` |
 | 11.12 | 06.2 | `2777:67713` |
 | 11.13 | 06.3 | `2777:68123` |
@@ -118,17 +118,25 @@ Section `2764:66613`, row 1. Cover `2750:146638`.
 | 11.4 | Edit collection dialog | `2750:146394` | deleted |
 | 11.5 | Delete collection confirmation | `2750:146476` | deleted |
 
-### Flow B: Add a product to collections 🔒 (mobile 🧪)
+### Flow B: Add a product to collections (first-time creator) 🟡
 
-Section `2764:66613`, row 2. Cover `2753:64405`.
+Sub-section **05 - Add to Collection** (`2792:71522`). It was rebuilt on 2026-10-06 as a first-time creator's path. The cover is the new `Cover` component: "All Picks → ⋮ → Add to collection → New collection → Save".
 
 | # | Screen | Desktop | Mobile (WIP) |
 |---|---|---|---|
-| 11.6 | All Picks › product menu › Add to collection | `2753:64411` | `2767:52214` |
-| 11.7 | Add to collection dialog (multi-select) | `2753:64849` | `2768:52438` |
-| 11.7a | Many collections: search box and scrolling list | `2755:64723` | `2768:52809` |
-| 11.7b | No collections: empty box, Save disabled | `2755:65115` | `2768:53270` |
-| 11.8 | Toast: "Added to My morning routine" | `2753:65379` | `2767:52482` |
+| 05.1 | All Picks › product ⋮ menu › **Add to collection** (cursor), Collections (1) | `2753:64411` | `2767:52214` |
+| 05.2 | Add to collection dialog, first time: only "Favourites" (0 products); cursor on **New Collection** | `2797:71078` | ⬜ |
+| 05.3 | **Create collection** dialog, filled in ("My morning routine", 18/40); cursor on Create Collection | `2797:71531` | ⬜ |
+| 05.4 | Back in Add to collection: "My morning routine" (New) ticked; cursor on **Save** | `2797:72068` | ⬜ |
+| 05.5 | Toast "Added to My morning routine", Collections (2) | `2753:65379` | `2767:52482` |
+
+Edge cases, stacked under 05.2:
+
+| # | Screen | Desktop | Mobile (WIP) |
+|---|---|---|---|
+| 05.6 | Returning creator with 3 collections (multi-select) | `2753:64849` | `2768:52438` |
+| 05.7 | Many collections: search box and scrolling list | `2755:64723` | `2768:52809` |
+| 05.8 | No collections: empty box, Save disabled | `2755:65115` | `2768:53270` |
 
 ### Flow C: Empty collections 🔒 (mobile 🧪)
 
