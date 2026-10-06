@@ -6,7 +6,7 @@ Last updated: 2026-10-06.
 
 **Links:** `https://www.figma.com/design/FdmVPJo1j4t8s9gej1H7Yb/?node-id=<id>`. Write the id with `-` instead of `:`, e.g. `2777-67314`.
 
-**Workflow:** build one flow at a time, each in its own new section, then wait for approval before starting the next. Reviewed sections are locked: later changes go in an add-on section. Icons are always library icon instances, never typed characters (rules in `responsive-workflow-urmei/_shared/workfile.md`).
+**Workflow:** build one flow at a time, each in its own new section, then wait for approval before starting the next. Reviewed sections are locked: later changes go in an add-on section. Icons are always library icon instances, never typed characters (rules in `responsive-workflow-urmei/_shared/workfile.md`). Cursors are always a clone of the **Pointer Container** group `2775:169244` (70×73, fingertip at 21, 9). Place it with its fingertip on the target, positioned ABSOLUTE in the top-level screen frame. All the Collections and mobile WIP cursors were switched to it on 2026-10-06.
 
 ## Status key
 
