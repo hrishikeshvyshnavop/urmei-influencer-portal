@@ -42,7 +42,7 @@ Every Collections design is in **one section** on the flows page `2650:50683`: *
 | 14 | Unpublished Shop | `2786:68996` | 5 |
 | 15 | Storefront Preview | `2788:239935` | 8 |
 | 16 | Collections on the Storefront | `2757:65060` | E |
-| 17 | Storefront Without Collections | `2782:68420` | 4 |
+| 17 | Collection No Longer Available | `2782:68420` | 4 |
 
 Journey groups:
 - **Managing collections:** 01–04, Create, Edit and Delete (split out of the old "Collections" sub-section on 2026-10-06), then Empty Collections
@@ -118,7 +118,14 @@ New screens added on 2026-10-06: 01.3 Collection Created toast `2801:71721`, 02.
 - **Split, 2026-10-06:** "Edit and Delete from Collection Page" is now two sub-sections, **10 Edit from Collection Page** (`2805:249371`) and **11 Delete from Collection Page** (`2789:70752`), each with its own cover.
 - **Disabled states, 2026-10-06:** a disabled button always uses the Button component's `State=Disabled` variant, never opacity. That's how the file builds Preview Storefront, Publish shop and the old Favorites arrows. The 22 end-of-row ‹ › reorder arrows were switched from 40% opacity to `Button=Outlined icon, Size=sm, State=Disabled`. Copy Link (14.1) already used `Button=Outlined, Size=md, State=Disabled`. One exception: `Item Dropdown` has no Disabled state. The greyed "Copy collection link" menu item (14.2) therefore stays at full opacity, with its text bound to `typography/color/secondary/500`, the same disabled colour (#d5d5d5) as disabled button labels. **Colour check (2026-10-06):** disabled buttons use a #f8f8f8 fill, a #e5e5e5 border and a #d5d5d5 label and icon, all from tokens. The `copy` icon on the disabled Copy Link (14.1 and 09.2) kept a white fill after the variant swap. That fill was removed, so no white square shows behind the icon.
 
-Covers are named `NN.0 <Sub-section> — Cover` and use the `Cover` component (path-style title) in 01–05.
+Covers are named `NN.0 <Sub-section> — Cover`. **Every** sub-section now uses the `Cover` component with a path-style title, e.g. "Board ⋮ → Delete collection → Delete" (clean-up, 2026-10-06).
+
+**Clean-up, 2026-10-06:**
+- **Covers:** the 7 old-style covers (04, 06, 09, 12, 14, 15, 16) were replaced with the Cover component.
+- **Annotation names:** 7 were renumbered to their current screen, e.g. `Annotation / 06.3`.
+- **Generic layers:** 228 were renamed (`Text / …`, `Row / …`, `Stack / …`, `Image`, `Icon Path`, `Shape`, `Divider`). Cursor and annotation internals were skipped.
+- **Layout:** sub-sections were refitted and restacked 200px apart.
+- **17:** it's now only the dead-link case (the "no collections" storefront screen was removed in Figma). It was renamed **Collection No Longer Available**, with the cover "Shared collection link → Collection isn't available" and three one-line annotations (entry, why, dev link format).
 
 ## Flows
 
