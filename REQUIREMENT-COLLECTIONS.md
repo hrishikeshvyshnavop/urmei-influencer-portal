@@ -1,6 +1,6 @@
 # Shop collections: client requirement
 
-Received 2026-10-06. Status: **questions answered. Scope for now is Figma designs only; no code changes.** Tracked as `T-31` in `TRACKER.md`. Answers on their own: `COLLECTIONS-ANSWERS.md`.
+Received 2026-10-06. Status: **client confirmed multiple collections; desktop designs in review round 1, mobile in progress. Figma only; no code changes yet.** Tracked as `T-31` in `TRACKER.md`. Answers on their own: `COLLECTIONS-ANSWERS.md`.
 
 Links: replaces the current **Favorites** feature in My Shop and the storefront (`src/shop/limits.ts` cap of 4, `ShopItem.favorite`, the storefront's Favorite Picks section).
 
@@ -194,6 +194,79 @@ _Changed 2026-10-06: the first answer was a) a per-collection visible/hidden tog
 - a) Shoppers create accounts and follow creators inside URMEI
 - b) Shoppers subscribe by email for a creator's new collections
 - c) It links to the creator's social accounts; no shopper accounts
+
+## Client follow-up (thread, 2026-10-06)
+
+- **Nelson Seh:** "Let's go with multiple collections. It's important we launch with the ability for creators to make the space their own. I think a single collection won't suffice." He accepts it is more work and that launch **may move back a week or two**.
+- **Neethu KU:** the team will share a quick idea of how collections would look; Hrishi shares it once ready.
+- A thread reply with one screenshot (My Shop › Collections tab) was drafted for Hrishi to send.
+
+## Design notes (Figma, 2026-10-06)
+
+### Where the screens are
+
+Work File `FdmVPJo1j4t8s9gej1H7Yb`.
+
+| What | Where | Id |
+|---|---|---|
+| Review section (desktop, plus mobile for 11.1–11.5) | Flows page `2650:50683` › **[Collections] Review Round 1 \| 06.10.26** | `2764:66587` |
+| Review notes panel (what's in, decisions, not in this round) | Inside the review section | `2764:66588` |
+| My Shop screens 11.0–11.9 | › 11 - Collections in My Shop | `2764:66613` |
+| Storefront screens 04.0–04.3 | › 04 - Creator Collections on the Storefront | `2757:65060` |
+| Empty-board options A–E | Next to 11.1b | `2760:65839` |
+| Mobile for the rest (11.1a, 11.1b, 11.6–11.9, 04.1–04.3) | Hrishi Workspace page `751:80091` › **Collections — Mobile (WIP) \| 06.10.26** | `2767:51554` |
+
+The locked final design is the main file's page `794:24650` (`cehltPtMoGWEtKbF7k3MQQ`); nothing there was touched.
+
+### Screens
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 11.1 | My Shop › Collections tab (boards: 3-image cover, name, one-line description, count, ⋮ menu) | Review | Review |
+| 11.1a | No collections yet (dashed box, one New Collection button) | Review | WIP |
+| 11.1b | A collection with no products ("0 products · Not shown on your storefront") | Review | WIP |
+| 11.2 | Create collection dialog (name required 0/40, description optional 0/100) | Review | Review |
+| 11.3 | Board menu: Edit details, Copy collection link, Delete collection | Review | Review |
+| 11.4 | Edit collection dialog | Review | Review |
+| 11.5 | Delete confirmation (products stay in My Shop and other collections) | Review | Review |
+| 11.6 | All Picks › product menu › **Add to collection** (replaces Add to Favorites) | Review | WIP |
+| 11.7 | Add to collection dialog: checkbox per collection with counts, New Collection, Cancel / Save | Review | WIP |
+| 11.7a | Many collections: search box, list scrolls inside the dialog, buttons stay fixed | Review | WIP |
+| 11.7b | No collections: empty box with New Collection, Save disabled | Review | WIP |
+| 11.8 | Toast "Added to My morning routine" | Review | WIP |
+| 11.9 | Creator product page: Favorite badge removed, **Add To Collection** button, "In 2 collections" chips | Review | WIP |
+| 04.1 | Storefront: "Favorite Picks" becomes **[Creator]'s Collections** (row of boards, arrows scroll) | Review | WIP |
+| 04.2 | Collection page at its own link: breadcrumb Creators › Charlotte › collection, "Collection by", name, description, count, Copy Collection Link, products, "More collections from [Creator]" | Review | WIP |
+| 04.3 | Shopper product page from a collection: top bar "You're shopping Charlotte's collection · My morning routine", **In [Creator]'s collections** row after What Creators Say | Review | WIP |
+
+### Design decisions taken in the session
+
+- **No hide feature** (changes Q9): no hidden badge, no "Hide from storefront" menu item.
+- **Menu button:** board cards use the product card's own ⋮ button (`Button=Outlined icon, Size=sm`, 12px from the top-right corner), as the user asked.
+- **Add to collection** is reached from a pick's ⋮ menu in My Shop (Q10) and allows several collections at once (Q3). Collections that already hold the product show ticked.
+- **Breadcrumbs:** the collection page uses Creators › Creator › Collection (a collection has one owner). Product pages keep the category breadcrumb, because a product can sit in many collections and shops; the top bar carries the collection context instead. A collection breadcrumb on the product page only makes sense if engineering serves products at a creator-scoped URL (`/shop/<creator>/<collection>/<product>`). That is a question for the dev team.
+
+### Open questions for the client (also on the review notes panel)
+
+1. **Empty board design:** pick option A–E.
+   - A: dashed placeholder (current)
+   - B: ghost collage
+   - C: call-to-action card with Add Products
+   - D: faded suggestions from the creator's own picks
+   - E: typographic cover
+
+   If C is chosen, decide where Add Products goes: the All Picks tab, or a new product picker.
+2. **Empty collections:** they are hidden from shoppers until they have a product. This is our assumption, not a client decision.
+3. **New Collection in Add to collection:** it opens the Create dialog (11.2), then adds the product to the new collection. The alternative is an inline name field.
+4. **Shopper top bar:** it names the collection only when the shopper arrives from it, and otherwise keeps "[Creator]'s Picks".
+5. **Product page row:** it shows only the collections that contain the product, not all of the creator's collections.
+6. **Breadcrumbs:** they stay category-based on product pages (see above).
+
+### Not designed yet
+
+- Collection detail in My Shop: open a board, remove a product from a collection.
+- Copy collection link confirmation.
+- Migration of existing favourites (Q13) is a data step with no screen.
 
 ## Code touch points (current Favorites)
 
