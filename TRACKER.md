@@ -11,7 +11,7 @@ Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free
 | ⬆️ Pushed | On `origin` (`main` or a feature branch) |
 | 🟢 Live | Deployed and checked on the Vercel site |
 
-Last updated: 2026-09-25
+Last updated: 2026-10-06
 
 ## In progress
 
@@ -57,3 +57,4 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 | --- | --- | :-: | :-: | :-: | --- |
 | T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-31 | Record the client's shop collections requirement: several collections, each with an editable name and a one-line description, replacing the fixed Favorites. Scope and open questions are in `REQUIREMENT-COLLECTIONS.md`; building it is a later task (`git log --grep T-31`) | [x] | [ ] | [ ] | 📝 Committed |
