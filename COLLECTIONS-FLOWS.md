@@ -89,7 +89,7 @@ Section `2764:66613`, row 4.
 
 | # | Screen | Desktop | Mobile (WIP) |
 |---|---|---|---|
-| 11.9 | Product page: Add To Collection button, "In 2 collections" chips | `2763:65814` | `2767:52753` |
+| 11.9 | Product page: Add To Collection button, "In 2 collections" chips. Three Info annotations explain what changed from Favorites: badge removed, button renamed, chips added | `2763:65814` | `2767:52753` |
 
 ### Flow E: Collections on the storefront (shopper) 🔒 (mobile 🧪)
 
