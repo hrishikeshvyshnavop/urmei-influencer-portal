@@ -1,6 +1,6 @@
 # Shop collections: client requirement
 
-Received 2026-10-06. Status: **questions answered. Scope for now is Figma designs only; no code changes.** Tracked as `T-31` in `TRACKER.md`.
+Received 2026-10-06. Status: **questions answered. Scope for now is Figma designs only; no code changes.** Tracked as `T-31` in `TRACKER.md`. Answers on their own: `COLLECTIONS-ANSWERS.md`.
 
 Links: replaces the current **Favorites** feature in My Shop and the storefront (`src/shop/limits.ts` cap of 4, `ShopItem.favorite`, the storefront's Favorite Picks section).
 
