@@ -58,3 +58,4 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 | T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-31 | Shop collections (replace Favorites): requirement, answers, and the Figma flows list. `REQUIREMENT-COLLECTIONS.md`, `COLLECTIONS-ANSWERS.md`, `COLLECTIONS-FLOWS.md` (Figma section `[Influencer] Collections` `2764:66587`). Design only; building it is a later task (`git log --grep T-31`) | [x] | [ ] | [ ] | 📝 Committed |
+| T-32 | Track the Figma workflow folder `responsive-workflow-urmei/` (it was local-only) and add the `change-request` workflow for new client requests (`git log --grep T-32`) | [x] | [ ] | [ ] | 📝 Committed |
