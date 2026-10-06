@@ -20,7 +20,7 @@ Answered 2026-10-06. Requirement and full options: `REQUIREMENT-COLLECTIONS.md`.
 | 10 | Adding products | Only from products already in My Shop |
 | 11 | Storefront | Pinterest-style board grid; opening a board shows its products |
 | 12 | Shareable link | Each collection gets its own link, e.g. `/shop/view/<collection>` |
-| 13 | Existing favourites | Move automatically into a "Favourites" collection |
+| 13 | Existing favourites | Not needed: Favorites was never released (changed 2026-10-06) |
 | 14 | Figma | Full designs: create, edit, delete, storefront and mobile |
 | 15 | Stats / activity log | Neither in the MVP |
 | 16 | Photos and videos (post-MVP) | Undecided |
@@ -77,7 +77,9 @@ Yes, e.g. `/shop/view/<collection>`, which creators can share on social media.
 ### Migration, design and tracking
 
 **Q13. What happens to creators' existing favourites when this ships?**
-They move automatically into a collection called "Favourites".
+Not needed. Favorites was never released to creators, so there are no existing favourites to move. Every shop simply starts with the default "Favourites" collection (Q4).
+
+_Changed 2026-10-06: the first answer was "they move automatically into a collection called Favourites"._
 
 **Q14. Will Figma designs come for this?**
 Yes, full designs for create, edit, delete, the storefront and mobile.

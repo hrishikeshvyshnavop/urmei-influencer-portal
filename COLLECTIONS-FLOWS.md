@@ -15,6 +15,7 @@ Last updated: 2026-10-06.
 | 🔒 Shared | Shown to the client in round 1 (01 and 02). Now editable. |
 | ✅ Approved | Approved by you; not in client review yet. |
 | 🟡 Awaiting approval | Built and waiting for your go-ahead. |
+| 🗄️ Archived | Kept on Hrishi Workspace; not part of the design. |
 | 🧪 WIP | Draft on Hrishi Workspace. Not in review yet. |
 | 💡 Add-on | Outside the agreed decisions. Needs client sign-off. |
 | ⬜ Planned | Not built yet. |
@@ -25,28 +26,27 @@ Every Collections design is in **one section** on the flows page `2650:50683`: *
 
 | # | Sub-section | Id | Flow (below) |
 |---|---|---|---|
-| 01 | Favorites Are Now Collections | `2787:69374` | 6 |
-| 02 | Collections | `2764:66613` | A |
-| 03 | Collection Name Errors | `2788:69743` | 7 |
-| 04 | Empty Collections | `2792:108198` | C |
-| 05 | Creator Product Page | `2792:108199` | D |
-| 06 | Add to Collection | `2792:71522` | B |
-| 07 | Collection Detail | `2777:67314` | 1 |
-| 08 | Empty Collection Page | `2780:67176` | 2 |
-| 09 | Edit and Delete from Collection Page | `2789:70752` | 9 |
-| 10 | Reorder Collections | `2771:66587` | F |
-| 11 | Copy Collection Link | `2781:67699` | 3 |
-| 12 | Unpublished Shop | `2786:68996` | 5 |
-| 13 | Storefront Preview | `2788:239935` | 8 |
-| 14 | Collections on the Storefront | `2757:65060` | E |
-| 15 | Storefront Without Collections | `2782:68420` | 4 |
+| 01 | Collections | `2764:66613` | A |
+| 02 | Collection Name Errors | `2788:69743` | 7 |
+| 03 | Empty Collections | `2792:108198` | C |
+| 04 | Creator Product Page | `2792:108199` | D |
+| 05 | Add to Collection | `2792:71522` | B |
+| 06 | Collection Detail | `2777:67314` | 1 |
+| 07 | Empty Collection Page | `2780:67176` | 2 |
+| 08 | Edit and Delete from Collection Page | `2789:70752` | 9 |
+| 09 | Reorder Collections | `2771:66587` | F |
+| 10 | Copy Collection Link | `2781:67699` | 3 |
+| 11 | Unpublished Shop | `2786:68996` | 5 |
+| 12 | Storefront Preview | `2788:239935` | 8 |
+| 13 | Collections on the Storefront | `2757:65060` | E |
+| 14 | Storefront Without Collections | `2782:68420` | 4 |
 
 Journey groups:
-- **Creator getting started:** 01–04
-- **Filling a collection:** 05–06
-- **Managing:** 07–10
-- **Sharing:** 11–13
-- **Shopper:** 14–15
+- **Creator getting started:** 01–03
+- **Filling a collection:** 04–05
+- **Managing:** 06–09
+- **Sharing:** 10–12
+- **Shopper:** 13–14
 
 - **New flows** go in where they fit in the journey. Renumber everything after them.
 - **Mobile drafts** stay on Hrishi Workspace › Collections — Mobile (WIP) `2767:51554`.
@@ -59,50 +59,48 @@ Frames were renamed to `NN.S <Sub-section> — <State> — <Device>` to match th
 
 | Old | New | Id |
 |---|---|---|
-| 11.24 | 01.1 | `2787:69381` |
-| 11.25 | 01.2 | `2787:69782` |
-| 11.1 | 02.1 | `2750:146644` |
-| 11.2 | 02.2 | `2750:146556` |
-| 11.3 | 02.3 | `2750:146310` |
-| 11.4 | 02.4 | `2750:146394` |
-| 11.5 | 02.5 | `2750:146476` |
-| 11.26 | 03.1 | `2788:69750` |
-| 11.27 | 03.2 | `2788:70108` |
-| 11.28 | 03.3 | `2788:70448` |
-| 11.1a | 04.1 | `2758:65509` |
-| 11.1b | 04.2 | `2758:65790` |
-| 11.9 | 05.1 | `2763:65814` |
-| 11.6 | 06.1 | `2753:64411` |
-| 11.7 | 06.2 | `2753:64849` |
-| 11.8 | 06.3 | `2753:65379` |
-| 11.7a | 06.4 | `2755:64723` |
-| 11.7b | 06.5 | `2755:65115` |
-| 11.11 | 07.1 | `2777:67321` |
-| 11.12 | 07.2 | `2777:67713` |
-| 11.13 | 07.3 | `2777:68123` |
-| 11.14 | 07.4 | `2779:67017` |
-| 11.15 | 08.1 | `2780:67183` |
-| 11.16 | 08.2 | `2780:67260` |
-| 11.17 | 08.3 | `2780:67668` |
-| 11.31 | 09.1 | `2789:70759` |
-| 11.32 | 09.2 | `2789:70963` |
-| 11.33 | 09.3 | `2789:71394` |
-| 11.34 | 09.4 | `2789:71559` |
-| 11.10 | 10.1 | `2771:66588` |
-| 11.10a | 10.2 | `2783:69022` |
-| 11.18 | 11.1 | `2781:67717` |
-| 11.19 | 11.2 | `2781:67860` |
-| 11.20 | 11.3 | `2781:68015` |
-| 11.21 | 11.4 | `2781:68313` |
-| 11.22 | 12.1 | `2786:69003` |
-| 11.23 | 12.2 | `2786:69408` |
-| 11.29 | 13.1 | `2788:239942` |
-| 11.30 | 13.2 | `2788:240237` |
-| 04.1 | 14.1 | `2757:65132` |
-| 04.2 | 14.2 | `2757:65695` |
-| 04.3 | 14.3 | `2763:66163` |
-| 04.4 | 15.1 | `2782:68431` |
-| 04.5 | 15.2 | `2782:68945` |
+| 11.1 | 01.1 | `2750:146644` |
+| 11.2 | 01.2 | `2750:146556` |
+| 11.3 | 01.3 | `2750:146310` |
+| 11.4 | 01.4 | `2750:146394` |
+| 11.5 | 01.5 | `2750:146476` |
+| 11.26 | 02.1 | `2788:69750` |
+| 11.27 | 02.2 | `2788:70108` |
+| 11.28 | 02.3 | `2788:70448` |
+| 11.1a | 03.1 | `2758:65509` |
+| 11.1b | 03.2 | `2758:65790` |
+| 11.9 | 04.1 | `2763:65814` |
+| 11.6 | 05.1 | `2753:64411` |
+| 11.7 | 05.2 | `2753:64849` |
+| 11.8 | 05.3 | `2753:65379` |
+| 11.7a | 05.4 | `2755:64723` |
+| 11.7b | 05.5 | `2755:65115` |
+| 11.11 | 06.1 | `2777:67321` |
+| 11.12 | 06.2 | `2777:67713` |
+| 11.13 | 06.3 | `2777:68123` |
+| 11.14 | 06.4 | `2779:67017` |
+| 11.15 | 07.1 | `2780:67183` |
+| 11.16 | 07.2 | `2780:67260` |
+| 11.17 | 07.3 | `2780:67668` |
+| 11.31 | 08.1 | `2789:70759` |
+| 11.32 | 08.2 | `2789:70963` |
+| 11.33 | 08.3 | `2789:71394` |
+| 11.34 | 08.4 | `2789:71559` |
+| 11.10 | 09.1 | `2771:66588` |
+| 11.10a | 09.2 | `2783:69022` |
+| 11.18 | 10.1 | `2781:67717` |
+| 11.19 | 10.2 | `2781:67860` |
+| 11.20 | 10.3 | `2781:68015` |
+| 11.21 | 10.4 | `2781:68313` |
+| 11.22 | 11.1 | `2786:69003` |
+| 11.23 | 11.2 | `2786:69408` |
+| 11.29 | 12.1 | `2788:239942` |
+| 11.30 | 12.2 | `2788:240237` |
+| 04.1 | 13.1 | `2757:65132` |
+| 04.2 | 13.2 | `2757:65695` |
+| 04.3 | 13.3 | `2763:66163` |
+| 04.4 | 14.1 | `2782:68431` |
+| 04.5 | 14.2 | `2782:68945` |
 
 Covers are named `NN.0 <Sub-section> — Cover`.
 
@@ -237,9 +235,9 @@ Section `2786:68996`. The shop has never been published, so it has no live links
 | 11.22 | Collection page: Shop Info card shows "Publish shop to get your URL" and Publish Shop; Copy Link disabled (annotation) | `2786:69003` | ⬜ |
 | 11.23 | Board ⋮ menu: Copy collection link greyed out; Edit and Delete still work (annotation) | `2786:69408` | ⬜ |
 
-### Flow 6: Favorites are now Collections 🟡
+### Flow 6: Favorites are now Collections 🗄️ Archived (2026-10-06)
 
-Section `2787:69374`. An existing creator's first visit after launch (Q13).
+Not needed: Favorites was never released to creators, so there are no existing favourites to move (Q13 updated). The section `2787:69374` was moved to Hrishi Workspace as "Archived — Favorites Are Now Collections".
 
 | # | Screen | Desktop | Mobile |
 |---|---|---|---|

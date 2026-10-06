@@ -53,7 +53,7 @@ Follow-up from Nelson Seh:
 | Adding products | Only from My Shop |
 | Storefront | Pinterest-style board grid; a board opens its products |
 | Shareable link | Each collection gets its own link, e.g. `/shop/view/<collection>` |
-| Existing favourites | Move into "Favourites" automatically |
+| Existing favourites | **Not needed:** Favorites was never released to creators (changed 2026-10-06) |
 | Figma | Full designs (create, edit, delete, storefront, mobile) |
 | Stats / activity log | Neither in MVP |
 | Post-MVP photos/videos, "follow a creator" | Undecided |
@@ -167,7 +167,9 @@ _Changed 2026-10-06: the first answer was a) a per-collection visible/hidden tog
 - b) They are cleared and creators start again
 - c) They move, and the creator is asked to name the collection
 
-**Answer:** a) They move automatically into a collection called "Favourites"
+**Answer:** Not needed. Favorites was never released to creators, so there are no existing favourites to move. Every shop simply starts with the default "Favourites" collection (Q4).
+
+_Changed 2026-10-06: the first answer was "they move automatically into a collection called Favourites"._
 
 **Q14. Will Figma designs come for this?**
 - a) Yes, full designs for create, edit, delete, the storefront and mobile
@@ -282,7 +284,7 @@ The locked final design is the main file's page `794:24650` (`cehltPtMoGWEtKbF7k
 
 - Collection detail in My Shop: open a board, remove a product from a collection.
 - Copy collection link confirmation.
-- Migration of existing favourites (Q13) is a data step with no screen.
+- No migration is needed (Q13): Favorites was never released. The "Favorites are now Collections" flow was archived on Hrishi Workspace.
 
 ## Code touch points (current Favorites)
 
