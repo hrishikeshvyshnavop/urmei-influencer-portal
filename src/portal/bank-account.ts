@@ -85,15 +85,15 @@ export function removeBankAccount() {
 }
 
 /**
- * Figma `1583:88109` (the frame is misnamed "Adding shipping address"; its
- * content is the bank step). Every field is required — the design left SWIFT/BIC
- * code, payout currency and account type optional, which was changed on request. Payout
+ * Figma `236:16499` in the main file (the frame is misnamed "Adding shipping
+ * address"; its content is the bank step). Every field is required. The pairs
+ * follow the design: holder name and bank, account number and holder type,
+ * SWIFT/BIC code and payout currency, then account type on its own. Payout
  * currency is a select over the portal's five markets, worded the way the
  * payout provider returns it ("SGD - Singapore Dollar").
  *
  * Profile setup and Manage Account's Add/Edit bank details modal both render
- * this list as-is, so the two forms read identically. Account holder type
- * spans the row so the seven fields pair up with no field left alone.
+ * this list as-is, so the two forms read identically.
  */
 export const BANK_FIELDS: FieldSpec[] = [
   {
@@ -112,22 +112,14 @@ export const BANK_FIELDS: FieldSpec[] = [
     // Digits only, on both forms: typed or pasted dashes and spaces are dropped.
     numericOnly: true,
   },
-  { name: "bankCode", label: "SWIFT/BIC Code", placeholder: "", required: true },
   {
     name: "accountHolderType",
     label: "Account holder type",
     placeholder: "Choose account holder type",
     required: true,
     options: ["Individual", "Business"],
-    fullWidth: true,
   },
-  {
-    name: "accountType",
-    label: "Account type",
-    placeholder: "Choose account type",
-    required: true,
-    options: ["Savings", "Current"],
-  },
+  { name: "bankCode", label: "SWIFT / BIC Code", placeholder: "", required: true },
   {
     name: "payoutCurrency",
     label: "Payout currency",
@@ -140,6 +132,13 @@ export const BANK_FIELDS: FieldSpec[] = [
       "THB - Thai Baht",
       "VND - Vietnamese Dong",
     ],
+  },
+  {
+    name: "accountType",
+    label: "Account type",
+    placeholder: "Choose account type",
+    required: true,
+    options: ["Savings", "Current"],
   },
 ];
 
