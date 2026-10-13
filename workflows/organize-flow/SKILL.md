@@ -82,6 +82,12 @@ Load `figma:figma-use` before any `use_figma` call. Set `figma.skipInvisibleInst
 - **Skip the whole `Annotation / Cursor (not for build)` subtree**, like `Cursor`.
 - **Two frames with the same name** (the two "Verification progress" frames) get their states from what each one shows: `Verification in Progress` and `Verification Error`.
 
+## Lessons from the main-file Collections run (2026-10-13)
+
+- **Main-file sections can be organized** when the user links one, as long as they're off the locked page `794:24650`. Check the node's page first: `[NEW] Collections | 07.10.26` `1862:81644` is on `236:15116`.
+- **New flows built from copied frames keep their source names** (`20.1 Add from Search Results…`, `01.2 Add Product…`). Name each frame from what it shows, not from its old name. Give an unnumbered section the number of the slot it fills, or the next free number at the bottom.
+- **Already-organized sections only need the generic-name sweep.** Don't re-title-case every layer in them.
+
 ## After all sections
 
 - Stack the sections in number order, 200px apart, inside their parent section. Refit the parent.

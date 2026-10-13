@@ -5,7 +5,7 @@ description: The complete URMEI responsive (mobile 375px) design workflow in one
 
 # URMEI responsive workflow (all-in-one)
 
-This file puts every responsive skill and reference into one file, **verbatim**, in the order you use them. Generated on 2026-10-01 from `responsive-workflow-urmei/`. **The source files are still the ones to edit.** If a source changes, regenerate this file (see "Regenerating" at the end) rather than editing the copies below.
+This file puts every responsive skill and reference into one file, **verbatim**, in the order you use them. Generated on 2026-10-13 from `workflows/` by `workflows/responsive-workflow/build.mjs`. **The source files are still the ones to edit.** If a source changes, rerun the script rather than editing the copies below.
 
 Load `figma:figma-use` before any `use_figma` call. Relative links inside the copied files (`references/…`, `../_shared/…`) point at the original files, and every one of them is also copied below.
 
@@ -13,13 +13,13 @@ Load `figma:figma-use` before any `use_figma` call. Relative links inside the co
 
 | Step | What you do | Parts below |
 |---|---|---|
-| **0. Automate** | Paste a flow link: read, plan (one approval stop), build, cursors, layout, verify, review, record. It runs steps 1–5 for you. | 0.1 responsive-flow skill · 0.2 scripts |
-| **1. Setup** | Read the Work File reference. Check the locked ids exist. Learn the script traps. | 1.1 workfile.md · 1.2 figma-gotchas.md |
-| **2. Build** | Build or adapt mobile screens. Reuse main-file designs and clone existing frames. | 2.1 mobile-screen skill · 2.2–2.5 references |
-| **3. Organize** | Rename layers, number and lay out the screens, tidy the sections. | 3.1 organize-flow skill |
-| **4. Review and fix** | Sync to the final design, run the production-readiness review, apply the approved fixes. | 4.1 mobile-design-review skill · 4.2–4.6 references and scripts |
-| **5. Track** | Log each section's status and open decisions. | 5.1 readiness-log.md |
-| **6. History** | Finished plans and old handoffs, for context only. | 6.1–6.3 archive |
+| **0. Automate** | Paste a flow link: read, plan (one approval stop), build, cursors, layout, verify, review, record. It runs steps 1–5 for you. | responsive-flow skill · scripts |
+| **1. Setup** | Read the Work File reference. Check the locked ids exist. Learn the script traps. | workfile.md · figma-gotchas.md |
+| **2. Build** | Build or adapt mobile screens. Reuse main-file designs and clone existing frames. | mobile-screen skill · references |
+| **3. Organize** | Rename layers, number and lay out the screens, tidy the sections. | organize-flow skill |
+| **4. Review and fix** | Sync to the final design, run the production-readiness review, apply the approved fixes. | mobile-design-review skill · references and scripts |
+| **5. Track** | Log each section's status and open decisions. | readiness-log.md · design-problems.md |
+| **6. History** | Finished plans and old handoffs, for context only. | archive |
 
 Standing rules (from the user; details in the parts below):
 - Build and edit only in the Work File. Write to the main design file (`cehltPtMoGWEtKbF7k3MQQ`) only after an explicit go-ahead, and then only on its Responsive Design page `794:24650`, mobile only.
@@ -29,8 +29,8 @@ Standing rules (from the user; details in the parts below):
 
 ## Contents
 
-- [Automate: the responsive-flow skill (link in, mobile screens out)](#responsive-flow-skill-md) — `responsive-flow/SKILL.md`
-- [Automate: reusable scripts for each stage](#responsive-flow-references-scripts-md) — `responsive-flow/references/scripts.md`
+- [Automate: the responsive-flow skill (link in, mobile screens out, one approval stop)](#responsive-flow-skill-md) — `responsive-flow/SKILL.md`
+- [Automate: the reusable scripts for each stage](#responsive-flow-references-scripts-md) — `responsive-flow/references/scripts.md`
 - [Setup: the Work File, pages, locked frames, components, tokens, product rules](#_shared-workfile-md) — `_shared/workfile.md`
 - [Setup: use_figma script traps and recipes](#_shared-figma-gotchas-md) — `_shared/figma-gotchas.md`
 - [Build: the mobile-screen skill (frame contract, new-flow reuse)](#mobile-screen-skill-md) — `mobile-screen/SKILL.md`
@@ -44,12 +44,12 @@ Standing rules (from the user; details in the parts below):
 - [Review: spacing rules](#mobile-design-review-references-spacing-rules-md) — `mobile-design-review/references/spacing-rules.md`
 - [Review: production-readiness checklist](#mobile-design-review-references-production-checklist-md) — `mobile-design-review/references/production-checklist.md`
 - [Track: readiness log and open decisions](#mobile-design-review-references-readiness-log-md) — `mobile-design-review/references/readiness-log.md`
+- [Track: open-problems summary compiled from the readiness log](#mobile-design-review-references-design-problems-md) — `mobile-design-review/references/design-problems.md`
 - [Review: sync script (diffs screens against the final design)](#mobile-design-review-references-sync-script-js) — `mobile-design-review/references/sync-script.js`
 - [Review: audit script](#mobile-design-review-references-audit-script-js) — `mobile-design-review/references/audit-script.js`
 - [Archive: Profile Settings & Notification build plan](#mobile-screen-references-archive-plan-profile-settings-notification-md) — `mobile-screen/references/archive/plan-profile-settings-notification.md`
 - [Archive: Sample Request & Review build plan](#mobile-screen-references-archive-plan-sample-request-and-review-md) — `mobile-screen/references/archive/plan-sample-request-and-review.md`
 - [Archive: 2026-09-25 review handoff](#mobile-design-review-references-archive-handoff-2026-09-25-md) — `mobile-design-review/references/archive/handoff-2026-09-25.md`
-
 
 ---
 
@@ -300,11 +300,12 @@ This is the single source for the node ids, page ids, components and tokens that
 ## File and pages
 
 - **Work File:** `FdmVPJo1j4t8s9gej1H7Yb` ("[MVP] Influencer Portal | Work File"). All building and editing happens here.
-- **Main design file:** `cehltPtMoGWEtKbF7k3MQQ`. It is reference only, except for its **-> Responsive Design (Web & Mob)** page `794:24650`, whose mobile frames the user has you update too (2026-09-29). Its mobile board `1174:34352` is catalogued in `mobile-screen/references/main-file-mobile-flows.md`.
+- **Main design file:** `cehltPtMoGWEtKbF7k3MQQ`. It is reference only. Its **-> Responsive Design (Web & Mob)** page `794:24650` is now the **locked final design** (user, 2026-10-06): never write to it. Its mobile board `1174:34352` is catalogued in `mobile-screen/references/main-file-mobile-flows.md`.
+  - Its page **✅ Updated Design - 09.09.26** `236:15116` is not locked. It holds **[NEW] Collections | 07.10.26** `1862:81644`, the Collections copy for the client. It has sub-sections 01–21, stacked in number order. Organized on 2026-10-13 (`organize-flow`): it has no `09 Empty Collection Page`. Its **09** is `Browse & Add Product to Collection` `1970:101055` (empty collection page → catalogue → search → add with the collection ticked → toast). Its **21** is `Browse & Add Product to Existing Collection` `1970:101729` (collection page "Add to collection" tile → same path). Both exist only in this file, so its 09/21 don't match the Work File's numbering.
 
 | Page | Id | What's there |
 |---|---|---|
-| **-> Responsive Design (Web & Mob)** | `2462:56445` (**gone on 2026-09-30:** the page is now `2650:50683`, its node ids are `2650:*`, and the locked ids `2384:76022` / `2384:77979` don't resolve. Re-verify before any page-wide write) | All current flows, desktop and mobile. It replaced the "Responsiveness" page `1802:19394` on 2026-09-28, so treat any `1802:*` id as dead. |
+| **-> Responsive Design (Web & Mob)** | `2650:50683` (was `2462:56445` until 2026-09-30; node ids are now `2650:*`) | All current flows, desktop and mobile. It replaced the "Responsiveness" page `1802:19394` on 2026-09-28, so treat any `1802:*` id as dead. |
 | **Components — Dev Handoff** | `2613:16624` | Every local main component (2026-09-30): one section per component (`01`–`11`), each holding just the component name above the component set (the user dropped the spec cards). New local components go here the same way. |
 | Hrishi Workspace | `751:80091` | The old Browse & Add section `2320:42706`, the mobile footer `2321:52957` |
 | Sample Request & Review Product | `2248:20562` | The original Sample Request board copy `2248-21224`, desktop only |
@@ -313,9 +314,11 @@ This is the single source for the node ids, page ids, components and tokens that
 
 | Section | Id | Sub-sections |
 |---|---|---|
-| [Influencer] Shop Experience | `2446:56196` | 03 Publish Shop `2230:78005` · 04 Add Favorite `2061:41656` · 05 Remove Favorite `2248:33651` · 06 Reorder Favorite `2344:77290` · 07 Copy Affiliate Link `2344:78578` · 08 Remove Product `2364:57473` · 09 Shop Preview `2364:57887` · 10 Stats Breakdown `2364:58157` (nested `10.8 Detailed Product Stats` `2381:64707`) · **final design** `2384:76022` and `2384:77979` |
+| [Influencer] Shop Experience | `2740:68609` (was `2650:122758`, `2446:56196`; the page's sections were re-copied on 2026-10-06, so ids below may be stale: find sections by name) | 01 Browse & Add Product `2650:134083` · 02 Search, Filter, Sort & Brand Listing `2650:132140` · 03 Publish Shop `2650:126001` · 04 Add Favorite `2650:122759` · 05 Remove Favorite `2650:124892` · 06 Reorder Favorite `2650:128216` · 07 Copy Affiliate Link `2650:127137` · 08 Remove Product `2650:128987` · 09 Shop Preview `2650:130075` · 10 Stats Breakdown `2650:130728` |
 | [Influencer] Onboarding & Home Experience | `2446:47735` | 00 Request Flow `2446:47736` · 01 Registration & OTP Verification `2446:48508` · 03 Product Tour `2446:49613` · 04 Home `2446:48783` · 05 Help Center FAQ `2446:49401` · 06 Recent Activities `2446:49508` · 07 Account Menu & Logout `2446:50986` · 08 Language Selector `2446:51445` (no 02; frames renamed `NN.S Flow — State — Device` on 2026-09-30, e.g. Home "06 — Shop completed — mobile" is now `04.2 Home — Shop Completed — Mobile`) |
 | **00 - Request Flow** (new, top level) | `2660:53392` (was `2627:107198`) | The Apply Now flow with email verification. Mobiles were added on 2026-10-01, one 50px beside each desktop (ids in `mobile-screen/references/mobile-inventory.md`). The happy path is `00.1` Landing → `00.2`/`00.3` Verify Email → `00.4`/`00.5` Verify Email OTP → `00.6`/`00.7` Apply Form → `00.8` Submitted. Edge cases are stacked under their Default screen: `00.9`–`00.10` email errors, `00.11`–`00.13` OTP errors, `00.14`–`00.15` identity verification states. The old `00 Request Flow` `2446:47736` inside Onboarding & Home is still there, and which of the two is current hasn't been confirmed. |
+| **[Influencer] Collections** | `2764:66587` (2026-10-06, `T-31`) | One sub-section per flow, 01–20 (list in `change-requests/collections/FLOWS.md` › Figma structure), stacked in number order. 18 Remove from Product Page `2839:73643` (2026-10-07) was split out of 07 and has the "Remove from this collection?" confirm (18.2). 19 Add from Product Page `2847:75873` and 20 Add from Search Results `2852:77845` (2026-10-07) are an add-on beyond Q10, awaiting client sign-off. Not locked. |
+| **[Influencer] Shop Personalization (Post-MVP) — Lead Review** | `2996:103805` (2026-10-12, `T-33`) | 01 Posts (cover `2903:78276`, `2903:78285`) · 02 Announcement Bar (cover `2910:78537`, `2910:78546`) · 03 Persistent Banner (cover `3000:80673`, 03.1 `2996:102574` recommended, 03.2 `2996:103398` alternative). Flows are loose in the section, not in sub-sections. The old section `2903:78274` keeps only 03 Custom Banner `2921:78784`. Not locked. |
 | [Influencer] Profile Settings & Notification | `2375:62087` | 01 Notification `2375:62088` · 02 Profile & Settings `2375:62288` |
 | [Influencer] Sample Request & Review | `2617:56695` | 01 Sample Requests `2384:65543` · 02 Request a Sample: Happy Path `2384:66136` · 03 Request a Sample: No Address `2384:66596` · 04 Change Shipping Address `2384:66909` · 05 Add Shipping Address `2384:67268` · 06 Cancel a Request `2384:65891` · 07 Rejected Request `2384:66068` · 08 Write a Review `2384:69218` · 09 Product Page with Creator Reviews `2384:67626` · 10 Creator Adding Product Review `2384:67720` · 11 Creator Reviews List View `2384:68757`. The old parent `2384:65541` was dissolved; this one was recreated on 2026-09-30. |
 
@@ -323,7 +326,7 @@ This is the single source for the node ids, page ids, components and tokens that
 
 These are the design handed off to the dev team (user's rule, 2026-09-28). You may read them and clone from them, but never change them.
 
-- `2384:76022` and `2384:77979`: the **final design** (the two `-` sub-sections in `2446:56196`). Their old parent `2384:76021` "(Final design)" was dissolved.
+- The **final design** is the whole **-> Responsive Design (Web & Mob)** page `794:24650` in the **main file** `cehltPtMoGWEtKbF7k3MQQ` (user, 2026-10-06). Never write to that file's page. The old Work File ids `2384:76022` / `2384:77979` no longer exist.
 - `2320:42706`: BROWSE & ADD PRODUCT TO SHOP - 24 -09 -26 (Hrishi Workspace).
 
 Every page-wide write script must check that these ids still exist, and exclude any node whose ancestor chain contains one. Snippet in `figma-gotchas.md`.
@@ -340,10 +343,12 @@ Every page-wide write script must check that these ids still exist, and exclude 
 | **Notification Banner** | set `2454:68390` (Dev Handoff page) | Local. `Device` Desktop/Mobile, `Message`, `Show Action`, `Icon`, exposed `action` Button. All banners are instances of it. |
 | **Product Affiliate Link** | set `2605:97740` (Dev Handoff page) | Local. `State` Published/Unpublished, `Link` text property. Fills its column, so one component serves desktop (568) and mobile (343). Unpublished shows "Publish shop to get your product URL" and no copy icon (`hasLiveLink`). Every PDP's link row is an instance of it (2026-09-30). |
 | **What Creators Say** | set `2609:97872` (Dev Handoff page) | Local, built from 09.1 (`2404:64593`). `Device` Desktop (1200, side by side) / Mobile (343, stacked, pager on its own row), `Show Photos` boolean, text props Date, Quote, Name, Counter. Avatar and photo images are per-instance fill overrides. Every PDP's review card is an instance of it (2026-09-30). |
+| **Dialog Product Summary** | set `2799:73542` (Dev Handoff › 12 Dialog Product Summary; Desktop `2799:73520`, Mobile `2799:73541`) | Local, 2026-10-06. The product card at the top of product dialogs (Add to collection, Remove product…). The product row padding is bound to `spacing/md` (16) on all sides; its gap is `spacing/lg` (desktop) or `spacing/md-sm` (mobile). The radius and fill keep their library tokens. The `Show Availability` boolean shows the flush "Available only in …" strip (off by default). Every Collections dialog uses it. |
+| **Tooltip** | set `3078:16766` (Dev Handoff › 13 Tooltip `3078:16765`), key `ee2ec403e6a7d8a902f5ce402a0e297a46b89742` | Local, 2026-10-13; the URMEI library has none. `Placement` Top/Bottom/Left/Right (the side of the target it sits on; the beak points at the target), `Align` Start/Center/End (Top/Bottom only; beak 16px in from the edge), text property `Text`, wrapping at 296px. Fill `surface/primary/800`, text `surface/secondary/100`, `Body/body-sm-medium`, padding `spacing/sm` × `spacing/md-sm`, radius `border/radius/sm`. First used on Social Connection Lost 07.4 (`3078:87143`). |
 | **Settings Tabs** | set `2459:68480` (Dev Handoff page) | Local. `Active` Profile/Addresses/Social Accounts/Bank Details, `Bank Warning` boolean. |
 | **Account Menu** | set `2602:108370` (Dev Handoff page): `Device=Desktop` `2602:108315` (330 dropdown), `Device=Mobile` `2602:108331` (343 sheet card + View Profile + close ✕) | Local, 2026-09-30. Text props `Name`, `Email`. All six header profile menus on the flows page are instances of it; the old frames are hidden beside them. |
 | Mobile footer | `Footer/Mobile/Default`: `2321:52957` (Hrishi Workspace), final-design copy `2384:80274` | |
-| Cursor | `2344:77335` (70×73 group). **Gone on 2026-10-01**: clone a desktop's `Annotation / Cursor (not for build)` instead | Fingertip at 30%/12% of the graphic |
+| **Cursor** | **Pointer Container** group `2775:169244` (on 05.1 in [Influencer] Collections; user, 2026-10-06) | Clone it for every cursor, never the old `2344:77335` / `2740:75107`. It's 70×73, with the fingertip at (21, 9). Place it ABSOLUTE in the top-level screen frame (or a non-clipping parent), at the target's centre minus (21, 9). |
 | Close ✕ | `2384:78407` (`Button=Outlined icon, Size=md`) | |
 | Centred confirm dialog | `2384:78404` (final design) | |
 | Chrome reference | `2384:87491` (Status Bar + Header + Search wrap, 375×173) | |
@@ -394,6 +399,34 @@ These come from the app code (the source of product truth) and from the user's d
 - **Profile edit form, mobile (user, 2026-09-29):** there's no Save button at the bottom of the form. After the first edit, a `Sticky Save Bar` pins to the bottom above the Home Indicator: Discard (outlined) and Save Changes (primary), each half the width, 8px apart, with no helper text (the user dropped "You have unsaved changes"; it's hidden in the Work File frames). Leaving with unsaved edits opens "Discard unsaved changes?" (Keep Editing / Discard). Saving shows the "Profile changes saved" toast. Frames 02.1a–02.1c are in the Work File (`2550:51968`, `2550:52326`, `2550:52706`) and in the main file's Responsive page (`1467:55846`, `1467:56231`, `1467:56638`). Desktop keeps its inline Save.
 - **Shop stats row** (`src/shop/data/stats.ts`): Total clicks, Total sales, Commission pending, Commission earned, Commission settled, plus the "Showing" period filter.
 - **PDP Performance** (`src/shop/components/PerformanceStats.tsx`): Total unit sold, Link clicks, Conversion rate, Commission settled, plus "View other stats".
+- **Icons, never typed glyphs (user, 2026-10-06):** never draw an icon with a text character (‹ › « » ← → + ✕ × ★ ⋮ ✓). Use a library icon instance. Inside a button, turn on the Button's `show left icon` / `Show Right Icon` property and `swapComponent` its icon slot (import the icon with `importComponentByKeyAsync`). For a text-style link with an icon, use `Button=Plain-button` (clone e.g. `2740:65115`). Standing pairings:
+  - back link: `chevron-left`
+  - copy link: `copy`
+  - edit: `edit-3`
+  - delete: `trash-2`
+  - share: `share`
+  - add: `plus`
+  - more menu: the product card's ⋮ button (`Button=Outlined icon, Size=sm`, `more-vertical`)
+
+  Icon keys (URMEI library, 16px):
+
+  | Icon | Key |
+  |---|---|
+  | `chevron-left` | `4844c5d22f7d8ed854628f7e5c4023abbcad9695` |
+  | `arrow-left` | `1435e335fd11b8d72882af31afd46619084fc5dd` |
+  | `copy` | `cb49caf4063fc64b9a98d5246dc39879f4b2922a` |
+  | `edit-3` | `ca6abba734753723d86c1c7a0a58968bc1ce4b79` |
+  | `trash-2` | `e671ac63a304db96230b863dac24148b79f7837b` |
+  | `share` | `9219fd6c0334a2b2116e73cb27c2f450729047dd` |
+
+  First applied to Collections flow 1 (`2777:67314`).
+- **Annotations (user, 2026-10-06):** explain a screen with the file's own `Annotation` component, never a hand-made note card.
+  - **Source:** clone an existing instance, e.g. `2740:85668`. It comes from the remote set `Annotation`, with variants `up`, `down`, `left`, `right` and an `annotation` text property.
+  - **Category:** a nested chip with variants Development / Client / Feasibility / Content / Info.
+  - **Placement:** put the pointer dot on the exact element it describes. With `left`, the dot is at x 0, vertical centre, on a 243px leader, so the card (302px) sits outside the screen; the dot needs x ≥ 1197 on a 1440 frame.
+  - **Spacing:** keep cards from overlapping. Leave about 330px between dots, since cards are about 315 tall, and give the screen to the right enough gap (about 700px).
+  - **Example:** Collections Flow 4 (`2782:68420`).
+- **Disabled = the variant, never opacity (user, 2026-10-06):** show a disabled button with the Button's `State=Disabled` variant (e.g. `Button=Outlined icon, Size=sm, State=Disabled` for ‹ › arrows, `Button=Primary, Size=md, State=Disabled`). Don't fade it with opacity. `Item Dropdown` has no Disabled state yet, so for a disabled menu row keep opacity 1 and bind the text to `typography/color/secondary/500` (#d5d5d5, the disabled label colour). After swapping to Disabled, clear any white fill left on the icon instance: disabled icons have no fill and a #d5d5d5 stroke.
 - **The Button component forces Title Case.** A layer reading "Publish changes" renders as "Publish Changes". Set layer text to the app's wording anyway.
 
 ---
@@ -413,7 +446,7 @@ These are the lessons from real runs, shared by every Figma skill in this projec
 - **Check that ids exist.** Sections get moved, dissolved and copied (the flows page itself was replaced on 2026-09-28). Run `get_metadata` or a read-only script on the page first, and check the locked ids in `workfile.md`. **If a locked id is missing, stop and ask.** A stale id silently protects nothing, and on 2026-09-28 that let two page-wide passes edit the final design.
 - **Exclude locked subtrees by ancestry** in every page-wide script:
   ```js
-  const LOCKED = ['2384:76022', '2384:77979', '2320:42706'];
+  const LOCKED = ['2320:42706']; // Work File. The final design is the main file's page 794:24650: never call use_figma on that file to write.
   for (const id of LOCKED) if (!(await figma.getNodeByIdAsync(id))) throw new Error('locked id missing: ' + id);
   const isLocked = n => { for (let a = n; a && a.type !== 'PAGE'; a = a.parent) if (LOCKED.includes(a.id)) return true; return false; };
   ```
@@ -1705,6 +1738,12 @@ Load `figma:figma-use` before any `use_figma` call. Set `figma.skipInvisibleInst
 - **Skip the whole `Annotation / Cursor (not for build)` subtree**, like `Cursor`.
 - **Two frames with the same name** (the two "Verification progress" frames) get their states from what each one shows: `Verification in Progress` and `Verification Error`.
 
+## Lessons from the main-file Collections run (2026-10-13)
+
+- **Main-file sections can be organized** when the user links one, as long as they're off the locked page `794:24650`. Check the node's page first: `[NEW] Collections | 07.10.26` `1862:81644` is on `236:15116`.
+- **New flows built from copied frames keep their source names** (`20.1 Add from Search Results…`, `01.2 Add Product…`). Name each frame from what it shows, not from its old name. Give an unnumbered section the number of the slot it fills, or the next free number at the bottom.
+- **Already-organized sections only need the generic-name sweep.** Don't re-title-case every layer in them.
+
 ## After all sections
 
 - Stack the sections in number order, 200px apart, inside their parent section. Refit the parent.
@@ -2336,6 +2375,79 @@ A rerun of the comparison finds no differences. The Favorites carousel cards (26
 
 ---
 
+<a id="mobile-design-review-references-design-problems-md"></a>
+
+# SOURCE: `mobile-design-review/references/design-problems.md`
+
+> Step 5 · Track: open-problems summary compiled from the readiness log
+
+# Mobile design — open problems
+
+Figma Work File `FdmVPJo1j4t8s9gej1H7Yb`, flows page `2462:56445` ("-> Responsive Design (Web & Mob)").
+Compiled 2026-09-30 from `workflows/mobile-design-review/references/readiness-log.md` (last passes 2026-09-25 / 2026-09-28). No section is **Ready** yet.
+
+Links: `https://www.figma.com/design/FdmVPJo1j4t8s9gej1H7Yb/?node-id=<id>`
+
+## 1. Urgent
+
+| # | Problem | Where | Action |
+|---|---|---|---|
+| 1 | **The locked final design was edited by mistake.** Radius snaps (12/16/24 → 10, 7 → 8, 5.09 → 6, 2.5 → 4) and a border + 24 padding on two dialogs reached the final design while the lock pointed at a dissolved id. | `2384:76022`, `2384:77979`; dialogs `2384:78404`, `2384:78496` | Restore from version history |
+
+## 2. Decisions needed
+
+| # | Problem | Where | Options |
+|---|---|---|---|
+| 2 | **Product page figures disagree.** One product should read the same everywhere. | 05.3/05.4 show 128 / 2,410 / 10% / S$0; 07.x, 10.x, 11.3 show 2 / 700 / 10% / S$0 | Pick the canonical set |
+| 3 | **"Add a review" shows before delivery.** The app only allows a review after delivery. | Sample Request 01.2 (Requested, Approved, Shipped) | Remove the link, or change the product rule |
+| 4 | **Shop Info Card state is unclear.** Code reads 03.5 as "published, 0 products" and 03.6 as "publish blocked"; desktop shows "Publish shop" on both. Also: should never-published cards with products read "Preview Shop"? | 03.5, 03.6 | Match code or desktop |
+| 5 | **Grey stats labels.** Several were darkened `#757575` → `secondary/800` for contrast, including elements the final design shows at `#757575`. | Sections 05–10, Onboarding, Sample Request | Keep the darker token or revert to the final design |
+| 6 | **Red banner text** was changed without approval. | Sample Request 06–07 | Keep or undo |
+| 7 | **Button casing.** The library Button forces Title Case ("Publish Changes"); the app uses sentence case ("Publish changes"). | All buttons | Change the component or the code |
+| 8 | **Toast grows over the status bar.** A toast with a button or a second line tops out at 42, over the 47px status bar. | Toasts with actions | Re-anchor the toast wrapper |
+| 9 | **Toast copy not approved:** "Favorites are full (4/4)" + "Manage", "Couldn't save the new order" + "Try again". | 04 / 06 toasts | Approve or rewrite |
+| 10 | **Proposed gap fills** (approve or reject each): `#b1b1b1` meaningful text → `secondary/700`; close ✕ on non-confirm dialogs; `#fdecec` banner text → `primary/1000`; down-trend % → `secondary/800`; rank-footer text → `secondary/800` | Page-wide | Approve per item |
+
+## 3. Open findings by section
+
+| Section | Node | P1 | P2 |
+|---|---|---|---|
+| 03 - Publish Shop | `2230-78005` | Shop Info Card state (#4) | The banner sits above the Search wrap on 03.5; 03.4 was rebuilt with it below (`2499:58387`) |
+| 05 - Remove Favorite Product | `2248-33651` | — | PDP figures differ from 07.3 (#2) |
+| 07 - Copy Affiliate Link | `2344-78578` | — | PDP figures differ from 05.3 (#2) |
+| 08 - Remove Product from Shop | `2364-57473` | — | Touch targets below 44px |
+| 09 - Shop Preview | `2364-57887` | — | Pagination is detached, with no component |
+| 10 - Stats Breakdown | `2364-58157` | — | `MetricsCard` contrast is set in the component; red trend "4%" is 3.57:1 (fails AA) |
+| Sample Request & Review | `2384-65541` | Early "Add a review" (#3) | Library destructive colour contrast; red banner text inside an instance; no 14 SemiBold text style; touch targets |
+| Profile Settings & Notification | `2375-62087` | — | Touch targets |
+| 04 - Add Favorite Product | `2061-41656` | — | — |
+| 06 - Reorder Favorite | `2344-77290` | — | — |
+| Onboarding & Home Experience | `2446-47735` | — | — |
+
+## 4. Missing states (not drawn yet)
+
+| Section | Missing |
+|---|---|
+| 03 - Publish Shop | Publishing / loading, network error |
+| 05 - Remove Favorite Product | Long product name on the PDP, menu dismiss |
+| 06 - Reorder Favorite | Reorder loading |
+| 08 - Remove Product from Shop | Remove error |
+| 10 - Stats Breakdown | Loading, empty list |
+| Onboarding & Home Experience | OTP error / expired, invalid email, apply-form errors, Recent Activities empty, Home loading |
+| Sample Request & Review | List loading, submit error, keyboard open |
+| Profile Settings & Notification | Save / add toasts, form errors, filled / enabled Save button |
+
+## 5. Desktop leftovers (desktop is read-only unless approved)
+
+- 13 `Profile & KPA` stats cards (03.x/04.x/05.x) still show "Total products" and "Commission owned", with no period filter.
+- The desktop twins still read "Featured products (x/6)"; the product is now "Favorites", capped at 4.
+- The final-design mobile `2384:80537` (locked) still uses the old "Total products" stats set.
+- The 10.1 stats card has 20 top padding.
+- The Home card variant has no Commission pending.
+- Locked profile fields (02.1): a parity note only.
+
+---
+
 <a id="mobile-design-review-references-sync-script-js"></a>
 
 # SOURCE: `mobile-design-review/references/sync-script.js`
@@ -2959,7 +3071,7 @@ Status: **built** (2026-09-25) inside the user's copy of the board on Responsive
 > **Archived 2026-09-28.** The open items moved to `../readiness-log.md` → "Open decisions". Node ids here predate the page move (`1802:19394` → `2462:56445`).
 
 Figma Work File `FdmVPJo1j4t8s9gej1H7Yb`, page **Responsiveness** `1802:19394`.
-Skill: `/mobile-design-review`. The rules are in `.claude/skills/mobile-design-review/references/` (`final-design.md`, `readiness-log.md`).
+Skill: `/mobile-design-review`. The rules are in `workflows/mobile-design-review/references/` (`final-design.md`, `readiness-log.md`).
 
 ## Status
 
@@ -3040,4 +3152,4 @@ Every section is marked **Fixing** in `readiness-log.md`. None is **Ready** yet,
 
 # Regenerating
 
-This file is a verbatim bundle. After you edit any source in `responsive-workflow-urmei/` (`_shared/`, `responsive-flow/`, `mobile-screen/`, `organize-flow/`, `mobile-design-review/`), rebuild the bundle so it stays in sync. Ask Claude to "regenerate the responsive-workflow skill". It concatenates the sources in the order of the Contents list above.
+This file is a verbatim bundle. After you edit any source in `workflows/` (`_shared/`, `responsive-flow/`, `mobile-screen/`, `organize-flow/`, `mobile-design-review/`), run `node workflows/responsive-workflow/build.mjs`. It concatenates the sources in the order of its `SECTIONS` list, which is also the Contents list above.

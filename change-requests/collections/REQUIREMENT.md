@@ -1,6 +1,6 @@
 # Shop collections: client requirement
 
-Received 2026-10-06. Status: **client confirmed multiple collections; desktop designs in review round 1, mobile in progress. Figma only; no code changes yet.** Tracked as `T-31` in `TRACKER.md`. Answers on their own: `COLLECTIONS-ANSWERS.md`.
+Received 2026-10-06. Status: **client confirmed multiple collections; desktop designs in review round 1, mobile in progress. Figma only; no code changes yet.** Tracked as `T-31` in `TRACKER.md`. Answers on their own: `change-requests/collections/ANSWERS.md`.
 
 Links: replaces the current **Favorites** feature in My Shop and the storefront (`src/shop/limits.ts` cap of 4, `ShopItem.favorite`, the storefront's Favorite Picks section).
 
@@ -209,7 +209,7 @@ _Changed 2026-10-06: the first answer was "they move automatically into a collec
 
 ### Where the screens are
 
-> **Update 2026-10-06:** everything now lives in one section on the flows page, **[Influencer] Collections** `2764:66587` (formerly Review Round 1), with sub-sections 01–12. See `COLLECTIONS-FLOWS.md` › Figma structure. The ids in the table below still apply.
+> **Update 2026-10-06:** everything now lives in one section on the flows page, **[Influencer] Collections** `2764:66587` (formerly Review Round 1), with sub-sections 01–12. See `change-requests/collections/FLOWS.md` › Figma structure. The ids in the table below still apply.
 
 Work File `FdmVPJo1j4t8s9gej1H7Yb`.
 

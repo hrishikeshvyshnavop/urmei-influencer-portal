@@ -1,6 +1,6 @@
 # Shop collections: answers
 
-Answered 2026-10-06. Requirement and full options: `REQUIREMENT-COLLECTIONS.md`. Tracked as `T-31` in `TRACKER.md`.
+Answered 2026-10-06. Requirement and full options: `change-requests/collections/REQUIREMENT.md`. Tracked as `T-31` in `TRACKER.md`.
 
 **Current scope: Figma designs only.** Desktop and mobile, in the Work File. The codebase does not change until the designs are approved.
 

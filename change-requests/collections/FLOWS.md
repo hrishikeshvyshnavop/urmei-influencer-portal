@@ -1,12 +1,12 @@
 # Shop collections: Figma flows
 
-Every Collections flow in the Work File, with its status. Tracked as `T-31`. The requirement and decisions are in `REQUIREMENT-COLLECTIONS.md` and `COLLECTIONS-ANSWERS.md`.
+Every Collections flow in the Work File, with its status. Tracked as `T-31`. The requirement and decisions are in `change-requests/collections/REQUIREMENT.md` and `change-requests/collections/ANSWERS.md`.
 
-Last updated: 2026-10-06.
+Last updated: 2026-10-07.
 
 **Links:** `https://www.figma.com/design/FdmVPJo1j4t8s9gej1H7Yb/?node-id=<id>`. Write the id with `-` instead of `:`, e.g. `2777-67314`.
 
-**Workflow:** build one flow at a time, each in its own new section, then wait for approval before starting the next. Reviewed sections are locked: later changes go in an add-on section. Icons are always library icon instances, never typed characters (rules in `responsive-workflow-urmei/_shared/workfile.md`). The product card at the top of a dialog is always the **Dialog Product Summary** component (set `2799:73542` on Components — Dev Handoff; Desktop/Mobile, `Show Availability` off by default; padding uses tokens). It was applied to all 5 desktop dialogs in 05 and the 3 mobile WIP dialogs on 2026-10-06. Cursors are always a clone of the **Pointer Container** group `2775:169244` (70×73, fingertip at 21, 9). Place it with its fingertip on the target, positioned ABSOLUTE in the top-level screen frame. All the Collections and mobile WIP cursors were switched to it on 2026-10-06.
+**Workflow:** build one flow at a time, each in its own new section, then wait for approval before starting the next. Reviewed sections are locked: later changes go in an add-on section. Icons are always library icon instances, never typed characters (rules in `workflows/_shared/workfile.md`). The product card at the top of a dialog is always the **Dialog Product Summary** component (set `2799:73542` on Components — Dev Handoff; Desktop/Mobile, `Show Availability` off by default; padding uses tokens). It was applied to all 5 desktop dialogs in 05 and the 3 mobile WIP dialogs on 2026-10-06. Cursors are always a clone of the **Pointer Container** group `2775:169244` (70×73, fingertip at 21, 9). Place it with its fingertip on the target, positioned ABSOLUTE in the top-level screen frame. All the Collections and mobile WIP cursors were switched to it on 2026-10-06.
 
 ## Status key
 
@@ -43,6 +43,9 @@ Every Collections design is in **one section** on the flows page `2650:50683`: *
 | 15 | Storefront Preview | `2788:239935` | 8 |
 | 16 | Collections on the Storefront | `2757:65060` | E |
 | 17 | Collection No Longer Available | `2782:68420` | 4 |
+| 18 | Remove from Product Page | `2839:73643` | D |
+| 19 | Add from Product Page 💡 | `2847:75873` | G |
+| 20 | Add from Search Results 💡 | `2852:77845` | G |
 
 Journey groups:
 - **Managing collections:** 01–04, Create, Edit and Delete (split out of the old "Collections" sub-section on 2026-10-06), then Empty Collections
@@ -50,10 +53,16 @@ Journey groups:
 - **Inside a collection:** 08–12
 - **Sharing:** 13–15
 - **Shopper:** 16–17
+- **Add-on:** 19–20 sit at the bottom for now. If the client approves them, they belong with "Filling a collection" (before 05), which means renumbering 05–18.
 
 > Order check: sub-sections 04–07 now read Empty Collections → Add to Collection → Name Errors → Creator Product Page. They appear to have been moved in Figma after the approved order, which was Name Errors → Empty → Product Page → Add. The current Figma order is kept.
 
 - **New flows** go in where they fit in the journey. Renumber everything after them.
+- **Main-file copy:** the client-facing copy is **[NEW] Collections | 07.10.26** `1862:81644` in the main file (`cehltPtMoGWEtKbF7k3MQQ`, page `236:15116`). It differs from the table above in two places (organized 2026-10-13):
+  - **09:** `Browse & Add Product to Collection` `1970:101055` replaces Empty Collection Page. Its 09.1 is the empty collection page, and it goes on to browse the catalogue, search, and add the product with the collection ticked.
+  - **21 (new):** `Browse & Add Product to Existing Collection` `1970:101729`. It starts from the collection page's "Add to collection" tile.
+
+  Neither flow is in the Work File yet.
 - **Mobile drafts** stay on Hrishi Workspace › Collections — Mobile (WIP) `2767:51554`.
 
 > **Deleted from the file (noticed 2026-10-06):** the old mobile frames 11.1–11.5, the empty-board options A–E frame (`2760:65839`) and the overview panel (`2791:71522`). Restore them from Figma's version history, or rebuild them if they're still needed.
@@ -335,6 +344,35 @@ Section `2789:70752`.
 
 The grids in 11.14 (`2779:67017`), 11.15 (`2780:67183`), 11.20 (`2781:68015`) and 11.21 (`2781:68313`) now show the "#n on storefront" strip. The empty board reads "Not on storefront yet".
 
+### Flow G: Add from the catalogue 💡 Add-on (2026-10-07)
+
+Sub-sections **19 - Add from Product Page** (`2847:75873`) and **20 - Add from Search Results** (`2852:77845`), split on 2026-10-07 (one per entry point). Both were built from the old "01 - Add Product" flow (`2843:73670`). In the catalogue's "Add this product to your shop?" dialog, the old **"Add this to your Favourite Picks" toggle (0/4)** is replaced by an optional **"Add to collections"** list (the Add to collection rows from 05.2/05.6, with New Collection). Nothing ticked = the product goes to All Picks only. **This conflicts with Q10** ("only from products already in My Shop"), so it needs client sign-off; Q10 is unchanged until then. Annotated on 19.2.
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 19.0 | Cover: "Add from the product page" (subtitle: Product page → Add to shop → pick collections → Confirm) | `2847:75874` | — |
+| 19.1 | Catalogue product page, cursor on Add Product To My Shop | `2847:75883` | ⬜ |
+| 19.2 | Dialog, first-time creator: only "Favourites" (0 products), cursor on its checkbox. Annotations: "New: … please confirm this change" (the add-on), and optional | `2847:76249` | ⬜ |
+| 19.3 | Favourites ticked, cursor on Confirm | `2847:76666` | ⬜ |
+| 19.4 | Back on search results, toast "Added to your shop and to Favourites" | `2847:77503` | ⬜ |
+| 19.5 | My Shop: All Picks (1) and **Collections (1)** tabs; the ★ Favourite badge is gone | `2847:77935` | ⬜ |
+
+Edge case, under 19.2:
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 19.6 | Returning creator with 3 collections, "My morning routine" ticked, cursor on Confirm. Annotation: New Collection opens the Create collection dialog and returns ticked | `2847:77066` | ⬜ |
+
+**20 - Add from Search Results: without opening the product page (2026-10-07).** Cover 20.0 `2849:77133`: "Add from search results" (subtitle: Search results → Add to shop → pick collections → Confirm).
+
+| # | Screen | Desktop | Mobile |
+|---|---|---|---|
+| 20.1 (was 19.7) | Search results, cursor on a result's **+ Add To Shop** | `2849:77142` | ⬜ |
+| 20.2 (was 19.8) | The same dialog over the search results, Favourites ticked, cursor on Confirm. Annotation: the result shows a price range, so the variant is picked here | `2849:77559` | ⬜ |
+| 20.3 (was 19.9) | Back on search results, toast "Added to your shop and to Favourites" | `2849:78014` | ⬜ |
+
+Annotations don't point to other screens (the 19.7 note that referred to 19.2 was removed). Generic layer names in 19–20 were renamed (1,241 layers). The loose "01 - Add Product" section was moved down (y 62799 → about 65864) so the grown Collections section doesn't overlap it. Its frames weren't changed.
+
 ## Planned (one at a time, after approval)
 
 | Flow | Screens | Status |
@@ -356,3 +394,4 @@ These are also on the review notes panel `2764:66588`:
 7. ~~Reordering~~: decided 2026-10-06. It's in scope (Flow F).
 8. **Collection link format (dev):** if the link is built from the collection name, renaming breaks every link already shared. Use a fixed id in the link, or redirect old links to the new name.
 9. **Unique collection names:** we assumed names must be unique per creator, ignoring case. This keeps links unique (11.28). Confirm with the client.
+10. **Add to collections from the catalogue (19–20, add-on):** goes beyond Q10. If approved, update Q10 (keep the original answer and date) and move 19–20 into the "Filling a collection" group.

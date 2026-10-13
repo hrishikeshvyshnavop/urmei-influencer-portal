@@ -11,7 +11,7 @@ Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free
 | ⬆️ Pushed | On `origin` (`main` or a feature branch) |
 | 🟢 Live | Deployed and checked on the Vercel site |
 
-Last updated: 2026-10-06
+Last updated: 2026-10-13
 
 ## In progress
 
@@ -57,5 +57,6 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 | --- | --- | :-: | :-: | :-: | --- |
 | T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [x] | [ ] | ⬆️ Pushed |
-| T-31 | Shop collections (replace Favorites): requirement, answers, and the Figma flows list. `REQUIREMENT-COLLECTIONS.md`, `COLLECTIONS-ANSWERS.md`, `COLLECTIONS-FLOWS.md` (Figma section `[Influencer] Collections` `2764:66587`). Design only; building it is a later task (`git log --grep T-31`) | [x] | [x] | [ ] | ⬆️ Pushed |
-| T-32 | Track the Figma workflow folder `responsive-workflow-urmei/` (it was local-only) and add the `change-request` workflow for new client requests (`git log --grep T-32`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-31 | Shop collections (replace Favorites): requirement, answers, and the Figma flows list. `change-requests/collections/REQUIREMENT.md`, `change-requests/collections/ANSWERS.md`, `change-requests/collections/FLOWS.md` (Figma section `[Influencer] Collections` `2764:66587`). Design only; building it is a later task (`git log --grep T-31`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-32 | Track the Figma workflow folder `workflows/` (it was local-only) and add the `change-request` workflow for new client requests (`git log --grep T-32`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-34 | Reorganise the agent files: `responsive-workflow-urmei/` → `workflows/`, client requests into `change-requests/<topic>/`, indexes for both, a build script for the responsive bundle, drop the tracked `debug.log`, and replace the stale `AGENTS.md`/`README.md` (`git log --grep T-34`) | [x] | [x] | [ ] | ⬆️ Pushed |
