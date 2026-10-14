@@ -170,6 +170,29 @@ The breadcrumb stays dark and readable on the light top.
 
 Not yet drawn: mobile, and the creator's opt-out control.
 
+**Client delivery section (2026-10-13):** the user's `Section 3`, `3086:71893`, is now `[Influencer] Shop Personalization (Post-MVP) — Client Delivery | 13.10.26`. It holds seven numbered sub-sections, stacked 200px apart, each opening with a cover:
+
+| Flow | Sub-section | Contents |
+|---|---|---|
+| 01 - Posts on the Storefront | `3089:84676` | Cover `2903:78276`, `01.1` `2903:78285`, 3 annotations |
+| 02 - Announcement Bar | `3089:84677` | Cover `2910:78537`, `02.1` `2910:78546`, 2 annotations |
+| 03 - Persistent Banner | `3089:84678` | Cover `3000:80673`, `03.1` `2996:102574` (recommended), `03.2` `2996:103398` (alternative), 2 annotations |
+| 04 - Default Backdrops | `3089:84679` | New cover, plus the shortlisted tiles: `04.1` Speckle `3026:65896`, `04.2` Botanical Line `3026:66193`, `04.3` Gingham `3028:66957`, `04.4` Petal Blooms `3028:67110`, `04.5` Ripple Lines `3028:67445` |
+| 05 - Seasonal Backdrop | `3089:84719` | New cover, plus `05.1` Valentine's Day `3028:68106` |
+| 06 - Backdrop Edges | `3089:84735` | New cover, plus `06.1` Full Bleed + Light Breadcrumb `3028:67577` and `06.2` Hard Split `3028:67859` (both on Chinese New Year) |
+| 07 - Hero Band | `3089:84757` | New cover, plus `07.1`–`07.3`: the three slides `3068:84319`, `3068:84785`, `3068:85165`. `07.4` `3097:84796` is a generic version of slide 3 ("Most loved · My most-loved picks · Shop Bestsellers"), with two Info notes: `3097:85618` says it's an exploration only, and `3097:85624` proposes how the creator manages slides (My Shop → Customise shop → Hero band) |
+| 08 - All Personalization Together | `3096:84511` | Cover `3096:84512`, plus `08.1` `3096:84521`: one storefront with everything at once. It's a clone of `01.1` with the announcement bar, then the hero band (slide 1, Ripple Lines backdrop) in place of the profile card (the old card is hidden), then Collections, Posts, Reviews and All Picks. 5 Info annotations. |
+
+Each tile in 04–06 carries a clone of its Info annotation from the Background Themes board. The hero band has no annotations yet.
+
+Renamed frames (old → new):
+- `04.6`/`04.2`/`04.8`/`04.12`/`04.10` Default Backdrop → `04.1`–`04.5` Default Backdrops
+- `05.6` → `05.1`
+- `06.3` → `06.1`; `06.2` keeps its number
+- "Ripple Lines / Hero Band — Final — Slide n" → `07.n Hero Band — Slide n, <title> — Desktop`
+
+The emptied sections (`2996:103805`, `Section 1` `3028:68275`, `Section 2` `3062:69715`) are hidden beside it, not deleted. The duplicate `03.1` frame `3085:85696` was moved out next to them and is still visible.
+
 ## Code it would touch (later, if built)
 
 - `src/shop/components/StorefrontProfileCard.tsx`: the banner behind the profile card

@@ -19,25 +19,37 @@ Received 2026-10-13 from the client. Status: **all 9 desktop flows built in Figm
 - **Where the connection shows up:** the Home profile card and the storefront creator card show TikTok and Instagram follower counts (`Home.tsx`, `StorefrontProfileCard.tsx` via `FOLLOWER_STATS`).
 - **What's missing:** the connection is a mock. Connect/Disconnect just toggles local state, there's no OAuth, and Manage Account's state isn't even persisted (it resets on reload). A row has only two states, *Connected* and *Not connected*. There's no "the connection broke" state.
 
-## How each platform tells us (the backend team confirms this before design, Q9)
+## How we find out: through Phyllo (the backend team confirms this, Q9)
 
-A creator can remove URMEI from the platform's own settings at any time (Instagram/Facebook "Apps and websites", Google account "Third-party connections", TikTok "Manage app permissions"). We find out in one of two ways:
+Updated 2026-10-13. The social connection runs through **Phyllo**, a third-party API, not straight to each platform. URMEI opens the **Phyllo Connect** SDK, the creator signs in to the platform inside Phyllo's screens, and Phyllo holds the platform tokens and syncs the data. We never talk to Meta, Google or TikTok directly.
 
-| Platform | Push (immediate) | Pull (fallback) |
+A creator can still remove access from the platform's own settings at any time (Instagram/Facebook "Apps and websites", Google account "Third-party connections", TikTok "Manage app permissions"). Phyllo is the one that sees this, and it tells us in two ways:
+
+| Channel | What Phyllo gives us | When |
 | --- | --- | --- |
-| Instagram / Facebook (Meta) | Deauthorize callback URL on the Meta app, plus the Data Deletion Request callback | API call or token refresh fails with an invalid / expired token error |
-| YouTube (Google) | Cross-Account Protection (RISC) `tokens-revoked` event, if we subscribe | Token refresh returns `invalid_grant` |
-| TikTok | Webhook `authorization.removed`, if subscribed in the developer portal | Token refresh / API returns an auth error |
+| **Webhook (server)** | `ACCOUNTS.DISCONNECTED`, with the account id | When an account is disconnected. Phyllo's docs tie it to a disconnect made through its API; whether a revoke on the platform fires it too is the open point below. |
+| **Connect SDK callbacks (in the app)** | `accountConnected`, `accountDisconnected`, `tokenExpired`, `connectionFailure` (with a reason), `exit` | While the creator has Phyllo Connect open, e.g. during Reconnect |
+| **Account status (pull)** | The account's connection status when we fetch it | As a fallback, if a webhook is missed |
 
-The pull path is needed in any case, because webhooks can be missed. Instagram's API works only for professional (Business/Creator) accounts.
+What this means for the plan:
+- **One source instead of four.** No per-platform webhooks (Meta deauthorize, Google RISC, TikTok `authorization.removed`); Phyllo covers all four platforms.
+- **Token refresh is Phyllo's job.** The "silent refresh first" answer (Q13) now means: Phyllo refreshes; we mark the account lost only when Phyllo reports it disconnected or its session expired.
+- **Reconnect = open Phyllo Connect again** for that platform. Phyllo's docs say a disconnected account can't be reconnected through the API; the creator has to sign in again.
+- **Reconnect errors** come from `connectionFailure`. Blocking a different account (Q10) stays our own check: compare the handle Phyllo returns with the one on file.
+- **Data** (Q5, Q16): Phyllo also stores the creator's platform data, so the deletion and legal sign-off must cover Phyllo too.
+- Instagram data still needs a professional (Business/Creator) account; that limit comes from Meta, through Phyllo.
+
+**Open, for the backend team to test in Phyllo's sandbox:** when a creator removes access in Instagram's (or YouTube's, TikTok's) own settings, does Phyllo send `ACCOUNTS.DISCONNECTED`, or does the account show up as an expired session / a different status? This is the exact case the client asked about. Most of Phyllo's documentation pages wouldn't load when checked; the event and callback names above come from Phyllo's disconnect-endpoint page and its Flutter SDK package, so confirm them against the full docs.
+
+Sources: [Phyllo: Disconnect an account](https://docs.getphyllo.com/docs/api-reference/api/ref/operations/create-a-v-1-account-disconnect) · [Phyllo: Webhooks guide](https://docs.getphyllo.com/docs/api-reference/API/webhooks-guide) · [Phyllo: Browser integration](https://docs.getphyllo.com/docs/api-reference/connect-SDK/web/browser-integration) · [phyllo_connect package](https://pub.dev/documentation/phyllo_connect/latest/)
 
 ## Agreed plan
 
-1. **Detect** (Q9, Q13):
-   - A revoke webhook marks the account **Connection lost** straight away.
-   - A daily sync tries a **silent token refresh** first, and marks the account only if that fails.
+1. **Detect** (Q9, Q13), through Phyllo:
+   - Phyllo's `ACCOUNTS.DISCONNECTED` webhook marks the account **Connection lost** straight away.
+   - A daily check of each account's status in Phyllo catches any missed webhook. Phyllo handles token refresh, so an account is marked lost only when Phyllo reports it disconnected or expired.
    - The account is marked with the date. All four platforms are in scope (Q7).
-2. **Clean up** (Q5): delete the tokens and the synced stats, and keep only the handle and the disconnect date.
+2. **Clean up** (Q5): drop our link to the Phyllo account and the synced stats, ask Phyllo to delete its copy, and keep only the handle and the disconnect date.
 3. **Tell the creator** (Q1). All of these, on top of the Manage Account row:
    - **Manage Account row:** "Connection lost on <date>" with a **Reconnect** button.
    - **Notification** in the header bell drawer, linking to the row.
@@ -81,7 +93,8 @@ The pull path is needed in any case, because webhooks can be missed. Instagram's
 - `ProfileMenu`: the warning dot on the avatar and the menu item.
 - `StorefrontProfileCard.tsx` and `shop/data/shop.ts` (`FOLLOWER_STATS`): stats per Q2.
 - Shop publish state and sample requests: the grace-period unpublish and republish, and the request hold.
-- Backend (not in this repo): OAuth, the webhooks, the sync and refresh job, the reminder emails, the grace-period job and the admin list.
+- Frontend: the Phyllo Connect SDK for Connect and Reconnect (apply form, Review Details, Manage Account), with its callbacks driving the row states.
+- Backend (not in this repo): the Phyllo integration (users, SDK tokens, the `ACCOUNTS.*` webhooks and the daily status check), the reminder emails, the grace-period job and the admin list.
 
 ## Questions and answers
 
@@ -108,7 +121,7 @@ The pull path is needed in any case, because webhooks can be missed. Instagram's
 
 **Q8. What is the connection used for after approval?** A ★ Verification and the follower counts / B Ongoing reach data. **Answer:** A.
 
-**Q9. Who confirms the platform mechanics?** A ★ The backend team, before design / B Design on assumptions. **Answer:** A.
+**Q9. Who confirms the platform mechanics?** A ★ The backend team, before design / B Design on assumptions. **Answer:** A. *Note 2026-10-13: the connection runs through Phyllo, so this is now "the backend team confirms with Phyllo".*
 
 **Q10. Reconnecting with a different account?** A ★ Allow and log / B Block / C Allow and re-review. **Answer:** B, block it.
 
@@ -116,12 +129,12 @@ The pull path is needed in any case, because webhooks can be missed. Instagram's
 
 **Q12. The account is deleted, banned or switched to personal?** A ★ The same "Connection lost" state / B A separate state. **Answer:** A.
 
-**Q13. Expired token or password reset?** A ★ A silent refresh first / B Lost straight away. **Answer:** A.
+**Q13. Expired token or password reset?** A ★ A silent refresh first / B Lost straight away. **Answer:** A. *Note 2026-10-13: with Phyllo, Phyllo does the refresh; we mark the account lost only when Phyllo reports it disconnected or expired.*
 
 **Q14. Side effects during the grace period?** A ★ Nothing else / B Block new sample requests / C Hold all requests not yet approved, and block new ones. **Answer:** C.
 
 **Q15. Admin view?** A ★ Not in MVP / B Yes, an admin list. **Answer:** B.
 
-**Q16. Data sign-off?** A ★ The client's legal contact / B The existing policy covers it. **Answer:** A.
+**Q16. Data sign-off?** A ★ The client's legal contact / B The existing policy covers it. **Answer:** A. *Note 2026-10-13: the sign-off must also cover Phyllo, which stores the creator's platform data.*
 
 **Q17. Design?** A ★ Desktop and mobile / B Desktop first. **Answer:** B, desktop first.

@@ -7,7 +7,7 @@ Work File `FdmVPJo1j4t8s9gej1H7Yb`, flows page `2650:50683`, section **`[Influen
 | # | Flow | Sub-section | Frames | Status |
 | --- | --- | --- | --- | --- |
 | 01 | Connection Lost Alerts | `3061:84211` | 01.0 Cover `3061:84212` · 01.1 Home Banner `3061:84221` · 01.2 Notification Drawer `3061:84716` · 01.3 Social Accounts Connection Lost `3061:85038` | Approved 2026-10-13 |
-| 02 | Reconnect | `3067:83937` | 02.0 Cover `3067:83938` · 02.1 Connection Lost Row `3067:83947` · 02.2 Instagram Sign-in Pop-up `3067:84187` · 02.3 Instagram Reconnected Toast `3067:84423` | Built, in review |
+| 02 | Reconnect | `3067:83937` | 02.0 Cover `3067:83938` · 02.1 Connection Lost Row `3067:83947` · 02.2 Phyllo Connect `3067:84187` · 02.3 Instagram Reconnected Toast `3067:84423` | Built, in review |
 | 03 | Reconnect Errors | `3068:138938` | 03.0 Cover `3068:138939` · 03.1 Different Account Blocked `3068:138948` · 03.2 Account Unavailable `3068:139177` · 03.3 Limited Access `3068:139415` | Built, in review |
 | 04 | Follower Count: Option A vs B | `3068:139645` | 04.0 Cover `3068:139646` · 04.1 Option A Count Hidden `3068:139655` · 04.2 Option B Last Known Count `3068:140159` | Built, **decision needed (Q2)** |
 | 05 | Last Account Lost | `3070:85317` | 05.0 Cover `3070:85318` · 05.1 Sign-in Pop-up `3070:85327` · 05.2 Home Countdown Banner `3070:85874` · 05.3 Request Sample Paused `3070:86378` · 05.4 Requests On Hold `3070:86752` | Built, in review |
@@ -27,7 +27,7 @@ Work File `FdmVPJo1j4t8s9gej1H7Yb`, flows page `2650:50683`, section **`[Influen
   - **Instagram row:** a "Connection lost on 13 Oct 2026" status line and a primary Reconnect button.
 - **02:**
   - **Sources:** clones of 01.3.
-  - **02.2 (1440×900):** a dashed placeholder for Instagram's own sign-in, which we don't design. Behind it, the row's button is `Primary / Disabled` and reads "Reconnecting…".
+  - **02.2 (1440×900):** a placeholder for **Phyllo Connect** (the connection runs through Phyllo, not the platform directly), opened straight at Instagram; Phyllo’s screen, which we don’t design. Behind it, the row’s button is `Primary / Disabled` and reads "Reconnecting…". Updated 2026-10-13 from the earlier "instagram.com" pop-up.
   - **02.3:** the "Instagram reconnected" toast (a clone of `2801:72046`). Disconnect is enabled on both accounts, and the banner is back to the source frame's bank-details message.
 - **03:**
   - **03.1 and 03.2:** error toasts, cloned from the "slots full" toast container `2740:69053`.

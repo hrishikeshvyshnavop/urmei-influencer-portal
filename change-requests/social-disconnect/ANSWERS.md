@@ -12,11 +12,11 @@ What happens when a creator removes URMEI's access from Instagram, Facebook, You
 | 6 | Disconnect inside URMEI | Confirmation dialog; the last account can't be disconnected |
 | 7 | Platforms | All four |
 | 8 | Use after approval | Verification and follower counts only |
-| 9 | Platform mechanics | Backend team confirms before design |
+| 9 | Platform mechanics | Backend team confirms with Phyllo, which runs the connection |
 | 10 | Reconnecting with a different account | Blocked; it must be the same account |
 | 11 | Some permissions refused | Still connected, with the stats we can read |
 | 12 | Account deleted, banned or made personal | Same "Connection lost" state |
-| 13 | Expired token or password reset | Silent refresh first; lost only if that fails |
+| 13 | Expired token or password reset | Phyllo refreshes access; lost only if Phyllo reports it disconnected |
 | 14 | During the grace period | New sample requests blocked; requests not yet approved on hold |
 | 15 | URMEI team view | Admin list of lost connections with the countdown |
 | 16 | Data handling sign-off | Client's legal/privacy contact |
@@ -32,12 +32,12 @@ What happens when a creator removes URMEI's access from Instagram, Facebook, You
 6. **Disconnect inside URMEI:** a confirmation step, and the last account can't be disconnected until another one is connected.
 7. **Platforms:** Instagram, Facebook, YouTube and TikTok.
 8. **Use:** the connection verifies the creator and shows follower counts; brands don't rely on it.
-9. **Mechanics:** the backend team confirms how each platform reports a removal before design starts.
+9. **Mechanics:** the social connection runs through Phyllo. The backend team confirms how Phyllo reports a removal.
 10. **Different account:** reconnecting must use the same account.
 11. **Partial permissions:** still connected; we show what we can read.
 12. **Deleted or banned account:** the same "Connection lost" state; the creator connects another platform.
-13. **Expiry:** we refresh quietly first, and only report it as lost if that fails.
+13. **Expiry:** Phyllo refreshes access in the background; we only report it as lost if Phyllo says the account is disconnected.
 14. **Grace period:** new sample requests are blocked, and requests not yet approved are on hold. Approved ones and payouts carry on.
 15. **URMEI team:** an admin list shows creators with lost connections and the days left.
-16. **Sign-off:** your legal/privacy contact approves the data handling. We'll send the list of what's stored and deleted.
+16. **Sign-off:** your legal/privacy contact approves the data handling, including what Phyllo stores. We’ll send the list of what’s stored and deleted.
 17. **Design:** desktop first, then mobile.
