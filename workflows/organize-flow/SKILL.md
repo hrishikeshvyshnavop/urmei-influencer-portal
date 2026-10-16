@@ -39,7 +39,9 @@ Load `figma:figma-use` before any `use_figma` call. Set `figma.skipInvisibleInst
 
 **Nested sections** (sub-flows such as "Detailed product stats"): `NN.S Title In Title Case`.
 
-**Inner layers:** `Role / Detail`, title case.
+**Inner layers:** layers inside a screen frame or component are named by `../figma-refine/SKILL.md` (Sentence case, by role), which runs wherever design comes out (2026-10-14). Don't re-case a layer it has named. The rules below apply only to frames it hasn't refined yet.
+
+Legacy rule: `Role / Detail`, title case.
 - Keep an existing name when it's already descriptive. Title-case it and swap "Featured" for "Favorite".
 - Replace generic names (`Frame 2007737768`, `Frame 46`, `Group 12`, `Rectangle 5`, `Vector`, `Ellipse 3`, `Union`, `Mask group`, bare numbers, `-`) with a name derived from the layer:
   - **Text:** `Text / <first 4–5 words>`

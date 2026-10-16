@@ -5,7 +5,7 @@ description: The complete URMEI responsive (mobile 375px) design workflow in one
 
 # URMEI responsive workflow (all-in-one)
 
-This file puts every responsive skill and reference into one file, **verbatim**, in the order you use them. Generated on 2026-10-13 from `workflows/` by `workflows/responsive-workflow/build.mjs`. **The source files are still the ones to edit.** If a source changes, rerun the script rather than editing the copies below.
+This file puts every responsive skill and reference into one file, **verbatim**, in the order you use them. Generated on 2026-10-14 from `workflows/` by `workflows/responsive-workflow/build.mjs`. **The source files are still the ones to edit.** If a source changes, rerun the script rather than editing the copies below.
 
 Load `figma:figma-use` before any `use_figma` call. Relative links inside the copied files (`references/…`, `../_shared/…`) point at the original files, and every one of them is also copied below.
 
@@ -39,6 +39,7 @@ Standing rules (from the user; details in the parts below):
 - [Build: Work File mobile frames by flow, with build notes](#mobile-screen-references-existing-mobile-screens-md) — `mobile-screen/references/existing-mobile-screens.md`
 - [Build: the main design file's mobile board and building blocks](#mobile-screen-references-main-file-mobile-flows-md) — `mobile-screen/references/main-file-mobile-flows.md`
 - [Organize: the organize-flow skill](#organize-flow-skill-md) — `organize-flow/SKILL.md`
+- [Organize: the figma-refine skill (Sentence case layers, lossless structure cleanup)](#figma-refine-skill-md) — `figma-refine/SKILL.md`
 - [Review: the mobile-design-review skill](#mobile-design-review-skill-md) — `mobile-design-review/SKILL.md`
 - [Review: the final design, source-of-truth order, chrome reference](#mobile-design-review-references-final-design-md) — `mobile-design-review/references/final-design.md`
 - [Review: spacing rules](#mobile-design-review-references-spacing-rules-md) — `mobile-design-review/references/spacing-rules.md`
@@ -61,7 +62,7 @@ Standing rules (from the user; details in the parts below):
 
 ---
 name: responsive-flow
-description: One-command pipeline that turns a pasted Figma link to a desktop flow section in the URMEI Work File (FdmVPJo1j4t8s9gej1H7Yb) into finished mobile (375px) screens. It reads the flow, matches every desktop to an existing mobile to clone, shows one reuse-plan table and waits for "go", then builds every mobile, mirrors the desktop cursors, lays out desktop/mobile pairs, screenshot-verifies, runs the production review on the new section and updates the catalogues. Use when the user runs /responsive-flow, pastes a flow or section link and asks for its mobile/responsive screens, or asks to "make this flow responsive", "give me the mobile screens for this link" or "automate the responsive flow".
+description: One-command pipeline that turns a pasted Figma link to a desktop flow section in the URMEI Work File (FdmVPJo1j4t8s9gej1H7Yb) into finished mobile (375px) screens. It reads the flow, matches every desktop to an existing mobile to clone, shows one reuse-plan table and waits for "go", then builds every mobile, mirrors the desktop cursors, lays out desktop/mobile pairs, refines the new frames' layers and structure, screenshot-verifies, runs the production review on the new section and updates the catalogues. Use when the user runs /responsive-flow, pastes a flow or section link and asks for its mobile/responsive screens, or asks to "make this flow responsive", "give me the mobile screens for this link" or "automate the responsive flow".
 ---
 
 # Responsive flow: link in, mobile screens out
@@ -70,6 +71,7 @@ The user pastes a Work File link to a desktop flow section. This skill delivers 
 
 - `mobile-screen`: the frame contract, the reuse buckets and the house rules (cursors, Favorite wording, toasts, Shop Info Card, PDP).
 - `organize-flow`: the pair layout and naming.
+- `figma-refine`: the frame cleanup (inner layer names in Sentence case, safe structure fixes, no visual change) on every new mobile.
 - `mobile-design-review`: the production review.
 - `_shared/workfile.md` and `_shared/figma-gotchas.md`: ids, locked frames, tokens, product rules and script traps.
 
@@ -131,10 +133,11 @@ Use script G:
 - The cover stays first.
 - Grow the section to fit, and never shrink it.
 
-## Stage 6: Verify and review
+## Stage 6: Refine, verify and review
 
-1. **Screenshot every new mobile** (`node.screenshot`, scale ~0.5) and compare it with its desktop: copy, states, cursor target, nothing clipped, chrome intact, height ≥ 812. Fix differences with targeted scripts.
-2. **Run `mobile-design-review` Phase 1** on the new section only. Report its findings table, but **don't apply fixes**: they need approval under that skill.
+1. **Refine every new mobile** with `figma-refine` Workflow 2 (Frame), as its "In the pipelines" section says. Leave the desktops alone.
+2. **Screenshot every new mobile** (`node.screenshot`, scale ~0.5) and compare it with its desktop: copy, states, cursor target, nothing clipped, chrome intact, height ≥ 812. Fix differences with targeted scripts.
+3. **Run `mobile-design-review` Phase 1** on the new section only. Report its findings table, but **don't apply fixes**: they need approval under that skill.
 
 ## Stage 7: Record
 
@@ -148,6 +151,7 @@ Use script G:
 
 - **The new frames:** a table with name, id, height, and source cloned.
 - **Layout changes:** frames moved, and the section size.
+- **Refine report:** the `figma-refine` Frame completion counts, totalled over the new mobiles.
 - **Judgment calls:** defaults taken, wording kept, skipped cursors.
 - **The review findings,** from Stage 6.
 - **Questions for the user,** at most three.
@@ -345,6 +349,9 @@ Every page-wide write script must check that these ids still exist, and exclude 
 | **What Creators Say** | set `2609:97872` (Dev Handoff page) | Local, built from 09.1 (`2404:64593`). `Device` Desktop (1200, side by side) / Mobile (343, stacked, pager on its own row), `Show Photos` boolean, text props Date, Quote, Name, Counter. Avatar and photo images are per-instance fill overrides. Every PDP's review card is an instance of it (2026-09-30). |
 | **Dialog Product Summary** | set `2799:73542` (Dev Handoff › 12 Dialog Product Summary; Desktop `2799:73520`, Mobile `2799:73541`) | Local, 2026-10-06. The product card at the top of product dialogs (Add to collection, Remove product…). The product row padding is bound to `spacing/md` (16) on all sides; its gap is `spacing/lg` (desktop) or `spacing/md-sm` (mobile). The radius and fill keep their library tokens. The `Show Availability` boolean shows the flush "Available only in …" strip (off by default). Every Collections dialog uses it. |
 | **Tooltip** | set `3078:16766` (Dev Handoff › 13 Tooltip `3078:16765`), key `ee2ec403e6a7d8a902f5ce402a0e297a46b89742` | Local, 2026-10-13; the URMEI library has none. `Placement` Top/Bottom/Left/Right (the side of the target it sits on; the beak points at the target), `Align` Start/Center/End (Top/Bottom only; beak 16px in from the edge), text property `Text`, wrapping at 296px. Fill `surface/primary/800`, text `surface/secondary/100`, `Body/body-sm-medium`, padding `spacing/sm` × `spacing/md-sm`, radius `border/radius/sm`. First used on Social Connection Lost 07.4 (`3078:87143`). |
+| **Collection Card** | component `3122:85580` (Dev Handoff › 14 Collection Card `3122:85568`) | Local, 2026-10-14. A collection board: a 3:2 landscape three-image cover (`Image / 1` takes 2/3 of the width, `Image / 2`/`3` stack in the last third, 2px gaps, `border/radius/md`) over the title, a one-line description and the product count. The last tile (`Tile / 3`) carries a 50% black "+N products" overlay for the products beyond the three shown. Props: text `Title`, `Description`, `Product count`, `More count` ("+2"), `More label` ("products", or "product" for +1); boolean `Show description`, `Show more` (off for 3 or fewer products), `Show product count` (off whenever the overlay shows, so the count isn't repeated). Styles: Title `Body/body-md-medium`, Description `Body/body-sm-regular`, count and overlay label `Body/body-xs-medium`, overlay number `Body/body-xl-medium`; text colours `typography/color/secondary/1000`·`700`·`surface/secondary/100`, scrim `surface/primary/1000` at 50% (binding a colour resets paint opacity, so set 0.5 again after), gaps `spacing/md-sm`·`spacing/xs`. It's responsive: set the instance width and the cover keeps 3:2 (288×192 desktop, shown at 343 and 167.5 beside it). Cover images are per-instance fill overrides. First used in Charlotte's Section / Collections `3118:69396` (boards `3122:124350`–`124390`). |
+| **Pill Tab** | set `3131:88220` (Dev Handoff › 15 Pill Tab `3131:88219`): `Active=Yes` `3131:88215`, `Active=No` `3131:88217` | Local, 2026-10-14. Rebuilt from the K-Beauty file's Pill Tab (`BtZLL72dc5VxlwW45GLnQN` › `3563:65314`), which isn't published. Selected = filled `surface/tertiary/1000` with `typography/color/secondary/100` text; unselected = outline `border/color/default` with `secondary/700` text. Text property `Label`, `Body/body-md-regular`, padding `spacing/sm` × `spacing/md`, radius `border/radius/infinite`. First used in the Storefront — Tabbed iteration `3127:292013` (all four frames' `Tab Bar`, pills `spacing/sm` apart, no underline rule). |
+| **Post Card** | set `3136:16891` (Dev Handoff › 16 Post Card `3136:16890`) | Local, 2026-10-14. A creator post on the storefront wall. `Type` Photo / Video (play button + `Duration` chip) / Carousel (`Slide count` chip + 4 dots) / Note (tinted quote card); `Ratio` 1:1 · 4:5 · 3:4 · 9:16 (Note = Auto). Text props `Title` (2 lines), `Quote`, `Shop label`, `Duration`, `Slide count`; booleans `Show products`, `Thumb 2`, `Thumb 3`. Responsive: set the instance width and the media keeps its ratio, with overlays pinned by constraints (shown at 343 and 167.5 beside the set). The media (`Image`) and `Thumb 1–3` are per-instance fill overrides. Styles `Body/body-md-medium` title, `body-xs-medium` labels, `body-xl-medium` quote; radius `border/radius/md` (chips `xs`). The note card's warm grey tint matches no URMEI `surface/*` token, so it's a raw colour copied from the old note. Used for all 8 posts in `Section / Posts` `3118:106415` (no type/date meta line, removed 2026-10-14). |
 | **Settings Tabs** | set `2459:68480` (Dev Handoff page) | Local. `Active` Profile/Addresses/Social Accounts/Bank Details, `Bank Warning` boolean. |
 | **Account Menu** | set `2602:108370` (Dev Handoff page): `Device=Desktop` `2602:108315` (330 dropdown), `Device=Mobile` `2602:108331` (343 sheet card + View Profile + close ✕) | Local, 2026-09-30. Text props `Name`, `Email`. All six header profile menus on the flows page are instances of it; the old frames are hidden beside them. |
 | Mobile footer | `Footer/Mobile/Default`: `2321:52957` (Hrishi Workspace), final-design copy `2384:80274` | |
@@ -461,6 +468,9 @@ These are the lessons from real runs, shared by every Figma skill in this projec
 - **"Missing" can mean opacity 0.** Before rebuilding an element that doesn't show, check its `visible` and `opacity`, and its parent's `clipsContent`. Frames copied from a hover state have carried `opacity: 0`: the mobile PDPs' affiliate-link `copy` icon, fixed on 2026-09-28.
 - **Hidden nodes don't re-lay-out.** A hidden frame keeps its old size until it's shown. Don't treat its size as a failure.
 - **Load fonts before any text write**, including `textAutoResize`, `characters`, and appending text nodes. Load each node's current fonts via `getStyledTextSegments(['fontName'])`. The Status Bar uses SF Pro, which isn't installed, so wrap bulk font loads in try/catch.
+- **A font the user sees may not exist for scripts.** Scripts can only write fonts installed on the machine running Figma (with the font installer running) or shared by the team or org. Before promising a font change, try `loadFontAsync` in a read-only call. If it throws "font family does not exist", stop and say so: offer installing or sharing the font, or the manual route. Found on 2026-10-14 with Geometria in the ASTRA file.
+- **A font set on an instance is an override.** It doesn't reach the main component or the other instances. Compare the instance's fonts with `getMainComponentAsync()` and check `instance.overrides` for `fontName`. Scripts can't push overrides; the user can (right-click → Main component → Push changes to main component), and that pushes every override on the instance, not just the font.
+- **Figma comments can't be read.** Neither `use_figma` nor the MCP read tools see comment threads, not even with a `#<comment-id>` link. Ask the user to paste the comment text, or to provide a Figma API token for the REST comments endpoint. Annotations (`node.annotations`) are readable.
 - **Don't use `node.query('[name="…"]')`** for names with spaces or symbols. Use `findAll(n => n.name === …)`. Names can carry trailing spaces, so match with `name.trim()`.
 - **Changing a property default on a component** can flip instances that relied on the default. After you change a boolean default or a main component's visibility, set every instance's value explicitly.
 - **Setting `strokesIncludedInLayout`:** on an auto-layout row with a bottom border, `true` pushes children up by the stroke width. Keep it `false`, and draw per-item underlines on the items.
@@ -534,7 +544,8 @@ Every mobile screen in the Work File shares one frame and chrome contract. Apply
 1. Create or clone the frame at 375 × (hug, min 812).
 2. Add the chrome per the contract above.
 3. Build the content from the reference the user points at, using library tokens, text styles and components. Don't hardcode styles.
-4. Check it: the frame is ≥812 tall, the chrome is intact, the gutter is bound, and nothing clips (screenshot it).
+4. Refine it with `../figma-refine/SKILL.md` Workflow 2 (Frame): Sentence case inner layer names, safe structure fixes, no visual change.
+5. Check it: the frame is ≥812 tall, the chrome is intact, the gutter is bound, and nothing clips (screenshot it).
 
 ## New flow from a pasted link
 
@@ -549,7 +560,7 @@ Use this when the user pastes a link to a flow (a section or board of desktop sc
    Screenshot each candidate before bucketing it, because names in these files are often wrong. Also check `references/existing-mobile-screens.md` for a Work File frame to clone, and check whether the flow already has a half-built section on the page.
 3. **Show the reuse plan and wait for approval.** One table: screen | bucket | main-file reference | Work File frame to clone | what changes. Say where the frames will go. Don't create or edit any node until the user approves.
 4. **Build in the Work File** (Figma can't copy frames between files). Clone the matching Work File frame where one exists, otherwise follow "Building a screen". Build Reuse first, then Adapt, then New, so later screens can clone the earlier ones. The desktop-restack recipe is in `figma-gotchas.md`.
-5. **Verify.** Screenshot every frame next to its reference and fix any differences. Recheck the frame contract.
+5. **Refine, then verify.** Run `../figma-refine/SKILL.md` Workflow 2 on every new or adapted frame. Then screenshot every frame next to its reference and fix any differences. Recheck the frame contract.
 6. **Update the catalogues.** Add each new frame's id to `references/mobile-inventory.md`, and its size, source and build notes to `references/existing-mobile-screens.md` under its flow. Add any main-file screens that `main-file-mobile-flows.md` is missing.
 
 ## House rules from the user
@@ -1695,7 +1706,9 @@ Load `figma:figma-use` before any `use_figma` call. Set `figma.skipInvisibleInst
 
 **Nested sections** (sub-flows such as "Detailed product stats"): `NN.S Title In Title Case`.
 
-**Inner layers:** `Role / Detail`, title case.
+**Inner layers:** layers inside a screen frame or component are named by `../figma-refine/SKILL.md` (Sentence case, by role), which runs wherever design comes out (2026-10-14). Don't re-case a layer it has named. The rules below apply only to frames it hasn't refined yet.
+
+Legacy rule: `Role / Detail`, title case.
 - Keep an existing name when it's already descriptive. Title-case it and swap "Featured" for "Favorite".
 - Replace generic names (`Frame 2007737768`, `Frame 46`, `Group 12`, `Rectangle 5`, `Vector`, `Ellipse 3`, `Union`, `Mask group`, bare numbers, `-`) with a name derived from the layer:
   - **Text:** `Text / <first 4–5 words>`
@@ -1755,6 +1768,241 @@ Load `figma:figma-use` before any `use_figma` call. Set `figma.skipInvisibleInst
   - rows created, i.e. edge cases moved below the happy path
   - background changes
   - anything skipped and why
+
+---
+
+<a id="figma-refine-skill-md"></a>
+
+# SOURCE: `figma-refine/SKILL.md`
+
+> Step 3 · Organize: the figma-refine skill (Sentence case layers, lossless structure cleanup)
+
+---
+name: figma-refine
+description: Figma Structure & Naming Refiner. Detect whether the selected Figma object is a Section, Frame, Component or Component Set, then run only that type's cleanup — section organization and flow layout, frame structure cleanup, or component refactoring and standardization — renaming layers in Sentence case and simplifying structure without any visual change. Use when the user asks to refine, clean up, restructure or standardize the naming of a Figma section, frame or component.
+---
+
+# Figma structure & naming refiner
+
+Refine Figma sections, frames and components based on the selected object's type, while preserving the existing design and content. First decide whether the selection is a **Section**, **Frame**, **Component** or **Component Set**, then apply only that type's workflow.
+
+## URMEI setup
+
+- Work only in the Work File (`FdmVPJo1j4t8s9gej1H7Yb`). Ids, the **locked** handoff design (never edit it), components and tokens are in `../_shared/workfile.md`; script traps are in `../_shared/figma-gotchas.md`. Before any page-wide write, check every locked id still exists; if one is missing, stop and ask.
+- Load `figma:figma-use` before any `use_figma` call. Set `figma.skipInvisibleInstanceChildren = false` in every script.
+- Read the selection first (`get_metadata` / a read-only script), and take a screenshot before and after every write so visual integrity can be checked.
+
+## In the pipelines
+
+This is the last step wherever design comes out. Every workflow that builds Figma frames or components runs it on what it just made, before its own screenshot check:
+
+| Pipeline | When it runs | On what |
+| --- | --- | --- |
+| `responsive-flow` | Stage 6, step 1 (after the pairs are laid out) | every new mobile frame |
+| `change-request` | step 3, at the end of each flow, before the screenshot check | every frame and component built for that flow |
+| `mobile-screen` | after building, before verifying | every new or adapted frame |
+
+In a pipeline:
+- Run **Workflow 2 (Frame)** on each new frame and **Workflow 3 (Component)** on each new or changed component. Don't run Workflow 1: `organize-flow` owns section layout and names there.
+- **Who names what:** `organize-flow` names the section, cover and screen frames (`NN - Title`, `NN.S Flow — State — Device`). This skill names everything inside a frame or component, in Sentence case.
+- Touch only what this run created or changed. Never touch desktop frames in `responsive-flow`, older screens, or the locked ids.
+- Don't stop for approval: the refine is lossless by definition. Put its completion report into the pipeline's final report.
+
+Run on its own (the user names this file and gives a link), it uses all three workflows below, including Workflow 1 for a section.
+
+## Core rules
+
+**Preserve the design.**
+- Don't redesign the UI.
+- Don't change existing text, copy, images, icons or content.
+- Don't change colours, typography, dimensions or visual styling unless the selected workflow explicitly requires it.
+- Don't modify the internal content of screens.
+- Only modify structure, naming, organization, spacing, constraints and component properties where applicable.
+- Preserve the existing visual hierarchy and intended layout.
+
+**Visual integrity safeguard.** Every structural change must be visually lossless. When renaming, removing, flattening, reorganizing or restructuring layers, don't:
+- cause visual changes or layout shifts
+- change an element's position or size
+- change spacing, alignment, padding or dimensions unintentionally
+- break Auto Layout behaviour
+- break constraints or resizing behaviour
+- change clipping or overflow behaviour
+- hide, resize, move or displace content
+- introduce unexpected gaps or overlaps
+- alter the visual appearance of the screen
+
+Before removing a nested frame, make sure its removal won't affect the visual result or functionality. If removing or restructuring a layer could cause any visual or functional break, keep the existing structure. The result should visually match the original unless the selected workflow explicitly requires a change.
+
+## Naming convention
+
+- Use **Sentence case** for layer names.
+- Names must be clear, descriptive and meaningful to AI tools such as Claude and Codex.
+- Replace generic names (`Frame 123`, `Group 45`, `Rectangle 12`) when the layer's purpose can be identified.
+- Name equivalent layers the same way across variants and states.
+- Don't rename visible UI copy unless the layer name itself is being standardized.
+- Name the purpose or role of the layer, not its appearance.
+
+| Bad | Good |
+| --- | --- |
+| `Frame 123` | `Header`, `Navigation`, `Content`, `Footer` |
+| `Group 45` | `Product card` |
+| `Rectangle 12` | `Product image` |
+| `Text 34` | `Product title`, `Supporting text` |
+| — | `Primary action` |
+
+## Object type detection
+
+Before making any change:
+1. Identify the selected object's Figma type: `SECTION`, `FRAME`, `COMPONENT` or `COMPONENT_SET`.
+2. Apply only the workflow for that type.
+   - Don't apply Section changes to Frames.
+   - Don't apply Component changes to Sections or Frames.
+3. Preserve all unrelated structure and content.
+
+## Workflow 1 — Section: organization & flow cleanup
+
+**Actions**
+- Rename the section and its relevant child layers in clear Sentence case.
+- Use the existing cover as the primary entry point.
+- Arrange sections in a logical sequence.
+- Keep the cover and section headings on a consistent contextual theme.
+- Standardize section background colours where required.
+- Section titles use Sentence case, follow consecutive numbering, and visually align with the cover structure.
+- Organize screens by user flow:
+  - Happy-path screens come first.
+  - Edge cases go directly below their happy-path screen.
+  - Related states stay visually grouped with their flow.
+  - Sub-flows go below the relevant main flow.
+- Treat these as edge cases or alternate states, placed under the relevant happy path: error, empty, loading, validation, permission or access, no-results, success or confirmation, and any other exceptional or alternate state.
+- Desktop and mobile spacing:
+  - same screen, desktop ↔ mobile: **50px** gap
+  - different screens: **200px** gap
+- Adjust section-level padding and alignment where necessary.
+- Don't modify, move or resize anything inside the screens; preserve every screen's appearance while reorganizing.
+
+**Screen organization example**
+
+```
+Screen 1 — Happy path
+    Error state
+    Empty state
+    Loading state
+    Validation state
+    Other edge cases
+
+Screen 2 — Happy path
+    Error state
+    Empty state
+    Other edge cases
+
+Screen 3 — Happy path
+    Success state
+    Confirmation state
+```
+
+The link between a happy-path screen and its states must be clear from both the spatial layout and the layer names.
+
+**Section completion report**
+
+```
+Section cleanup completed.
+
+1. Sections renamed: X
+2. Layers renamed: X
+3. Screens reordered: X
+4. Sections reorganized: X
+5. Desktop/mobile pairs aligned: X
+6. Nested structures removed: X
+7. Auto layout / alignment cleaned up: X
+8. Edge cases grouped under happy paths: X
+```
+
+## Workflow 2 — Frame: structure cleanup
+
+**Actions**
+- Rename all relevant layers in Sentence case, replacing unclear or generic names with descriptive ones.
+- Identify unnecessary nested frames, and remove one only when that is visually and structurally safe.
+- Keep frames that provide meaningful layout, Auto Layout, constraints, padding, alignment, component structure or clipping.
+- Fix Auto Layout only when needed for structural consistency.
+- Correct padding and spacing only where the existing structure is clearly inconsistent.
+- Fix alignment and constraints where necessary.
+- Don't alter the frame's internal content or visual design, and don't rewrite or modify any visible text.
+- Keep the hierarchy as simple as possible without breaking functionality.
+- If a structural change introduces any visual or functional risk, undo it and keep the original structure.
+
+**Visual verification** — after cleanup, confirm:
+- element positions, dimensions, spacing and alignment are unchanged
+- padding is unchanged unless intentionally corrected
+- Auto Layout and constraints behave correctly
+- content stays visible, with no new clipping, gaps or overlaps
+- the frame visually matches the original
+
+Structural cleanup never takes priority over visual fidelity.
+
+**Frame completion report**
+
+```
+Frame cleanup completed.
+
+1. Nested frames removed: X
+2. Layers renamed: X
+3. Auto Layout fixes: X
+4. Padding fixes: X
+5. Alignment fixes: X
+6. Unnecessary layers removed: X
+7. Visual changes introduced: 0
+8. Visual integrity verified: Yes
+```
+
+## Workflow 3 — Component or Component Set: refactoring & standardization
+
+**Actions**
+- Rename all component layers in Sentence case, and name them the same way across every variant.
+- Find and fix inconsistent variant naming; rename variant properties where required.
+- Add missing component properties only when they are clear and necessary.
+- Standardize equivalent properties across variants; variant values use consistent Sentence case.
+- Preserve the component's appearance, behaviour, dimensions, styling and visible content.
+- Don't remove layers that the component's behaviour needs.
+- Preserve existing Auto Layout, constraints, interactions and resizing behaviour.
+- Apply every change consistently across all relevant variants, and don't introduce visual differences between variants the design doesn't already have.
+- If a refactor could break a variant, keep the existing structure.
+
+**Consistency checks** — confirm:
+- layer names, variant property names and variant value patterns are consistent across variants
+- component properties are meaningful and clear
+- Auto Layout and constraints still work
+- dimensions are stable
+- appearance, interactions and behaviour are preserved
+
+**Component completion report**
+
+```
+Component refactoring completed.
+
+1. Components renamed: X
+2. Layers renamed: X
+3. Variants standardized: X
+4. Variant properties updated: X
+5. Component properties added: X
+6. Inconsistent structures fixed: X
+7. Visual changes introduced: 0
+8. Component behavior preserved: Yes
+```
+
+## Final validation
+
+Before finishing, confirm:
+- the correct object-type workflow was used
+- names follow Sentence case, and generic names were replaced wherever the purpose is identifiable
+- unnecessary structural complexity was reduced only where safe
+- no visible content was modified
+- no unintended visual change occurred, and no Auto Layout or constraint behaviour broke
+- nothing was moved, resized, hidden, clipped or displaced unintentionally
+- for Sections: desktop/mobile spacing follows the 50px / 200px rule, and edge cases sit directly under their happy-path screens
+
+If any structural change causes a visual or functional issue, revert it. Visual fidelity beats structural simplification.
+
+The result should be a Figma file that is cleaner, easier for AI tools such as Claude and Codex to understand, and structurally consistent, with the same visual design and behaviour.
 
 ---
 

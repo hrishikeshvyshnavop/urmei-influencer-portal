@@ -20,6 +20,7 @@ const SECTIONS = [
   ['mobile-screen/references/existing-mobile-screens.md', 'Step 2 · Build', 'Work File mobile frames by flow, with build notes'],
   ['mobile-screen/references/main-file-mobile-flows.md', 'Step 2 · Build', "the main design file's mobile board and building blocks"],
   ['organize-flow/SKILL.md', 'Step 3 · Organize', 'the organize-flow skill'],
+  ['figma-refine/SKILL.md', 'Step 3 · Organize', 'the figma-refine skill (Sentence case layers, lossless structure cleanup)'],
   ['mobile-design-review/SKILL.md', 'Step 4 · Review', 'the mobile-design-review skill'],
   ['mobile-design-review/references/final-design.md', 'Step 4 · Review', 'the final design, source-of-truth order, chrome reference'],
   ['mobile-design-review/references/spacing-rules.md', 'Step 4 · Review', 'spacing rules'],

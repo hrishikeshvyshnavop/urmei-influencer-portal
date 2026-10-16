@@ -11,6 +11,7 @@ Each workflow is a folder: its `SKILL.md`, plus a `references/` folder for its c
 | `responsive-flow/` | Paste a Work File flow link; plan (one approval stop), build, verify and record its mobile screens. Orchestrates the three below. | Figma |
 | `mobile-screen/` | Build or adapt a mobile screen; holds the frame catalogues. | Figma |
 | `organize-flow/` | Rename, number and lay out a flow section. | Figma |
+| `figma-refine/` | Refine a selected Section, Frame or Component (Set): detect its type, then rename layers in Sentence case and clean up structure with no visual change. Runs as the last design step of `responsive-flow`, `change-request` and `mobile-screen`. | Figma |
 | `mobile-design-review/` | Production-readiness review and approved fixes; holds the readiness log and the open-problems summary (`references/design-problems.md`). | Figma |
 | `responsive-workflow/` | **Generated** one-file bundle of the four responsive workflows plus `_shared/`. Don't edit it: edit the sources and run `node workflows/responsive-workflow/build.mjs`. | — |
 | `_shared/` | Not a workflow. `workfile.md` (Figma ids, locked frames, components, tokens, product rules) and `figma-gotchas.md` (`use_figma` traps). | — |

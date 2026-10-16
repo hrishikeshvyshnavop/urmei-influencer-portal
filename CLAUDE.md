@@ -44,11 +44,12 @@ Don't drop new working documents at the root: a client request goes in `change-r
 - `organize-flow`: tidying Figma flow sections.
 - `mobile-design-review`: a senior-designer production-readiness review of the mobile flows (spacing, type, colour, components, states, copy, handoff, parity), then approved fixes, tracked per section in its `references/readiness-log.md`. `references/design-problems.md` is the 2026-09-30 summary of open problems compiled from that log.
 - `responsive-workflow`: all of the above responsive skills and their references (plus `_shared/`) copied verbatim into one file, in workflow order (setup → build → organize → review → track). It's a generated bundle: edit the sources, then run `node workflows/responsive-workflow/build.mjs`.
+- `figma-refine`: the Figma structure and naming refiner. It detects whether the selection is a Section, Frame or Component (Set) and runs only that type's cleanup (section flow layout, frame structure, or component variants and properties), renaming in Sentence case with no visual change. It's a pipeline step, not a separate command: `responsive-flow`, `change-request` and `mobile-screen` run it on every frame and component they build, before their screenshot check. `organize-flow` still names sections, covers and screen frames; the refiner names everything inside them.
 - `clarify`: ask before assuming.
 - `change-request`: the one exception to "plain files". The thin skill `.claude/skills/change-request/SKILL.md` loads it automatically whenever a client requirement, request or message comes up, so nobody has to name it. That skill only points here, so edit this source. The workflow covers how a client change goes from message to build. Intake into `change-requests/<topic>/REQUIREMENT.md`, then questions with options and `change-requests/<topic>/ANSWERS.md`, then Figma one flow at a time (each a numbered sub-section, approved before the next), then review and the client message, and only then code. It also lists the Figma rules for cursors, icons, covers, annotations, disabled states, toasts and frames. The worked example is Collections (`T-31`): `change-requests/collections/REQUIREMENT.md`, `change-requests/collections/ANSWERS.md`, `change-requests/collections/FLOWS.md`.
 - `_shared/`: not a skill. It holds the Work File reference (`workfile.md`) and the `use_figma` gotchas (`figma-gotchas.md`) that the three Figma skills share. Update facts there, not in each skill.
 
-`responsive-flow`, `mobile-screen`, `organize-flow` and `mobile-design-review` work in Figma, not in this codebase.
+`responsive-flow`, `mobile-screen`, `organize-flow`, `figma-refine` and `mobile-design-review` work in Figma, not in this codebase.
 
 ## Stack
 

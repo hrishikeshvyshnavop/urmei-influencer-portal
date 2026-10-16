@@ -50,11 +50,15 @@ How a client change goes from message to design to build. It's based on the Coll
 - **Toasts:** reversible removals get **Undo** (Toast `Show Button` → "Undo") and no confirmation dialog. Confirmation dialogs are only for destructive actions (delete, remove from shop).
 - **Empty states:** clone the "Favorite Slot 1 / Empty" box (Work File copy of the main file's 03.6 "Your shop is empty", `1347:38109`). It has a dashed box, a 64px icon well with a library icon, a Medium 20 title and Regular 12 body (hugging, no wrap), and a primary button, or an outlined one inside a dialog. Make the page containers hug so the footer moves down.
 - **Frames:** full pages end at the footer, with no clipping and no blank strip below it. Dialog views are 1440×900 (desktop) or 375×812 (mobile).
-- **Check:** take one screenshot per finished flow, and fix what it shows before reporting.
+- **Check:** after the refine below, take one screenshot per finished flow, and fix what it shows before reporting.
 
 **Naming and tidy-up** (follow `../organize-flow/SKILL.md`)
 - Name frames `NN.S <Sub-section> — <State> — <Device>` and covers `NN.0 <Sub-section> — Cover`.
-- Rename generic layers. Restack sub-sections 200px apart, and refit sections.
+- Restack sub-sections 200px apart, and refit sections.
+
+**Refine** (follow `../figma-refine/SKILL.md`, "In the pipelines")
+- At the end of every flow, before its screenshot check, run Workflow 2 on each frame built for it and Workflow 3 on each component made or changed. Inner layers get Sentence case names; nothing may change visually.
+- Include the refine completion report when you report the flow for approval.
 
 ## 4. Review round
 

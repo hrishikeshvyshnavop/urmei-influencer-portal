@@ -1,6 +1,6 @@
 ---
 name: responsive-flow
-description: One-command pipeline that turns a pasted Figma link to a desktop flow section in the URMEI Work File (FdmVPJo1j4t8s9gej1H7Yb) into finished mobile (375px) screens. It reads the flow, matches every desktop to an existing mobile to clone, shows one reuse-plan table and waits for "go", then builds every mobile, mirrors the desktop cursors, lays out desktop/mobile pairs, screenshot-verifies, runs the production review on the new section and updates the catalogues. Use when the user runs /responsive-flow, pastes a flow or section link and asks for its mobile/responsive screens, or asks to "make this flow responsive", "give me the mobile screens for this link" or "automate the responsive flow".
+description: One-command pipeline that turns a pasted Figma link to a desktop flow section in the URMEI Work File (FdmVPJo1j4t8s9gej1H7Yb) into finished mobile (375px) screens. It reads the flow, matches every desktop to an existing mobile to clone, shows one reuse-plan table and waits for "go", then builds every mobile, mirrors the desktop cursors, lays out desktop/mobile pairs, refines the new frames' layers and structure, screenshot-verifies, runs the production review on the new section and updates the catalogues. Use when the user runs /responsive-flow, pastes a flow or section link and asks for its mobile/responsive screens, or asks to "make this flow responsive", "give me the mobile screens for this link" or "automate the responsive flow".
 ---
 
 # Responsive flow: link in, mobile screens out
@@ -9,6 +9,7 @@ The user pastes a Work File link to a desktop flow section. This skill delivers 
 
 - `mobile-screen`: the frame contract, the reuse buckets and the house rules (cursors, Favorite wording, toasts, Shop Info Card, PDP).
 - `organize-flow`: the pair layout and naming.
+- `figma-refine`: the frame cleanup (inner layer names in Sentence case, safe structure fixes, no visual change) on every new mobile.
 - `mobile-design-review`: the production review.
 - `_shared/workfile.md` and `_shared/figma-gotchas.md`: ids, locked frames, tokens, product rules and script traps.
 
@@ -70,10 +71,11 @@ Use script G:
 - The cover stays first.
 - Grow the section to fit, and never shrink it.
 
-## Stage 6: Verify and review
+## Stage 6: Refine, verify and review
 
-1. **Screenshot every new mobile** (`node.screenshot`, scale ~0.5) and compare it with its desktop: copy, states, cursor target, nothing clipped, chrome intact, height ≥ 812. Fix differences with targeted scripts.
-2. **Run `mobile-design-review` Phase 1** on the new section only. Report its findings table, but **don't apply fixes**: they need approval under that skill.
+1. **Refine every new mobile** with `figma-refine` Workflow 2 (Frame), as its "In the pipelines" section says. Leave the desktops alone.
+2. **Screenshot every new mobile** (`node.screenshot`, scale ~0.5) and compare it with its desktop: copy, states, cursor target, nothing clipped, chrome intact, height ≥ 812. Fix differences with targeted scripts.
+3. **Run `mobile-design-review` Phase 1** on the new section only. Report its findings table, but **don't apply fixes**: they need approval under that skill.
 
 ## Stage 7: Record
 
@@ -87,6 +89,7 @@ Use script G:
 
 - **The new frames:** a table with name, id, height, and source cloned.
 - **Layout changes:** frames moved, and the section size.
+- **Refine report:** the `figma-refine` Frame completion counts, totalled over the new mobiles.
 - **Judgment calls:** defaults taken, wording kept, skipped cursors.
 - **The review findings,** from Stage 6.
 - **Questions for the user,** at most three.

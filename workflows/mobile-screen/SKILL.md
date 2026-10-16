@@ -32,7 +32,8 @@ Every mobile screen in the Work File shares one frame and chrome contract. Apply
 1. Create or clone the frame at 375 × (hug, min 812).
 2. Add the chrome per the contract above.
 3. Build the content from the reference the user points at, using library tokens, text styles and components. Don't hardcode styles.
-4. Check it: the frame is ≥812 tall, the chrome is intact, the gutter is bound, and nothing clips (screenshot it).
+4. Refine it with `../figma-refine/SKILL.md` Workflow 2 (Frame): Sentence case inner layer names, safe structure fixes, no visual change.
+5. Check it: the frame is ≥812 tall, the chrome is intact, the gutter is bound, and nothing clips (screenshot it).
 
 ## New flow from a pasted link
 
@@ -47,7 +48,7 @@ Use this when the user pastes a link to a flow (a section or board of desktop sc
    Screenshot each candidate before bucketing it, because names in these files are often wrong. Also check `references/existing-mobile-screens.md` for a Work File frame to clone, and check whether the flow already has a half-built section on the page.
 3. **Show the reuse plan and wait for approval.** One table: screen | bucket | main-file reference | Work File frame to clone | what changes. Say where the frames will go. Don't create or edit any node until the user approves.
 4. **Build in the Work File** (Figma can't copy frames between files). Clone the matching Work File frame where one exists, otherwise follow "Building a screen". Build Reuse first, then Adapt, then New, so later screens can clone the earlier ones. The desktop-restack recipe is in `figma-gotchas.md`.
-5. **Verify.** Screenshot every frame next to its reference and fix any differences. Recheck the frame contract.
+5. **Refine, then verify.** Run `../figma-refine/SKILL.md` Workflow 2 on every new or adapted frame. Then screenshot every frame next to its reference and fix any differences. Recheck the frame contract.
 6. **Update the catalogues.** Add each new frame's id to `references/mobile-inventory.md`, and its size, source and build notes to `references/existing-mobile-screens.md` under its flow. Add any main-file screens that `main-file-mobile-flows.md` is missing.
 
 ## House rules from the user

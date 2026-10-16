@@ -193,6 +193,101 @@ Renamed frames (old → new):
 
 The emptied sections (`2996:103805`, `Section 1` `3028:68275`, `Section 2` `3062:69715`) are hidden beside it, not deleted. The duplicate `03.1` frame `3085:85696` was moved out next to them and is still visible.
 
+**Hero band iterations (2026-10-14):** five alternatives to the user's `Hero Band (Slide 1)` `3108:68320`, which sits loose on the flows page next to `08.1`. They're stacked 200px apart below it, each with an Info annotation on the right. The `Influencer Profile Card` and the Ripple Lines backdrop are untouched, and only the banner changes:
+
+| # | Idea | Frame | What changes |
+|---|---|---|---|
+| 1 | Shoppable Spotlight | `3111:84686` | A mini shelf of 3 products (brand, name, price) and "View all products" on the slide; arrows move next to the dots |
+| 2 | Split Editorial | `3111:84845` | Copy on a solid cream panel, photo on the right half, no scrim; Primary button; segmented progress bar with "01 / 03" |
+| 3 | Story Tabs | `3111:84990` | Named tabs (This week's edit · New in · Gift guide) replace the dots |
+| 4 | Peek Deck | `3111:85130` | Active slide 500 wide, with the next slide peeking at the right edge; arrows inside the active slide |
+| 5 | Limited-time Promo | `3111:85263` | Countdown pill, dashed discount-code chip with the copy icon, "Shop the sale". Codes aren't in the product, so this needs a decision |
+
+The user picked **2 Split Editorial** and asked for five more in that style (2026-10-14). They're stacked below iteration 5, each cloned from `3111:84845` with an Info annotation:
+
+| # | Idea | Frame | What changes |
+|---|---|---|---|
+| 2.1 | Creator Note | `3113:84989` | Mirrored (photo left), the title is a quote signed with the creator's avatar and name, arrows on the photo |
+| 2.2 | Arch Frame | `3113:85133` | Panel tinted to the Ripple Lines backdrop (`#E6EEF3`), photo in an arch that bleeds off the bottom |
+| 2.3 | Edit Preview | `3113:85273` | Overlapping product thumbnails and "6 products in this edit" under the button; the dots move onto the photo |
+| 2.4 | Night Edition | `3113:85419` | Dark panel (`#2B2826`), cream text, Secondary button, slide 2's copy and photo |
+| 2.5 | Collage | `3113:85564` | One main photo plus two detail photos, like a magazine spread; arrows on the main photo |
+
+The user then asked for five options free of the card-plus-banner layout (2026-10-14). The `Influencer Profile Card` is still unchanged in all of them, but it can move. Stacked below 2.5, each with an Info annotation:
+
+| # | Idea | Frame | What changes |
+|---|---|---|---|
+| 3.1 | Magazine Cover | `3120:85296` (644 tall) | Full-width cover: 44px title on a cream panel, photo across the right half. The card moves down and overlaps the cover like a masthead |
+| 3.2 | Bento Board | `3120:85485` | No carousel: all three edits as tiles (one tall, two small) beside the card |
+| 3.3 | Shop Window | `3120:85646` | The client's "front of the shop": a header panel with an end-date chip, plus 3 product cards with a label (New in, Back in stock, On sale), price (sale price crossed out) and the creator's one-line note |
+| 3.4 | Lookbook | `3121:85426` | Four tall cards (edit, routine, gift guide, video), Pinterest or Highlights style, with a next arrow |
+| 3.5 | Watch & Shop | `3121:85587` | The creator's video (play, mute, 0:45, progress line) beside its products and "Shop the video" |
+
+**Showcase inside the banner (2026-10-14):** the user asked for ideas that put products, collections or video in the banner itself. Base: the user's `Section / Posts` `3125:108966`, with the Ripple Lines backdrop and the unchanged `Influencer Profile Card`. Each idea is a copy stacked 200px below it. The content is a `Showcase / …` frame (508 × 152) layered over the empty middle of the grey panel, between the bio and Copy Shop Link, so the card itself isn't edited. Each has an Info annotation on the right.
+
+| # | Idea | Frame | What's in the banner |
+|---|---|---|---|
+| 1 | Product Shelf | `3127:104161` | "Charlotte's picks" with View all, and 3 pinned product cells (thumb, brand, name, price) |
+| 2 | Collections Peek | `3127:104199` | The first 3 collections as `Collection Card` instances (description off, +N tile), with See all |
+| 3 | Watch & Shop | `3127:104258` | A 16:9 muted video (play, 0:45, mute, progress) beside its title, product thumbs and "Shop the video" |
+| 4 | Story Highlights | `3127:104293` | Five round covers (New in, collections, a video with a play badge). Dark ring = new, grey ring = viewed |
+| 5 | Mixed Spotlight | `3127:104328` | Three labelled tiles (Product, Collection, Video) with a scrim caption |
+
+Icons: `play` and `volume-x` come from the DS- Icon Library (the same `play` the Posts flow uses), and `chevron-right` from URMEI. The card's avatar holds two stacked image fills: a stock photo under Charlotte's (`19e7e171…`, the top one). Copy the top one.
+
+**Tabbed storefront (2026-10-14):** `Storefront — Tabbed Iteration | 14.10.26` `3127:292013` replaces the long scroll with one shared header and four tabs, each its own frame:
+- All Picks `3127:292014`
+- Collections `3127:292673`
+- Posts `3127:293338`
+- Reviews `3127:294003`
+
+The header is the profile card on the Ripple Lines backdrop. Under it is a pill tab bar with counts ("All Picks (20)"). The user approved the design and asked for its personalisation options. From a list of 19, the user approved these 7 (2026-10-14):
+
+| # | Option | What the creator controls |
+|---|---|---|
+| 1 | Backdrop | Pick the pattern behind the profile card (the 04 Default Backdrops set) |
+| 3 | Announcement bar | One line above the header, up to 80 characters, with an end date (flow 02) |
+| 5 | Tab order | The order of the four tabs |
+| 6 | Landing tab | Which tab shoppers open on |
+| 7 | Hide a tab | Turn off Collections, Posts or Reviews. All Picks can't be turned off |
+| 9 | Default sort | All Picks opens on Newest, Best selling or Creator's order (drag to arrange) |
+| 16 | Pinned reviews | Up to 3 reviews shown first on the Reviews tab |
+
+Not taken, for now: seasonal backdrop, banner showcase, tab counts toggle, product labels, creator notes, featured collection, collection cover, pinned post, wall layout, photo reviews first, accent colour and tab intro line.
+
+Next: the questions below, then Figma, one flow at a time.
+
+**Tabbed storefront questions** (asked one at a time, 2026-10-14):
+1. *Where does the creator change these settings?* **Answer: a Customise shop page under My Shop**, with one panel per setting and a Save button. The other options were editing on the storefront itself, or a split panel with a live preview.
+2. *How do tab order and landing tab work together?* **Answer: the first tab is the landing tab.** That's one control: the creator orders the tabs and the shop opens on the first. A hidden tab can't be first. The other option was two separate settings.
+3. *How does the creator reorder the tabs, and products for "Creator's order"?* **Answer: up and down arrows on each row**, matching the agreed Collections answer. The other options were drag handles, or both.
+4. *What does a tab with no content show?* **Answer: an empty state.** The tab stays as long as the creator leaves it on, and shoppers see an empty-state message inside it (the main design's dashed empty-state box). The other option was hiding empty tabs automatically.
+
+Defaults kept from the earlier annotations, not asked again: announcements up to 80 characters with an end date; Ripple Lines is the default backdrop, with the five shortlisted backdrops as the other choices; All Picks can't be hidden; up to 3 pinned reviews.
+
+**Customise Shop flows (2026-10-14):** a new top-level section, `[Influencer] Shop Personalization — Customise Shop | 14.10.26` `3139:88043`, on the flows page at x 47000, y 1113. It has one numbered sub-section per flow, and each flow is approved before the next is started. The agreed order:
+1. 01 Customise Shop Page
+2. 02 Backdrop
+3. 03 Announcement Bar
+4. 04 Tabs
+5. 05 All Picks Sort
+6. 06 Pinned Reviews
+
+| Flow | Sub-section | Frames | Status |
+|---|---|---|---|
+| 01 - Customise Shop Page | `3139:88044` | `01.0` Cover `3139:88045` · `01.1` My Shop Entry Point `3139:88054` · `01.2` Customise Shop Default `3140:88237` | Desktop built, awaiting approval |
+
+- **`01.1`** is a clone of Collections `01.1` (`2750:146644`). The My Shop header gains a **Customise Shop** button (Outlined, with the `sliders-horizontal` icon from the DS Icon Library), and the cursor is on it.
+- **`01.2`** is the new page. It has a breadcrumb (My Shop › Customise Shop), the title, and **Preview Storefront** at the top right, then five panels:
+  - **Backdrop:** five thumbnails cloned from the shortlist. Ripple Lines is selected and marked "Default".
+  - **Announcement bar:** a Message field with a 0/80 counter, and an Ends on date field.
+  - **Tabs:** four rows, each with ↑/↓ arrows. The arrows use the Disabled variant at the ends of the list. All Picks is marked "Opens first" and "Always shown"; the other three have a "Show on storefront" checkbox.
+  - **All Picks order:** a Sort by select set to Newest.
+  - **Pinned reviews:** a dashed empty state with Choose Reviews.
+- **Footer of `01.2`:** Cancel and Save Changes, with Save disabled.
+- **Annotations:** three Info annotations, `3140:277981`, `3140:277993` and `3140:278005`.
+- **On/off control:** there's no switch component in the libraries, so tab visibility uses the file's `_checkbox`.
+
 ## Code it would touch (later, if built)
 
 - `src/shop/components/StorefrontProfileCard.tsx`: the banner behind the profile card
@@ -231,3 +326,36 @@ These are to walk through one at a time (change-request step 2) once the concept
 | All | If several are taken, should we cap how many can show at the top of the shop (announcement, ribbon, banner, window) at once? |
 
 Defaults in the Figma annotations are proposals, not decisions: video up to 60 s and muted in place, commission on post sales, 80-character announcements that stay closed once dismissed, a 1200 × 200 banner photo, five banner colours, and automatic light text.
+
+**Ripple Lines as a full-page theme (2026-10-14):** on the new `Shop Personalization` page `3144:112253`, below the tabbed storefront copy `3144:112254`, there's a new section, `Storefront — Ripple Lines Full-Page Theme | 14.10.26` `3149:18306`. It holds one frame, `01.1 Storefront — Ripple Lines Theme (Minimal) — All Picks — Desktop` `3149:18307`, cloned from `3144:112255`. The user asked for it to be minimal, so the theme is only:
+- **Page base:** the pale ripple base (`#F5F8FA`) behind the whole page.
+- **Backdrop:** the existing Ripple Lines backdrop behind the card.
+- **One accent:** ink `#2F4A5C` on the active tab and the current page.
+- **Ripple edge:** a thin 56px strip of ripples above the footer (`Theme / Ripple Edge`).
+
+The header, footer, profile card and product cards are unchanged. Gutter ripples, tinted badges, ink bag buttons, outlined pills and a sign-off chip were tried and then removed for being too busy. 3 Info annotations: `3151:18676`, `3151:18779`, `3151:18725`.
+
+**Card + edits carousel, alternative layouts (2026-10-14):** the user's `Frame 2007737799` `3147:114474` puts the `Influencer Profile Card` (597 wide) beside a 592 × 284 edits carousel. Three alternatives are stacked 200px apart below it, at x 2714, y 4600 on the `Shop Personalization` page. Each has an Info annotation:
+
+| Layout | Frame | What changes |
+|---|---|---|
+| A: Hero above card | `3155:18634` | The carousel runs full width (1201 × 284) and the card sits underneath at full width |
+| B: Card with edits list | `3155:18717` | The carousel is replaced by three stacked rows (thumbnail, eyebrow, title, chevron), with the current edit highlighted |
+| C: Card with promo strip | `3155:18822` | The card stays full width, with a slim 112px strip under it: photo, eyebrow and title, progress, button and arrows |
+
+**Promo strip, minimal (2026-10-14):** the user placed layout C inside `Storefront — Tabbed — All Picks — Desktop` as `3156:116451`, with the strip above the card. Its `Promo strip` `3156:116452` was then made minimal:
+- **Size:** 64px tall, with a 64px photo.
+- **Copy:** eyebrow and title on one line, with the title in `Body/body-md-medium`.
+- **Link:** "View Product" is now a `Plain-button` text link with `chevron-right`.
+- **Pager:** the progress bars are gone. `Pager` is ‹ 01 / 03 › with the arrows at Size sm.
+
+The generic frames were renamed `Content` and `Actions`. The older copies of layout C (`3155:18822`, `3156:114728`, `3156:115014`) were left untouched.
+
+**Centred profile storefront (2026-10-14):** built from a Refero reference the user shared: Telescope's saved-items profile (`telescope.fyi/@liambasil/saved`). It's adapted to URMEI, so it uses Charlotte's data and URMEI components, not Telescope's branding. Section `Storefront — Centred Profile (Reference: Telescope saves) | 14.10.26` `3159:18802`, to the right of everything on the `Shop Personalization` page. Frame `01.1 Storefront — Centred Profile — All Picks — Desktop` `3159:18803`, top to bottom:
+1. **Header:** the URMEI header.
+2. **Profile:** centred. A 128px avatar with an ink ring and a "URMEI CREATOR" badge, the name at 56px, the bio, and stats for Picks, Followers and Reviews. Then `Button` Primary "Follow" and Outlined "Copy Shop Link".
+3. **Tabs:** underline tabs (All Picks, Collections, Posts, Reviews) with a full-width rule.
+4. **Picks grid:** a 4-column masonry of the 8 shop products at varied image heights. Each card has a personal badge (Holy grail, Daily use, New find or Repurchased, a clone of the card `Tag`) and the Add to bag button, with the name and "brand · price" below.
+5. **Footer:** the URMEI footer.
+
+This is the first design to replace the `Influencer Profile Card` rather than layer over it, so it's an alternative to discuss, not a change to the card. 3 Info annotations: `3159:277754`, `3159:277760`, `3159:277766`.
