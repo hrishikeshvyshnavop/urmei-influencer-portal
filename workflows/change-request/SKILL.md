@@ -7,6 +7,18 @@ description: Handle a new client change request for URMEI end to end. Covers int
 
 How a client change goes from message to design to build. It's based on the Collections request (`T-31`, October 2026): `change-requests/collections/REQUIREMENT.md`, `change-requests/collections/ANSWERS.md` and `change-requests/collections/FLOWS.md` are the worked example. Figma ids, components and tokens are in `../_shared/workfile.md`, and script traps are in `../_shared/figma-gotchas.md`.
 
+## Keep the md files current (every step)
+
+Each time anything about a request changes, update its md files **in the same turn**, before reporting back. Changes include a new client message, a scope decision from the user ("X is not in the MVP"), an answered question, a new or changed Figma link, a built or approved flow, or a review outcome.
+
+1. **`REQUIREMENT.md`**: change the section the update affects (scope, missing designs, open questions, Figma ids, status line). Then add a row to its **Update log**: date, what changed, source (client, user in chat, review). Newest first. Never delete the old text a decision overrides: mark it as replaced and give the date.
+2. **`ANSWERS.md`** (once it exists): update any answer the change affects, and note the original answer and its date.
+3. **`FLOWS.md`** (once it exists): update the flow's frames, ids and status.
+4. **`change-requests/README.md`**: update the request's status column.
+5. **`TRACKER.md`**: update the task's row and the "Last updated" date.
+
+Don't wait to be asked, and don't save the update for the end of a step. If the user gives a decision in chat, it goes in the files before the next design or code action.
+
 ## 1. Intake: write it down before any design
 
 1. Add a `T-nn` row to `TRACKER.md`, using the next free number. Commit messages start `T-nn: …`.

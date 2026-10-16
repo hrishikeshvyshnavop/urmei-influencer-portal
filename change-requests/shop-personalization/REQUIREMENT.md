@@ -4,6 +4,174 @@ Received about 2026-10-09 (the thread showed "3 days ago" on 2026-10-12). Status
 
 Links: this follows on from Collections (`T-31`, `change-requests/collections/REQUIREMENT.md`). Its post-MVP item, "photos, videos, etc.", was left **Undecided** there, and this thread picks it up. It touches the storefront's creator card (`src/shop/components/StorefrontProfileCard.tsx`).
 
+## MVP scope (2026-10-16)
+
+**A slice of this request is now in the MVP**, tracked as `T-38`. Everything below this section is the post-MVP vision work (`T-33`) and is kept as history. Where the two disagree, this section wins.
+
+**Source design:** the main design file `cehltPtMoGWEtKbF7k3MQQ`, section `{NEW} WIP Storefront — personalization | 15.10.26` `2383:87224` ([link](https://www.figma.com/design/cehltPtMoGWEtKbF7k3MQQ/-MVP--Influencer-Portal?node-id=2383-87224)). It's marked WIP, it's shopper-side storefront only, and it's desktop only. Read-only for us: we build in the Work File.
+
+**Not in the MVP (user, 2026-10-16):** **Posts**. The design's `Posts (8)` tab, with its 4-column wall of photo, video and note posts, stays post-MVP. Frames that show the Posts tab (`01.1`, `02.1`, `04.1`, `06.1`) are reference for the banner only.
+
+### Meeting notes, 10 October 2026, 11:00 (verbatim)
+
+The user pasted these on 2026-10-16 as "the new requirement". They are the MVP requirement, and where they differ from the WIP design `2383:87224`, they win.
+
+> **Design and Preview**
+> - Backdrops: Use default backdrops with preset updates. Custom uploads are excluded from the MVP, as they may require admin moderation.
+> - Preview: Allow creators to preview their storefronts.
+> - Stats: Hide shop-page stats; they already appear on the home page.
+> - Management: Allow users and creators to edit and manage their shop pages and access a shop preview.
+>
+> **Collections and Products**
+> - Featured Items: Create a flow to feature collections and products within the banner.
+> - Banner Customization: Define a flow for how users can change the banner for creator profiles.
+> - Nudges: Encourage creators to add collections with prompts such as, "Hey, add collections."
+> - Post-MVP: Allow users to add posts to a collection when the content is relevant to the products in that collection.
+>
+> **Content and Reviews**
+> - Reviews: Keep the old reviews layout and remove the new one.
+> - Post-MVP: Merge content and reviews, including filters.
+>
+> **Notifications and Creator Updates**
+> - Include a "View product/collection" link in notifications announcing new creator collections or products in the storefront.
+>
+> **MVP Scope**
+> - Include: Banners, collections, and products.
+> - Exclude: Custom banners and admin approval.
+>
+> **Follow-Up Actions**
+> - Define the flow for featuring collections and products in the profile banner.
+> - Clarify upload moderation requirements beyond the MVP.
+> - Add collections and banners to the prototype after the design is locked.
+
+### What the MVP design shows
+
+| Flow | Cover | Frame | What it shows |
+|---|---|---|---|
+| 01 Banner — One Collection | `2383:87225` | `01.1` `2383:87226` (Posts tab) | Profile card on the left. On the right, one **featured collection** card: eyebrow ("This week's edit"), title, a one-line description, View Collection, and the first three photos, with the last tile showing "+n products" |
+| 02 Banner — Two Collections | `2383:87336` | `02.1` `2383:87337` (Posts tab) | Two featured collection cards stacked on the right |
+| 03 Banner — Two Products | `2383:87463` | `03.1` `2383:87464` (All Picks tab) | Two **featured product** cards: brand, name and the creator's own line about it |
+| 04 Banner — Two Products | `2383:87572` | `04.1` `2383:87573` (Posts tab) | Same banner as 03, on the Posts tab |
+| 05 Banner — Two Products | `2383:87680` | `05.1` `2383:87681` (Reviews tab) | Same banner as 03, on the Reviews tab (six review cards) |
+| 06 Banner — Valentine's Day | `2383:87887` | `06.1` `2383:87888` (Posts tab) | A **seasonal theme**: a pink Valentine's backdrop behind the banner; the content is unchanged |
+
+The page under the banner is the same in every frame: Header, `Banner` (1440 × 485, Ripple Lines backdrop, profile card plus banner cards), `Section / Collections`, `Section / Tabbed content` (pill tabs **All Picks**, **Posts** and **Reviews** with counts), `Footer / Client`.
+
+**Annotations in the design (verbatim):**
+- Featured collection (`2383:87334`): "A featured collection shows the collection's first three photos. The last tile counts the remaining products, and View Collection opens the collection."
+- Tabs (`2383:87335`): "Pill tabs: All Picks, Posts and Reviews, each with its item count. All Picks opens by default."
+- Banner limit (`2383:87462`): "Maximum 2 products or collections can be shown in the banner."
+- Featured product (`2383:87571`): "A featured product shows one product with the brand, name and the creator's own line about it."
+- Seasonal theme (`2383:88021`): "Seasonal theme: only the backdrop behind the banner changes for the occasion. The banner content and layout stay the same."
+
+### MVP scope (meeting notes + design, updated 2026-10-16)
+
+| | Item | Source | Notes |
+|---|---|---|---|
+| ✅ In | **Banner backdrop**: the creator picks from URMEI's preset backdrops | Notes: Backdrops, Banner Customization | Ripple Lines by default. URMEI can add or update presets, e.g. seasonal ones such as the design's Valentine's Day (`06.1`) |
+| ✅ In | **Featured items in the banner**: up to **2** collections or products | Notes: Featured Items; design annotation | Design draws one collection, two collections and two products. Mixing one of each isn't drawn |
+| ✅ In | Featured product's own line | Design | The creator writes it |
+| ✅ In | **Storefront preview** for the creator | Notes: Preview, Management | Already exists in code (`StorefrontPreview`); it must show the banner |
+| ✅ In | **Creator edits and manages the shop page** | Notes: Management | The creator-side flow; not designed yet |
+| ✅ In | **Hide shop-page stats** | Notes: Stats | They stay on Home. Removes the stats row from My Shop |
+| ✅ In | **Nudge to add collections** ("Hey, add collections") | Notes: Nudges | Where it shows isn't decided |
+| ✅ In | **Reviews keep the old layout** | Notes: Reviews; Q6 | The current two-card sliding section (`StorefrontReviews`, Figma `957:29042`), now inside the **Posts** tab. The design's new review cards (`05.1`) are **dropped** |
+| ✅ In | **Tabs: Posts and Picks** | Client's latest comment; Q6 | Posts holds reviews only in the MVP. Picks is the product grid |
+| ✅ In | **"View product/collection" link in notifications** about a creator's new collection or product | Notes: Notifications | Who receives them isn't decided |
+| ✅ In | Collections section on the storefront | Collections (`T-31`) | Already designed |
+| ❌ Out | Custom banner uploads, and the admin approval/moderation they'd need | Notes: Backdrops, MVP Scope | Moderation rules to be clarified post-MVP |
+| ❌ Out | Posts | User, 2026-10-16; Notes: Post-MVP | Including posts inside a collection |
+| ❌ Out | Merging content and reviews, with filters | Notes: Post-MVP | |
+| ~~❓ Open~~ | ~~The design's tab bar (All Picks / Posts / Reviews)~~ | — | Replaced 2026-10-16 by Q6: the tabs are Posts and Picks |
+
+**After the design is locked:** add collections and banners to the prototype (notes, Follow-Up Actions).
+
+### Missing designs (needed before the build)
+
+The `2383:87224` section only shows what **shoppers** see. There are no MVP designs yet for:
+1. **The creator side**, the meeting notes' "Define the flow for featuring collections and products in the profile banner": the creator picks the backdrop, chooses the featured collections or products, writes the product line, and opens the preview. The Work File's `Customise Shop` section `3139:88043` was drawn for the post-MVP options (tab order, pinned reviews, announcement bar) and has only its first flow. It doesn't match this scope. The main file's Collections copy `1862:81644` (checked 2026-10-16) has no personalization screens either.
+2. **The collections nudge**.
+3. **The notification** with its "View product/collection" link.
+4. **My Shop without the stats row**.
+5. **Empty and edge states**: no featured items, a collection with fewer than three products, a featured item removed from the shop or unpublished.
+6. **The storefront with Posts and Picks tabs**, with the old reviews layout inside Posts (replaces "the storefront without the tabs", 2026-10-16).
+7. **Mobile** versions of every frame.
+
+### Code it would touch
+
+- `src/shop/components/StorefrontProfileCard.tsx`: the banner, backdrop and featured cards beside the profile card
+- `src/shop/screens/StorefrontPreview.tsx` and `src/shop/screens/StandaloneStorefront.tsx`: the banner, plus the All Picks / Reviews tabs
+- `src/shop/components/StorefrontReviews.tsx`: Reviews becomes a tab instead of a section
+- My Shop (`src/shop/`): the creator's controls, once they're designed
+- A new persisted record for the featured items, the product lines and the theme (localStorage, like the other `*-status.ts` modules)
+
+### MVP open questions
+
+Each one will be asked on its own, with lettered options. The meeting notes settled part of the original list (2026-10-16).
+
+1. Where does the creator choose the backdrop and featured items?
+   **Answer (2026-10-16): an edit panel in the storefront preview.** An "Edit banner" button on the preview opens a panel where the creator picks the backdrop, then up to 2 featured items, so editing and previewing happen in one place. The other options were a Customise Shop page under My Shop, or featuring each item from its own ⋮ menu.
+2. Can the banner mix one collection and one product?
+   **Answer (2026-10-16): yes, any 2.** Up to 2 items of either kind: 2 collections, 2 products, or 1 of each. The 1 + 1 layout needs designing. The other options were same kind only, or a single item.
+3. ~~Who sets the seasonal theme?~~ **Partly answered by the notes:** backdrops are URMEI presets with "preset updates", and there are no custom uploads. Still open: does a seasonal preset switch on for every shop automatically, or only when the creator picks it? And which presets are there at launch?
+   **Answer (2026-10-16): the creator picks.** URMEI adds seasonal presets to the backdrop list, and a shop changes only if its creator chooses one. Nothing is switched on automatically, so URMEI needs no scheduling control. The other options were automatic for every shop, or automatic with an opt-out. Still open: which presets are there at launch.
+4. What does the banner show when nothing is featured: only the profile card, or the collections nudge?
+   **Answer (2026-10-16): the profile card only.** Shoppers see just the profile card on the backdrop. In the creator's preview, the empty slot shows a dashed "Feature a collection or product" prompt that opens the edit panel. The other options were filling the slot automatically, or showing the collections nudge there.
+5. Is the featured product's line required, and how long can it be?
+   **Answer (2026-10-16): required, up to 80 characters.** The creator writes the line when featuring the product and can't save without it, so every featured product card matches the design. This needs a "required" error state and a 0/80 counter in the edit panel. The other options were optional (80 characters) or no line in the MVP.
+6. Do the storefront tabs go, now that Posts is out and Reviews keeps its old layout?
+   **Answer (2026-10-16, from the client's latest comment, relayed by the user; the comment isn't recorded verbatim yet): two tabs, Posts and Picks.** In the MVP, the **Posts** tab holds only the creator's reviews, in the old layout. Creator photo, video and note posts join the same tab post-MVP, so "Posts not in the MVP" still holds. **Picks** is the product grid (today's All Picks). The user gave the order as "Posts, Picks". **Follow-up answer (2026-10-16): Picks opens first.** Shoppers land on the product grid, with Posts one click away (the other option was Posts first). Still to confirm: the tabs' exact labels. The other options were removing the tabs, All Picks + Reviews tabs, or one tab with Reviews below.
+7. Where does the "add collections" nudge show (My Shop, Home, the storefront preview), and when does it stop?
+   **Answer (2026-10-16): on My Shop, until the first collection.** A creator with no collections sees a dismissible banner on My Shop. It disappears once they create their first collection or dismiss it. The other options were Home plus My Shop, or the storefront preview only.
+8. Who receives the new-collection or new-product notifications (the creator, or shoppers who follow the creator), and where does the link go?
+   **Answer (2026-10-16): followers.** Shoppers who follow the creator are notified, and "View product/collection" opens that item on the public storefront. **Dependency:** this portal has no shopper-side notifications today (the bell drawer is the creator's), so the shopper surface needs designing, or it belongs to the shopper app. The other options were the creator's own bell, or both.
+9. Which stats are hidden: just My Shop's stats row, or any others?
+   **Answer (2026-10-16): only My Shop's stats row.** The five-metric row comes off My Shop. Home keeps it, and the stat pages and product stats stay reachable from Home. The other options were also removing the product performance card, or hiding storefront stats only.
+
+### Proposed flow order (2026-10-16, awaiting approval)
+
+All the flows go in one new top-level section on the Work File's flows page `2650:50683`: `[Influencer] Shop Personalization (MVP) | 16.10.26`. Each flow is a numbered sub-section, desktop first, in creator-journey order. One flow is built and approved before the next is started.
+
+| # | Flow | Who | Screens (draft) | Based on |
+|---|---|---|---|---|
+| 01 | My Shop: stats row removed and the collections nudge | Creator | My Shop without the stats row → the nudge banner (no collections) → dismissed → gone after the first collection | Q7, Q9 |
+| 02 | Open the banner editor | Creator | Row 1: My Shop **Edit Banner** button → panel. Row 2: My Shop → Preview Storefront → empty banner slot with the dashed prompt → "Edit banner" opens the panel | Q1, Q4; Edit Banner button (2026-10-16) |
+| 03 | Change the backdrop | Creator | Panel: backdrop presets, including seasonal (Ripple Lines is the default) → select → Save → the preview updates | Q3 |
+| 04 | Feature a collection | Creator | Panel: "Add featured item" → pick a collection → Save → the banner shows one collection | Q2 |
+| 05 | Feature a product | Creator | Pick a product → the required line with 0/80 → errors (required, too long) → Save → the banner shows the product | Q2, Q5 |
+| 06 | Two featured items | Creator | 2 collections, 2 products, 1 + 1; at the limit the add button is disabled ("Maximum 2") | Q2 |
+| 07 | Remove or replace a featured item | Creator | Remove from the panel → Undo toast → the banner falls back to 1 item or the profile card only | Q4 |
+| 08 | Storefront tabs: Picks and Posts | Shopper | Picks opens first → the Posts tab with the old reviews layout → Posts empty state | Q6 |
+| 09 | Featured item no longer available | Both | A featured product removed from the shop, a collection deleted, or the shop unpublished → what the banner and the panel show | Edge cases |
+| 10 | Follower notification | Shopper | The notification "<Creator> added a new collection/product" → View product/collection → the item on the storefront | Q8; **on hold** until following is confirmed for the MVP |
+
+Mobile follows once desktop is approved.
+
+### Update log
+
+Every change to this request is recorded here, newest first, with the date, what changed and its source. See `workflows/change-request/SKILL.md`, "Keep the md files current".
+
+| Date | Change | Source |
+|---|---|---|
+| 2026-10-16 | `REFERO-PROMPT.md` output switched to **Refero's own screen format**, verbatim as `refero_get_screen` returns it (example the user pasted: Column `77562542-…`), plus a `Relevance to URMEI` block per screen. This replaces the ScreenSpec-template version written earlier the same day | User, in chat |
+| 2026-10-16 | (Replaced, see above) `REFERO-PROMPT.md` asked for each screen as a **ScreenSpec** (the Vonnue `screenspec` template: tags, Colors, Description / Layout / Functions, Site), plus a "Relevance to URMEI" block, saved to `refero-screenspecs.md` | User, in chat |
+| 2026-10-16 | Wrote `REFERO-PROMPT.md`: a Refero MCP prompt (8 patterns A–H, from side-panel customiser to seasonal theming) and quick search-box queries, following the Vonnue design skills' Refero format | User, in chat |
+| 2026-10-16 | **Edit Banner button on My Shop** (user's answer to "how does the creator know the banner is editable?"): a permanent outlined Edit Banner button in the shop card, beside Preview Storefront, opens the preview with the panel open. Flow 02 now has two rows (Edit Banner; Preview → empty slot) and was renumbered 02.1–02.4 (table in `FLOWS.md`). The other options were a one-time announcement banner, both, or a mini banner preview in the card | User, in chat |
+| 2026-10-16 | **Flow 02 built** (desktop, awaiting approval) on the `Personlisation` page (user's choice), section `[Influencer] Shop Personalization (MVP) | 16.10.26` `3225:139064`, sub-section `3230:53715`: `02.0`–`02.3` and 3 Info annotations. Details in `FLOWS.md` | Us, build |
+| 2026-10-16 | The user asked to build flow **02 Open the banner editor** first. **Blocked before any write:** the Work File no longer has the flows page `2650:50683` or the `Shop Personalization` page `3144:112253`. A new page, `Personlisation` `3223:139063`, holds one empty `Section 1` `3225:139064`. The locked `2320:42706` is still there. Nothing was written; waiting for the user to say where to build | Us, read-only check |
+| 2026-10-16 | Proposed a 10-flow order for the MVP designs (awaiting approval); flow 10 is on hold until following is confirmed | Us, proposal |
+| 2026-10-16 | Q8 answered: followers get the notification, and the link opens the item on the public storefront (needs a shopper-side surface). Q9 answered: only My Shop's stats row is removed. All 9 MVP questions answered; `ANSWERS.md` written | User, in chat |
+| 2026-10-16 | Q6 follow-up: Picks opens first. Q7 answered: the collections nudge is a dismissible banner on My Shop, shown until the first collection | User, in chat |
+| 2026-10-16 | Q6 answered from the client's latest comment: tabs are **Posts** (reviews only in the MVP, in the old layout) and **Picks**. Posts content stays post-MVP. Open: which tab opens first, and the client comment verbatim | User, relaying the client |
+| 2026-10-16 | Q5 answered: the featured product line is required, up to 80 characters | User, in chat |
+| 2026-10-16 | Q4 answered: with nothing featured, shoppers see only the profile card; the creator's preview shows a dashed prompt that opens the edit panel | User, in chat |
+| 2026-10-16 | Q3 answered: seasonal backdrops are presets the creator picks; none switch on automatically | User, in chat |
+| 2026-10-16 | Q2 answered: the banner takes any 2 items, including 1 collection + 1 product (that layout still needs designing) | User, in chat |
+| 2026-10-16 | Q1 answered: the backdrop and featured items are edited in a panel inside the storefront preview ("Edit banner") | User, in chat |
+| 2026-10-16 | Meeting notes of 10 Oct 2026 (11:00) added verbatim as the MVP requirement. Scope table rewritten. **Changes from the design:** Reviews keep the old layout (the new Reviews tab is dropped); custom uploads and admin approval are out. **New in scope:** preview, hidden shop-page stats, collections nudge, notification link. Open question 3 partly answered; questions 6–9 added; missing designs 2–6 added | Meeting notes, pasted by the user |
+| 2026-10-16 | The user shared the main file's `[NEW] Collections | 07.10.26` `1862:81644` as the new creator portal designs. It's the Collections client copy (`T-31`; flows 01–21 match `change-requests/collections/FLOWS.md`). It's what a featured collection's View Collection opens (16.2 Collection page `1862:82265`), but it has **no personalization screens**: nothing to pick featured items, write a product line or set a theme. So "Missing designs" item 1 is still open | User, in chat |
+| 2026-10-16 | MVP scope added from the main file's `2383:87224`. Posts is out of the MVP. Opened `T-38` | User, in chat |
+
 ## Client thread (verbatim)
 
 Nelson Seh (client), replying to Neethu KU:
