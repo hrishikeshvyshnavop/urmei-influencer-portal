@@ -43,3 +43,6 @@ vite.config.ts.timestamp-*
 # claude code local state
 .claude/worktrees/
 .claude/settings.local.json
+
+# browser crash dumps (Chrome/Playwright crashpad)
+debug.log

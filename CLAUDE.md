@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **Note on `AGENTS.md` and `README.md`:** both are **stale**. `AGENTS.md` describes a customized Next.js setup, and `README.md` is `create-next-app` boilerplate (port 3000, `app/page.tsx`). The project was migrated off Next.js to Vite + React (commit `bee914a`). There is no Next.js here, so ignore the "read `node_modules/next/dist/docs/`" instruction. This file reflects the actual stack.
+> **Note on `AGENTS.md` and `README.md`:** `AGENTS.md` only points other agents here, and `README.md` is the short human overview. This file is the full reference. The project was migrated off Next.js to Vite + React (commit `bee914a`), so there is no Next.js here.
 >
 > **Note on Figma files:** node ids in code comments come from two files. Checked on 2026-09-25:
 > - **Work File `FdmVPJo1j4t8s9gej1H7Yb`:** the `15xx:*`–`16xx:*` ids, e.g. `1584:96889` Activities, `1594:34810` filter panel, `1619:57134` notifications drawer, `1652:59743` product stats.
@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 >
 > Comments citing the main file usually name it.
 >
-> **Figma design work:** the Work File's current page ids, the **locked handoff frames** (the final design `2384:76022` + `2384:77979` and `2320:42706`: never edit them), components, tokens and product rules all live in `responsive-workflow-urmei/_shared/workfile.md`. Script traps are in `responsive-workflow-urmei/_shared/figma-gotchas.md`. Before any page-wide Figma write, check that every locked id still exists. If one is missing, stop and ask.
+> **Figma design work:** the Work File's current page ids, the **locked handoff design** (the whole main-file page `794:24650` "-> Responsive Design (Web & Mob)", plus the Work File's `2320:42706`: never edit them; build only in the Work File), components, tokens and product rules all live in `workflows/_shared/workfile.md`. Script traps are in `workflows/_shared/figma-gotchas.md`. Before any page-wide Figma write, check that every locked id still exists. If one is missing, stop and ask.
 
 ## Commands
 
@@ -19,16 +19,30 @@ There is no test runner configured, so verify UI changes by running the dev serv
 
 **Work tracking:** tasks live in `TRACKER.md` with permanent `T-nn` IDs. A new task takes the next free number, and IDs are never reused. Commit messages start `T-nn: <title>`, so `git log --grep T-nn` finds a task. Update the task's tracker row in the same commit. Only the user ticks **Live**, after checking the Vercel deploy.
 
-**Responsive design workflow** (`responsive-workflow-urmei/`). These are plain files now, moved out of `.claude/skills/` on 2026-10-01, so they no longer run as slash commands. To use one, ask Claude to read and follow it, e.g. "follow `responsive-workflow-urmei/responsive-flow/SKILL.md` for <link>".
+**Where things live** (repo root):
+
+| Path | What it holds |
+| --- | --- |
+| `src/`, `public/` | The app (see Architecture and Assets). |
+| `TRACKER.md` | Every task, by `T-nn`. |
+| `workflows/` | The agent-driven workflows: one folder per workflow, each with its `SKILL.md` and its own `references/`. `workflows/README.md` is the index. |
+| `change-requests/` | One folder per client change request (`change-requests/<topic>/`): `REQUIREMENT.md`, then `ANSWERS.md` and `FLOWS.md` as the request reaches those steps. `change-requests/README.md` lists them with their task and status. |
+| `.claude/` | Claude Code config only: `launch.json` and the thin auto-loading `skills/change-request` stub. No workflow content lives here. |
+
+Don't drop new working documents at the root: a client request goes in `change-requests/<topic>/`, and a workflow note or report goes in its workflow's `references/` (finished or superseded ones in `references/archive/`, with a date in the name).
+
+**Agent workflows** (`workflows/`). These are plain files, moved out of `.claude/skills/` on 2026-10-01 (and renamed from `responsive-workflow-urmei/` on 2026-10-13), so they don't run as slash commands. To use one, ask Claude to read and follow it, e.g. "follow `workflows/responsive-flow/SKILL.md` for <link>".
 - `responsive-flow`: the automated pipeline. Paste a Work File flow link and it plans the mobile screens (one approval stop), then builds, places cursors, lays out pairs, verifies, reviews and updates the catalogues. It orchestrates the skills below; its scripts are in `references/scripts.md`.
 - `mobile-screen`: building Figma mobile screens, including the new-flow reuse workflow and its catalogs in `references/`.
 - `organize-flow`: tidying Figma flow sections.
-- `mobile-design-review`: a senior-designer production-readiness review of the mobile flows (spacing, type, colour, components, states, copy, handoff, parity), then approved fixes, tracked per section in its `references/readiness-log.md`.
-- `responsive-workflow`: all of the above responsive skills and their references (plus `_shared/`) copied verbatim into one file, in workflow order (setup → build → organize → review → track). It's a generated bundle: edit the sources, then regenerate it.
+- `mobile-design-review`: a senior-designer production-readiness review of the mobile flows (spacing, type, colour, components, states, copy, handoff, parity), then approved fixes, tracked per section in its `references/readiness-log.md`. `references/design-problems.md` is the 2026-09-30 summary of open problems compiled from that log.
+- `responsive-workflow`: all of the above responsive skills and their references (plus `_shared/`) copied verbatim into one file, in workflow order (setup → build → organize → review → track). It's a generated bundle: edit the sources, then run `node workflows/responsive-workflow/build.mjs`.
+- `figma-refine`: the Figma structure and naming refiner. It detects whether the selection is a Section, Frame or Component (Set) and runs only that type's cleanup (section flow layout, frame structure, or component variants and properties), renaming in Sentence case with no visual change. It's a pipeline step, not a separate command: `responsive-flow`, `change-request` and `mobile-screen` run it on every frame and component they build, before their screenshot check. `organize-flow` still names sections, covers and screen frames; the refiner names everything inside them.
 - `clarify`: ask before assuming.
+- `change-request`: the one exception to "plain files". The thin skill `.claude/skills/change-request/SKILL.md` loads it automatically whenever a client requirement, request or message comes up, so nobody has to name it. That skill only points here, so edit this source. The workflow covers how a client change goes from message to build. Intake into `change-requests/<topic>/REQUIREMENT.md`, then questions with options and `change-requests/<topic>/ANSWERS.md`, then Figma one flow at a time (each a numbered sub-section, approved before the next), then review and the client message, and only then code. It also lists the Figma rules for cursors, icons, covers, annotations, disabled states, toasts and frames. The worked example is Collections (`T-31`): `change-requests/collections/REQUIREMENT.md`, `change-requests/collections/ANSWERS.md`, `change-requests/collections/FLOWS.md`.
 - `_shared/`: not a skill. It holds the Work File reference (`workfile.md`) and the `use_figma` gotchas (`figma-gotchas.md`) that the three Figma skills share. Update facts there, not in each skill.
 
-`responsive-flow`, `mobile-screen`, `organize-flow` and `mobile-design-review` work in Figma, not in this codebase.
+`responsive-flow`, `mobile-screen`, `organize-flow`, `figma-refine` and `mobile-design-review` work in Figma, not in this codebase.
 
 ## Stack
 

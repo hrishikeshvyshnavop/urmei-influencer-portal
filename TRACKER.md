@@ -11,7 +11,7 @@ Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free
 | ⬆️ Pushed | On `origin` (`main` or a feature branch) |
 | 🟢 Live | Deployed and checked on the Vercel site |
 
-Last updated: 2026-09-25
+Last updated: 2026-10-16
 
 ## In progress
 
@@ -57,3 +57,10 @@ These commits are pushed to `origin/main`. Tick **Live** once you've checked the
 | --- | --- | :-: | :-: | :-: | --- |
 | T-21 | Convert `public/urmei/apply-hero.png` to WebP (`4c824f5`, docs `bb1e141`) | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-22 | Clear the lint errors: `activity-log.ts` whitespace, plus effect setState in `ManageAccount` and `ApplyCreator` (`0ac43ac`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-31 | Shop collections (replace Favorites): requirement, answers, and the Figma flows list. `change-requests/collections/REQUIREMENT.md`, `change-requests/collections/ANSWERS.md`, `change-requests/collections/FLOWS.md` (Figma section `[Influencer] Collections` `2764:66587`). Design only; building it is a later task (`git log --grep T-31`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-32 | Track the Figma workflow folder `workflows/` (it was local-only) and add the `change-request` workflow for new client requests (`git log --grep T-32`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-33 | Shop personalization (post-MVP vision): `change-requests/shop-personalization/REQUIREMENT.md`, HTML concept board (6 ideas), and desktop Figma drafts 01 Posts, 02 Announcement Bar, 03 Custom Banner (Figma section `[Influencer] Shop Personalization (Post-MVP)` `2903:78274`). In internal review with Rayboy and Neethu KU (`git log --grep T-33`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-34 | Reorganise the agent files: `responsive-workflow-urmei/` → `workflows/`, client requests into `change-requests/<topic>/`, indexes for both, a build script for the responsive bundle, drop the tracked `debug.log`, and replace the stale `AGENTS.md`/`README.md` (`git log --grep T-34`) | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-35 | Social account revoked from the platform (Instagram, Facebook, YouTube, TikTok): requirement, agreed plan and answers in `change-requests/social-disconnect/` (`REQUIREMENT.md`, `ANSWERS.md`, `FLOWS.md`). Desktop design in Figma section `[Influencer] Social Connection Lost` `3061:84210`: all 9 desktop flows built (01 approved, 02–09 in review; Q2 option to pick); mobile after approval; code later | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-37 | Add the `figma-refine` workflow (`workflows/figma-refine/SKILL.md`): Figma structure and naming refiner for Sections, Frames and Components, wired in as the last design step of `responsive-flow`, `change-request` and `mobile-screen` (`git log --grep T-37`) | [ ] | [ ] | [ ] | ⬜ Not started |
+| T-38 | Shop personalization, MVP slice (meeting notes of 10 Oct 2026): preset banner backdrops, up to 2 featured collections or products in the banner, storefront preview, hidden shop-page stats, collections nudge, "View product/collection" link in notifications, old reviews layout kept. Out: Posts, custom uploads, admin approval. WIP design: the main file's `2383:87224` (shopper side only; creator side not designed). Details in the MVP section of `change-requests/shop-personalization/REQUIREMENT.md`; 9 questions answered in `ANSWERS.md`; flow 02 built on the Work File's `Personlisation` page `3223:139063` (`FLOWS.md`), approved 2026-10-19; primary screen `3287:33154`; current flows in `Primary Flows` `3321:24528` (01 Change Backdrop, 02 Add Featured Items) in lead review; earlier explorations kept; flow 01 built as 3 options (`3250:17341`), awaiting a pick | `docs/workflows-and-change-requests` | [ ] | [ ] | [ ] | ⬜ Not started |
