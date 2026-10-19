@@ -105,6 +105,18 @@ The `2383:87224` section only shows what **shoppers** see. There are no MVP desi
 - My Shop (`src/shop/`): the creator's controls, once they're designed
 - A new persisted record for the featured items, the product lines and the theme (localStorage, like the other `*-status.ts` modules)
 
+### Requirement R1: backdrops scale to 10+ (2026-10-19)
+
+> User: *"in future there can be 10+ themes comes so this designs should be scalable to that"*
+
+The backdrop picker is a component with category filters (All / Classic / Seasonal), a scrolling strip and a collapsible grid. A new theme is a new thumbnail, with no layout change. Built as `Backdrop picker` / `Backdrop tile` (Work File, Dev Handoff › 17), and used on every picker screen.
+
+### Requirement R2: the default backdrop is Plain #FFFFFF (2026-10-19)
+
+> User: *"default should be plain FFF"*
+
+A banner with no backdrop picked is plain white (#FFFFFF). **Plain** is the first preset in every picker, tagged "Default" and selected by default. Ripple Lines is an ordinary Classic preset. This replaces the earlier design, where Ripple Lines was the default.
+
 ### MVP open questions
 
 Each one will be asked on its own, with lettered options. The meeting notes settled part of the original list (2026-10-16).
@@ -118,6 +130,7 @@ Each one will be asked on its own, with lettered options. The meeting notes sett
 4. What does the banner show when nothing is featured: only the profile card, or the collections nudge?
    **Answer (2026-10-16): the profile card only.** Shoppers see just the profile card on the backdrop. In the creator's preview, the empty slot shows a dashed "Feature a collection or product" prompt that opens the edit panel. The other options were filling the slot automatically, or showing the collections nudge there.
 5. Is the featured product's line required, and how long can it be?
+   **Changed 2026-10-19 (user): removed from the MVP.** Asked "Creator line, do we need this?", the user chose to remove it. The picker has no "Why you love it" field, there's no line-missing error, and the product card shows image, brand, name and Shop Now. The original answer is below.
    **Answer (2026-10-16): required, up to 80 characters.** The creator writes the line when featuring the product and can't save without it, so every featured product card matches the design. This needs a "required" error state and a 0/80 counter in the edit panel. The other options were optional (80 characters) or no line in the MVP.
 6. Do the storefront tabs go, now that Posts is out and Reviews keeps its old layout?
    **Answer (2026-10-16, from the client's latest comment, relayed by the user; the comment isn't recorded verbatim yet): two tabs, Posts and Picks.** In the MVP, the **Posts** tab holds only the creator's reviews, in the old layout. Creator photo, video and note posts join the same tab post-MVP, so "Posts not in the MVP" still holds. **Picks** is the product grid (today's All Picks). The user gave the order as "Posts, Picks". **Follow-up answer (2026-10-16): Picks opens first.** Shoppers land on the product grid, with Posts one click away (the other option was Posts first). Still to confirm: the tabs' exact labels. The other options were removing the tabs, All Picks + Reviews tabs, or one tab with Reviews below.
@@ -159,6 +172,38 @@ Every change to this request is recorded here, newest first, with the date, what
 | 2026-10-16 | **Edit Banner button on My Shop** (user's answer to "how does the creator know the banner is editable?"): a permanent outlined Edit Banner button in the shop card, beside Preview Storefront, opens the preview with the panel open. Flow 02 now has two rows (Edit Banner; Preview → empty slot) and was renumbered 02.1–02.4 (table in `FLOWS.md`). The other options were a one-time announcement banner, both, or a mini banner preview in the card | User, in chat |
 | 2026-10-16 | **Flow 02 built** (desktop, awaiting approval) on the `Personlisation` page (user's choice), section `[Influencer] Shop Personalization (MVP) | 16.10.26` `3225:139064`, sub-section `3230:53715`: `02.0`–`02.3` and 3 Info annotations. Details in `FLOWS.md` | Us, build |
 | 2026-10-16 | The user asked to build flow **02 Open the banner editor** first. **Blocked before any write:** the Work File no longer has the flows page `2650:50683` or the `Shop Personalization` page `3144:112253`. A new page, `Personlisation` `3223:139063`, holds one empty `Section 1` `3225:139064`. The locked `2320:42706` is still there. Nothing was written; waiting for the user to say where to build | Us, read-only check |
+| 2026-10-19 | Lead review requested: message drafted with links to `01 - Change Backdrop` `3321:24529` and `02 - Add Featured Items` `3321:84338` | User, in chat |
+| 2026-10-19 | Follow and Copy Shop Link removed from the banner in the creator portal: new `Show shopper actions` boolean on Banner content, off on all 30 My Shop instances (primary screen included), kept on in the 12 gallery previews | User, in chat |
+| 2026-10-19 | Collection board component (Order First / Middle / Last; text props) made from the My Shop collection card; all 45 copies on the page replaced with instances, keeping their text, images and order | User, in chat |
+| 2026-10-19 | Gallery previews never show Change Backdrop: Show Change Backdrop is off on all 11 Banner content instances inside `Banner preview` frames (the preview is the shopper's view) | User, in chat |
+| 2026-10-19 | **`3287:33154` is the primary screen.** New section `Primary Flows` `3321:24528`: flow 01 Change Backdrop (6 frames, using the Backdrop component; Soft Dots → Valentine's Day) and flow 02 Add Featured Items (7 frames, two slots, remove with Undo), all cloned from the primary. The older 01/02 sections are marked superseded. The flows use Shop details = Published (the primary shows "No products", flagged) | User, in chat |
+| 2026-10-19 | User's full My Shop layout `3287:33154` tidied: token gaps (title → shop card `spacing/lg` 24, banner → tabs `spacing/xxl` 32, bottom `spacing/5xl` 64; changed from 28 / 36 on request), the backdrop stretches with the banner, the content toolbar fills, layers renamed (`My shop — Desktop`, `Page content`, `Shop body`, `Shop banner`) | User, in chat |
+| 2026-10-19 | Backdrops section: 12 full-size backdrop components (1200 × 518) on the user's canvas; Banner content gets a Show second slot boolean (1 or 2 featured items) | User, in chat |
+| 2026-10-19 | Q5 changed: the creator line on featured products is removed from the MVP (was required, 80 characters). Featured slot content updated (data, empty-slot copy, text properties) | User, in chat |
+| 2026-10-19 | Shop details built as its own component (Published / Published with edits / Never published / No products) and used in flows 01–02; kept out of Banner content | User, in chat |
+| 2026-10-19 | Flow 02 Add Featured Item built on My Shop (8 frames: pick a collection, pick a product with its line, the error, both full, remove with Undo); new Featured slot component (Empty / Collection / Product) nested in Banner content | User, in chat |
+| 2026-10-19 | Change Backdrop renumbered as flow **01**; its banners use the Banner content component; Change Backdrop moved into the component (Toolbar row, Show Change Backdrop boolean). Flow **02 Add Featured Item** started | User, in chat |
+| 2026-10-19 | Full Change Backdrop flow built with the gallery (option B), starting from idea 1's Shop card: open, Soft Dots previewed, applied with Undo, Seasonal filter, discard confirm. Section 13 `3302:17696` | User, in chat |
+| 2026-10-19 | Banner content made a responsive component set (Desktop / Mobile, text props); URMEI logo restored before the follower count on all 31 banners; @handle moved next to the name; gallery previews use the component on the Soft Dots backdrop | User, in chat |
+| 2026-10-19 | Empty banner shows two featured slots (Slot 1 of 2, Slot 2 of 2), each with its own Add Featured Item, in `3287:18332` | User, in chat |
+| 2026-10-19 | R2: the default backdrop is Plain #FFFFFF. Plain thumbnail set to #FFFFFF, Plain first, tagged Default and selected in every Backdrop picker variant; 29 default banners on the page lost the ripple pattern; gallery tiles and the idea 4 strip updated | User, in chat |
+| 2026-10-19 | Gallery preview rebuilt with auto layout (backdrop layer, profile card, featured slot; URMEI text styles and tokens) in 12.1 and 12.2 | User, in chat |
+| 2026-10-19 | Gallery option B (centred modal) liked; the preview bezel replaced by a light hairline border in both options | User, in chat |
+| 2026-10-19 | Change Backdrop gallery built as two options (full-page modal, centred modal) after a Windows-style theme reference: live preview on the left, a big-tile grid on the right, Apply Backdrop. Section 12 `3288:15466` | User, in chat (screenshot) |
+| 2026-10-19 | All 43 annotation cards converted into Figma's built-in annotations (Info category) on their layers; the picker radios (04.2, 05.1, 05.2) now use the portal's radio button component | User, in chat |
+| 2026-10-19 | Idea 1: the Shop details row (URL, Last Published, Preview Storefront, View Shop) moved above the banner in the Shop card | User, in chat |
+| 2026-10-19 | Change backdrop approved: the scalable Backdrop picker strip on the banner (flow 03, and the same picker in idea 1's 11.2) | User, in chat |
+| 2026-10-19 | R1 added: backdrops must scale to 10+. Built the Backdrop picker (Strip / Grid / Grid expanded) and Backdrop tile components with 12 presets (7 placeholders), and swapped them into 17 screens | User, in chat |
+| 2026-10-19 | Idea 1: the banner's Follow button hidden on My Shop (a creator can't follow their own shop) | User, in chat |
+| 2026-10-19 | Idea 1 fix: the merged Shop URL field restored with its copy icon (the merge had dropped it), and the banner's Add Featured Item button shown again (hidden by mistake) | User asked how to copy the link |
+| 2026-10-19 | Idea 1: the banner's Copy Shop Link hidden on My Shop; the shop link shows once, in the Shop details row | User, in chat |
+| 2026-10-19 | Idea 1: the live banner and the store card merged into one Shop card (banner on top, URL / Last Published / Preview Storefront / View Shop row under it), because both showed the photo and name | User, in chat |
+| 2026-10-19 | 7 ideas for editing the banner from My Shop (live banner, Banner tab, card menu, shop card strip, side drawer, toast after adding, setup checklist) built as section 11 `3270:5623`, in lead review | User asked in chat ("build every idea") |
+| 2026-10-19 | Flows 03–07 built in option B (backdrop, feature a collection, feature a product with its line and error, two items, remove with Undo): 21 frames, 5 covers, 16 annotations. The page was marked for review ("— Lead Review" in the section names) and renamed to the guidelines (16 section, cover and frame names, 1,773 inner layers) | User asked in chat; design |
+| 2026-10-19 | Edit Banner editor: **option B (edit on the banner) chosen**; the full flow is to be built in that style. Replaces the overlay panel `02.2` as the editor (the 2026-10-16 Q1 answer, "a panel inside the storefront preview", now reads "edit mode on the banner inside the storefront preview") | User, in chat |
+| 2026-10-19 | Three Edit Banner editor options added to flow 02 (`02.5` A docked panel, `02.6` B edit on the banner, `02.7` C dialog with preview), under the approved rows; one to pick | User asked in chat; design |
+| 2026-10-19 | Flow 01 built as three options in sub-section `3250:17341`: A page banner, B promo card, C Collections tab coach mark, plus the nudge-gone state. Proposed: the default Favourites collection doesn't end the nudge. Flow 02 moved below 01 | Design |
+| 2026-10-19 | Flow 02 (Open the banner editor) approved. Flow 01 next, as three design options for the collections nudge | User, in chat |
 | 2026-10-16 | Proposed a 10-flow order for the MVP designs (awaiting approval); flow 10 is on hold until following is confirmed | Us, proposal |
 | 2026-10-16 | Q8 answered: followers get the notification, and the link opens the item on the public storefront (needs a shopper-side surface). Q9 answered: only My Shop's stats row is removed. All 9 MVP questions answered; `ANSWERS.md` written | User, in chat |
 | 2026-10-16 | Q6 follow-up: Picks opens first. Q7 answered: the collections nudge is a dismissible banner on My Shop, shown until the first collection | User, in chat |
