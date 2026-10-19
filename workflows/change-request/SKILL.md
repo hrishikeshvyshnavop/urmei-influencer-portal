@@ -52,6 +52,7 @@ Don't wait to be asked, and don't save the update for the end of a step. If the 
 
 **Building a flow**
 - Clone the closest existing screen, and reuse the file's own components: Button, Inputbox, Toast, Notification Banner, Item Dropdown, Tab and Dialog Product Summary. Don't hand-build look-alikes.
+- **Components first:** anything reusable (it repeats, or a later flow will need it) is built as a component or component set with variants and properties, and placed as instances; existing hand-built copies are converted and replaced. Full rule in `../_shared/workfile.md` › Product rules.
 - **Cover:** use the `Cover` component (clone `2796:71327`) with a path-style title, e.g. "Board ⋮ → Delete collection → Delete". If a flow has a second entry point, it gets a second row with its own cover.
 - **Steps:** show the click, the dialog or state, then the result (toast or updated screen). Stack edge cases under the screen they branch from.
 - **Cursor:** every action gets a clone of **Pointer Container** `2775:169244`, with its fingertip (21, 9) on the target.

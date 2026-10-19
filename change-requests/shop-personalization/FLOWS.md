@@ -10,6 +10,47 @@ The current flows live in **`[Influencer] Shop Personalization (MVP) — Primary
 
 **Flow frames use Shop details `State=Published`.** The primary screen itself is set to "No products", which doesn't fit a shop with 12 picks and 3 collections. That's flagged to the user, and the primary was left unchanged.
 
+**Experimental (user, 2026-10-19): one modal for both.** "Merge this into a single modal so the user can manage it in one place." Section `Experimental - Customize Banner (Single Modal) — Lead Review` `3338:67999`: the banner toolbar shows one **Customize Banner** button; the **Customize banner** dialog has **Backdrop / Featured items** tabs over the gallery column, a live preview of both, and one **Save Changes**.
+
+| Frame | Id | What it shows |
+|---|---|---|
+| `E.1` My Shop Click Customize Banner | `3338:68000` | Toolbar button relabelled Customize Banner (cursor) |
+| `E.2` Backdrop Tab, Pick Valentine's Day | `3338:70201` | Backdrop tab; preview on Valentine's Day; cursor on the Featured items tab |
+| `E.3` Featured Items Tab, Pick 2 | `3338:73068` | Featured items tab, 2 of 2; preview on Valentine's Day with both items; cursor on Save Changes |
+| `E.4` Banner Saved | `3338:77495` | My Shop with Valentine's Day and both items; "Banner updated" toast with Undo (reverts both) |
+
+**Comment feedback (2026-10-19, Figma comments on 02.3):** "looks off for the stroke": the selected pick tile now has a ring with a 3px white gap. "Looks off here" (the preview): the preview now hides the Featured header and creator controls (new `Show header` boolean on Featured items) and is scaled from a 1200px banner. Both threads got a "🤖 Claude: Fixed …" reply. "Use this component for the collections" (pinned beside a Collection Card instance): the picker's Collections tab (02.2) now shows each collection as a **Collection Card** instance (Dev Handoff `3122:85580`: 3-image cover, +N products, title) with a checkbox on the cover and a ring when selected. The picker grid was also fixed to 3 per row (tiles 146 wide). "Follow the grid style of the collection here" (on the user's loose dialog copy `3329:90259`): its Collections tab now uses the same Collection Card grid, and the leftover Seasonal pill is hidden.
+
+**More comment fixes (2026-10-19):**
+- "use latest component here" (02.1 Collections row): the My Shop collection cards are now **Collection Card** instances (42, on the primary screen and in Primary Flows). They no longer have the reorder bar or menu.
+- "update the text size" (02.2): the +N overlay on the picker tiles is 14 / 9 px.
+- "fix the spacing here" (02.3 preview) and "spacing looks odd" (02.4): the profile card content is centred vertically in Banner content; previews have even padding and flush, centred featured cards.
+- "this corner radius looks off" (02.2): the selected ring radius is 11 (cover 8 + 3px gap).
+- "Show an iteration by merging this and send the link in thread" (page comment over the two loose dialogs): new **merged iteration** `3347:90174` beside them: one "Customize banner" dialog with both on one screen (Backdrop row of 5 tiles + See All 12, then Featured items with search, pills and grid), live preview, one Save Changes. The link was posted in the thread, along with the tabs version (`3338:67999`) for comparison.
+- "No, preview is not needed for the Add featured items" (02.6): the Preview column is removed from the Add featured items picker (02.2, 02.3, 02.6, loose copy); the dialog is 536 wide with just the selection column. The Customize banner dialogs keep their preview.
+- "fix the cut off here" (02.2): the ring was clipped by the scroll area; the collection grid now has 4px top / 3px side padding, gap 10.
+- **Componentised (user): the preview banner is now the `Storefront banner` component** (Featured None / One / Two, exposed Backdrop). It replaces the hand-built content in all 20 gallery previews, keeping each one's backdrop and featured state.
+
+**Status (user, 2026-10-19): `01 - Change Backdrop` is fixed.** "This flow is fixed."
+
+**02 rebuilt (user, 2026-10-19): one Featured items card instead of two slots.** "Make it a container, 1 card that can select 2 products or collections."
+- **New component `Featured items`** `3332:57991` (`State=Empty` / `One` / `Two`). Empty: a dashed creator-only prompt, "Feature collections or products · Pick up to 2" + **Add Featured Items**. One / Two: a "Featured · n of 2" header with **Edit**, then the item cards (Featured slot, remove hidden). It replaces the two slots inside `Banner content/Desktop` (the `Show second slot` boolean was deleted). The area grows with its content, with a minimum height so the empty state lines up with the profile card.
+- **The picker looks like the Choose a backdrop gallery** (user): a 1120 dialog with a live **Preview** (Banner content at the shopper's view, on Soft Dots, showing the current picks), then "Select up to 2 to feature · n of 2 selected", **search** (user: "search to be introduced"), **Collections (3) / Products (12)** pills, and a grid of the new **`Featured pick tile`** component `3334:57810` (Default / Selected / Disabled; checkbox `_checkbox`). At 2 of 2 the unticked tiles are disabled. Footer: Cancel / **Add to Banner** (or **Save Changes** when editing).
+
+| Frame | Id | What it shows |
+|---|---|---|
+| `02.0` Cover | — | "My Shop → Add Featured Items → pick up to 2 collections or products → Add to Banner" |
+| `02.1` My Shop Click Add Featured Items | `3333:75395` | Empty Featured items card; cursor on Add Featured Items |
+| `02.2` Pick a Collection | `3333:77594` | Gallery picker, Collections: "My morning routine" ticked, 1 of 2, preview shows it; cursor on Products |
+| `02.3` Pick a Product, 2 of 2 | `3333:79867` | Products: the first ticked, the rest disabled, 2 of 2; preview shows both; cursor on Add to Banner |
+| `02.4` Two Items Featured | `3333:82132` | "Featured · 2 of 2" card with both items; "Featured items added" toast with Undo |
+| `02` Sub-flow Edit Cover | — | "My Shop → Featured · Edit → uncheck an item → Save Changes" |
+| `02.5` Click Edit | `3333:84390` | Cursor on the card's Edit |
+| `02.6` Uncheck a Product | `3333:86626` | Products with nothing ticked (the product was unticked), 1 of 2; cursor on Save Changes |
+| `02.7` One Item Featured | `3333:88932` | "Featured · 1 of 2"; "Featured items updated" toast with Undo |
+
+The rows for `02` in the table below are the old two-slot frames (`3321:84339`–`3321:97882`), deleted on 2026-10-19.
+
 | Sub-section | Frame | Id | What it shows |
 |---|---|---|---|
 | `01 - Change Backdrop` `3321:24529` | `01.0` Cover | — | "My Shop → Change Backdrop → pick a backdrop → Apply Backdrop" |
