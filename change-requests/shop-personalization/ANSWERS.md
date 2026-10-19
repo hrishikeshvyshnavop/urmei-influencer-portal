@@ -46,6 +46,13 @@ Answered 2026-10-16. The requirement, the meeting notes and the full options are
 8. **Who is notified about a creator's new collection or product?** The creator's followers. "View product/collection" opens the item on the public storefront.
 9. **Which stats are hidden?** Only My Shop's stats row.
 
+## Decided in the design review (2026-10-19)
+
+- **Storefront order:** banner (backdrop + up to 2 featured items) → Collections → All Picks. Favorite Picks is no longer on the storefront.
+- **Profile card:** one colour everywhere (`surface/secondary/300`, #F8F8F8), and the order is name → @handle → stats → bio → Follow / Copy Shop Link.
+- **A featured item that becomes unavailable:** hidden from shoppers, and marked "Unavailable" for the creator, who can remove it (Undo available).
+- **Empty shop:** the Featured box still shows; its picker says "Nothing to feature yet" with Browse Catalogue.
+
 ## Still open
 
 - **Exact tab labels:** "Posts" and "Picks", or "All Picks"?

@@ -2,6 +2,77 @@
 
 Tracked as `T-38`. The scope and answers are in `REQUIREMENT.md` (MVP section) and `ANSWERS.md`. The post-MVP vision flows (`T-33`) are recorded in `REQUIREMENT.md`, not here.
 
+## New page: Backdrop & Featured Items (user, 2026-10-19)
+
+> **Current home of the backdrop and featured-items flows.** User: "build all flow in a separate section in new page". Page **Personalisation — Backdrop & Featured Items** `3350:84583`. Section `[Influencer] Shop Personalization (MVP) — Backdrop & Featured Items` `3350:84584`. Flows 01–02 are copies of the Primary Flows on the Personlisation page (that page keeps the originals). Frames sit 200px apart, sub-sections 200px apart (user: "fix the spacing frame to frame"). Cover titles are short plain sentences (user: "make all cover text more simplified").
+
+| Sub-section | Frames | What it shows |
+|---|---|---|
+| `01 - Change Backdrop` `3350:84585` | 01.0 Cover ("Pick a new backdrop for your banner"), 01.1–01.6 | Same as the approved flow 01 |
+| `02 - Add Featured Items` `3350:84974` | 02.0 Cover ("Feature up to 2 collections or products"), 02.1–02.4; Edit cover ("Change your featured items"), 02.5–02.7 | Same as flow 02 |
+| `03 - Search in the Picker` `3352:31506` | 03.0 Cover ("Search for an item to feature"), 03.1 Search Matches `3352:31516`, 03.2 No Matches `3352:33877`, 03.3 Search Cleared `3352:36135` | Search "morning" → 1 collection; "retinol" → "No matches" empty state with **Clear Search**; cleared → full list, ticks kept |
+| `04 - Nothing to Feature Yet` `3352:123374` | 04.0 Cover ("Nothing to feature yet"), 04.1 Empty Shop Click Add Featured Items `3352:123384`, 04.2 Picker Empty `3352:125529` | Empty shop (Shop details `No products`, tabs (0)); the picker says "Nothing to feature yet" with **Browse Catalogue**; Add to Banner disabled, search hidden |
+| `05 - Featured Item No Longer Available` `3352:129668` | 05.0 Cover, 05.1 Marked on My Shop `3352:129678`, 05.2 Removed with Undo `3352:131832`, 05.3 Shopper View `3352:133953` | Creator sees the product marked "No longer available" (new `Featured slot` `State=Unavailable`) with the bin; Remove → "Removed from banner" + Undo; shoppers only see what's left |
+| `06 - Shopper's View` `3352:323102` | 06.0 Cover ("What shoppers see on the banner"), 06.1 Two `3352:323112`, 06.2 One `3352:323383`, 06.3 None `3352:323700` | The public storefront (e-commerce header, from Latest `1616:66340`) with the `Storefront banner` in each state; nothing featured = profile card only |
+
+**Decisions drawn here, to confirm:** an unavailable featured item is hidden from shoppers and marked for the creator (not auto-removed); the Featured box shows on an empty shop and its picker points to the catalogue; search covers collections and products together and keeps ticks.
+
+**Comment fixes (2026-10-19, new page):**
+- "fix the button" (Featured slot): the remove (bin) button sits on a white round background, 8px in from the image's top-right corner.
+- "Can we follow this layout??" (main file `2383:87286`, Banner card): `Featured slot` Collection / Product / Unavailable rebuilt at 400 × 160. The text column has an eyebrow (FEATURED COLLECTION / FEATURED PRODUCT / NO LONGER AVAILABLE, SemiBold 10, 8% tracking), a SemiBold 18 title (2 lines max), the count or brand, and the button. The images run edge to edge on the right: the collection uses a 3-image grid with a "+N products" overlay (new text prop `More count`), and the product uses one image.
+- "This is how e commerce side collection section will looks like" (`Section / Collections` `3351:191187`): copied into every shopper storefront frame (05.3, 06.1–06.3), between Favorite Picks and All Picks.
+- "fix stacking" (Featured slot collection images): the media sits flush to the card edges (`strokesIncludedInLayout` off), the image gaps are 2px, and the +N overlay is centred. The eyebrows were removed in Figma by the user after the rebuild.
+- "Should the product name in title case?": answered no. Keep the catalogue's sentence case, as on every product card; brand stays in caps. Nothing changed.
+- "this section will be no longer but the gradient should be applied to the collection section" (06.1): Favorite Picks is removed from the shopper storefront frames (05.3, 06.1–06.3); its gradient (transparent to #F2EFED, top to bottom) is now the Collections section fill. Storefront order: banner → Collections → All Picks.
+- "add icon" (03.2): Clear Search has the `x` icon on the left.
+- "not visible here" (03.3 collection tiles): the tile checkboxes have a `border/color/default` stroke and a soft shadow, on all 15 collection pick tiles on the page.
+- Each comment now gets an "On it" reply when work starts, then a "Fixed" reply (user: "add a message if work started").
+
+**Self-review (2026-10-19, user: "review by yourself and add comments"):** 9 comments posted on the new page; all **fixed and closed** the same day (checked by screenshot):
+- 02.3: product tile checkboxes are hard to see on light photos.
+- 02.3: products repeat in the picker.
+- 02.6: the unticked tile lost its checkbox.
+- 03.1: the cursor floats in empty space.
+- 03.1: the search field shrinks when filled, and its back arrow looks odd in a dialog.
+- 05.1: the unavailable card needs an "Unavailable" tag.
+- 05.2: 1 of 2 leaves an empty gap; suggests a "+ Add another" slot.
+- 06.2: the single featured card should be centred.
+- 02.4: the My Shop collection cards lack the "+N products" overlay that the storefront cards have.
+
+**Self-review fixes (2026-10-19):**
+- Featured pick tile checkboxes have a border and shadow.
+- The two repeated products are replaced with Veil all-in-one peptide serum (SORAÉ) and Clarifying cream duo (COSNORI).
+- In 03.1 and 03.2 the search field is full width with no back arrow, and the 03.1 cursor is on the field.
+- `Featured slot` Unavailable has an "Unavailable" tag on the image.
+- `Featured items` One has a creator-only "+ Add Another" dashed slot, bound to `Show header`.
+- Banner content's Featured area centres its content vertically.
+- All 64 My Shop `Collection Card` instances show "+N products".
+- Neethu's "need to fix the text description" (01.1): the Featured items empty body now reads "Show up to 2 collections or products on your banner. Only you see this box.", centred.
+
+- "need more clarity here" (01.5): the gallery count reads "Showing 4 seasonal backdrops", and "12 backdrops" on All (was "4 seasonal" / "12 presets"). Closed.
+- "remove" (Neethu, 01.2): the gallery count label is removed from 01.2, 01.3, 01.5 and 01.6 (this replaces the "Showing 4 seasonal backdrops" wording above); the filter pills carry the counts. Closed.
+- Featured items empty body, final copy (user, in Neethu's thread): "You can select any two products or collections to feature. These will be displayed alongside the banner in your shop." This replaces the earlier wording. Closed.
+- Profile card colour (Neethu: "define this color and follow same color on all pages"): user chose **A**. `Banner content` Identity is now bound to `surface/secondary/300` (#F8F8F8), the same token as the Home `Creator profile card section` and the e-commerce `Influencer Profile Card`. Closed.
+- Picker checkboxes (Neethu: "checkbox is not clear here", user: "Still the shadow looks off"): no shadow. Unticked = white with a 1.5px `border/color/dark` border. Ticked = `surface/secondary/1000` fill, white tick, 1.5px white outer stroke. Applied to the `Featured pick tile` set and the collection pick tiles. Closed.
+
+- "do we need a clear search here?" (Neethu, 03.2): no. The Clear Search button is removed (`Show button` off); the search field's x clears the search, and the cursor is on it. This replaces the earlier "add icon" fix on that button. Closed.
+- "this component should be same as the check box component we are using" (Neethu): fact check showed the tiles already used the library `_checkbox` (the same one inside `checkbox-with-label`), but restyled. The overrides are reset to stock, and each checkbox sits on a 24px white `Checkbox chip` (6px radius) so it reads on photos. This replaces the custom checkbox styling above. Closed.
+- "empty state style is different from the design language" (Neethu, ref main file `1862:87349`): `Picker empty state` now matches the reference. It has a 64px circle icon well (`surface/tertiary/500`, 28px icon), a `Body/body-xl-medium` title and a `Body/body-xs-regular` body. Gaps are 14 (icon to text), 4 (title to body) and 18 (to the button). The button is outlined inside the dialog. On the My Shop page (04.1) it sits in a dashed box (2px, 8/6 dash, 10 radius, 471 tall) with a primary button. Closed.
+- "fill the card" ×2 (Neethu, 06.1, top and bottom of the featured area): in `Banner content` the Featured area fills the row height. `Featured items` and its slots fill too, so 1 card takes the full profile-card height and 2 cards split it. Closed.
+- "need to fix the IA and hierarchy" (Neethu, 06.1 profile card): the user approved the proposal ("Go with the proposal"). `Banner content` Identity now reads avatar → name (`Body/body-xxl-bold`, kept) over @handle → stats row (URMEI followers, TikTok, Instagram) → bio → Follow / Copy Shop Link. It applies to every banner. This replaces the side-by-side name + handle row from earlier on 2026-10-19. Closed.
+- "make top and bottom 16px, update everywhere" (user, 02.2 dialog header): the dialog `Header` padding goes from 24/24 to 16/16 on all 11 dialogs on the page (7 Add featured items, 4 Choose a backdrop). The dialogs are 16px shorter, and the 9 cursors inside them moved up 16px. Closed.
+- "match this style" (user, ref main file `1862:87536` "Delete this collection?"): every dialog `Header` title is `Body/body-xl-bold` (was body-lg-medium), with 16/24 padding, the bottom divider and the 40px outlined close. The 01.6 "Discard this backdrop?" dialog is rebuilt on the same pattern: 525 wide, header with close, message `Body/body-md-regular`, and Keep Choosing / Discard as two full-width buttons (12 gap). Closed.
+- "check the CTA area too" (user): all 11 dialog `Footer`s have 16/24 padding and a 12px button gap (was 24/24, 8). The top divider stays because the lists scroll. The 3 cursors on footer buttons were re-centred. Closed.
+- "updated everywhere?" (user, profile card IA): checked all 65 `Banner content` instances (34 on Personlisation, 31 on the new page). All use the new order; the 54 My Shop ones hide the actions as before.
+- Comment prefix changed to the alien monster (user: "add alien emoji monster whatever commenting you are adding"). It is sent as 👾 plus U+FE0E; a plain 👾 is stored as ":space_invader:".
+- "looks off" (user, 05.3 one featured item): the full-height fill turned a single card's images into thin strips. `Featured slot` gains a **Size** property: `Compact` (the existing horizontal cards) and `Tall` (images on top, filling, then text; added for Collection, Product and Unavailable). `Storefront banner` One uses Tall; the creator's `Featured items` One keeps Compact plus "+ Add Another". The bin is bound to `Show remove` on every variant and is off on all storefront cards (one had leaked). Closed.
+
+Every comment thread follows On it → Fixed → (checked) Closed, and is never resolved.
+
+**Components moved (user: "component regarding this should add to new page in correct order"):** section `Components — Backdrop & Featured Items` `3353:131427` on the new page, top to bottom: Backdrop `3287:28680` → Featured pick tile `3334:57810` → **Picker empty state** `3350:171571` (new) → Featured slot `3306:20522` (new variant `State=Unavailable` `3350:171587`) → Featured items `3332:57991` → Shop details `3309:22050` → Banner content/Desktop `3287:18416` → Storefront banner `3343:75228`. The empty `Backdrops` section `3311:21873` was deleted. Backdrop picker / Backdrop tile stay on Dev Handoff (section 17); Collection board stays on Personlisation (no longer used in the flows).
+
+**Change Backdrop button (user, 2026-10-19: "add stroke for this btn"):** the toolbar button in `Banner content/Desktop` now has a `border/color/dark` stroke, so it reads on every backdrop.
+
 ## Primary screen and primary flows (user, 2026-10-19)
 
 > **The primary screen is `My shop — Desktop` `3287:33154`** (Personlisation page, at -6695, 44261). Every new frame starts from it. It's built from components: `Shop details`, `Banner content/Desktop` (toolbar with Change Backdrop, two `Featured slot`s, Show second slot), the `Backdrop` set (absolute, stretches with the banner), the Collections tab, with token spacing (24 / 32 / 64).

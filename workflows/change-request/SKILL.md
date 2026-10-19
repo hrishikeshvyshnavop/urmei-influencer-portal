@@ -61,6 +61,7 @@ Don't wait to be asked, and don't save the update for the end of a step. If the 
 - **Tokens:** bind spacing and padding to `spacing/*`, radius to `border/radius/*`, and colours to library variables.
 - **Annotations (changed 2026-10-19, user):** use Figma's **built-in annotations** (`node.annotations = [{label, categoryId}]`), attached to the exact layer being described: the button, card, dialog or toast, never a backdrop shape, and never a layer inside an instance. Category **Info** (the file's custom category; `figma.annotations.getAnnotationCategoriesAsync()`), or Development for dev decisions. One simple sentence each. The old `Annotation` component cards are retired; the earlier rule was "use the file's `Annotation` component, with the dot on the exact element". Write them for the reader of the design: no internal references such as "(Q6)" or "Q5"; say the decision itself instead. The card sits outside the screen; stretch the leader if needed. Category is Info, or Development for dev decisions.
 - **Toasts:** reversible removals get **Undo** (Toast `Show Button` → "Undo") and no confirmation dialog. Confirmation dialogs are only for destructive actions (delete, remove from shop).
+- **Dialogs (2026-10-19):** follow the main file's `1862:87536` ("Delete this collection?"). The header has 16/24 padding, a `Body/body-xl-bold` title, a bottom divider and the 40px outlined close. The footer is 16/24 with a 12 gap and keeps the divider when the body scrolls. A confirm dialog's message is `Body/body-md-regular`, with two full-width buttons.
 - **Empty states:** clone the "Favorite Slot 1 / Empty" box (Work File copy of the main file's 03.6 "Your shop is empty", `1347:38109`). It has a dashed box, a 64px icon well with a library icon, a Medium 20 title and Regular 12 body (hugging, no wrap), and a primary button, or an outlined one inside a dialog. Make the page containers hug so the footer moves down.
 - **Frames:** full pages end at the footer, with no clipping and no blank strip below it. Dialog views are 1440×900 (desktop) or 375×812 (mobile).
 - **Check:** after the refine below, take one screenshot per finished flow, and fix what it shows before reporting.
@@ -72,6 +73,15 @@ Don't wait to be asked, and don't save the update for the end of a step. If the 
 **Refine** (follow `../figma-refine/SKILL.md`, "In the pipelines")
 - At the end of every flow, before its screenshot check, run Workflow 2 on each frame built for it and Workflow 3 on each component made or changed. Inner layers get Sentence case names; nothing may change visually.
 - Include the refine completion report when you report the flow for approval.
+
+## Figma comment loop (2026-10-19)
+
+When a Figma comment arrives (from the comment watcher), or when you review the design yourself:
+1. **Check the facts first.** Look at the requirement and answers, the product rules in `../_shared/workfile.md`, the other screens and components, and earlier thread replies.
+2. **Critique if needed.** If the comment conflicts with a decision, would break another screen, or there's a better option, change nothing yet. Reply in the thread in a short, friendly way: what you found, plus a suggestion or 2 options. Act once someone answers.
+3. **Otherwise** reply "On it", fix it, check it with a screenshot, then reply "Fixed. <one line>" and "Closed." Never resolve the thread.
+4. **Prefix:** start every reply and comment with the alien monster sent as `👾︎` + " Claude:". A plain emoji is stored as shortcode text, so no icon shows.
+5. **Log** each outcome in the request's `FLOWS.md` in the same turn.
 
 ## 4. Review round
 
