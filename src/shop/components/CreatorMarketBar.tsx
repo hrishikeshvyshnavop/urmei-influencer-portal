@@ -15,6 +15,9 @@ type CreatorMarketBarProps = {
   country: string
   /** Tapping the creator's name returns to their storefront. */
   onBack: () => void
+  /** Opened from a collection: "You're shopping <name>'s collection ·
+   *  <collection>" (Figma `1862:82124`). */
+  collectionName?: string
   /** Set by the in-app preview: the bar still spans the window, but its
    *  contents sit in a `ScaledBox` of this design width, in line with the
    *  scaled page below. */
@@ -27,7 +30,7 @@ type CreatorMarketBarProps = {
  * `StorefrontPreview` rather than the product page itself, so it can sit in the
  * same sticky block as the preview header.
  */
-export function CreatorMarketBar({ name, country, onBack, designWidth }: CreatorMarketBarProps) {
+export function CreatorMarketBar({ name, country, onBack, collectionName, designWidth }: CreatorMarketBarProps) {
   const currency = CURRENCY_BY_COUNTRY[country] ?? CURRENCY_BY_COUNTRY.Singapore
   const bar = 'overflow-clip border-b border-border-default bg-surface-secondary-100'
   const row = 'flex w-full items-center justify-between px-margin py-md-sm'
@@ -46,8 +49,13 @@ export function CreatorMarketBar({ name, country, onBack, designWidth }: Creator
           onClick={onBack}
           className="text-body-sm leading-[1.4] font-semibold whitespace-nowrap text-text-secondary-1000 underline"
         >
-          {name}&apos;s Picks
+          {collectionName ? <>{name}&apos;s collection</> : <>{name}&apos;s Picks</>}
         </button>
+        {collectionName && (
+          <p className="text-body-sm leading-[1.4] whitespace-nowrap text-text-secondary-700">
+            · {collectionName}
+          </p>
+        )}
       </div>
       <p className="text-body-sm leading-[1.4] font-medium whitespace-nowrap text-text-secondary-1000">
         Shipping to {country} · {currency}

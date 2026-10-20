@@ -163,6 +163,209 @@ The mobile WIP empty states on Hrishi Workspace still use the old dashed box.
 - **Layout:** sub-sections were refitted and restacked 200px apart.
 - **17:** it's now only the dead-link case (the "no collections" storefront screen was removed in Figma). It was renamed **Collection No Longer Available**, with the cover "Shared collection link → Collection isn't available" and three one-line annotations (entry, why, dev link format).
 
+## Code build source (`T-41`, 2026-10-19)
+
+The code is built from the main design file, not the Work File drafts. Section **[NEW] Collections | 07.10.26** `1862:81644` in `cehltPtMoGWEtKbF7k3MQQ` ([link](https://www.figma.com/design/cehltPtMoGWEtKbF7k3MQQ/-MVP--Influencer-Portal?node-id=1862-81644&m=dev)) holds 21 desktop flows. The user shared it on 2026-10-19 as the context for the code. Where it differs from the Work File flows above, this section wins for the build.
+
+| # | Flow | Code status |
+|---|---|---|
+| 01 | Create Collection | Built on `feature/collections`: Collections tab replaces Favorites, collection boards with ‹ › reorder, New collection dialog, "<name> created" toast |
+| 02 | Edit Collection | Built: the board ⋮ menu with Edit details, the shared Collection dialog in edit mode (prefilled, Save Changes), "Collection updated" toast. The menu's Copy collection link and Delete collection rows arrive with flows 13 and 03 |
+| 03 | Delete Collection | Built: "Delete collection" (red) in the board ⋮ menu, the "Delete this collection?" confirm with the product count, and the design's toast. Products stay in the shop |
+| 04 | Empty Collections | Built: with no collections the tab shows the dashed "No collections yet" box (layout-grid icon, primary New Collection) and the toolbar drops the arrows hint. `EmptyFavorites` removed |
+| 05 | Add to Collection | Built: "Add to collection" replaces Add/Remove Favorite in the product card ⋮ menu (My Shop). The "Add to collection" dialog has the product summary (new `DialogProductSummary`), checkbox rows with product counts, ticked for collections the product is already in, and New Collection, which opens the create dialog; the new board comes back ticked and labelled "New". Above 5 collections it adds "(n)", a search box and a 240px scrolling list; with none it shows the dashed "No collections yet" box. Save stays off until something changes. The toast reads "Added to <name>" / "Added to n collections" / "Collections updated". The product page's own Add to collection is flow 07 |
+| 06 | Collection Name Errors | Built in the shared collection dialog: "Enter a collection name" on submit when empty; while over 40 characters "45/40 · Use 40 characters or fewer" (the field no longer hard-caps); a duplicate name (case-insensitive, excluding itself when editing) shows 'You already have a collection called "…"'. Placeholders follow the design ("e.g. My morning routine", "One line about this collection") |
+| 07 | Creator Product Page | Built: the product page (My Shop "View product details", Home and the portal product overlay) swaps "Add/Remove From Favorite" for "Add to Collection" and drops the ★ Favorite badge on the image. Under the affiliate link: "In n collections · Shoppers can find it in each one" with a chip per collection. One `CollectionPicker` serves Home and the overlay. Each chip's × (flow 18) is built too |
+| 18 | Remove from Product Page | Built (with 07, on request): chip × → "Remove from this collection?" (new shared `ConfirmDialog`, which `DeleteCollectionDialog` now uses too) → removed from that collection only; toast "Removed from <name>. Still in your shop." with Undo, which puts it back in the same position. Works from My Shop, Home and the product overlay |
+| 08 | Open Collection & Remove a Product | Built: a board's cover or info opens the collection page inside the Collections tab (`CollectionPage`). It has "‹ All collections", the name with "description · n products", Copy Link / Edit Details / ⋮, and the products as shop cards. The card menu has "Remove from collection" (removes at once; "Removed from <name>. Still in your shop." with Undo). Back returns to the boards; deleting the open collection does too |
+| 10, 11 | Edit / Delete from the collection page | Built by wiring: Edit Details opens the edit dialog; ⋮ → Delete collection opens the delete confirm |
+| 12 | Reorder Collections | Built with 01 (the ‹ › arrows, the failure snap-back toast). Motion added 2026-10-20 (user: make the reorder more intuitive): boards slide to their new places (`useFlip`, 360ms, `--ease-portal`); the moved board lifts (soft shadow, 2% scale) and stays above its neighbours while they pass; a failed save shakes it briefly. Respects reduced motion |
+| 13 | Copy Collection Link | Built: page "Copy Link" → "Collection link copied"; board menu "Copy collection link" → "Link to <name> copied". The link uses the fixed id (`urmei.com/shop/charlotte/collections/<id>`) so it survives renames (dev annotation `1862:82119`) |
+| 14 | Unpublished Shop | Built: before the first publish, Copy Link is disabled on the page and the board menu row is greyed; Edit and Delete still work (`ItemMenuAction.disabled`) |
+| 09 | Browse & Add Product to Collection | Built: an empty collection page shows the dashed "No products in this collection yet" box with "Add product to collection". That opens the catalogue; while filling, result rows say "Add to Collection", Add to shop arrives with the collection ticked, and the toast is "Added to collection". The target clears when the catalogue closes |
+| 19, 20 | Add from Product Page / Search Results | Built: the Add to shop dialog's Favorite toggle is replaced by an optional "Choose collections (optional)" checklist (shared `CollectionChecklist`, with New Collection). Nothing ticked means All Picks only. The toast is "Added to your shop and to <name>" / "… to n collections" / "Product added to your shop". It is the same in My Shop, Home and the product overlay (`AddToShopWithCollections`). The leftover favourites code is gone from those screens. **Conflicts with ANSWERS Q10** ("only from products already in My Shop"); the design's own annotation `1913:36640` asks for confirmation. Built as designed, pending the user's confirmation |
+| 15 | Storefront Preview | Built: the in-app storefront preview swaps "<Name>'s favorite picks" for "<Name>'s collections", a new shared `StorefrontCollections` row. It shows the boards in the creator's order, 288px three-image covers over name, description and count, the ‹ › scroll once the row overflows, and the same gradient band. Empty collections are hidden (annotation `1862:82709`); with none left the row is omitted. Boards aren't clickable yet: the storefront collection page is flow 16 |
+| 16 | Collections on the Storefront | Built: the public `/shop/view` replaces Favorite Picks with the Collections row; a board opens `/shop/view/collections/<id>`. That collection page (`StorefrontCollectionPage`) has "Collection by <name> @handle", the name, description and count, "Copy collection link" ("Collection link copied"), "In this collection", and "More collections from <name>". A product opened from it shows "You're shopping <name>'s collection · <collection>" in the market bar, and under the product "In <name>'s collections". The in-app preview opens the same page in place |
+| 17 | Collection No Longer Available | Built: a link to a deleted or emptied collection, or one with nothing shipping to the shopper's market, shows "This collection isn't available" with "Visit <name>'s Storefront" and the other collections. The design's "Her other picks" is written "Their other picks", since the creator's pronouns aren't known |
+| 21 | Browse & Add Product to Existing Collection | Built: a non-empty collection page ends with an "Add To Collection · Choose from the catalogue" tile. That opens the catalogue in the same fill mode as flow 09; the dialog title reads "Add this product to collection?" and the toast names the collection ("Added to Favourites"). Flow 09's toast now names it too (the design had "Added to collection") |
+
+Facts the design adds:
+- the board subtitle reads "Group your picks into boards. Use the arrows to set the order shoppers see"
+- the position row reads "#n on storefront"
+- an empty board reads "No products yet / Add picks from the All Picks tab" and "0 products · Won't appear on your storefront"
+- a new collection lands at #1
+
+Flows and frames:
+
+### 01 - Create Collection (`1862:87949`)
+
+- `1862:88254` 01.0 Create Collection — Cover
+- `1862:88159` 01.1 Create Collection — My Shop Collections Tab — Desktop
+- `1862:88052` 01.2 Create Collection — Create Collection Dialog — Desktop
+- `1862:87950` 01.3 Create Collection — Collection Created Toast — Desktop
+
+### 02 - Edit Collection (`1862:87654`)
+
+- `1862:87948` 02.0 Edit Collection — Cover
+- `1862:87849` 02.1 Edit Collection — Card Menu Open — Desktop
+- `1862:87742` 02.2 Edit Collection — Edit Collection Dialog — Desktop
+- `1862:87655` 02.3 Edit Collection — Collection Updated Toast — Desktop
+
+### 03 - Delete Collection (`1862:87378`)
+
+- `1862:87653` 03.0 Delete Collection — Cover
+- `1862:87554` 03.1 Delete Collection — Card Menu Delete Collection — Desktop
+- `1862:87449` 03.2 Delete Collection — Delete Collection Confirm — Desktop
+- `1862:87379` 03.3 Delete Collection — Collection Deleted Toast — Desktop
+
+### 04 - Empty Collections (`1862:87332`)
+
+- `1862:87377` 04.0 Empty Collections — Cover
+- `1862:87333` 04.1 Empty Collections — No Collections Empty State — Desktop
+
+### 05 - Add to Collection (`1862:86015`)
+
+- `1862:87331` 05.0 Add to Collection — Cover
+- `1862:87178` 05.1 Add to Collection — Pick Menu Add to Collection — Desktop
+- `1862:87012` 05.2 Add to Collection — Add to Collection Dialog First Time — Desktop
+- `1862:86852` 05.3 Add to Collection — Create Collection from Add to Collection — Desktop
+- `1862:86683` 05.4 Add to Collection — New Collection Selected — Desktop
+- `1862:86543` 05.5 Add to Collection — Added to Collection Toast — Desktop
+- `1862:86371` 05.6 Add to Collection — Returning Creator With Collections — Desktop
+- `1862:86178` 05.7 Add to Collection — Many Collections — Desktop
+- `1862:86016` 05.8 Add to Collection — No Collections — Desktop
+
+### 06 - Collection Name Errors (`1862:85718`)
+
+- `1862:86014` 06.0 Collection Name Errors — Cover
+- `1862:85916` 06.1 Collection Name Errors — Create Collection Name Required — Desktop
+- `1862:85818` 06.2 Collection Name Errors — Create Collection Name Too Long — Desktop
+- `1862:85719` 06.3 Collection Name Errors — Create Collection Duplicate Name — Desktop
+- `1862:85817` Annotation / 06.3
+
+### 07 - Creator Product Page (`1862:85320`)
+
+- `1862:85717` 07.0 Creator Product Page — Cover
+- `1862:85590` 07.1 Creator Product Page — Product Page Click Add to Collection — Desktop
+- `1862:85441` 07.2 Creator Product Page — Add to Collection Dialog — Desktop
+- `1862:85321` 07.3 Creator Product Page — Added to Collection Toast — Desktop
+- `1862:85716` Annotation / 07.1 / Add To Collection
+- `1862:85715` Annotation / 07.1 / Favorite removed
+
+### 08 - Open Collection & Remove a Product (`1862:84805`)
+
+- `1862:85319` 08.0 Open Collection & Remove a Product — Cover
+- `1862:85176` 08.1 Open Collection & Remove a Product — Open Collection — Desktop
+- `1862:85019` 08.2 Open Collection & Remove a Product — Product Menu Remove from Collection — Desktop
+- `1862:84892` 08.3 Open Collection & Remove a Product — Removed from Collection Toast — Desktop
+- `1862:84806` 08.4 Open Collection & Remove a Product — Back to All Collections — Desktop
+
+### 09 - Browse & Add Product to Collection (`1970:101055`)
+
+- `1970:101728` 09.0 Browse & Add Product to Collection — Cover
+- `1970:101437` 09.1 Browse & Add Product to Collection — Empty Collection Click Add Products — Desktop
+- `1970:101494` 09.2 Browse & Add Product to Collection — Catalogue Default — Desktop
+- `1970:101597` 09.3 Browse & Add Product to Collection — Catalogue Search Autocomplete — Desktop
+- `1970:101208` 09.4 Browse & Add Product to Collection — Search Results Click Add to Collection — Desktop
+- `1970:101056` 09.5 Browse & Add Product to Collection — Add to Shop Dialog With Collection — Desktop
+- `1970:101322` 09.6 Browse & Add Product to Collection — Added to Collection Toast — Desktop
+
+### 10 - Edit from Collection Page (`1862:84174`)
+
+- `1862:84635` 10.0 Edit from Collection Page — Cover
+- `1862:84483` 10.1 Edit from Collection Page — Collection Page Click Edit Details — Desktop
+- `1862:84319` 10.2 Edit from Collection Page — Edit Collection Dialog — Desktop
+- `1862:84175` 10.3 Edit from Collection Page — Collection Updated Toast — Desktop
+
+### 11 - Delete from Collection Page (`1862:83634`)
+
+- `1862:84173` 11.0 Delete from Collection Page — Cover
+- `1862:84021` 11.1 Delete from Collection Page — Collection Page Click More — Desktop
+- `1862:83867` 11.2 Delete from Collection Page — More Menu Delete Collection — Desktop
+- `1862:83705` 11.3 Delete from Collection Page — Delete Collection Confirm — Desktop
+- `1862:83635` 11.4 Delete from Collection Page — Collection Deleted Toast — Desktop
+
+### 12 - Reorder Collections (`1862:83537`)
+
+- `1862:83633` 12.0 Reorder Collections — Cover
+- `1862:83538` 12.1 Reorder Collections — Reorder Collections — Desktop
+
+### 13 - Copy Collection Link (`1862:83052`)
+
+- `1862:83053` 13 Copy Collection Link — Sub-flow — From Board Menu — Cover
+- `1862:83536` 13.0 Copy Collection Link — Cover
+- `1862:83384` 13.1 Copy Collection Link — Copy Link from Collection Page — Desktop
+- `1862:83240` 13.2 Copy Collection Link — Collection Link Copied Toast — Desktop
+- `1862:83141` 13.3 Copy Collection Link — Copy Link from Board Menu — Desktop
+- `1862:83054` 13.4 Copy Collection Link — Collection Link Copied from Grid — Desktop
+
+### 14 - Unpublished Shop (`1862:82806`)
+
+- `1862:83051` 14.0 Unpublished Shop — Cover
+- `1862:82908` 14.1 Unpublished Shop — Collection Page Unpublished Shop — Desktop
+- `1862:82807` 14.2 Unpublished Shop — Board Menu Unpublished Shop — Desktop
+- `1862:82906` Annotation / 14.2
+- `1862:82907` Annotation / 14.2
+
+### 15 - Storefront Preview (`1862:82561`)
+
+- `1862:82805` 15.0 Storefront Preview — Cover
+- `1862:82710` 15.1 Storefront Preview — Click Preview Storefront — Desktop
+- `1862:82562` 15.2 Storefront Preview — Storefront Preview With Collections — Desktop
+- `1862:82709` Annotation / 15.2
+
+### 16 - Collections on the Storefront (`1862:82121`)
+
+- `1862:82560` 16.0 Collections on the Storefront — Cover
+- `1862:82376` 16.1 Collections on the Storefront — Storefront With Collections — Desktop
+- `1862:82265` 16.2 Collections on the Storefront — Collection Page — Desktop
+- `1862:82122` 16.3 Collections on the Storefront — Product Detail from a Collection — Desktop
+
+### 17 - Collection No Longer Available (`1862:82021`)
+
+- `1862:82120` 17.0 Collection No Longer Available — Cover
+- `1862:82022` 17.1 Collection No Longer Available — Collection Isn't Available Page — Desktop
+- `1862:82119` Annotation / 17.1 / Dev: link format
+- `1862:82117` Annotation / 17.1 / Entry
+- `1862:82118` Annotation / 17.1 / Why
+
+### 18 - Remove from Product Page (`1862:81645`)
+
+- `1862:82020` 18.0 Remove from Product Page — Cover
+- `1862:81895` 18.1 Remove from Product Page — Click Chip Remove — Desktop
+- `1862:81760` 18.2 Remove from Product Page — Remove from Collection Confirm — Desktop
+- `1862:81646` 18.3 Remove from Product Page — Removed with Undo — Desktop
+
+### 19 - Add from Product Page (`1913:35813`)
+
+- `1913:35814` 19.0 Add from Product Page — Cover
+- `1913:35815` 19.1 Add from Product Page — Product Page Click Add to Shop — Desktop
+- `1913:35948` 19.2 Add from Product Page — Add to Shop Dialog With Collections — Desktop
+- `1913:36119` 19.3 Add from Product Page — Favorites Ticked — Desktop
+- `1913:36467` 19.4 Add from Product Page — Added Toast on Search Results — Desktop
+- `1913:36573` 19.5 Add from Product Page — My Shop After Adding — Desktop
+- `1913:36290` 19.6 Add from Product Page — Returning Creator With Collections — Desktop
+- `1913:36640` Annotation / 19.2 / Add-on
+- `1913:36641` Annotation / 19.2 / Optional
+
+### 20 - Add from Search Results (`1913:36642`)
+
+- `1913:36643` 20.0 Add from Search Results — Cover
+- `1913:36644` 20.1 Add from Search Results — Search Results Click Add to Shop — Desktop
+- `1913:36758` 20.2 Add from Search Results — Add to Shop Dialog over Search Results — Desktop
+- `1913:36911` 20.3 Add from Search Results — Added Toast on Search Results — Desktop
+- `1913:36910` Annotation / 20.2 / Variant
+
+### 21 - Browse & Add Product to Existing Collection (`1970:101729`)
+
+- `1970:102354` 21.0 Browse & Add Product to Existing Collection — Cover
+- `1970:102222` 21.1 Browse & Add Product to Existing Collection — Collection Page Click Add to Collection — Desktop
+- `1970:101988` 21.2 Browse & Add Product to Existing Collection — Catalogue Default — Desktop
+- `1970:102091` 21.3 Browse & Add Product to Existing Collection — Catalogue Search Autocomplete — Desktop
+- `1970:101874` 21.4 Browse & Add Product to Existing Collection — Search Results Click Add to Collection — Desktop
+- `1970:101730` 21.5 Browse & Add Product to Existing Collection — Add to Collection Dialog — Desktop
+- `1970:102355` 21.6 Browse & Add Product to Existing Collection — Added to Collection Toast — Desktop
+
 ## Flows
 
 ### Flow A: Manage collections (My Shop) 🔒
