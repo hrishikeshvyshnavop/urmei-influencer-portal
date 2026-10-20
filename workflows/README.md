@@ -8,6 +8,7 @@ Each workflow is a folder: its `SKILL.md`, plus a `references/` folder for its c
 | --- | --- | --- |
 | `change-request/` | Take a client change from message → requirement → questions → Figma (one flow at a time) → review → client message → code. Output goes in `change-requests/<topic>/`. | Repo + Figma |
 | `clarify/` | Ask before assuming. | — |
+| `laws-of-ux/` | Check a screen, flow or component against the 30 Laws of UX (paraphrased from lawsofux.com, with URMEI-specific guidance and a review checklist). Cite laws by name in design reviews. | Figma + code |
 | `responsive-flow/` | Paste a Work File flow link; plan (one approval stop), build, verify and record its mobile screens. Orchestrates the three below. | Figma |
 | `mobile-screen/` | Build or adapt a mobile screen; holds the frame catalogues. | Figma |
 | `organize-flow/` | Rename, number and lay out a flow section. | Figma |

@@ -11,7 +11,7 @@ Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free
 | ⬆️ Pushed | On `origin` (`main` or a feature branch) |
 | 🟢 Live | Deployed and checked on the Vercel site |
 
-Last updated: 2026-10-19
+Last updated: 2026-10-20
 
 ## In progress
 
@@ -29,6 +29,7 @@ Last updated: 2026-10-19
 | T-26 | Keep the footer below the fold on Your Reviews (`/reviews`), and add the "Footer below the fold" rule to CLAUDE.md (`git log --grep T-26`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-27 | Apply "Footer below the fold" to every remaining page: Home, Help Center, Brands, stat breakdowns, product stats, a My Shop item's page and the in-app storefront preview (`git log --grep T-27`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-28 | Pick several photos at once when writing a review (each loads in its own spinner tile, picks past the 3-photo cap are ignored, a broken file drops out while the rest are kept), and show a review's photos under its text on the Sample Requests list (`git log --grep T-28`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
+| T-42 | Add the `laws-of-ux` workflow (`workflows/laws-of-ux/SKILL.md`): the 30 Laws of UX from lawsofux.com, paraphrased with URMEI guidance and a review checklist (`git log --grep T-42`) | `main` | [x] | [ ] | [ ] | 📝 Committed |
 
 ## Shipped to `main`
 
