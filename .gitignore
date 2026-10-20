@@ -46,3 +46,7 @@ vite.config.ts.timestamp-*
 
 # browser crash dumps (Chrome/Playwright crashpad)
 debug.log
+
+# figma comment workflow (token + watcher state)
+.figma-token
+.figma-comments/

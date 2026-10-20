@@ -80,7 +80,7 @@ When a Figma comment arrives (from the comment watcher), or when you review the 
 1. **Check the facts first.** Look at the requirement and answers, the product rules in `../_shared/workfile.md`, the other screens and components, and earlier thread replies.
 2. **Critique if needed.** If the comment conflicts with a decision, would break another screen, or there's a better option, change nothing yet. Reply in the thread in a short, friendly way: what you found, plus a suggestion or 2 options. Act once someone answers.
 3. **Otherwise** reply "On it", fix it, check it with a screenshot, then reply "Fixed. <one line>" and "Closed." Never resolve the thread.
-4. **Prefix:** start every reply and comment with the alien monster sent as `👾︎` + " Claude:". A plain emoji is stored as shortcode text, so no icon shows.
+4. **Prefix:** start every reply and comment with the alien (👽) sent as just `👽︎` (no "Claude:" label). A plain emoji is stored as shortcode text, so no icon shows.
 5. **Log** each outcome in the request's `FLOWS.md` in the same turn.
 
 ## 4. Review round
