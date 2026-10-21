@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 >
 > Comments citing the main file usually name it.
 >
-> **Figma design work:** the Work File's current page ids, the **locked handoff frames** (the final design `2384:76022` + `2384:77979` and `2320:42706`: never edit them), components, tokens and product rules all live in `responsive-workflow-urmei/_shared/workfile.md`. Script traps are in `responsive-workflow-urmei/_shared/figma-gotchas.md`. Before any page-wide Figma write, check that every locked id still exists. If one is missing, stop and ask.
+> **Figma design work:** the Work File's current page ids, the **locked handoff design** (the whole main-file page `794:24650` "-> Responsive Design (Web & Mob)", plus the Work File's `2320:42706`: never edit them; build only in the Work File), components, tokens and product rules all live in `responsive-workflow-urmei/_shared/workfile.md`. Script traps are in `responsive-workflow-urmei/_shared/figma-gotchas.md`. Before any page-wide Figma write, check that every locked id still exists. If one is missing, stop and ask.
 
 ## Commands
 
@@ -26,6 +26,7 @@ There is no test runner configured, so verify UI changes by running the dev serv
 - `mobile-design-review`: a senior-designer production-readiness review of the mobile flows (spacing, type, colour, components, states, copy, handoff, parity), then approved fixes, tracked per section in its `references/readiness-log.md`.
 - `responsive-workflow`: all of the above responsive skills and their references (plus `_shared/`) copied verbatim into one file, in workflow order (setup → build → organize → review → track). It's a generated bundle: edit the sources, then regenerate it.
 - `clarify`: ask before assuming.
+- `change-request`: how a client change goes from message to build. Intake into `REQUIREMENT-<TOPIC>.md`, then questions with options and `<TOPIC>-ANSWERS.md`, then Figma one flow at a time (each a numbered sub-section, approved before the next), then review and the client message, and only then code. It also lists the Figma rules for cursors, icons, covers, annotations, disabled states, toasts and frames. The worked example is Collections (`T-31`): `REQUIREMENT-COLLECTIONS.md`, `COLLECTIONS-ANSWERS.md`, `COLLECTIONS-FLOWS.md`.
 - `_shared/`: not a skill. It holds the Work File reference (`workfile.md`) and the `use_figma` gotchas (`figma-gotchas.md`) that the three Figma skills share. Update facts there, not in each skill.
 
 `responsive-flow`, `mobile-screen`, `organize-flow` and `mobile-design-review` work in Figma, not in this codebase.
