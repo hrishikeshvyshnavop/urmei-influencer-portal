@@ -68,6 +68,11 @@ Answered 2026-10-16. The requirement, the meeting notes and the full options are
 - **Save is a draft; Publish makes it live (user, Figma comment, 2026-10-20):** Save Changes stores the banner as a draft. The banner's primary button becomes **Publish Changes**, and shoppers see the change after the creator publishes. "Last Published" updates only then. This is the same pattern as My Shop (main file `236:23059`). It covers every banner change, including removing or replacing a featured item. Every toast ends "… Publish changes to go live". **Save Changes is always enabled** (user, 2026-10-20): with no changes, Save just closes the dialog, with no toast.
 - **Dialog layout (user, Figma comment, 2026-10-20):** the preview sits on top and the picker below (option C, `3472:12178`), at one size in every flow (1120×860).
 - **One featured item (user, Figma comment, 2026-10-20):** a half-width card. This settles the one-item layout.
+- **Two dialogs, not tabs (user, 2026-10-20):** Backdrop and Featured items are separate dialogs again, each with the preview on top and no section tabs. This replaces "One entry point" and the tabbed Customize banner dialog above.
+  - The banner button is now **Change Backdrop** (renamed from Personalize Shop) and opens the **Change backdrop** dialog only.
+  - Add Featured Items, Add Another and Edit on a featured card open the **Featured items** dialog.
+  - Every dialog is centred in the window (user, 2026-10-20).
+- **Featured items picker layout (user, 2026-10-20):** the search sits on its own row under the Collections / Products pills, left-aligned. The heading reads "Select up to 2 to feature · n of 2 selected" on one line, with the count and dot in `typography/color/secondary/700`.
 - **Creator vs shopper buttons on featured cards (user, Figma comment, 2026-10-20):** creators see **Edit**, which opens the Featured items tab. Shoppers see Shop Now / View Collection.
 - **Unavailable featured item (user, Figma comment, 2026-10-20):** the card offers **Replace** and **Remove**. Replace opens the picker with that slot free.
 - **Collections count:** 3 collections everywhere in the designs (My Shop, picker, storefront).
@@ -79,3 +84,6 @@ Answered 2026-10-16. The requirement, the meeting notes and the full options are
 - **Follow feature:** Q8 needs creators to have followers. In Collections (`change-requests/collections/ANSWERS.md` #17), "Follow a creator" is still post-MVP and undecided, yet the storefront design shows a Follow button and a follower count. Confirm that following is in the MVP.
 - **Where followers see notifications:** this portal has no shopper-side notifications.
 - **Client comment for Q6:** record it verbatim.
+- **Only the creator's own items (user, 2026-10-21):** the Featured items dialog says so under its title: "You can only feature products and collections from your shop."
+- **Dialog height (user, 2026-10-21):** the Featured items dialog uses the window height minus 40px top and bottom (max-height `calc(100vh - 80px)`), so more items show in the first scroll. Only the grid scrolls. Change backdrop fits its full preset grid.
+
