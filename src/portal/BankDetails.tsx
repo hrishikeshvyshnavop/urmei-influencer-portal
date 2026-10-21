@@ -9,9 +9,9 @@ type BankDetailsProps = {
   onSkip: () => void;
 };
 
-/** Step 4 of profile setup — the payout account (Figma `1583:88109` /
- *  `1583:88149`). This is where the shop's earnings are paid, so it is the
- *  last thing standing between the creator and a publishable shop. */
+/** Step 4 of profile setup — the payout account (Figma `236:16499`
+ *  in the main design file). This is where the shop's earnings are paid, so
+ *  it is the last thing standing between the creator and a publishable shop. */
 export default function BankDetails({
   onAddAccount,
   onBack,

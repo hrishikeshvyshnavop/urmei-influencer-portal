@@ -58,6 +58,12 @@ type TextFieldProps = {
    *  `1583:87772`). There is no failure glyph to match: `error` already
    *  reddens the border and prints the reason underneath. */
   valid?: boolean;
+  /** Prints "used/max" under the input, e.g. "16/40" (the New collection
+   *  dialog, Figma `1862:88145`). Needs `maxLength`; `error` replaces it. */
+  showCount?: boolean;
+  /** Limit the count shows when the input itself must not cap the length
+   *  (the collection name may run over 40 so its error can say so). */
+  countMax?: number;
 };
 
 export default function TextField({
@@ -78,7 +84,10 @@ export default function TextField({
   prefix,
   required = false,
   valid = false,
+  showCount = false,
+  countMax,
 }: TextFieldProps) {
+  const countLimit = countMax ?? maxLength;
   const id = useId();
   const [open, setOpen] = useState(false);
   const selectedDate = parseDate(value);
@@ -249,6 +258,10 @@ export default function TextField({
         <p className="flex items-center gap-[2px] text-body-xs text-portal-muted">
           <Info aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.5} />
           {hint}
+        </p>
+      ) : showCount && countLimit ? (
+        <p className="text-body-xs text-portal-muted">
+          {value.length}/{countLimit}
         </p>
       ) : null}
     </div>

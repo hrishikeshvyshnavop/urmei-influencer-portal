@@ -44,5 +44,10 @@ vite.config.ts.timestamp-*
 .claude/worktrees/
 .claude/settings.local.json
 
-# agentic Figma workflow (local only, see CLAUDE.md)
-/responsive-workflow-urmei/
+# browser crash dumps (Chrome/Playwright crashpad)
+debug.log
+
+# figma comment workflow (token + watcher state)
+.figma-token
+.figma-comments/
+

@@ -8,7 +8,6 @@ import ProfilePhoto from "./components/ProfilePhoto";
 import SetupBanner from "./components/SetupBanner";
 import { requestProductTour } from "./tour-status";
 import { useHasShopItems, useIsPublishBlocked, useIsShopPublished } from "../shop/shop-status";
-import { MAX_FAVORITES } from "../shop/limits";
 import { loadPublishedAt, loadShopItems, saveShopItems } from "../shop/shop-items-store";
 import { logShopActivity } from "../shop/activity-log";
 import { StatsRow } from "../shop/components/StatsRow";
@@ -17,11 +16,14 @@ import ShopUrl from "./components/ShopUrl";
 import { PRODUCTS } from "../shop/data/catalogue";
 import { affiliateLinkFor, hasLiveLink } from "../shop/data/shop";
 import type { Product, ShopItem } from "../shop/types";
-import { AddToShopModal } from "../shop/components/AddToShopModal";
+import { AddToShopWithCollections } from "../shop/components/AddToShopWithCollections";
 import { BrowseOverlay } from "../shop/screens/BrowseOverlay";
 import { ProductDetail, type ShopMode } from "../shop/screens/ProductDetail";
 import { setShopItemCount } from "../shop/shop-status";
 import { Toast } from "../shop/components/Toast";
+import { CollectionPicker } from "../shop/components/CollectionPicker";
+import { collectionsFor, loadCollections, removeItemFromCollection, restoreItemInCollection, saveCollections, type Collection } from "../shop/collections-store";
+import { RemoveFromCollectionDialog } from "../shop/components/RemoveFromCollectionDialog";
 import RequestSampleFlow from "./components/RequestSampleFlow";
 import { navigate } from "../router";
 
@@ -79,11 +81,6 @@ type HomeToast = {
   action?: { label: string; onClick: () => void };
 };
 
-/** The toast's "View shop" action. */
-function goToShop() {
-  navigate("/shop");
-}
-
 export default function Home({
   firstVisit = false,
 }: {
@@ -93,7 +90,6 @@ export default function Home({
   const isShopPublished = useIsShopPublished();
   const isPublishBlocked = useIsPublishBlocked();
   const [shopItems, setShopItems] = useState(loadShopItems);
-  const favoriteShopItemCount = shopItems.filter((item) => item.favorite).length;
   const recommendedProducts = recommendedPool
     .filter((product) => !shopItems.some((item) => item.product.id === product.productId))
     .slice(0, 4);
@@ -102,6 +98,25 @@ export default function Home({
   const [viewingProduct, setViewingProduct] = useState<Product | null>(null);
   const [sampleProduct, setSampleProduct] = useState<Product | null>(null);
   const [toast, setToast] = useState<HomeToast | null>(null);
+  const [collectingItem, setCollectingItem] = useState<ShopItem | null>(null);
+  const [unlinking, setUnlinking] = useState<{ item: ShopItem; collection: Collection } | null>(null);
+
+  /** Flow 18: remove from one collection after the confirm, with Undo. */
+  const confirmRemoveFromCollection = (item: ShopItem, collection: Collection) => {
+    const { next, index } = removeItemFromCollection(loadCollections(shopItems), collection.id, item.id);
+    saveCollections(next);
+    setUnlinking(null);
+    setToast({
+      message: `Removed from ${collection.name}. Still in your shop.`,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          saveCollections(restoreItemInCollection(loadCollections(shopItems), collection.id, item.id, index));
+          setToast(null);
+        },
+      },
+    });
+  };
   const [canScrollBack, setCanScrollBack] = useState(false);
   const [canScrollForward, setCanScrollForward] = useState(true);
   const productsRef = useRef<HTMLDivElement>(null);
@@ -139,39 +154,11 @@ export default function Home({
     });
   };
 
-  /** The blocked-favorite toast, shown from both the add modal and the
-   *  overlay's Add To Favorite. Its action can only reach the shop's All Picks
-   *  tab from here — the favorites tab is local state inside the shop app —
-   *  but that is where the badges and the "Remove from Favorite" menu live. */
-  const showFavoriteSlotsFullToast = () => {
-    setToast({
-      message: "Product failed to add as Favorite",
-      variant: "error",
-      action: { label: "Manage Favorite", onClick: goToShop },
-    });
-  };
-
   /** Real shop-management actions for the product-detail overlay opened from
    *  this page's "Recommended Products" carousel — mirrors `shop/App.tsx`'s
-   *  own toggle/remove/add-to-shop logic so the two entry points stay
+   *  own collection/remove/add-to-shop logic so the two entry points stay
    *  consistent, without navigating away from Home to reach them. */
-  const toggleFavoriteFromHome = (item: ShopItem) => {
-    // The cap is enforced here too, not just in the shop: this overlay can
-    // favorite a product without ever opening My Shop, and four slots is few
-    // enough to walk into from either side.
-    if (!item.favorite && favoriteShopItemCount >= MAX_FAVORITES) {
-      showFavoriteSlotsFullToast();
-      return;
-    }
-    setShopItems((current) => {
-      const next = current.map((row) => (row.id === item.id ? { ...row, favorite: !row.favorite } : row));
-      saveShopItems(next);
-      return next;
-    });
-    logShopActivity(item.favorite ? "product-unfeatured" : "product-featured", `${item.product.brand} ${item.product.name}`);
-    setToast({ message: item.favorite ? "Product Removed From Favorite" : "Product Added to Favorites" });
-  };
-
+  
   const removeFromShopFromHome = (item: ShopItem) => {
     setShopItems((current) => {
       const next = current.filter((row) => row.id !== item.id);
@@ -187,9 +174,13 @@ export default function Home({
     const item = shopItems.find((row) => row.product.id === product.id);
     if (!item) return undefined;
     return {
-      favorite: item.favorite,
+      collections: collectionsFor(item.id, loadCollections(shopItems)),
+      onRemoveFromCollection: (collectionId: string) => {
+        const collection = loadCollections(shopItems).find((c) => c.id === collectionId);
+        if (collection) setUnlinking({ item, collection });
+      },
       variant: item.variant,
-      onToggleFavorite: () => toggleFavoriteFromHome(item),
+      onAddToCollection: () => setCollectingItem(item),
       onRemoveFromShop: () => removeFromShopFromHome(item),
       affiliateLink: affiliateLinkFor(item.product),
       onCopyLink: () => { navigator.clipboard?.writeText(affiliateLinkFor(item.product)).catch(() => {}); },
@@ -327,20 +318,17 @@ export default function Home({
       </main>
 
       {pendingProduct ? (
-        <AddToShopModal
+        <AddToShopWithCollections
           product={pendingProduct}
-          favoriteCount={favoriteShopItemCount}
-          favoriteLimit={MAX_FAVORITES}
           existingVariants={loadShopItems()
             .filter((item) => item.product.id === pendingProduct.id)
             .map((item) => item.variant)}
           onClose={() => setPendingProduct(null)}
-          onFavoriteBlocked={showFavoriteSlotsFullToast}
-          onConfirm={(favorite, variant) => {
+          onAdd={(variant) => {
             const newItem: ShopItem = {
               id: crypto.randomUUID(),
               product: pendingProduct,
-              favorite,
+              favorite: false,
               variant,
               addedAt: Date.now(),
             };
@@ -351,8 +339,11 @@ export default function Home({
               return next;
             });
             logShopActivity("product-added", `${pendingProduct.brand} ${pendingProduct.name}`);
+            return newItem;
+          }}
+          onDone={(message) => {
             setPendingProduct(null);
-            setToast({ message: "Product added to your shop" });
+            setToast({ message });
           }}
         />
       ) : null}
@@ -374,6 +365,24 @@ export default function Home({
 
       <RequestSampleFlow product={sampleProduct} onClose={() => setSampleProduct(null)} />
 
+      {unlinking ? (
+        <RemoveFromCollectionDialog
+          productName={unlinking.item.product.name}
+          collectionName={unlinking.collection.name}
+          onClose={() => setUnlinking(null)}
+          onConfirm={() => confirmRemoveFromCollection(unlinking.item, unlinking.collection)}
+        />
+      ) : null}
+      {collectingItem ? (
+        <CollectionPicker
+          item={collectingItem}
+          onClose={() => setCollectingItem(null)}
+          onSaved={(message) => {
+            setCollectingItem(null);
+            setToast({ message });
+          }}
+        />
+      ) : null}
       {toast ? <Toast message={toast.message} variant={toast.variant} action={toast.action} /> : null}
     </AppShell>
   );

@@ -43,11 +43,6 @@ const initialProfile = {
   dob: "1998-01-15",
 };
 
-/**
- * The bank modal (Figma `1619:59252`) asks for exactly what profile setup asks
- * for, in its own order: holder and bank, then the numbers, then holder type
- * across the row, then account type beside the payout currency.
- */
 const latestEligibleBirthday = (() => {
   const date = new Date();
   date.setHours(23, 59, 59, 999);

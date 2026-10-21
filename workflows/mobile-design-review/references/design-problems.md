@@ -1,7 +1,7 @@
 # Mobile design — open problems
 
 Figma Work File `FdmVPJo1j4t8s9gej1H7Yb`, flows page `2462:56445` ("-> Responsive Design (Web & Mob)").
-Compiled 2026-09-30 from `.claude/skills/mobile-design-review/references/readiness-log.md` (last passes 2026-09-25 / 2026-09-28). No section is **Ready** yet.
+Compiled 2026-09-30 from `workflows/mobile-design-review/references/readiness-log.md` (last passes 2026-09-25 / 2026-09-28). No section is **Ready** yet.
 
 Links: `https://www.figma.com/design/FdmVPJo1j4t8s9gej1H7Yb/?node-id=<id>`
 

@@ -10,6 +10,14 @@ type FormModalProps = {
   onSubmit: () => void;
   onClose: () => void;
   children: ReactNode;
+  /** Panel width in px; the account forms use 640, the New collection
+   *  dialog 525 (Figma `1862:88139`). */
+  width?: number;
+  /** Disables the submit button, e.g. while a required field is empty. */
+  submitDisabled?: boolean;
+  /** Semibold title (Body/body-xl-bold), as the shop dialogs draw it; the
+   *  account forms keep the regular weight. */
+  boldTitle?: boolean;
 };
 
 /**
@@ -24,6 +32,9 @@ export default function FormModal({
   onSubmit,
   onClose,
   children,
+  width = 640,
+  submitDisabled = false,
+  boldTitle = false,
 }: FormModalProps) {
   const titleId = useId();
 
@@ -51,7 +62,8 @@ export default function FormModal({
       aria-labelledby={titleId}
     >
       <form
-        className="motion-modal-panel my-auto flex w-[640px] max-w-full flex-col items-start overflow-clip rounded-[10px] border border-portal-border bg-portal-light shadow-[0px_12px_40px_0px_rgba(0,0,0,0.18)]"
+        style={{ width }}
+        className="motion-modal-panel my-auto flex max-w-full flex-col items-start overflow-clip rounded-[10px] border border-portal-border bg-portal-light shadow-[0px_12px_40px_0px_rgba(0,0,0,0.18)]"
         onMouseDown={(event) => event.stopPropagation()}
         onSubmit={(event) => {
           event.preventDefault();
@@ -59,7 +71,7 @@ export default function FormModal({
         }}
       >
         <div className="flex w-full items-center justify-between border-b border-portal-border px-6 py-4">
-          <h2 id={titleId} className="min-w-px flex-1 text-body-xl text-portal-text">
+          <h2 id={titleId} className={`min-w-px flex-1 text-body-xl text-portal-text ${boldTitle ? "font-semibold" : ""}`}>
             {title}
           </h2>
           <button
@@ -77,7 +89,7 @@ export default function FormModal({
             <Button type="button" variant="portalOutline" className="min-w-px flex-1" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" variant="portal" className="min-w-px flex-1">
+            <Button type="submit" variant="portal" className="min-w-px flex-1" disabled={submitDisabled}>
               {submitLabel}
             </Button>
           </div>

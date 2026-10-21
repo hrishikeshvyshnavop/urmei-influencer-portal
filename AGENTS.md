@@ -1,5 +1,3 @@
-<!-- BEGIN:nextjs-agent-rules -->
-# This is NOT the Next.js you know
+# AGENTS.md
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
-<!-- END:nextjs-agent-rules -->
+Read `CLAUDE.md`: it is the single guide for agents working in this repo (stack, commands, architecture, conventions, and where the workflows and change requests live). There is no Next.js here; the app is Vite + React.

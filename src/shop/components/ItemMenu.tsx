@@ -6,14 +6,23 @@ export type ItemMenuAction = {
   label: string
   onSelect: () => void
   destructive?: boolean
+  /** Greyed out and unclickable, e.g. Copy collection link before the shop
+   *  is first published (Figma `1862:82807`). */
+  disabled?: boolean
 }
 
 /**
- * The "⋮" dropdown on a shop product card — View product details, Copy
- * affiliate link, Add/Remove favorite, Remove from shop — the link row is
- * absent until the product is on the live storefront.
+ * The "⋮" dropdown on shop product cards and collection boards — e.g. View
+ * product details, Copy affiliate link, Add to collection, Remove from shop.
  */
-export function ItemMenu({ actions }: { actions: ItemMenuAction[] }) {
+export function ItemMenu({
+  actions,
+  label = 'Product options',
+}: {
+  actions: ItemMenuAction[]
+  /** Accessible name for the ⋮ trigger. */
+  label?: string
+}) {
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
 
@@ -22,7 +31,7 @@ export function ItemMenu({ actions }: { actions: ItemMenuAction[] }) {
       <button
         ref={triggerRef}
         type="button"
-        aria-label="Product options"
+        aria-label={label}
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
         className="flex items-center justify-center overflow-clip rounded-sm bg-surface-secondary-100 p-xs"
@@ -42,13 +51,18 @@ export function ItemMenu({ actions }: { actions: ItemMenuAction[] }) {
           <button
             key={action.label}
             type="button"
+            disabled={action.disabled}
             onClick={() => {
               setOpen(false)
               action.onSelect()
             }}
             className={[
-              'flex w-full items-center justify-center px-md py-sm text-body-sm font-medium whitespace-nowrap hover:bg-surface-secondary-300',
-              action.destructive ? 'text-surface-other-alert' : 'text-text-secondary-1000',
+              'flex w-full items-center justify-center px-md py-sm text-body-sm font-medium whitespace-nowrap enabled:hover:bg-surface-secondary-300 disabled:cursor-not-allowed',
+              action.disabled
+                ? 'text-text-secondary-500'
+                : action.destructive
+                  ? 'text-surface-other-alert'
+                  : 'text-text-secondary-1000',
             ].join(' ')}
           >
             <span className="w-full text-left">{action.label}</span>

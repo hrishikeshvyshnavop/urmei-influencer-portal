@@ -172,6 +172,11 @@ function screenFor(fullHash: string) {
     if (metric) return <StatBreakdown metric={metric} origin={origin} />;
     return <ShopExperience />;
   }
+  // A shared collection link (flows 16 and 17).
+  if (hash.startsWith("/shop/view/collections/")) {
+    const collectionId = decodeURIComponent(hash.slice("/shop/view/collections/".length));
+    return <StandaloneStorefront key={collectionId} collectionId={collectionId} />;
+  }
   if (hash.startsWith("/sample-requests/")) {
     const requestId = decodeURIComponent(hash.slice("/sample-requests/".length));
     return <SampleRequestDetails key={requestId} requestId={requestId} />;
