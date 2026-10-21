@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Button from "./components/Button";
 import Checkbox from "./components/Checkbox";
 import { IdentityVerificationCard } from "./components/IdentityVerificationCard";
@@ -10,6 +10,7 @@ import FieldGrid from "./components/FieldGrid";
 import { getSelectedCountry, subscribeToSelectedCountry } from "./country-status";
 import type { FieldSpec } from "./form-fields";
 import { useIdentityVerification } from "./identity-verification";
+import { recordApplication } from "./apply-email";
 import { scrollToFirstError } from "@/lib/form-validation";
 
 function getLatestEligibleBirthday() {
@@ -73,6 +74,8 @@ const personalFields: FieldSpec[] = [
     type: "email",
     autoComplete: "email",
     hint: "Invitation will be sent to this email.",
+    // Verified on the step before (Figma `2660:53874`), so it can't change here.
+    locked: true,
   },
   {
     name: "phone",
@@ -117,25 +120,35 @@ function applyFieldError(field: FieldSpec, value: string) {
 }
 
 type ApplyCreatorProps = {
+  /** The address verified by OTP on the step before. */
+  email: string;
   onBack: () => void;
   onSubmit: () => void;
 };
 
 export default function ApplyCreator({
+  email,
   onBack,
   onSubmit,
 }: ApplyCreatorProps) {
   const selectedCountry = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry);
-  const [values, setValues] = useState<Record<string, string>>({ country: selectedCountry });
+  const [values, setValues] = useState<Record<string, string>>({
+    country: selectedCountry,
+    email,
+  });
   const identity = useIdentityVerification();
   const [connected, setConnected] = useState<string[]>([]);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [consentedToData, setConsentedToData] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
-  useEffect(() => {
+  // Follow a country change made elsewhere (the header's switcher) into the
+  // form, adjusting state during render rather than in an effect.
+  const [syncedCountry, setSyncedCountry] = useState(selectedCountry);
+  if (syncedCountry !== selectedCountry) {
+    setSyncedCountry(selectedCountry);
     setValues((current) => ({ ...current, country: selectedCountry }));
-  }, [selectedCountry]);
+  }
 
   const setField = (name: string, value: string) =>
     setValues((current) => ({ ...current, [name]: value }));
@@ -152,6 +165,10 @@ export default function ApplyCreator({
     .every((field) => (values[field.name] ?? "").trim().length > 0);
   const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email ?? "");
   const isAdult = isValidAdultBirthday(values.birthday ?? "");
+  // Verification and social connections check the applicant against these
+  // details, so both wait until they're filled in (Figma `2660:53860` vs
+  // `2660:53557`).
+  const detailsReady = allFieldsComplete && isAdult;
   const canContinue =
     allFieldsComplete &&
     emailIsValid &&
@@ -180,6 +197,7 @@ export default function ApplyCreator({
             scrollToFirstError(event.currentTarget);
             return;
           }
+          recordApplication(email);
           onSubmit();
         }}
       >
@@ -215,6 +233,7 @@ export default function ApplyCreator({
               status={identity.status}
               onStart={identity.startVerification}
               onRestart={identity.restartVerification}
+              disabled={!detailsReady}
             />
             {showErrors && identity.status !== "complete" ? (
               <p className="text-body-xs text-portal-alert" role="alert" aria-invalid="true">
@@ -239,6 +258,7 @@ export default function ApplyCreator({
                   platform={platform}
                   connected={connected.includes(platform.id)}
                   onToggle={() => togglePlatform(platform.id)}
+                  disabled={!detailsReady}
                 />
               ))}
             </div>
@@ -285,7 +305,7 @@ export default function ApplyCreator({
             <Button
               type="submit"
               variant="portalLg"
-              disabled={!agreedToTerms || !consentedToData}
+              disabled={!canContinue}
             >
               Submit Application
             </Button>

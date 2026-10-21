@@ -43,3 +43,6 @@ vite.config.ts.timestamp-*
 # claude code local state
 .claude/worktrees/
 .claude/settings.local.json
+
+# agentic Figma workflow (local only, see CLAUDE.md)
+/responsive-workflow-urmei/

@@ -3,6 +3,7 @@ import { STAT_PERIODS, type StatPeriodId } from '../data/stats'
 import { setStatsPeriod, useStatsPeriod } from '../stats-period'
 import { FloatingPanel } from './FloatingPanel'
 import { Icon } from './Icon'
+import { RadioDot } from './RadioDot'
 
 /**
  * The period filter — the one component every period choice in the product
@@ -11,8 +12,8 @@ import { Icon } from './Icon'
  * uncontrolled it reads and sets the shared stats period (`stats-period.ts`),
  * so every stats surface shows the same choice; pass `value`/`onChange` to
  * filter something else, as Recent Activities does. A borderless text trigger
- * with a chevron that opens a right-aligned list; only closed states are
- * drawn, so the open list is conventional.
+ * with a chevron that opens a right-aligned radio list (Figma `350:44963`,
+ * file `cehltPtMoGWEtKbF7k3MQQ`).
  */
 export function PeriodFilter({
   prefix,
@@ -21,7 +22,7 @@ export function PeriodFilter({
   label = 'Period',
 }: {
   /** Muted lead-in before the selection — the stats row reads "Showing:
-   *  All time" (Figma `236:24886`); the stat pages have none. */
+   *  All Time" (Figma `236:24886`); the stat pages have none. */
   prefix?: string
   value?: StatPeriodId
   onChange?: (next: StatPeriodId) => void
@@ -33,7 +34,7 @@ export function PeriodFilter({
   const choose = onChange ?? setStatsPeriod
   const [open, setOpen] = useState(false)
   const triggerRef = useRef<HTMLButtonElement>(null)
-  const selected = STAT_PERIODS.find((option) => option.id === value) ?? STAT_PERIODS[0]
+  const selected = STAT_PERIODS.find((option) => option.id === value) ?? STAT_PERIODS[STAT_PERIODS.length - 1]
 
   return (
     <>
@@ -57,30 +58,29 @@ export function PeriodFilter({
         open={open}
         onClose={() => setOpen(false)}
         triggerRef={triggerRef}
-        width={180}
+        width={200}
         align="right"
-        className="flex flex-col items-start overflow-clip rounded-md border border-border-default bg-surface-secondary-100 shadow-[0_4px_4px_rgba(0,0,0,0.05)]"
+        className="flex flex-col items-start overflow-clip rounded-lg border border-border-default bg-surface-secondary-100 px-md shadow-[0_1px_2px_rgba(16,24,40,0.05)]"
       >
-        {STAT_PERIODS.map((option) => (
-          <button
-            key={option.id}
-            type="button"
-            role="option"
-            aria-selected={option.id === value}
-            onClick={() => {
-              choose(option.id)
-              setOpen(false)
-            }}
-            className={[
-              'w-full px-md py-sm text-left text-body-sm capitalize hover:bg-surface-secondary-300',
-              option.id === value
-                ? 'font-medium text-text-secondary-1000'
-                : 'text-text-secondary-700',
-            ].join(' ')}
-          >
-            {option.label}
-          </button>
-        ))}
+        <ul role="listbox" aria-label={label} className="flex w-full flex-col items-start">
+          {STAT_PERIODS.map((option) => (
+            <li key={option.id} className="w-full">
+              <button
+                type="button"
+                role="option"
+                aria-selected={option.id === value}
+                onClick={() => {
+                  choose(option.id)
+                  setOpen(false)
+                }}
+                className="flex w-full items-center gap-sm px-xs py-ten text-left"
+              >
+                <RadioDot selected={option.id === value} />
+                <span className="text-body-sm text-text-secondary-1000">{option.label}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </FloatingPanel>
     </>
   )

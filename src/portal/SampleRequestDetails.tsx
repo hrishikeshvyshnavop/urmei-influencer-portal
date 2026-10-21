@@ -5,6 +5,7 @@ import Button from "./components/Button";
 import SectionTitle from "./components/SectionTitle";
 import ConfirmDialog from "./components/ConfirmDialog";
 import WriteReviewModal from "./components/WriteReviewModal";
+import ReviewPhotos from "./components/ReviewPhotos";
 import { Toast } from "../shop/components/Toast";
 import { requestProductTour } from "./tour-status";
 import {
@@ -49,6 +50,7 @@ export default function SampleRequestDetails({ requestId }: { requestId: string 
       className="bg-portal-light text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
+      footerBelowFold
     >
       <main className="mx-auto flex-1 w-full max-w-[994px] px-6 py-5 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-1 py-4 text-body-sm">
@@ -267,15 +269,9 @@ function ReviewCard({ review }: { review: NonNullable<SampleRequest["review"]> }
           Your review <span className="text-portal-muted">· {review.rating}/10</span>
         </p>
       </div>
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-3.5">
         <p className="text-body-sm whitespace-pre-line text-portal-emphasis">{review.text}</p>
-        {review.photos.length > 0 ? (
-          <div className="flex items-center gap-2">
-            {review.photos.map((photo, index) => (
-              <img key={index} src={photo} alt="" className="size-12 shrink-0 rounded-lg object-cover" />
-            ))}
-          </div>
-        ) : null}
+        <ReviewPhotos photos={review.photos} />
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ export default function ApplyLanding({ onApply, onLogin }: ApplyLandingProps) {
     <div className="motion-page flex min-h-screen w-full flex-col items-start bg-white">
       <div className="relative min-h-px w-full flex-1">
         <img
-          src="/urmei/apply-hero.png"
+          src="/urmei/apply-hero.webp"
           alt=""
           className="pointer-events-none absolute inset-0 size-full max-w-none object-cover"
         />

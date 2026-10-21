@@ -2,18 +2,11 @@ import { useRef, useState } from 'react'
 import { SORT_OPTIONS, type SortId } from '../data/catalogue'
 import { FloatingPanel } from './FloatingPanel'
 import { Icon } from './Icon'
+import { RadioDot } from './RadioDot'
 
 type SortDropdownProps = {
   value: SortId
   onChange: (next: SortId) => void
-}
-
-function RadioDot({ selected }: { selected: boolean }) {
-  return (
-    <span className="flex size-[16px] shrink-0 items-center justify-center rounded-full border border-border-outlined">
-      {selected && <span className="size-[8px] rounded-full bg-surface-primary-500" />}
-    </span>
-  )
 }
 
 /** Search Results' sort control (Figma `1184:70079`) — a closed pill reading

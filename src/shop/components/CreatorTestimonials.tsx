@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import ProfilePhoto from '../../portal/components/ProfilePhoto'
 import WriteReviewModal from '../../portal/components/WriteReviewModal'
+import ReviewPhotos from '../../portal/components/ReviewPhotos'
 import { getSavedDisplayName } from '../../portal/profile-status'
 import { loadSampleRequests, type SampleReview } from '../../portal/sample-requests'
 import {
@@ -52,20 +53,22 @@ function ownReviewFor(product: Product): SampleReview | undefined {
   )
 }
 
-type Slide = { author: string; avatar?: string; month: string; text: string; own: boolean }
+type Slide = { author: string; avatar?: string; month: string; text: string; photos?: string[]; own: boolean }
 
 /**
  * "What Creators Say" (Figma `1030:25483`): one other creator's quote at a
  * time, with the month it was written, their avatar and a verified badge, and
  * a "1 / n" pager that wraps at both ends. Each page change slides the new
  * quote in from the side it came from; the pager count itself stays still.
+ * A review with photos shows up to three 48px thumbnails 14px under the
+ * quote, moving with it as one block (Figma `1030:29096`).
  */
 function WhatCreatorsSay({ product, ownReview }: { product: Product; ownReview?: SampleReview }) {
   // Once the creator has reviewed the product, their quote leads as
   // "<Name> (You)" (Figma `1030:30435`), ahead of other creators'.
   const testimonials: Slide[] = [
     ...(ownReview
-      ? [{ author: getSavedDisplayName('Charlotte'), month: reviewMonth(ownReview.writtenAt), text: ownReview.text, own: true }]
+      ? [{ author: getSavedDisplayName('Charlotte'), month: reviewMonth(ownReview.writtenAt), text: ownReview.text, photos: ownReview.photos, own: true }]
       : []),
     ...testimonialsFor(product).map((testimonial) => ({ ...testimonial, own: false })),
   ]
@@ -99,9 +102,10 @@ function WhatCreatorsSay({ product, ownReview }: { product: Product; ownReview?:
       {/* Clips the slide-in so it never spills past the panel's padding. */}
       <div className="flex min-w-px flex-1 flex-col gap-xxl self-stretch overflow-x-clip">
         {/* Keyed on the page so each change remounts and replays the slide. */}
-        <blockquote key={index} className={`text-body-lg font-medium text-text-secondary-1000 ${slide}`}>
-          "{current.text}"
-        </blockquote>
+        <div key={index} className={`flex w-full flex-col items-start gap-fourteen ${slide}`}>
+          <blockquote className="text-body-lg font-medium text-text-secondary-1000">"{current.text}"</blockquote>
+          <ReviewPhotos photos={current.photos} />
+        </div>
         <div className="flex w-full items-center justify-between">
           <div key={index} className={`flex items-center gap-md ${slide} ${slide ? 'motion-carousel-trail' : ''}`}>
             <span className="relative size-9 shrink-0">

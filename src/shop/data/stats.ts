@@ -17,7 +17,7 @@ export const STAT_METRICS = [
   'clicks',
   'sales',
   'commissionPending',
-  'commissionOwned',
+  'commissionEarned',
   'commissionSettled',
 ] as const
 
@@ -37,7 +37,7 @@ type MetricSpec = {
   /**
    * Row copy when a product has nothing to report. The frames word this
    * differently per metric: "No dues" for pending (`1619:39786`), "Nothing to
-   * show" for owned (`1619:40237`), "All settled" for settled (`1619:40455`).
+   * show" for earned (`1619:40237`), "All settled" for settled (`1619:40455`).
    */
   rowEmpty: string
   /**
@@ -80,14 +80,15 @@ export const STAT_SPECS: Record<StatMetric, MetricSpec> = {
     rowEmpty: 'No dues',
     trend: false,
   },
-  commissionOwned: {
-    slug: 'commission-owned',
-    // The design labels this "COMMISSION OWNED" on both the row and the
-    // product tile, though the frame itself is named `commission-earned`.
-    label: 'COMMISSION OWNED',
-    crumb: 'Commission owned',
+  commissionEarned: {
+    slug: 'commission-earned',
+    // Once labelled "Commission Owned" after the design's copy; renamed to
+    // match its frame, `commission-earned`. The old slug still resolves (see
+    // `metricFromSlug`).
+    label: 'COMMISSION EARNED',
+    crumb: 'Commission earned',
     format: currency,
-    rowUnit: 'Commission owned',
+    rowUnit: 'Commission earned',
     rowEmpty: 'Nothing to show',
     trend: false,
   },
@@ -105,17 +106,18 @@ export const STAT_SPECS: Record<StatMetric, MetricSpec> = {
 /**
  * The windows the stats period filter offers, everywhere it appears — the
  * stats row on Home and My Shop, the breakdown pages and a product's stats.
- * Only closed states are drawn ("All time" on the row, `236:24886`; "Last 7
- * Days" on a breakdown, `1619:39559`), so the open list is conventional.
- * `previous` is what a breakdown's delta line compares against; "All time"
+ * The open list is Figma `350:44963` (file `cehltPtMoGWEtKbF7k3MQQ`): the
+ * dated windows shortest first, then "All Time", which is also the default.
+ * `previous` is what a breakdown's delta line compares against; "All Time"
  * has no earlier window, so it drops that line. The shop figures have no
  * dated history behind them yet, so the choice doesn't change the numbers.
  */
 export const STAT_PERIODS = [
-  { id: 'all', label: 'All time', previous: null },
   { id: '7', label: 'Last 7 Days', previous: 'previous 7 days' },
+  { id: '14', label: 'Last 14 Days', previous: 'previous 14 days' },
   { id: '30', label: 'Last 30 Days', previous: 'previous 30 days' },
   { id: '90', label: 'Last 90 Days', previous: 'previous 90 days' },
+  { id: 'all', label: 'All Time', previous: null },
 ] as const
 
 export type StatPeriodId = (typeof STAT_PERIODS)[number]['id']
@@ -124,7 +126,7 @@ export type ProductStats = {
   clicks: number
   sales: number
   commissionPending: number
-  commissionOwned: number
+  commissionEarned: number
   commissionSettled: number
   /** Percentage of clicks that converted, shown on the Performance tab. */
   conversionRate: number
@@ -155,9 +157,9 @@ export function statsForProduct(product: Product): ProductStats {
     clicks,
     sales,
     commissionPending: pending,
-    // "Owned" is the full commission the sales earned, of which some part is
-    // settled and the rest still pending.
-    commissionOwned: earned,
+    // The full commission the sales earned, of which some part is settled and
+    // the rest still pending.
+    commissionEarned: earned,
     commissionSettled: settled,
     conversionRate: clicks === 0 ? 0 : Math.round((sales / clicks) * 1000) / 10,
     commissionPerSale,
@@ -172,7 +174,7 @@ export function shopTotals(items: ShopItem[]): Record<StatMetric, number> {
       for (const metric of STAT_METRICS) totals[metric] += stats[metric]
       return totals
     },
-    { clicks: 0, sales: 0, commissionPending: 0, commissionOwned: 0, commissionSettled: 0 },
+    { clicks: 0, sales: 0, commissionPending: 0, commissionEarned: 0, commissionSettled: 0 },
   )
 }
 
@@ -235,22 +237,24 @@ function entryFor(
 }
 
 /**
- * The stats row Home and My Shop both show: the product count, then all five
- * metrics. The two designs each carried a different five — Home (Figma
- * `1584:90876`) had the count and no commission pending, My Shop
- * (`1619:39241`) the reverse — and they were unified on request so the pages
- * read the same. Total products has no breakdown page: from Home it links to
- * the shop, and on the shop itself it is not a link at all.
+ * The stats row Home and My Shop both show: all five metrics. The two designs
+ * each carried a different set — Home (Figma `1584:90876`) had a product count
+ * and no commission pending, My Shop (`1619:39241`) the reverse — and they were
+ * unified on request so the pages read the same; the product count was later
+ * dropped from both.
  */
 export function statsRowEntries(items: ShopItem[], origin: 'home' | 'shop') {
   const totals = shopTotals(items)
-  return [
-    { label: 'TOTAL PRODUCTS', value: String(items.length), href: origin === 'home' ? '/shop' : undefined },
-    ...STAT_METRICS.map((metric) => entryFor(metric, totals, origin)),
-  ]
+  return STAT_METRICS.map((metric) => entryFor(metric, totals, origin))
 }
 
 /** Resolves a hash segment back to a metric, or null for an unknown one. */
+/** Slugs from before a rename, so old links and bookmarks still land. */
+const LEGACY_SLUGS: Record<string, StatMetric> = { 'commission-owned': 'commissionEarned' }
+
 export function metricFromSlug(slug: string): StatMetric | null {
-  return STAT_METRICS.find((metric) => STAT_SPECS[metric].slug === slug) ?? null
+  return (
+    STAT_METRICS.find((metric) => STAT_SPECS[metric].slug === slug) ??
+    (Object.hasOwn(LEGACY_SLUGS, slug) ? LEGACY_SLUGS[slug] : null)
+  )
 }

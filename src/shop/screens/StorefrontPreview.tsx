@@ -208,61 +208,66 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100">
-      {/* `position: sticky` can't live *inside* `ScaledBox` — its offsets are
-          resolved in the box's pre-transform coordinate space, so a stuck
-          element drifts by `scrollY × (1 - scale)`, which grows without bound
-          as you scroll. Sticking an untransformed wrapper and scaling its
-          contents instead keeps the chrome pinned exactly. The bars span the
-          window, as on Home; each scales only its contents, at the page's
-          design width, so they resolve to the same scale. */}
-      <div className="sticky top-0 z-30 flex w-full flex-col">
-        <StorefrontHeader onClose={onClose} />
-        {selectedItem && (
-          <CreatorMarketBar name={name} country={country} onBack={() => setSelectedItem(null)} designWidth={1440} />
-        )}
-      </div>
+      {/* The footer never shares the first screenful, however short the
+          preview: the chrome and content fill at least the window ("Footer
+          below the fold" in CLAUDE.md). */}
+      <div className="flex min-h-screen w-full flex-col">
+        {/* `position: sticky` can't live *inside* `ScaledBox` — its offsets are
+            resolved in the box's pre-transform coordinate space, so a stuck
+            element drifts by `scrollY × (1 - scale)`, which grows without bound
+            as you scroll. Sticking an untransformed wrapper and scaling its
+            contents instead keeps the chrome pinned exactly. The bars span the
+            window, as on Home; each scales only its contents, at the page's
+            design width, so they resolve to the same scale. */}
+        <div className="sticky top-0 z-30 flex w-full flex-col">
+          <StorefrontHeader onClose={onClose} />
+          {selectedItem && (
+            <CreatorMarketBar name={name} country={country} onBack={() => setSelectedItem(null)} designWidth={1440} />
+          )}
+        </div>
 
-      <div className="flex w-full flex-1 justify-center">
-        <ScaledBox width={1440} className="flex flex-col items-start bg-surface-secondary-100">
-          <main className="flex w-full flex-col items-start">
-            {selectedItem ? (
-              <StorefrontProductDetail
-                item={selectedItem}
-                country={country}
-                creatorName={name}
-                onBack={() => setSelectedItem(null)}
-              />
-            ) : (
-              <>
-                <div className="flex w-full flex-col gap-md-2 px-margin pt-md-2">
-                  <StorefrontProfileCard onCopyLink={onCopyShopLink} />
-                  {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice country={country} />}
-                </div>
+        <div className="flex w-full flex-1 justify-center">
+          <ScaledBox width={1440} className="flex flex-col items-start bg-surface-secondary-100">
+            <main className="flex w-full flex-col items-start">
+              {selectedItem ? (
+                <StorefrontProductDetail
+                  item={selectedItem}
+                  country={country}
+                  creatorName={name}
+                  onBack={() => setSelectedItem(null)}
+                />
+              ) : (
+                <>
+                  <div className="flex w-full flex-col gap-md-2 px-margin pt-md-2">
+                    <StorefrontProfileCard onCopyLink={onCopyShopLink} />
+                    {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice country={country} />}
+                  </div>
 
-                {items.length === 0 ? (
-                  <EmptyStorefront name={name} />
-                ) : (
-                  <>
-                    {favoriteItems.length > 0 && (
-                      <FavoritePicks
-                        items={favoriteItems}
-                        country={country}
+                  {items.length === 0 ? (
+                    <EmptyStorefront name={name} />
+                  ) : (
+                    <>
+                      {favoriteItems.length > 0 && (
+                        <FavoritePicks
+                          items={favoriteItems}
+                          country={country}
+                          ownerName={name}
+                          onSelect={setSelectedItem}
+                        />
+                      )}
+                      <StorefrontReviews
+                        reviews={reviewsForShop(items)}
                         ownerName={name}
                         onSelect={setSelectedItem}
                       />
-                    )}
-                    <StorefrontReviews
-                      reviews={reviewsForShop(items)}
-                      ownerName={name}
-                      onSelect={setSelectedItem}
-                    />
-                    <AllPicks items={items} country={country} onSelect={setSelectedItem} />
-                  </>
-                )}
-              </>
-            )}
-          </main>
-        </ScaledBox>
+                      <AllPicks items={items} country={country} onSelect={setSelectedItem} />
+                    </>
+                  )}
+                </>
+              )}
+            </main>
+          </ScaledBox>
+        </div>
       </div>
 
       {/* Outside the scaled box, so it spans the window as on every other page. */}

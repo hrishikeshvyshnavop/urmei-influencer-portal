@@ -19,6 +19,7 @@ export default function HelpCenter() {
 
   return (
     <AppShell
+      footerBelowFold
       className="bg-portal-light text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => window.scrollTo({ top: 0, behavior: "smooth" })}

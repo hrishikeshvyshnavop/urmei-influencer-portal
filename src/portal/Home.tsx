@@ -202,6 +202,7 @@ export default function Home({
 
   return (
     <AppShell
+      footerBelowFold
       className="bg-[#fffefd] text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}

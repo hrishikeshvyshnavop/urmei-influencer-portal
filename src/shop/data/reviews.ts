@@ -10,7 +10,7 @@ export type CreatorReview = {
   writtenOn: string
 }
 
-const SERUM_PHOTOS = ['/urmei/reviews/serum-1.png', '/urmei/reviews/serum-2.png', '/urmei/reviews/serum-3.png']
+export const SERUM_PHOTOS = ['/urmei/reviews/serum-1.png', '/urmei/reviews/serum-2.png', '/urmei/reviews/serum-3.png']
 const EYE_CREAM_PHOTOS = [
   '/urmei/reviews/eye-cream-1.png',
   '/urmei/reviews/eye-cream-2.png',

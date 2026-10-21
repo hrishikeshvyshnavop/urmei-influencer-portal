@@ -93,6 +93,7 @@ export function ProductStats({
   if (!item) {
     return (
       <AppShell
+        footerBelowFold
         className="bg-surface-secondary-100"
         onShowTour={requestProductTour}
         onShowHelp={() => {
@@ -128,6 +129,7 @@ export function ProductStats({
 
   return (
     <AppShell
+      footerBelowFold
       className="bg-surface-secondary-100"
       onShowTour={requestProductTour}
       onShowHelp={() => {
@@ -183,7 +185,7 @@ export function ProductStats({
                   <Tiles>
                     <Tile value={`${stats.sales} Unit`} label="Sales" />
                     <Tile value={`S$${stats.commissionPending}`} label="Commission Pending" />
-                    <Tile value={`S$${stats.commissionOwned}`} label="Commission Owned" />
+                    <Tile value={`S$${stats.commissionEarned}`} label="Commission Earned" />
                     <Tile value={`S$${stats.commissionSettled}`} label="Commission Settled" />
                   </Tiles>
                 )}

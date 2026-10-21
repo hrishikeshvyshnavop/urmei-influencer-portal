@@ -3,6 +3,7 @@ import { ChevronRight } from "lucide-react";
 import AppShell from "./components/AppShell";
 import { SearchField } from "./components/SearchField";
 import ProductOverlay from "./components/ProductOverlay";
+import ReviewPhotos from "./components/ReviewPhotos";
 import { requestProductTour } from "./tour-status";
 import { loadSampleRequests, type SampleReview } from "./sample-requests";
 import { allProductReviews } from "../shop/data/creator-testimonials";
@@ -75,6 +76,7 @@ export default function YourReviews() {
       className="bg-portal-light text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
+      footerBelowFold
     >
       <main className="mx-auto flex-1 w-full max-w-[794px] px-6 pb-14 lg:px-0">
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 py-4 text-body-sm">
@@ -135,7 +137,9 @@ function ReviewCard({ entry, onOpenProduct }: { entry: ReviewEntry; onOpenProduc
         <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-portal-text" strokeWidth={1.5} />
       </span>
 
-      <span className="flex items-center gap-3 rounded-[10px] border border-portal-surface bg-portal-light px-4 py-3 drop-shadow-[0px_4px_10px_rgba(0,0,0,0.03)]">
+      {/* With photos the score stays level with the first line of text rather
+          than centring on the text-and-photos block. */}
+      <span className={`flex gap-3 rounded-[10px] border ${entry.review.photos.length > 0 ? "items-start" : "items-center"} border-portal-surface bg-portal-light px-4 py-3 drop-shadow-[0px_4px_10px_rgba(0,0,0,0.03)]`}>
         <span className="flex shrink-0 items-center rounded-full bg-portal-star p-[4.5px]">
           <img src="/urmei/sample-requests/star.svg" alt="" width={15.9091} height={15.9091} className="block size-[15.9091px]" />
         </span>
@@ -143,7 +147,10 @@ function ReviewCard({ entry, onOpenProduct }: { entry: ReviewEntry; onOpenProduc
           {entry.review.rating}/10
           <span className="sr-only"> rating</span>
         </span>
-        <span className="min-w-0 flex-1 text-body-sm text-portal-muted">{entry.review.text}</span>
+        <span className="flex min-w-0 flex-1 flex-col gap-3.5">
+          <span className="text-body-sm text-portal-muted">{entry.review.text}</span>
+          <ReviewPhotos photos={entry.review.photos} />
+        </span>
       </span>
     </>
   );

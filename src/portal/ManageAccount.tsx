@@ -8,11 +8,10 @@ import FormModal from "./components/FormModal";
 import AddressFormModal from "./components/AddressFormModal";
 import SetDefaultsModal from "./components/SetDefaultsModal";
 import ProfilePhoto from "./components/ProfilePhoto";
-import { PROFILE_PHOTO_KEY } from "./profile-photo";
 import SocialAccountRow, { type SocialPlatform } from "./components/SocialAccountRow";
 import AppFooter from "./components/AppFooter";
 import AppHeader from "./components/AppHeader";
-import { CropModal } from "./SetProfilePhoto";
+import ProfilePhotoPicker, { PHOTO_MAX_MB } from "./components/ProfilePhotoPicker";
 import TextArea from "./components/TextArea";
 import TextField from "./components/TextField";
 import { BANK_FIELDS, PAYMENT_MESSAGE_TYPE, isBankAccountComplete, readBankAccount, removeBankAccount, saveBankAccount, type BankAccount } from "./bank-account";
@@ -25,7 +24,7 @@ import {
   upsertShippingAddress,
   type ShippingAddress,
 } from "./shipping-addresses";
-import { clearSetupRequired, isSetupRequired } from "./setup-status";
+import { clearSetupRequired } from "./setup-status";
 import { getSavedBio, getSavedDisplayName, saveBio, saveDisplayName } from "./profile-status";
 import { requestProductTour } from "./tour-status";
 import { navigate } from "../router";
@@ -120,11 +119,7 @@ export default function ManageAccount({
 }: {
   initialSection?: ManageAccountSection;
 } = {}) {
-  const photoInput = useRef<HTMLInputElement>(null);
   const [photoVersion, setPhotoVersion] = useState(0);
-  const [pendingPhoto, setPendingPhoto] = useState<string | null>(null);
-  const [photoOffset, setPhotoOffset] = useState(0);
-  const [photoCropScale, setPhotoCropScale] = useState(1);
   const [displayName, setDisplayName] = useState(initialProfile.displayName);
   const [bio, setBio] = useState(initialProfile.bio);
   const [phone, setPhone] = useState(initialProfile.phone);
@@ -134,7 +129,6 @@ export default function ManageAccount({
   const [activeSection, setActiveSection] = useState<ManageAccountSection>(initialSection);
   const [connectedSocials, setConnectedSocials] = useState(["instagram", "tiktok"]);
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(readBankAccount);
-  const [setupRequired, setSetupRequired] = useState(isSetupRequired);
   const [shippingAddresses, setShippingAddresses] = useState(readShippingAddresses);
   // `undefined` is closed; `null` is adding a new address.
   const [editingAddress, setEditingAddress] = useState<ShippingAddress | null | undefined>(undefined);
@@ -152,14 +146,13 @@ export default function ManageAccount({
     saveShippingAddresses(shippingAddresses);
   }, [shippingAddresses]);
 
+  // Identity is verified as part of the creator's application, so the bank
+  // account is the only thing setup still waits on: once one is on file the
+  // stored setup-required marker is cleared, and the banner follows
+  // `paymentConnected` alone.
   useEffect(() => {
-    // Identity is verified as part of the creator's application, so the bank
-    // account is the only thing setup still waits on.
-    if (setupRequired && paymentConnected) {
-      clearSetupRequired();
-      setSetupRequired(false);
-    }
-  }, [setupRequired, paymentConnected]);
+    if (paymentConnected) clearSetupRequired();
+  }, [paymentConnected]);
 
   useEffect(() => {
     const bannerEl = bannerRef.current;
@@ -172,7 +165,7 @@ export default function ManageAccount({
     const observer = new ResizeObserver(updateOffset);
     if (bannerEl) observer.observe(bannerEl);
     return () => observer.disconnect();
-  }, [setupRequired, paymentConnected]);
+  }, [paymentConnected]);
 
   useEffect(() => {
     // Payout details can also arrive from profile setup in another tab, or
@@ -188,20 +181,6 @@ export default function ManageAccount({
       window.removeEventListener("message", receivePayment);
     };
   }, []);
-
-  const updateProfilePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.addEventListener("load", () => {
-      if (typeof reader.result !== "string") return;
-      setPhotoOffset(0);
-      setPhotoCropScale(1);
-      setPendingPhoto(reader.result);
-    });
-    reader.readAsDataURL(file);
-    event.target.value = "";
-  };
 
   const openAddressModal = (address?: ShippingAddress) => setEditingAddress(address ?? null);
 
@@ -235,7 +214,7 @@ export default function ManageAccount({
           onShowHelp={() => { navigate("/help-center"); }}
         />
 
-        {setupRequired || !paymentConnected ? (
+        {!paymentConnected ? (
           <aside
             ref={bannerRef}
             className="sticky top-[88px] z-20 flex w-full items-center justify-center gap-3 border-b border-[#e6e5e4] bg-portal-light px-6 py-3 lg:px-[120px]"
@@ -375,11 +354,18 @@ export default function ManageAccount({
                         <span className="relative size-[88px] shrink-0 overflow-hidden rounded-full">
                           <ProfilePhoto key={photoVersion} fallback="/urmei/home/profile-dropdown-avatar.png" alt="Profile photo" />
                         </span>
-                        <div className="flex flex-col items-start gap-2">
-                          <input ref={photoInput} type="file" accept="image/jpeg,image/png" onChange={updateProfilePhoto} className="hidden" />
-                          <Button variant="portalOutline" onClick={() => photoInput.current?.click()}>Change Photo</Button>
-                          <p className="text-body-sm text-portal-muted">Square image, at least 400×400. JPG or PNG, up to 5 MB.</p>
-                        </div>
+                        <ProfilePhotoPicker onSave={() => setPhotoVersion((current) => current + 1)}>
+                          {({ pick, error }) => (
+                            <div className="flex flex-col items-start gap-2">
+                              <Button variant="portalOutline" onClick={pick}>Change Photo</Button>
+                              {error ? (
+                                <p className="text-body-sm text-portal-alert" role="alert">{error}</p>
+                              ) : (
+                                <p className="text-body-sm text-portal-muted">Square image, at least 400×400. JPG or PNG, up to {PHOTO_MAX_MB} MB.</p>
+                              )}
+                            </div>
+                          )}
+                        </ProfilePhotoPicker>
                       </div>
                       <TextField label="Display name" placeholder="Your display name" value={displayName} onChange={(value) => { setDisplayName(value); setSaved(false); }} />
                       <TextArea
@@ -465,25 +451,6 @@ export default function ManageAccount({
             onChange={(name, value) => setBankDraft((current) => ({ ...current, [name]: value }))}
           />
         </FormModal>
-      ) : null}
-      {pendingPhoto ? (
-        <CropModal
-          src={pendingPhoto}
-          offset={photoOffset}
-          onOffsetChange={setPhotoOffset}
-          cropScale={photoCropScale}
-          onCropScaleChange={setPhotoCropScale}
-          onCancel={() => setPendingPhoto(null)}
-          onApply={() => {
-            try {
-              window.localStorage.setItem(PROFILE_PHOTO_KEY, JSON.stringify({ src: pendingPhoto, offset: photoOffset, cropScale: photoCropScale }));
-            } catch {
-              // The selected photo remains optional when browser storage is unavailable.
-            }
-            setPendingPhoto(null);
-            setPhotoVersion((current) => current + 1);
-          }}
-        />
       ) : null}
     </div>
   );

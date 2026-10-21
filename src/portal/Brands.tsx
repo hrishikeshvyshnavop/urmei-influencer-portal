@@ -15,6 +15,7 @@ export default function Brands() {
 
   return (
     <AppShell
+      footerBelowFold
       className="bg-white text-portal-text"
       onShowTour={requestProductTour}
       onShowHelp={() => { navigate("/help-center"); }}
