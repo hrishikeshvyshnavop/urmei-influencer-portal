@@ -27,7 +27,7 @@ Check the facts before acting: `change-requests/<topic>/ANSWERS.md` and `FLOWS.m
 
 ## Reply protocol
 
-Use `node workflows/figma-comments/references/scripts/reply.mjs <comment_id> "<text>"` (or a message file for multi-line text). It adds the alien prefix and marks the reply as seen.
+Use `node workflows/figma-comments/references/scripts/reply.mjs <comment_id> "<text>"` (or a message file for multi-line text). It adds the alien prefix and marks the reply as seen. Figma won't accept a reply to a reply, so when the watcher reports a reply (`parent=…`), the script posts to the thread's root instead.
 1. Reply **"On it."** as soon as you take a comment (or hand it to an agent).
 2. When it's done and screenshot-checked, reply **"Fixed. <one line>"** with a short numbered list of what changed, then a separate **"Closed."**
 3. A question or conflict gets a short, friendly reply with numbered options and your recommendation. Don't post "Closed" until it's settled.

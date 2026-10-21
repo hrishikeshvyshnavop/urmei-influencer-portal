@@ -24,6 +24,11 @@ export async function getComments() {
 
 export async function postReply(commentId, text) {
   const message = text.startsWith(ALIEN) ? text : `${ALIEN} ${text}`;
+  // Figma rejects a reply to a reply, so always answer on the thread's root comment
+  if (commentId) {
+    const target = (await getComments()).find((c) => c.id === commentId);
+    if (target?.parent_id) commentId = target.parent_id;
+  }
   const res = await fetch(`https://api.figma.com/v1/files/${FILE_KEY}/comments`, {
     method: 'POST',
     headers: { 'X-Figma-Token': token(), 'Content-Type': 'application/json' },
