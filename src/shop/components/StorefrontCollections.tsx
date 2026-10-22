@@ -3,6 +3,7 @@ import type { Collection } from '../collections-store'
 import { useHasOverflowX } from '../hooks/useHasOverflowX'
 import { CONTENT_COLUMN } from '../layout'
 import type { ShopItem } from '../types'
+import { MoreOverlay } from './CollectionCard'
 import { Icon } from './Icon'
 
 /** How far one click of the row's prev/next scrolls: one board and its gap. */
@@ -20,6 +21,8 @@ type StorefrontCollectionsProps = {
   /** A full-bleed background needs the page's own bleed helper in the
    *  scaled preview; the public page paints it directly. */
   bleed?: boolean
+  /** The fade-to-tint background; the collection page sits on plain white. */
+  tinted?: boolean
   /** Extra classes for the section, e.g. `flex-1` so its tint runs down to
    *  the footer when it's the last thing on a short page. */
   className?: string
@@ -41,6 +44,7 @@ export function StorefrontCollections({
   title,
   onSelect,
   bleed = false,
+  tinted = true,
   className,
   contentClassName = CONTENT_COLUMN,
 }: StorefrontCollectionsProps) {
@@ -70,9 +74,11 @@ export function StorefrontCollections({
     <section
       className={[
         'flex w-full flex-col items-center gap-xxl py-5xl',
-        bleed
-          ? 'bleed-x before:bg-gradient-to-b before:from-surface-tertiary-100/0 before:to-surface-tertiary-100'
-          : 'bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100',
+        !tinted
+          ? ''
+          : bleed
+            ? 'bleed-x before:bg-gradient-to-b before:from-surface-tertiary-100/0 before:to-surface-tertiary-100'
+            : 'bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100',
         className,
       ].join(' ')}
     >
@@ -116,7 +122,10 @@ export function StorefrontCollections({
                 <BoardImage item={boardItems[0]} className="h-[288px] w-[191px]" />
                 <div className="flex flex-col gap-[2px]">
                   <BoardImage item={boardItems[1]} className="h-[143px] w-[95px]" />
-                  <BoardImage item={boardItems[2]} className="h-[143px] w-[95px]" />
+                  <div className="relative h-[143px] w-[95px] overflow-clip">
+                    <BoardImage item={boardItems[2]} className="h-[143px] w-[95px]" />
+                    <MoreOverlay count={boardItems.length} />
+                  </div>
                 </div>
               </div>
               <div

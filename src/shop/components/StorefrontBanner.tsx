@@ -122,11 +122,11 @@ export function StorefrontBanner({ backdropId, featured, scaleContent = false, o
                       </span>
                     </span>
                     <span className="flex items-center gap-sm text-body-sm font-medium text-text-secondary-1000">
-                      <Icon name="tiktok" />
+                      <Icon name="tiktok-dark" />
                       {FOLLOWER_STATS.tiktok}
                     </span>
                     <span className="flex items-center gap-sm text-body-sm font-medium text-text-secondary-1000">
-                      <Icon name="instagram" />
+                      <Icon name="instagram-dark" />
                       {FOLLOWER_STATS.instagram}
                     </span>
                   </div>

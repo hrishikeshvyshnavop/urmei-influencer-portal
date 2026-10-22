@@ -326,9 +326,25 @@ export function FeaturedItemsDialog({ items, collections, current, initial, onCl
                   </div>
                 </div>
               ) : noMatches ? (
-                <p className="py-xxl text-center text-body-md text-text-secondary-700">
-                  {tab === 'collections' ? 'No collections with products yet.' : 'No products in your shop yet.'}
-                </p>
+                // Products but no collection holding any: the same Picker empty
+                // state as a search with no matches (main file `2799:104381`).
+                <div className="flex h-full items-center justify-center">
+                  <div className="w-[464px] max-w-full">
+                    {tab === 'collections' ? (
+                      <PickerEmptyState
+                        icon={<Icon name="layout-grid" size={28} />}
+                        title="No collections to feature"
+                        body="Create a collection with products in My Shop, then feature it here."
+                      />
+                    ) : (
+                      <PickerEmptyState
+                        icon={<Icon name="shopping-bag-lg" size={28} />}
+                        title="No products to feature"
+                        body="Add products to your shop, then feature them here."
+                      />
+                    )}
+                  </div>
+                </div>
               ) : tab === 'collections' ? (
                 <div className="flex flex-wrap content-start gap-md p-[4px]">
                   {shownCollections.map(({ collection, covered }) => {

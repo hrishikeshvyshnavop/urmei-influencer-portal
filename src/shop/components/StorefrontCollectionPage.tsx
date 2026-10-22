@@ -97,7 +97,7 @@ export function StorefrontCollectionPage({
         collections={collections.filter((other) => other.id !== collection.id)}
         items={items}
         onSelect={onSelectCollection}
-        bleed
+        tinted={false}
         className="flex-1"
         contentClassName={FULL_WIDTH_CONTENT}
       />
