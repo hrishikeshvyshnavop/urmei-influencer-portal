@@ -97,7 +97,10 @@ export function ProductListingCard({
         {imageAction && <div className="absolute top-md-sm right-md-sm">{imageAction}</div>}
       </div>
 
-      <div className="flex w-full flex-col gap-md-sm bg-surface-secondary-200">
+      <div
+        className="flex w-full flex-col gap-md-sm"
+        style={{ backgroundColor: 'var(--shop-product-card, var(--color-surface-secondary-200))' }}
+      >
         <div className={`flex w-full flex-col px-ten pt-fourteen pb-fourteen ${titleOnly ? "" : "gap-[6px]"}`}>
           <div
             className={`flex w-full flex-col ${

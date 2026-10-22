@@ -11,6 +11,7 @@ type BannerFeaturedRowProps = {
   onEdit: () => void
   onRemove: (featured: ResolvedFeatured) => void
   featuredLabelColor?: string
+  featuredSurface?: string
 }
 
 /** A collection's 133px square cover: the first image on the left, two
@@ -44,7 +45,7 @@ function SquareCover({ featured }: { featured: Extract<ResolvedFeatured, { kind:
   )
 }
 
-function FeaturedCard({ featured, onChange, onRemove, labelColor }: { featured: ResolvedFeatured; onChange: () => void; onRemove: () => void; labelColor: string }) {
+function FeaturedCard({ featured, onChange, onRemove, labelColor, surface }: { featured: ResolvedFeatured; onChange: () => void; onRemove: () => void; labelColor: string; surface: string }) {
   const unavailable = featured.kind === 'unavailable'
   const title =
     featured.kind === 'collection'
@@ -53,7 +54,7 @@ function FeaturedCard({ featured, onChange, onRemove, labelColor }: { featured: 
         ? featured.item.product.name
         : featured.product.name
   return (
-    <div className="flex min-w-[min(300px,100%)] flex-1 items-center overflow-clip rounded-lg bg-featured-surface shadow-[0_0_28px_0_rgba(0,0,0,0.03)]">
+    <div className="flex min-w-[min(300px,100%)] flex-1 items-center overflow-clip rounded-lg shadow-[0_0_28px_0_rgba(0,0,0,0.03)]" style={{ backgroundColor: surface }}>
       <div className="flex min-w-0 flex-1 flex-col justify-center gap-md-sm px-md-2 py-md-sm">
         <div className="flex w-full flex-col gap-xs">
           <p className={cn('text-body-xs', unavailable && 'opacity-60')} style={{ color: labelColor }}>FEATURED</p>
@@ -110,7 +111,13 @@ function FeaturedCard({ featured, onChange, onRemove, labelColor }: { featured: 
  * a dashed prompt with nothing featured, one card plus a dashed Add Another
  * slot, or two cards side by side.
  */
-export function BannerFeaturedRow({ featured, onEdit, onRemove, featuredLabelColor = backdropColors('plain').featuredLabel }: BannerFeaturedRowProps) {
+export function BannerFeaturedRow({
+  featured,
+  onEdit,
+  onRemove,
+  featuredLabelColor = backdropColors('plain').featuredLabel,
+  featuredSurface = backdropColors('plain').featuredCard,
+}: BannerFeaturedRowProps) {
   return (
     <div className="flex w-full flex-col border-t border-border-default pt-lg">
       {featured.length === 0 ? (
@@ -130,12 +137,13 @@ export function BannerFeaturedRow({ featured, onEdit, onRemove, featuredLabelCol
       ) : (
         <div className="flex w-full flex-wrap gap-md">
           {featured.map((item) => (
-              <FeaturedCard
+            <FeaturedCard
               key={`${item.ref.kind}:${item.ref.id}`}
               featured={item}
               onChange={onEdit}
               onRemove={() => onRemove(item)}
-                labelColor={featuredLabelColor}
+              labelColor={featuredLabelColor}
+              surface={featuredSurface}
             />
           ))}
           {featured.length < MAX_FEATURED && (

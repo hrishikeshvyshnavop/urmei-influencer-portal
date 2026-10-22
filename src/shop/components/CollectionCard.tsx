@@ -127,7 +127,8 @@ export function CollectionCard({
       <button
         type="button"
         onClick={onOpen}
-        className="flex w-full cursor-pointer flex-col items-start gap-xs overflow-clip pt-md-sm text-left"
+        className="flex w-full cursor-pointer flex-col items-start gap-xs overflow-clip rounded-b-md px-ten pt-md-sm pb-sm text-left"
+        style={{ backgroundColor: 'var(--shop-collection-card, transparent)' }}
       >
         <h3 className="w-full text-body-md font-semibold text-text-secondary-1000">
           {collection.name}
