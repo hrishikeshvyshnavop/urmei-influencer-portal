@@ -30,6 +30,8 @@ Last updated: 2026-10-21
 | T-27 | Apply "Footer below the fold" to every remaining page: Home, Help Center, Brands, stat breakdowns, product stats, a My Shop item's page and the in-app storefront preview (`git log --grep T-27`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-28 | Pick several photos at once when writing a review (each loads in its own spinner tile, picks past the 3-photo cap are ignored, a broken file drops out while the rest are kept), and show a review's photos under its text on the Sample Requests list (`git log --grep T-28`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 
+| T-43 | Add a direct `/shop/preview` route and clickable storefront breadcrumbs; keep the active collection breadcrumb non-clickable | `main` | [ ] | [ ] | [ ] | Not started |
+
 ## Shipped to `main`
 
 These commits are pushed to `origin/main`. Tick **Live** once you've checked them on the deployed site.

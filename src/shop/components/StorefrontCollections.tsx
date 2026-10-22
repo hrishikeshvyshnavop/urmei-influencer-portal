@@ -12,9 +12,7 @@ type StorefrontCollectionsProps = {
   /** In the creator's chosen order; empty ones are dropped here. */
   collections: Collection[]
   items: ShopItem[]
-  /** Titles the row: "CHARLOTTE'S COLLECTIONS" (Figma `1862:82577`). */
-  ownerName: string
-  /** Replaces "<NAME>'S COLLECTIONS", e.g. "More collections from <name>"
+  /** Replaces "COLLECTIONS", e.g. "More collections from <name>"
    *  on a collection page or "In <name>'s collections" under a product. */
   title?: string
   /** Opens a board; the storefront collection page is flow 16. */
@@ -35,7 +33,6 @@ type StorefrontCollectionsProps = {
 export function StorefrontCollections({
   collections,
   items,
-  ownerName,
   title,
   onSelect,
   bleed = false,
@@ -65,7 +62,7 @@ export function StorefrontCollections({
   return (
     <section
       className={[
-        'flex w-full flex-col items-center gap-md-2 py-3xl',
+        'flex w-full flex-col items-center gap-xxl py-5xl',
         bleed
           ? 'bleed-x before:bg-gradient-to-b before:from-surface-tertiary-100/0 before:to-surface-tertiary-100'
           : 'bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100',
@@ -73,7 +70,7 @@ export function StorefrontCollections({
     >
       <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
-          {title ?? <>{ownerName}&rsquo;s collections</>}
+          {title ?? 'Collections'}
         </p>
         {/* Only when the row overflows; arrows that scroll nothing read as broken. */}
         {canScroll && (
@@ -114,7 +111,10 @@ export function StorefrontCollections({
                   <BoardImage item={boardItems[2]} className="h-[143px] w-[95px]" />
                 </div>
               </div>
-              <div className="flex w-full flex-col items-start gap-xs overflow-clip">
+              <div
+                className="flex w-full flex-col items-start gap-xs overflow-clip rounded-b-md px-sm py-xs"
+                style={{ backgroundColor: 'var(--shop-collection-card, #ffffff)' }}
+              >
                 <p className="w-full text-body-md font-medium text-text-secondary-1000">{collection.name}</p>
                 {collection.description && (
                   <p className="w-full truncate text-body-sm leading-[20px] text-text-secondary-700">

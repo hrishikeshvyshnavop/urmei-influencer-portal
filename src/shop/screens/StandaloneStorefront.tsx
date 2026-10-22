@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
@@ -23,6 +23,7 @@ import { loadShopItems } from '../shop-items-store'
 import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
 import { resolveFeatured, shopperFeatured } from '../featured'
 import type { ShopItem } from '../types'
+import { backdropColors } from '../data/backdrop-colors'
 
 const PICKS_PER_PAGE = 8
 function AllPicks({
@@ -191,7 +192,15 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
     )
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100">
+    <div
+      className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100"
+      style={
+        {
+          '--shop-collection-card': backdropColors(backdropId).collectionCard,
+          '--shop-product-card': backdropColors(backdropId).productCard,
+        } as CSSProperties
+      }
+    >
       {/* The footer never shares the first screenful, however short the shop
           or product page: everything above it fills at least the window, the
           same rule as `AppShell`'s `footerBelowFold`. */}
@@ -234,8 +243,17 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
             <StorefrontBreadcrumb
               items={
                 linkedCollection && linkedAvailable
-                  ? [{ label: 'Home' }, { label: 'Creators' }, { label: name }, { label: linkedCollection.name }]
-                  : [{ label: 'Home' }, { label: 'Creators' }, { label: name }]
+                  ? [
+                      { label: 'Home', onClick: () => navigate('/shop/view') },
+                      { label: 'Creators', onClick: () => navigate('/shop/view') },
+                      { label: name, onClick: () => navigate('/shop/view') },
+                      { label: linkedCollection.name },
+                    ]
+                  : [
+                      { label: 'Home', onClick: () => navigate('/shop/view') },
+                      { label: 'Creators', onClick: () => navigate('/shop/view') },
+                      { label: name, onClick: () => navigate('/shop/view') },
+                    ]
               }
             />
           </div>
@@ -258,7 +276,6 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
                   collectionsFor(selectedItem.id, collections).some((c) => c.id === collection.id),
                 )}
                 items={items}
-                ownerName={name}
                 onSelect={openCollection}
               />
             </div>
@@ -305,7 +322,6 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
                   <StorefrontCollections
                     collections={collections}
                     items={items}
-                    ownerName={name}
                     onSelect={openCollection}
                   />
                 ) : (

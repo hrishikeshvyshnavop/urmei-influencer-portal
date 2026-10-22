@@ -13,6 +13,8 @@ import { Icon } from '../components/Icon'
 import { ShopProductCard } from '../components/ShopProductCard'
 import { BannerFeaturedRow } from '../components/BannerFeaturedRow'
 import { backdropById } from '../data/backdrops'
+import { backdropColors } from '../data/backdrop-colors'
+import type { FeaturedRef } from '../banner-store'
 import type { ResolvedFeatured } from '../featured'
 import { hasLiveLink } from '../data/shop'
 import { StoreCard } from '../components/StoreCard'
@@ -62,7 +64,7 @@ type MyShopProps = {
   /** The saved featured items (flow 02). */
   featured: ResolvedFeatured[]
   /** Opens the Featured items dialog. */
-  onEditFeatured: () => void
+  onEditFeatured: (initial?: FeaturedRef) => void
   onRemoveFeatured: (featured: ResolvedFeatured) => void
 }
 
@@ -127,6 +129,7 @@ export function MyShop({
       .map((id) => itemsById.get(id))
       .filter((item): item is ShopItem => item !== undefined)
   const backdrop = backdropById(backdropId)
+  const colors = backdropColors(backdropId)
   const openCollection = isCollectionsTab
     ? collections.find((collection) => collection.id === openCollectionId) ?? null
     : null
@@ -162,7 +165,10 @@ export function MyShop({
             <Icon name="sparkles" />
             Change Backdrop
           </button>
-          <div className={cn('flex w-full flex-col gap-lg rounded-[16px] p-md shadow-banner-card sm:p-xxl', backdrop.cardClassName)}>
+          <div
+            className={cn('flex w-full flex-col gap-lg rounded-[16px] p-md shadow-banner-card sm:p-xxl', backdrop.cardClassName)}
+            style={{ background: colors.profileCard }}
+          >
             <StoreCard
               published={published}
               publishedAt={publishedAt}
@@ -173,7 +179,12 @@ export function MyShop({
               onPreview={onPreview}
               onViewShop={onViewShop}
             />
-            <BannerFeaturedRow featured={featured} onEdit={onEditFeatured} onRemove={onRemoveFeatured} />
+            <BannerFeaturedRow
+              featured={featured}
+              onEdit={onEditFeatured}
+              onRemove={onRemoveFeatured}
+              featuredLabelColor={colors.featuredLabel}
+            />
           </div>
         </div>
       </section>
@@ -195,6 +206,7 @@ export function MyShop({
               onCopyAffiliateLink={onCopyLink}
               onRemoveFromCollection={(item) => onRemoveFromCollection(item, openCollection)}
               onRemoveFromShop={onRemoveFromShop}
+              onFeature={(initial) => onEditFeatured(initial)}
               onAddProducts={() => onAddProductsToCollection(openCollection)}
             />
           ) : (
@@ -259,6 +271,11 @@ export function MyShop({
                           onSelect: () => onCopyCollectionLink(collection, 'board'),
                         },
                         {
+                          label: 'Feature on banner',
+                          disabled: itemsOf(collection).length === 0,
+                          onSelect: () => onEditFeatured({ kind: 'collection', id: collection.id }),
+                        },
+                        {
                           label: 'Delete collection',
                           destructive: true,
                           onSelect: () => onDeleteCollection(collection),
@@ -288,6 +305,7 @@ export function MyShop({
                         hasLiveLink(item, publishedAt) ? () => onCopyLink(item) : undefined
                       }
                       onAddToCollection={() => onAddToCollection(item)}
+                      onFeature={() => onEditFeatured({ kind: 'product', id: item.id, productId: item.product.id })}
                       onRemoveFromShop={() => onRemoveFromShop(item)}
                     />
                   ))}

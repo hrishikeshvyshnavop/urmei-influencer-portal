@@ -102,11 +102,16 @@ export function ChangeBackdropDialog({ currentId, onClose, onSave }: ChangeBackd
 
   return (
     <>
-      <div className="fixed inset-0 z-40 flex items-center justify-center bg-scrim px-md" role="presentation">
+      <div
+        className="fixed inset-0 z-40 flex items-center justify-center bg-scrim px-md"
+        role="presentation"
+        onClick={requestClose}
+      >
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Change backdrop"
+          onClick={(event) => event.stopPropagation()}
           className="flex max-h-[calc(100vh-80px)] w-[1120px] max-w-full flex-col overflow-clip rounded-lg bg-surface-secondary-100"
         >
           <div className="flex w-full shrink-0 items-center justify-between border-b border-border-default px-lg py-md">

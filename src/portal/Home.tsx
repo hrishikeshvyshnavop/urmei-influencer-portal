@@ -67,7 +67,13 @@ function ProductCard({ productId, image, title, onAdd, onViewDetails }: { produc
             </span>
           </div>
         </div>
-        <Button variant="portalOutline" className="w-full !rounded-md !border-border-outlined" onClick={() => onAdd(productId)}>Add to Shop</Button>
+        <Button
+          variant="portalOutline"
+          className="w-full !rounded-md !border-border-outlined focus-visible:!border-portal-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-portal-dark focus-visible:ring-offset-2"
+          onClick={() => onAdd(productId)}
+        >
+          Add to Shop
+        </Button>
       </div>
     </article>
   );

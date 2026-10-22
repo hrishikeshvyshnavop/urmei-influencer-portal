@@ -4,7 +4,7 @@ type PickerEmptyStateProps = {
   icon: ReactNode
   title: string
   body: string
-  /** The outlined action under the text, e.g. Clear Search. */
+  /** The outlined action under the text, e.g. Browse Catalogue. */
   action?: ReactNode
 }
 

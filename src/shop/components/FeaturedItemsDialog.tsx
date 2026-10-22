@@ -17,6 +17,8 @@ type FeaturedItemsDialogProps = {
   collections: Collection[]
   /** The saved picks, ticked when the dialog opens. */
   current: FeaturedRef[]
+  /** Optional item opened from a product or collection overflow menu. */
+  initial?: FeaturedRef
   onClose: () => void
   /** Only called when the picks differ from `current`. */
   onSave: (refs: FeaturedRef[]) => void
@@ -157,8 +159,13 @@ function ProductTile({
  * it just closes. Closing with unsaved picks asks first, as Change backdrop
  * does.
  */
-export function FeaturedItemsDialog({ items, collections, current, onClose, onSave, onBrowseCatalogue }: FeaturedItemsDialogProps) {
-  const [picks, setPicks] = useState<FeaturedRef[]>(current)
+export function FeaturedItemsDialog({ items, collections, current, initial, onClose, onSave, onBrowseCatalogue }: FeaturedItemsDialogProps) {
+  const [picks, setPicks] = useState<FeaturedRef[]>(() => {
+    if (!initial || current.some((ref) => ref.kind === initial.kind && ref.id === initial.id) || current.length >= MAX_FEATURED) {
+      return current
+    }
+    return [...current, initial]
+  })
   const [tab, setTab] = useState<Tab>(() => (current[0]?.kind === 'product' ? 'products' : 'collections'))
   const [query, setQuery] = useState('')
   const [confirmingDiscard, setConfirmingDiscard] = useState(false)
@@ -206,11 +213,16 @@ export function FeaturedItemsDialog({ items, collections, current, onClose, onSa
 
   return (
     <>
-      <div className="fixed inset-0 z-40 flex items-center justify-center bg-scrim px-md" role="presentation">
+      <div
+        className="fixed inset-0 z-40 flex items-center justify-center bg-scrim px-md"
+        role="presentation"
+        onClick={requestClose}
+      >
         <div
           role="dialog"
           aria-modal="true"
           aria-label="Featured items"
+          onClick={(event) => event.stopPropagation()}
           className="flex h-[820px] max-h-[calc(100vh-80px)] w-[1120px] max-w-full flex-col overflow-clip rounded-lg bg-surface-secondary-100"
         >
           <div className="flex w-full shrink-0 items-center justify-between gap-md border-b border-border-default px-lg py-md">
@@ -303,23 +315,13 @@ export function FeaturedItemsDialog({ items, collections, current, onClose, onSa
                   </div>
                 </div>
               ) : noMatches && needle ? (
-                // Clearing keeps the ticks and the tab (03.3 → 03.2).
+                // No Clear Search button: the field's own ✕ clears it, keeping the ticks and the tab.
                 <div className="flex h-full items-center justify-center">
                   <div className="w-[464px] max-w-full">
                     <PickerEmptyState
                       icon={<Icon name="search-lg" size={28} srcSize={32} />}
                       title={`No matches for “${query.trim()}”`}
                       body="Check the spelling, or try a brand or collection name."
-                      action={
-                        <button
-                          type="button"
-                          onClick={() => setQuery('')}
-                          className="flex cursor-pointer items-center justify-center gap-sm rounded-md border border-border-default px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
-                        >
-                          <Icon name="x" srcSize={24} />
-                          Clear Search
-                        </button>
-                      }
                     />
                   </div>
                 </div>

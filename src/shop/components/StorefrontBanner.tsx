@@ -3,14 +3,19 @@ import { Check } from 'lucide-react'
 import ProfilePhoto from '../../portal/components/ProfilePhoto'
 import { getSavedBio, getSavedDisplayName } from '../../portal/profile-status'
 import { backdropById } from '../data/backdrops'
+import { backdropColors } from '../data/backdrop-colors'
 import { FOLLOWER_STATS } from '../data/shop'
 import { moreLabel, type AvailableFeatured } from '../featured'
 import { Button } from './Button'
 import { Icon } from './Icon'
+import { ScaledBox } from './ScaledBox'
 
 type StorefrontBannerProps = {
   backdropId: string
   featured: AvailableFeatured[]
+  /** The in-app preview keeps the banner content at the 1440px design width,
+   *  while the backdrop itself still bleeds to the viewport edges. */
+  scaleContent?: boolean
   onCopyLink: () => void
   onOpenFeatured: (featured: AvailableFeatured) => void
 }
@@ -18,7 +23,7 @@ type StorefrontBannerProps = {
 /** A featured card on the shopper's banner (`Storefront featured card`,
  *  main file `I2799:104166;3568:50919`): copy and a View button on the
  *  left, the collection's cover or the product photo on the right. */
-function StorefrontFeaturedCard({ featured, onOpen }: { featured: AvailableFeatured; onOpen: () => void }) {
+function StorefrontFeaturedCard({ featured, onOpen, surface, labelColor }: { featured: AvailableFeatured; onOpen: () => void; surface: string; labelColor: string }) {
   const isCollection = featured.kind === 'collection'
   const title = isCollection ? featured.collection.name : featured.item.product.name
   const body = isCollection ? featured.collection.description : featured.item.product.brand
@@ -32,9 +37,9 @@ function StorefrontFeaturedCard({ featured, onOpen }: { featured: AvailableFeatu
 
   return (
     <div className="flex w-[500px] max-w-full items-stretch overflow-clip rounded-[16px] bg-white">
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-[12.5px] bg-featured-surface p-lg">
+      <div className="flex min-w-0 flex-1 flex-col justify-center gap-[12.5px] p-lg" style={{ backgroundColor: surface }}>
         <div className="flex w-full flex-col gap-xs">
-          <p className="text-[9.38px] leading-[12.5px] font-semibold tracking-[0.75px] text-featured-eyebrow">FEATURED</p>
+          <p className="text-[9.38px] leading-[12.5px] font-semibold tracking-[0.75px]" style={{ color: labelColor }}>FEATURED</p>
           <p className="line-clamp-2 text-[18.76px] leading-[28.14px] font-semibold text-text-secondary-1000">{title}</p>
           {body && <p className="line-clamp-2 text-[10.94px] leading-[17.2px] font-medium text-featured-body">{body}</p>}
         </div>
@@ -63,7 +68,9 @@ function StorefrontFeaturedCard({ featured, onOpen }: { featured: AvailableFeatu
           </div>
         </div>
       ) : (
-        image(featured.item.product.shopCardImage, 'h-[180px] w-[180px] shrink-0')
+        <div className="relative w-[180px] shrink-0 self-stretch">
+          {image(featured.item.product.shopCardImage, 'absolute inset-0 size-full')}
+        </div>
       )}
     </div>
   )
@@ -77,8 +84,9 @@ function StorefrontFeaturedCard({ featured, onOpen }: { featured: AvailableFeatu
  * preview passes the saved banner; the public storefront the published one
  * (flow 06).
  */
-export function StorefrontBanner({ backdropId, featured, onCopyLink, onOpenFeatured }: StorefrontBannerProps) {
+export function StorefrontBanner({ backdropId, featured, scaleContent = false, onCopyLink, onOpenFeatured }: StorefrontBannerProps) {
   const backdrop = backdropById(backdropId)
+  const colors = backdropColors(backdropId)
   const [following, setFollowing] = useState(false)
   const [copied, setCopied] = useState(false)
   useEffect(() => {
@@ -87,15 +95,11 @@ export function StorefrontBanner({ backdropId, featured, onCopyLink, onOpenFeatu
     return () => window.clearTimeout(timer)
   }, [copied])
 
-  return (
-    <section aria-label="Shop banner" className="relative w-full overflow-clip">
-      <img src={backdrop.image} alt="" className="pointer-events-none absolute inset-0 size-full object-cover" />
-      <div className="relative mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-end gap-fourteen px-6 py-[30px] lg:px-margin">
-        {/* 374 tall beside featured cards (two 180px cards and the gap);
-            with nothing featured it hugs its content (06.3). */}
+  const content = (
+    <div className={`relative mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-center gap-fourteen px-6 py-[30px] lg:px-margin ${scaleContent ? 'min-h-[558px]' : ''}`}>
         <div
           className={`flex min-w-[min(100%,560px)] flex-1 flex-col overflow-clip rounded-[16px] p-xxl shadow-banner-card ${featured.length > 0 ? 'min-h-[374px]' : ''}`}
-          style={{ backgroundImage: backdrop.storefrontCard }}
+          style={{ background: colors.profileCard }}
         >
           <div className="flex flex-col items-start gap-md">
             <span className="relative size-[124px] shrink-0 overflow-hidden rounded-full">
@@ -154,12 +158,20 @@ export function StorefrontBanner({ backdropId, featured, onCopyLink, onOpenFeatu
               <StorefrontFeaturedCard
                 key={`${item.ref.kind}:${item.ref.id}`}
                 featured={item}
+                surface={colors.productCard}
+                labelColor={colors.featuredLabel}
                 onOpen={() => onOpenFeatured(item)}
               />
             ))}
           </div>
         )}
-      </div>
+    </div>
+  )
+
+  return (
+    <section aria-label="Shop banner" className={`relative w-full overflow-clip ${scaleContent ? 'min-h-[558px]' : ''}`}>
+      <img src={backdrop.image} alt="" className="pointer-events-none absolute inset-0 size-full object-cover" />
+      {scaleContent ? <ScaledBox width={1440} className="mx-auto">{content}</ScaledBox> : content}
     </section>
   )
 }

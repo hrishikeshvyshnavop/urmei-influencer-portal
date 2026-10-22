@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react'
+import { useState, useSyncExternalStore, type CSSProperties } from 'react'
 import { Icon } from '../components/Icon'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
@@ -8,6 +8,7 @@ import { EmptyStorefront } from '../components/EmptyStorefront'
 import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
 import { ScaledBox } from '../components/ScaledBox'
 import { StorefrontHeader } from '../components/StorefrontHeader'
+import { StorefrontBreadcrumb } from '../components/StorefrontBreadcrumb'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
 import { StorefrontBanner } from '../components/StorefrontBanner'
@@ -18,6 +19,7 @@ import type { Collection } from '../collections-store'
 import { reviewsForShop } from '../data/reviews'
 import type { ShopItem } from '../types'
 import type { AvailableFeatured } from '../featured'
+import { backdropColors } from '../data/backdrop-colors'
 
 type StorefrontPreviewProps = {
   items: ShopItem[]
@@ -132,7 +134,15 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
   const [fromCollection, setFromCollection] = useState<Collection | null>(null)
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100">
+    <div
+      className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100"
+      style={
+        {
+          '--shop-collection-card': backdropColors(backdropId).collectionCard,
+          '--shop-product-card': backdropColors(backdropId).productCard,
+        } as CSSProperties
+      }
+    >
       {/* The footer never shares the first screenful, however short the
           preview: the chrome and content fill at least the window ("Footer
           below the fold" in CLAUDE.md). */}
@@ -157,7 +167,20 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
           )}
         </div>
 
-        <div className="flex w-full flex-1 justify-center">
+        <div className="flex w-full flex-1 flex-col items-center">
+          {!selectedItem && !openCollection && (
+            <StorefrontBanner
+              backdropId={backdropId}
+              featured={featured}
+              scaleContent
+              onCopyLink={onCopyShopLink}
+              onOpenFeatured={(item) =>
+                item.kind === 'collection' ? setOpenCollection(item.collection) : setSelectedItem(item.item)
+              }
+            />
+          )}
+
+          <div className="flex w-full flex-1 justify-center">
           <ScaledBox width={1440} className="flex flex-col items-start bg-surface-secondary-100">
             <main className="flex w-full flex-col items-start">
               {selectedItem ? (
@@ -169,6 +192,16 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
                 />
               ) : openCollection ? (
                 <div className="flex w-full flex-col gap-md-2 pt-md-2">
+                  <div className="px-margin">
+                    <StorefrontBreadcrumb
+                      items={[
+                        { label: 'Home', onClick: () => setOpenCollection(null) },
+                        { label: 'Creators', onClick: () => setOpenCollection(null) },
+                        { label: name, onClick: () => setOpenCollection(null) },
+                        { label: openCollection.name },
+                      ]}
+                    />
+                  </div>
                   <div className="px-margin">
                     <button
                       type="button"
@@ -195,16 +228,6 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
                 </div>
               ) : (
                 <>
-                  {/* The e-com banner (02.9, main file `2799:104149`) in place
-                      of the old profile card: backdrop, tinted card, featured. */}
-                  <StorefrontBanner
-                    backdropId={backdropId}
-                    featured={featured}
-                    onCopyLink={onCopyShopLink}
-                    onOpenFeatured={(item) =>
-                      item.kind === 'collection' ? setOpenCollection(item.collection) : setSelectedItem(item.item)
-                    }
-                  />
                   {items.length > 0 && !hasAvailableItems && (
                     <div className="flex w-full flex-col px-margin pt-md-2">
                       <NoAvailabilityNotice country={country} />
@@ -218,7 +241,6 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
                       <StorefrontCollections
                         collections={collections}
                         items={items}
-                        ownerName={name}
                         bleed
                         onSelect={(collection) => {
                           setFromCollection(null)
@@ -237,6 +259,7 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
               )}
             </main>
           </ScaledBox>
+          </div>
         </div>
       </div>
 

@@ -11,6 +11,8 @@ type ShopProductCardProps = {
    *  then simply has no "Copy affiliate link" row (Figma `1610:44155`). */
   onCopyLink?: () => void
   onAddToCollection?: () => void
+  /** Opens the banner picker with this product selected. */
+  onFeature?: () => void
   /** On a collection page the menu offers "Remove from collection" instead of
    *  "Add to collection" (Figma `1862:85019`). */
   onRemoveFromCollection?: () => void
@@ -140,6 +142,7 @@ export function ShopProductCard({
   onViewDetails,
   onCopyLink,
   onAddToCollection,
+  onFeature,
   onRemoveFromCollection,
   onRemoveFromShop,
   favoriteRank,
@@ -155,6 +158,7 @@ export function ShopProductCard({
       : onAddToCollection
         ? [{ label: 'Add to collection', onSelect: onAddToCollection }]
         : []),
+    ...(onFeature ? [{ label: 'Feature on banner', onSelect: onFeature }] : []),
     { label: 'Remove from shop', onSelect: onRemoveFromShop, destructive: true },
   ]
 

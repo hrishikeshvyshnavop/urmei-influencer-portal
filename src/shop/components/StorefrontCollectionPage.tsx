@@ -96,7 +96,6 @@ export function StorefrontCollectionPage({
         title={`More collections from ${ownerName}`}
         collections={collections.filter((other) => other.id !== collection.id)}
         items={items}
-        ownerName={ownerName}
         onSelect={onSelectCollection}
       />
     </div>
@@ -149,7 +148,6 @@ export function CollectionUnavailable({
         title={`More collections from ${ownerName}`}
         collections={collections}
         items={items}
-        ownerName={ownerName}
         onSelect={onSelectCollection}
       />
     </div>

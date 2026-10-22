@@ -16,13 +16,16 @@ export type Backdrop = {
    *  `I2799:104166;3568:50827`): white fading into a light tint of the
    *  preset. Valentine's Day is the design's; the others follow it. */
   storefrontCard: string
+  /** A light companion tint for featured product and collection cards. */
+  featuredSurface: string
 }
 
-const preset = (id: string, name: string, category: BackdropCategory, tint: string, cardClassName = 'bg-white'): Backdrop => ({
+const preset = (id: string, name: string, category: BackdropCategory, tint: string, featuredSurface: string, cardClassName = 'bg-white'): Backdrop => ({
   id,
   name,
   category,
   storefrontCard: `linear-gradient(121.56deg, #ffffff 8.86%, ${tint} 97.38%)`,
+  featuredSurface,
   image: `/urmei/backdrops/${id}.svg`,
   thumbnail: `/urmei/backdrops/thumbs/${id}.svg`,
   cardClassName,
@@ -33,23 +36,23 @@ const preset = (id: string, name: string, category: BackdropCategory, tint: stri
  * `2799:105207`). Plain (#FFFFFF) is the default. SVGs exported from the
  * Work File's `Backdrop` set (`3287:28680`, each preset's background plus
  * its 2880px pattern, clipped to 1440 by the viewBox) and its
- * `Backdrop thumbnail / …` components (`3277:185`–`3277:482`); the full-size
- * Christmas artwork is plain green in the design, its snow only drawn on
- * the thumbnail. Custom uploads are out of the MVP.
+ * `Backdrop thumbnail / …` components (`3277:185`–`3277:482`). Christmas's
+ * snow is the thumbnail's, tiled at 2× (added to the set on 2026-10-22).
+ * Custom uploads are out of the MVP.
  */
 export const BACKDROPS: Backdrop[] = [
-  preset('plain', 'Plain', 'classic', '#f8f8f8', 'bg-surface-secondary-300'),
-  preset('ripple-lines', 'Ripple Lines', 'classic', '#e4effa'),
-  preset('soft-dots', 'Soft Dots', 'classic', '#e3f4ec'),
-  preset('grid', 'Grid', 'classic', '#efeafb'),
-  preset('checks', 'Checks', 'classic', '#fff0e6'),
-  preset('stripes', 'Stripes', 'classic', '#fff8d9'),
-  preset('blush', 'Blush', 'classic', '#fde4ea'),
-  preset('sand', 'Sand', 'classic', '#f6ecdc'),
-  preset('valentines-day', "Valentine's Day", 'seasonal', '#ffe3ed'),
-  preset('lunar-new-year', 'Lunar New Year', 'seasonal', '#fbe3e3'),
-  preset('christmas', 'Christmas', 'seasonal', '#e3efe8'),
-  preset('new-year', 'New Year', 'seasonal', '#e6e9f2'),
+  preset('plain', 'Plain', 'classic', '#f8f8f8', '#f8f8f8', 'bg-surface-secondary-300'),
+  preset('ripple-lines', 'Ripple Lines', 'classic', '#e4effa', '#f0f7ff'),
+  preset('soft-dots', 'Soft Dots', 'classic', '#e3f4ec', '#f0fbf5'),
+  preset('grid', 'Grid', 'classic', '#efeafb', '#f7f4ff'),
+  preset('checks', 'Checks', 'classic', '#fff0e6', '#fff7f1'),
+  preset('stripes', 'Stripes', 'classic', '#fff8d9', '#fffced'),
+  preset('blush', 'Blush', 'classic', '#fde4ea', '#fff3f6'),
+  preset('sand', 'Sand', 'classic', '#f6ecdc', '#fcf6ed'),
+  preset('valentines-day', "Valentine's Day", 'seasonal', '#ffe3ed', '#fff0f5'),
+  preset('lunar-new-year', 'Lunar New Year', 'seasonal', '#fbe3e3', '#fff2f2'),
+  preset('christmas', 'Christmas', 'seasonal', '#e3efe8', '#f1faf4'),
+  preset('new-year', 'New Year', 'seasonal', '#e6e9f2', '#f3f5fb'),
 ]
 
 export const DEFAULT_BACKDROP_ID = 'plain'

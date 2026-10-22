@@ -57,7 +57,7 @@ type ToastState = {
   action?: { label: string; onClick: () => void }
 }
 
-export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string }) {
+export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter, initialPreview = false }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string; initialPreview?: boolean }) {
   const [items, setItems] = useState<ShopItem[]>(loadShopItems)
   const [collections, setCollections] = useState<Collection[]>(() => loadCollections(loadShopItems()))
   const [newCollectionOpen, setNewCollectionOpen] = useState(false)
@@ -96,7 +96,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [sampleProduct, setSampleProduct] = useState<Product | null>(null)
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
   const [removalCandidate, setRemovalCandidate] = useState<ShopItem | null>(null)
-  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(initialPreview)
 
   const [publishOpen, setPublishOpen] = useState(false)
   const [profileComplete] = useState(isProfileSetupComplete)
@@ -109,6 +109,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [featured, setFeatured] = useState<FeaturedRef[]>(loadFeatured)
   const [publishedFeatured, setPublishedFeatured] = useState<FeaturedRef[]>(loadPublishedFeatured)
   const [editingFeatured, setEditingFeatured] = useState(false)
+  const [featuredInitial, setFeaturedInitial] = useState<FeaturedRef | undefined>()
 
   useEffect(() => {
     setShopItemCount(items.length)
@@ -166,6 +167,13 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   function runSearch(nextQuery: string) {
     setQuery(nextQuery)
     setOverlay({ kind: 'results', query: nextQuery })
+  }
+
+  function updateSearchQuery(nextQuery: string) {
+    setQuery(nextQuery)
+    if (nextQuery.trim() === '') {
+      setOverlay((current) => (current?.kind === 'results' ? { ...current, query: '' } : current))
+    }
   }
 
   /** Selecting a brand pre-checks it in the Filters panel instead of typing
@@ -258,8 +266,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
         : 'Featured items saved. Publish changes to go live',
     )
     setFeatured(refs)
+    setFeaturedInitial(undefined)
     setEditingFeatured(false)
     markChanged()
+  }
+
+  function openFeaturedEditor(initial?: FeaturedRef) {
+    setFeaturedInitial(initial)
+    setEditingFeatured(true)
   }
 
   /** Remove on a featured card takes it off the banner, as a draft too. */
@@ -391,12 +405,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setToast({ message: 'Shop link copied to clipboard' })
   }
 
-  // Derived from the live `query` (not `overlay.query`, frozen at the last
-  // Enter/suggestion submit) so results/empty-vs-all track every keystroke,
-  // including clearing the box back down to nothing.
-  // Results follow the *submitted* search, not the box's live text: clearing
-  // the box or typing a new keyword leaves the list alone until Enter, so the
-  // page doesn't reflow (and jump) on every keystroke.
+  // Results follow the submitted search while typing, but clearing the box
+  // immediately submits an empty query so the full catalogue comes back.
   const results = overlay?.kind === 'results' ? searchProducts(overlay.query) : []
 
   /** Builds the favorite/remove/affiliate-link controls for the standalone
@@ -425,7 +435,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
         <StorefrontPreview
           items={items}
           collections={collections}
-          onClose={() => setPreviewOpen(false)}
+          onClose={() => initialPreview ? navigate('/shop') : setPreviewOpen(false)}
           onCopyShopLink={copyShopLink}
           onCopyCollectionLink={(collection) => copyCollectionLink(collection, 'page')}
           backdropId={backdropId}
@@ -444,7 +454,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onBrowse={openCatalogue}
-          onPreview={() => setPreviewOpen(true)}
+          onPreview={() => navigate('/shop/preview')}
           onViewShop={() => {
             // Same origin as whatever's running, not a hardcoded deployment:
             // the storefront reads the shop from this browser's localStorage,
@@ -475,7 +485,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           backdropId={backdropId}
           onChangeBackdrop={() => setChangingBackdrop(true)}
           featured={resolvedFeatured}
-          onEditFeatured={() => setEditingFeatured(true)}
+          onEditFeatured={openFeaturedEditor}
           onRemoveFeatured={removeFeatured}
           onAddProductsToCollection={(collection) => {
             setCollectionTarget(collection.id)
@@ -507,7 +517,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           {overlay.kind === 'catalogue' && (
             <CatalogueHome
               query={query}
-              onQueryChange={setQuery}
+              onQueryChange={updateSearchQuery}
               onSearch={runSearch}
               onViewAllBrands={() => setOverlay({ kind: 'brands' })}
             />
@@ -571,9 +581,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           collections={collections}
           // An item that left the shop frees its slot (05.5).
           current={resolvedFeatured.filter((item) => item.kind !== 'unavailable').map((item) => item.ref)}
-          onClose={() => setEditingFeatured(false)}
+          initial={featuredInitial}
+          onClose={() => {
+            setFeaturedInitial(undefined)
+            setEditingFeatured(false)
+          }}
           onSave={saveFeaturedDraft}
           onBrowseCatalogue={() => {
+            setFeaturedInitial(undefined)
             setEditingFeatured(false)
             openCatalogue()
           }}
