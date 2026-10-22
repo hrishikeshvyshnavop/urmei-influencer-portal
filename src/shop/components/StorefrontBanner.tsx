@@ -96,7 +96,7 @@ export function StorefrontBanner({ backdropId, featured, scaleContent = false, o
   }, [copied])
 
   const content = (
-    <div className={`relative mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-center gap-fourteen px-6 py-[30px] lg:px-margin ${scaleContent ? 'min-h-[558px]' : ''}`}>
+    <div className="relative mx-auto flex w-full max-w-[1440px] flex-wrap items-center justify-center gap-fourteen px-6 py-[30px] lg:px-margin">
         <div
           className={`flex min-w-[min(100%,560px)] flex-1 flex-col overflow-clip rounded-[16px] p-xxl shadow-banner-card ${featured.length > 0 ? 'min-h-[374px]' : ''}`}
           style={{ background: colors.profileCard }}
@@ -105,50 +105,54 @@ export function StorefrontBanner({ backdropId, featured, scaleContent = false, o
             <span className="relative size-[124px] shrink-0 overflow-hidden rounded-full">
               <ProfilePhoto fallback="/urmei/home/profile-dropdown-avatar.png" alt="" />
             </span>
-            <div className="flex w-full flex-col gap-md-sm">
-              <div className="flex w-full flex-col gap-xs">
-                <div className="flex items-center gap-md-sm">
-                  <p className="text-body-xxl font-semibold text-text-secondary-1000">{getSavedDisplayName('Charlotte')}</p>
-                  <p className="text-body-sm text-text-secondary-700">@charlotte</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-x-md gap-y-sm">
-                  <span className="flex items-center gap-sm text-body-sm text-text-secondary-700">
-                    <img src="/urmei/home/follower.svg" alt="URMEI" className="h-[14px] w-[26px]" />
-                    <span>
-                      <span className="font-medium text-text-secondary-1000">{FOLLOWER_STATS.urmei}</span> Followers
+            {/* `Identity text`: 12px between the bio and the actions, under
+                the avatar's 16. */}
+            <div className="flex w-full flex-col items-start gap-md-sm">
+              <div className="flex w-full flex-col gap-md-sm">
+                <div className="flex w-full flex-col gap-xs">
+                  <div className="flex items-center gap-md-sm">
+                    <p className="text-body-xxl font-semibold text-text-secondary-1000">{getSavedDisplayName('Charlotte')}</p>
+                    <p className="text-body-sm text-text-secondary-700">@charlotte</p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-md gap-y-sm">
+                    <span className="flex items-center gap-sm text-body-sm text-text-secondary-700">
+                      <img src="/urmei/home/follower.svg" alt="URMEI" className="h-[14px] w-[26px]" />
+                      <span>
+                        <span className="font-medium text-text-secondary-1000">{FOLLOWER_STATS.urmei}</span> Followers
+                      </span>
                     </span>
-                  </span>
-                  <span className="flex items-center gap-sm text-body-sm font-medium text-text-secondary-1000">
-                    <Icon name="tiktok" />
-                    {FOLLOWER_STATS.tiktok}
-                  </span>
-                  <span className="flex items-center gap-sm text-body-sm font-medium text-text-secondary-1000">
-                    <Icon name="instagram" />
-                    {FOLLOWER_STATS.instagram}
-                  </span>
+                    <span className="flex items-center gap-sm text-body-sm font-medium text-text-secondary-1000">
+                      <Icon name="tiktok" />
+                      {FOLLOWER_STATS.tiktok}
+                    </span>
+                    <span className="flex items-center gap-sm text-body-sm font-medium text-text-secondary-1000">
+                      <Icon name="instagram" />
+                      {FOLLOWER_STATS.instagram}
+                    </span>
+                  </div>
                 </div>
+                <p className="line-clamp-2 text-body-sm text-text-secondary-700">{getSavedBio()}</p>
               </div>
-              <p className="line-clamp-2 text-body-sm text-text-secondary-700">{getSavedBio()}</p>
-            </div>
-            <div className="flex items-center gap-md">
-              <Button variant={following ? 'outline' : 'primary'} onClick={() => setFollowing((current) => !current)}>
-                {following ? 'Following' : 'Follow'}
-              </Button>
-              <button
-                type="button"
-                onClick={() => {
-                  onCopyLink()
-                  setCopied(true)
-                }}
-                className="flex cursor-pointer items-center gap-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
-              >
-                Copy Shop Link
-                {copied ? (
-                  <Check aria-hidden="true" className="size-4 shrink-0 text-text-success" strokeWidth={2} />
-                ) : (
-                  <Icon name="copy" />
-                )}
-              </button>
+              <div className="flex items-center gap-md">
+                <Button variant={following ? 'outline' : 'primary'} onClick={() => setFollowing((current) => !current)}>
+                  {following ? 'Following' : 'Follow'}
+                </Button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onCopyLink()
+                    setCopied(true)
+                  }}
+                  className="flex cursor-pointer items-center gap-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
+                >
+                  Copy Shop Link
+                  {copied ? (
+                    <Check aria-hidden="true" className="size-4 shrink-0 text-text-success" strokeWidth={2} />
+                  ) : (
+                    <Icon name="copy" />
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -158,7 +162,7 @@ export function StorefrontBanner({ backdropId, featured, scaleContent = false, o
               <StorefrontFeaturedCard
                 key={`${item.ref.kind}:${item.ref.id}`}
                 featured={item}
-                surface={colors.productCard}
+                surface={colors.featuredCard}
                 labelColor={colors.featuredLabel}
                 onOpen={() => onOpenFeatured(item)}
               />
@@ -169,9 +173,16 @@ export function StorefrontBanner({ backdropId, featured, scaleContent = false, o
   )
 
   return (
-    <section aria-label="Shop banner" className={`relative w-full overflow-clip ${scaleContent ? 'min-h-[558px]' : ''}`}>
-      <img src={backdrop.image} alt="" className="pointer-events-none absolute inset-0 size-full object-cover" />
-      {scaleContent ? <ScaledBox width={1440} className="mx-auto">{content}</ScaledBox> : content}
+    /* The banner hugs its content (434 at 1440 with a featured card: 30 + the
+       374 profile card + 30, main file `2799:104165`); the 1440×558 backdrop
+       art is pinned to the top and clipped, as in the design. */
+    <section aria-label="Shop banner" className="relative w-full overflow-clip">
+      <img src={backdrop.image} alt="" className="pointer-events-none absolute inset-0 size-full object-cover object-top" />
+      {scaleContent ? (
+        <div className="flex w-full justify-center">
+          <ScaledBox width={1440}>{content}</ScaledBox>
+        </div>
+      ) : content}
     </section>
   )
 }

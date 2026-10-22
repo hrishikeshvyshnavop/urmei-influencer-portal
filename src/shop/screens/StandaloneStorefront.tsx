@@ -18,7 +18,7 @@ import { navigate } from '../../router'
 import { Toast } from '../components/Toast'
 import { reviewsForShop } from '../data/reviews'
 import { SHOP_URL } from '../data/shop'
-import { CONTENT_COLUMN } from '../layout'
+import { CONTENT_COLUMN, FULL_WIDTH_CONTENT } from '../layout'
 import { loadShopItems } from '../shop-items-store'
 import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
 import { resolveFeatured, shopperFeatured } from '../featured'
@@ -239,7 +239,7 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
         {!selectedItem && (
           /* Static, like the site nav above it: the shelves above this page have
              no screens to point at yet. */
-          <div className={CONTENT_COLUMN}>
+          <div className={FULL_WIDTH_CONTENT}>
             <StorefrontBreadcrumb
               items={
                 linkedCollection && linkedAvailable
@@ -336,8 +336,9 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
 
         {/* Figma `916:65859` — breathing room between the last section and the
             footer, on top of the section's own bottom padding. A product page
-            brings its own, shorter (64px) spacer. */}
-        {!selectedItem && <div className="h-[80px] w-full shrink-0" />}
+            brings its own, shorter (64px) spacer. A collection page has none: its
+            tinted "More collections" row stretches to the footer instead. */}
+        {!selectedItem && !collectionId && <div className="h-[80px] w-full shrink-0" />}
       </div>
 
       <AppFooter />

@@ -13,3 +13,4 @@
  * row that holds the content.
  */
 export const CONTENT_COLUMN = 'w-full max-w-[1440px] px-margin'
+export const FULL_WIDTH_CONTENT = 'w-full px-margin'

@@ -20,6 +20,11 @@ type StorefrontCollectionsProps = {
   /** A full-bleed background needs the page's own bleed helper in the
    *  scaled preview; the public page paints it directly. */
   bleed?: boolean
+  /** Extra classes for the section, e.g. `flex-1` so its tint runs down to
+   *  the footer when it's the last thing on a short page. */
+  className?: string
+  /** Optional width treatment for pages that intentionally do not use the 1440px container. */
+  contentClassName?: string
 }
 
 /**
@@ -36,6 +41,8 @@ export function StorefrontCollections({
   title,
   onSelect,
   bleed = false,
+  className,
+  contentClassName = CONTENT_COLUMN,
 }: StorefrontCollectionsProps) {
   const byId = new Map(items.map((item) => [item.id, item]))
   const boards = collections
@@ -66,9 +73,10 @@ export function StorefrontCollections({
         bleed
           ? 'bleed-x before:bg-gradient-to-b before:from-surface-tertiary-100/0 before:to-surface-tertiary-100'
           : 'bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100',
+        className,
       ].join(' ')}
     >
-      <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
+      <div className={`flex items-center gap-md-2 ${contentClassName}`}>
         <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           {title ?? 'Collections'}
         </p>
@@ -94,7 +102,7 @@ export function StorefrontCollections({
           </div>
         )}
       </div>
-      <div className={CONTENT_COLUMN}>
+      <div className={contentClassName}>
         <div ref={scrollRef} className="flex w-full gap-md overflow-x-auto [scrollbar-width:none]">
           {boards.map(({ collection, items: boardItems }) => (
             <button

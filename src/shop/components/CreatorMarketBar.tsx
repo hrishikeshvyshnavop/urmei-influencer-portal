@@ -13,7 +13,7 @@ const CURRENCY_BY_COUNTRY: Record<string, string> = {
 type CreatorMarketBarProps = {
   name: string
   country: string
-  /** Tapping the creator's name returns to their storefront. */
+  /** Tapping the creator/collection link returns to the relevant storefront. */
   onBack: () => void
   /** Opened from a collection: "You're shopping <name>'s collection ·
    *  <collection>" (Figma `1862:82124`). */
@@ -49,13 +49,12 @@ export function CreatorMarketBar({ name, country, onBack, collectionName, design
           onClick={onBack}
           className="text-body-sm leading-[1.4] font-semibold whitespace-nowrap text-text-secondary-1000 underline"
         >
-          {collectionName ? <>{name}&apos;s collection</> : <>{name}&apos;s Picks</>}
+          {collectionName ? (
+            <>{name}&apos;s collection{' · '}{collectionName}</>
+          ) : (
+            <>{name}&apos;s Picks</>
+          )}
         </button>
-        {collectionName && (
-          <p className="text-body-sm leading-[1.4] whitespace-nowrap text-text-secondary-700">
-            · {collectionName}
-          </p>
-        )}
       </div>
       <p className="text-body-sm leading-[1.4] font-medium whitespace-nowrap text-text-secondary-1000">
         Shipping to {country} · {currency}

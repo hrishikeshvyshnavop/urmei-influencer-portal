@@ -1,0 +1,16 @@
+<!doctype html><script type="module">
+import { PRODUCTS } from '/src/shop/data/catalogue.ts'
+const items = PRODUCTS.slice(0, 16).map((p, i) => ({ id: 'it' + i, productId: p.id, favorite: false, variant: p.variant, addedAt: 1 }))
+localStorage.setItem('urmei.shop-items', JSON.stringify(items))
+localStorage.setItem('urmei.shop-published-at', String(Date.now() - 1000))
+localStorage.setItem('urmei.profile-name', 'Charlotte')
+localStorage.setItem('urmei.shop-collections', JSON.stringify([
+  { id: 'c1', name: 'Favourites', description: 'My everyday go-tos, the ones I always repurchase', itemIds: ['it0','it1','it2','it3'], createdAt: 1 },
+  { id: 'c2', name: 'My morning routine', description: 'The five steps I do every morning before work', itemIds: ['it4','it5','it6','it7','it8','it9'], createdAt: 2 },
+  { id: 'c3', name: 'Copy my wedding look', description: 'Everything I used on the big day', itemIds: ['it10','it11','it12','it13','it14'], createdAt: 3 },
+  { id: 'c4', name: 'Night-time reset', description: 'Wind-down skincare for tired skin, in the order I use it.', itemIds: ['it1','it3','it5','it7','it9'], createdAt: 4 },
+]))
+for (const k of ['urmei.shop-backdrop','urmei.shop-published-backdrop']) localStorage.setItem(k, 'valentines-day')
+for (const k of ['urmei.shop-featured','urmei.shop-published-featured']) localStorage.setItem(k, JSON.stringify([{ kind: 'collection', id: 'c2' }]))
+location.href = '/shop/preview'
+</script>
