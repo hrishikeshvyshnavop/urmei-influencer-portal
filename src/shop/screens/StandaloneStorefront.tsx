@@ -1,119 +1,30 @@
-import { useEffect, useRef, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
 import { CreatorMarketBar } from '../components/CreatorMarketBar'
 import { EmptyStorefront } from '../components/EmptyStorefront'
-import { Icon } from '../components/Icon'
 import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
 import { StorefrontBreadcrumb } from '../components/StorefrontBreadcrumb'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
-import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontBanner } from '../components/StorefrontBanner'
 import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
 import { StorefrontReviews } from '../components/StorefrontReviews'
+import { StorefrontCollections } from '../components/StorefrontCollections'
+import { CollectionUnavailable, StorefrontCollectionPage } from '../components/StorefrontCollectionPage'
+import { collectionLinkFor, collectionsFor, loadCollections, type Collection } from '../collections-store'
+import { navigate } from '../../router'
 import { Toast } from '../components/Toast'
 import { reviewsForShop } from '../data/reviews'
 import { SHOP_URL } from '../data/shop'
-import { useHasOverflowX } from '../hooks/useHasOverflowX'
 import { CONTENT_COLUMN } from '../layout'
 import { loadShopItems } from '../shop-items-store'
+import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
+import { resolveFeatured, shopperFeatured } from '../featured'
 import type { ShopItem } from '../types'
 
 const PICKS_PER_PAGE = 8
-/** How far one click of the favorite-strip's prev/next scrolls — one card + its gap. */
-const FAVORITES_SCROLL_STEP = 288 + 16
-
-/**
- * "Top favorite products" horizontal strip — its own component (rather than
- * reused from `StorefrontPreview`) because that screen is the in-app editor
- * preview (its own header/close chrome); this is the real public page opened
- * in a new tab by "View Shop", so it needs plain public-site chrome instead.
- */
-function FavoritePicks({
-  items,
-  country,
-  /** The storefront owner's display name: the strip is titled after them
-   *  ("CHARLOTTE'S FAVORITE PICKS", Figma `1619:36970`). */
-  ownerName,
-  onSelect,
-}: {
-  items: ShopItem[]
-  country: string
-  ownerName: string
-  onSelect: (item: ShopItem) => void
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const canScroll = useHasOverflowX(scrollRef, items.length)
-
-  function scroll(direction: 'left' | 'right') {
-    scrollRef.current?.scrollBy({
-      left: direction === 'left' ? -FAVORITES_SCROLL_STEP : FAVORITES_SCROLL_STEP,
-      behavior: 'smooth',
-    })
-  }
-
-  return (
-    <section className="flex w-full flex-col items-center gap-md-2 bg-gradient-to-b from-surface-tertiary-100/0 to-surface-tertiary-100 py-3xl">
-      <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
-        <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
-          {ownerName}&rsquo;s favorite picks
-        </p>
-        {/* Only when the strip actually overflows. With a handful of favorite
-            picks every card is already on screen, and arrows that scroll
-            nothing read as broken controls. */}
-        {canScroll && (
-          <div className="flex items-start gap-sm">
-            <button
-              type="button"
-              aria-label="Scroll favorite products left"
-              onClick={() => scroll('left')}
-              className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
-            >
-              <Icon name="chevron-left" />
-            </button>
-            <button
-              type="button"
-              aria-label="Scroll favorite products right"
-              onClick={() => scroll('right')}
-              className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
-            >
-              <Icon name="chevron-right" />
-            </button>
-          </div>
-        )}
-      </div>
-      {/* The card track is the 1200px content column, not the full page width
-          (Figma `916:65772`), so the page margin does the clipping and the row
-          starts and ends on the same edges as the profile card above it. The
-          margin has to sit on this wrapper rather than as the scroller's own
-          padding: as padding it scrolls with the content, which put the
-          overflow out in the page margin instead of clipped against it. */}
-      <div className={CONTENT_COLUMN}>
-        <div
-          ref={scrollRef}
-          className="flex w-full gap-md overflow-x-auto [scrollbar-width:none]"
-        >
-          {items.map((item) => (
-            <StorefrontProductCard
-              key={item.id}
-              product={item.product}
-              /* 288px, matching All Picks rather than the design's 280 — asked
-                 for directly, so the two sections' cards are the same size.
-                 It also divides the 1200px column exactly four ways
-                 (4 x 288 + 3 x 16 = 1200), so a row of four is flush with the
-                 column edge. */
-              className="w-[288px]"
-              available={item.product.regions.includes(country)}
-              onClick={() => onSelect(item)}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function AllPicks({
   items,
   country,
@@ -204,13 +115,34 @@ function AllPicks({
  * such a pick lands on a product page offering to notify instead of to buy
  * (`916:66693`).
  */
-export function StandaloneStorefront() {
+export function StandaloneStorefront({ collectionId }: { collectionId?: string } = {}) {
   const items = loadShopItems()
-  const favoriteItems = items.filter((item) => item.favorite)
+  const collections = loadCollections(items)
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  // Shoppers only ever see the published banner (flow 06), and never a
+  // featured product that isn't sold in their market.
+  const backdropId = loadPublishedBackdrop()
+  const featured = shopperFeatured(resolveFeatured(loadPublishedFeatured(), items, collections, country))
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
+  /** The collection a product was opened from, for the market bar (16.3). */
+  const [fromCollection, setFromCollection] = useState<Collection | null>(null)
+
+  // A shared link: /shop/view/collections/<id> (flows 16 and 17). Missing,
+  // emptied, or nothing shipping to this market reads as unavailable.
+  const linkedCollection = collectionId
+    ? collections.find((collection) => collection.id === collectionId) ?? null
+    : null
+  const linkedAvailable =
+    linkedCollection !== null &&
+    items.some(
+      (item) => linkedCollection.itemIds.includes(item.id) && item.product.regions.includes(country),
+    )
+  const openCollection = (collection: Collection) => {
+    setSelectedItem(null)
+    navigate(`/shop/view/collections/${collection.id}`)
+  }
 
   const [linkCopied, setLinkCopied] = useState(false)
   useEffect(() => {
@@ -220,17 +152,31 @@ export function StandaloneStorefront() {
     return () => window.clearTimeout(timer)
   }, [linkCopied])
 
+  const [copiedMessage, setCopiedMessage] = useState('Shop link copied to clipboard')
   // Same wording as the in-app preview's toast (`shop/App.tsx`).
   const copyShopLink = () => {
     navigator.clipboard?.writeText(SHOP_URL).catch(() => {})
+    setCopiedMessage('Shop link copied to clipboard')
+    setLinkCopied(true)
+  }
+  const copyCollectionLink = (collection: Collection) => {
+    navigator.clipboard?.writeText(collectionLinkFor(collection)).catch(() => {})
+    setCopiedMessage('Collection link copied')
     setLinkCopied(true)
   }
 
   const clearSelection = () => setSelectedItem(null)
+  const selectFrom = (collection: Collection | null) => (item: ShopItem) => {
+    setFromCollection(collection)
+    setSelectedItem(item)
+  }
 
-  const showFavorite = items.length > 0 && favoriteItems.length > 0
-  // "<Name>'s Reviews" sits between Favorite Picks and All Picks, as in the
-  // in-app preview (Figma `957:29042`); with no favorites it leads straight
+  const hasCollections = collections.some((collection) =>
+    collection.itemIds.some((id) => items.some((item) => item.id === id)),
+  )
+  const showFavorite = items.length > 0 && hasCollections
+  // "<Name>'s Reviews" sits between Collections and All Picks, as in the
+  // in-app preview (Figma `957:29042`); with no collections it leads straight
   // into All Picks.
   const reviews = reviewsForShop(items)
   const reviewsSection =
@@ -269,7 +215,15 @@ export function StandaloneStorefront() {
                are being shown (Figma `916:66693`). The page's own breadcrumb
                comes back from inside `StorefrontProductDetail`, as the product's
                shelf path. */
-            <CreatorMarketBar name={name} country={country} onBack={clearSelection} />
+            <CreatorMarketBar
+              name={name}
+              country={country}
+              collectionName={fromCollection?.name}
+              onBack={() => {
+                clearSelection()
+                if (fromCollection) navigate(`/shop/view/collections/${fromCollection.id}`)
+              }}
+            />
           )}
         </div>
 
@@ -278,46 +232,92 @@ export function StandaloneStorefront() {
              no screens to point at yet. */
           <div className={CONTENT_COLUMN}>
             <StorefrontBreadcrumb
-              items={[{ label: 'Home' }, { label: 'Creators' }, { label: name }]}
+              items={
+                linkedCollection && linkedAvailable
+                  ? [
+                      { label: 'Home', onClick: () => navigate('/shop/view') },
+                      { label: 'Creators', onClick: () => navigate('/shop/view') },
+                      { label: name, onClick: () => navigate('/shop/view') },
+                      { label: linkedCollection.name },
+                    ]
+                  : [
+                      { label: 'Home', onClick: () => navigate('/shop/view') },
+                      { label: 'Creators', onClick: () => navigate('/shop/view') },
+                      { label: name, onClick: () => navigate('/shop/view') },
+                    ]
+              }
             />
           </div>
         )}
 
         <main className="flex w-full flex-1 flex-col items-center">
           {selectedItem ? (
-            <div className={CONTENT_COLUMN}>
-              <StorefrontProductDetail
-                item={selectedItem}
-                country={country}
-                creatorName={name}
-                onBack={clearSelection}
+            <>
+              <div className={CONTENT_COLUMN}>
+                <StorefrontProductDetail
+                  item={selectedItem}
+                  country={country}
+                  creatorName={name}
+                  onBack={clearSelection}
+                />
+              </div>
+              {/* "In <name>'s collections" (Figma `1862:82122`): the boards
+                  this product is in. Outside the column so its tint runs
+                  edge to edge; it centres its own content in the column. */}
+              <StorefrontCollections
+                title={`In ${name}'s collections`}
+                collections={collections.filter((collection) =>
+                  collectionsFor(selectedItem.id, collections).some((c) => c.id === collection.id),
+                )}
+                items={items}
+                onSelect={openCollection}
               />
-            </div>
+            </>
+          ) : collectionId ? (
+            linkedCollection && linkedAvailable ? (
+              <StorefrontCollectionPage
+                collection={linkedCollection}
+                items={items}
+                collections={collections}
+                ownerName={name}
+                country={country}
+                onSelectItem={selectFrom(linkedCollection)}
+                onSelectCollection={openCollection}
+                onCopyLink={() => copyCollectionLink(linkedCollection)}
+              />
+            ) : (
+              <CollectionUnavailable
+                ownerName={name}
+                items={items}
+                collections={collections.filter((collection) => collection.id !== collectionId)}
+                onVisitStorefront={() => navigate('/shop/view')}
+                onSelectCollection={openCollection}
+              />
+            )
           ) : (
             <>
-              {/* The 36px gap belongs between the profile card and the *first*
-                  section only (Figma `916:65747` wraps exactly those two). The
-                  page frame itself has no gap, so every section after the first
-                  is spaced by its own 36px top padding alone. */}
+              {/* The banner runs the full width straight under the breadcrumb
+                  (06.1–06.3, main file `2799:104829`), with the first section
+                  directly below it. */}
+              <StorefrontBanner
+                backdropId={backdropId}
+                featured={featured}
+                onCopyLink={copyShopLink}
+                onOpenFeatured={(item) => (item.kind === 'collection' ? openCollection(item.collection) : selectFrom(null)(item.item))}
+              />
               <div className="flex w-full flex-col items-center gap-3xl">
-                <div className={CONTENT_COLUMN}>
-                  <StorefrontProfileCard onCopyLink={copyShopLink} />
-                </div>
-                {/* Nothing here ships to the selected market. Sits in the same
-                    36px column as the creator card rather than tucked under it
-                    the way the preview does, which is how the edge frame
-                    (`1616:66073`) stacks it. */}
+                {/* Nothing here ships to the selected market (`1616:66073`). */}
                 {items.length > 0 && !hasAvailableItems && (
-                  <div className={CONTENT_COLUMN}>
+                  <div className={`${CONTENT_COLUMN} pt-3xl`}>
                     <NoAvailabilityNotice country={country} allowCountryChange />
                   </div>
                 )}
                 {showFavorite ? (
-                  <FavoritePicks
-                    items={favoriteItems}
-                    country={country}
-                    ownerName={name}
-                    onSelect={setSelectedItem}
+                  <StorefrontCollections
+                    collections={collections}
+                    items={items}
+                    showViewAll
+                    onSelect={openCollection}
                   />
                 ) : (
                   reviewsSection ?? picks
@@ -331,13 +331,14 @@ export function StandaloneStorefront() {
 
         {/* Figma `916:65859` — breathing room between the last section and the
             footer, on top of the section's own bottom padding. A product page
-            brings its own, shorter (64px) spacer. */}
-        {!selectedItem && <div className="h-[80px] w-full shrink-0" />}
+            brings its own, shorter (64px) spacer. A collection page has none: its
+            tinted "More collections" row stretches to the footer instead. */}
+        {!selectedItem && !collectionId && <div className="h-[80px] w-full shrink-0" />}
       </div>
 
       <AppFooter />
 
-      {linkCopied ? <Toast message="Shop link copied to clipboard" /> : null}
+      {linkCopied ? <Toast message={copiedMessage} /> : null}
     </div>
   )
 }

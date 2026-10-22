@@ -10,7 +10,10 @@ type ShopProductCardProps = {
    *  published, or for a product added since the last publish — and the menu
    *  then simply has no "Copy affiliate link" row (Figma `1610:44155`). */
   onCopyLink?: () => void
-  onToggleFavorite: () => void
+  onAddToCollection?: () => void
+  /** On a collection page the menu offers "Remove from collection" instead of
+   *  "Add to collection" (Figma `1862:85019`). */
+  onRemoveFromCollection?: () => void
   onRemoveFromShop: () => void
   /**
    * Only set on the Favorite tab: the card swaps its top-left "Favorite" badge
@@ -136,18 +139,22 @@ export function ShopProductCard({
   item,
   onViewDetails,
   onCopyLink,
-  onToggleFavorite,
+  onAddToCollection,
+  onRemoveFromCollection,
   onRemoveFromShop,
   favoriteRank,
   onReorder,
 }: ShopProductCardProps) {
-  const { favorite } = item
   const isFavoriteTab = favoriteRank !== undefined
 
   const actions: ItemMenuAction[] = [
     { label: 'View product details', onSelect: onViewDetails },
     ...(onCopyLink ? [{ label: 'Copy affiliate link', onSelect: onCopyLink }] : []),
-    { label: favorite ? 'Remove from Favorite' : 'Add to Favorite', onSelect: onToggleFavorite },
+    ...(onRemoveFromCollection
+      ? [{ label: 'Remove from collection', onSelect: onRemoveFromCollection }]
+      : onAddToCollection
+        ? [{ label: 'Add to collection', onSelect: onAddToCollection }]
+        : []),
     { label: 'Remove from shop', onSelect: onRemoveFromShop, destructive: true },
   ]
 

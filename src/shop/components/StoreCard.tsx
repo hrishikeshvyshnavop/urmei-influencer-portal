@@ -6,8 +6,6 @@ import { Button } from './Button'
 import { Icon } from './Icon'
 
 type StoreCardProps = {
-  /** Rounds only the top when the KPI strip sits directly underneath. */
-  attachedBelow?: boolean
   published?: boolean
   /** When the shop was last published, epoch ms — formatted for the
    *  "Last Published on …" line here rather than by the caller. */
@@ -29,8 +27,13 @@ type StoreCardProps = {
   onViewShop?: () => void
 }
 
+/**
+ * The identity row of the My Shop banner card (main file `2799:105075`):
+ * avatar, name and Shop URL on the left; Preview / View Shop (or Publish)
+ * and Last Published on the right. The card itself, with its backdrop
+ * colour, is drawn by `MyShop`.
+ */
 export function StoreCard({
-  attachedBelow = false,
   published = false,
   publishedAt = null,
   hasUnpublishedChanges = false,
@@ -41,21 +44,16 @@ export function StoreCard({
   onViewShop,
 }: StoreCardProps) {
   return (
-    <div
-      className={[
-        'flex w-full flex-col items-start bg-surface-secondary-300 px-[28px] py-xxl drop-shadow-[0_4px_10px_rgba(0,0,0,0.03)]',
-        attachedBelow ? '' : 'rounded-lg',
-      ].join(' ')}
-    >
-      <div className="flex w-full items-start justify-between">
-        <div className="flex items-center gap-[26px]">
-          <span className="relative size-[84px] shrink-0 overflow-hidden rounded-full">
+    <div className="flex w-full flex-col items-start">
+      <div className="flex w-full flex-wrap items-center justify-between gap-lg">
+        <div className="flex flex-wrap items-center gap-md">
+          <span className="relative size-[116px] shrink-0 overflow-hidden rounded-full">
             <ProfilePhoto fallback="/urmei/home/profile-dropdown-avatar.png" alt="" />
           </span>
-          <div className="flex w-[297px] flex-col gap-sm">
-            <div className="flex items-center gap-[6px]">
+          <div className="flex w-[297px] max-w-full flex-col gap-md-sm">
+            <div className="flex items-center gap-md-sm">
               <p className="text-body-xxl font-semibold text-text-secondary-1000">{getSavedDisplayName('Charlotte')}</p>
-              <p className="text-body-md font-medium text-text-secondary-700">@charlotte</p>
+              <p className="text-body-sm text-text-secondary-700">@charlotte</p>
             </div>
             <ShopUrl
               published={published}
@@ -65,8 +63,8 @@ export function StoreCard({
           </div>
         </div>
 
-        <div className="flex flex-col items-end justify-center gap-[15px]">
-          <div className="flex items-center gap-md-sm">
+        <div className="flex flex-col items-start justify-center gap-sm sm:items-end">
+          <div className="flex flex-wrap items-center gap-md-sm">
             {published ? (
               <Button variant="outline" onClick={onPreview} leftIcon={<Icon name="eye-enabled" />}>
                 Preview Storefront
@@ -110,7 +108,7 @@ export function StoreCard({
           </div>
 
           {published && publishedAt && (
-            <p className="text-body-sm font-medium text-text-secondary-700">
+            <p className="text-body-sm text-text-secondary-700">
               Last Published on {formatPublishedAt(new Date(publishedAt))}
             </p>
           )}

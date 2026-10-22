@@ -1,28 +1,24 @@
 import { useEffect, useState } from "react";
 import RequestSampleFlow from "./RequestSampleFlow";
-import { MAX_FAVORITES } from "../../shop/limits";
 import { loadPublishedAt, loadShopItems, saveShopItems } from "../../shop/shop-items-store";
 import { setShopItemCount } from "../../shop/shop-status";
 import { logShopActivity } from "../../shop/activity-log";
 import { affiliateLinkFor, hasLiveLink } from "../../shop/data/shop";
 import { productStatsHash } from "../../shop/data/stats";
-import { AddToShopModal } from "../../shop/components/AddToShopModal";
+import { AddToShopWithCollections } from "../../shop/components/AddToShopWithCollections";
 import { Toast } from "../../shop/components/Toast";
+import { CollectionPicker } from "../../shop/components/CollectionPicker";
+import { collectionsFor, loadCollections, removeItemFromCollection, restoreItemInCollection, saveCollections, type Collection } from "../../shop/collections-store";
+import { RemoveFromCollectionDialog } from "../../shop/components/RemoveFromCollectionDialog";
 import { BrowseOverlay } from "../../shop/screens/BrowseOverlay";
 import { ProductDetail, type ShopMode } from "../../shop/screens/ProductDetail";
 import type { Product, ShopItem } from "../../shop/types";
-import { navigate } from "../../router";
 
 type OverlayToast = {
   message: string;
   variant?: "success" | "error";
   action?: { label: string; onClick: () => void };
 };
-
-/** The toast's "Manage Favorite" action. */
-function goToShop() {
-  navigate("/shop");
-}
 
 /**
  * The full-page "Product Details" overlay, opened over whatever page the
@@ -46,35 +42,31 @@ export default function ProductOverlay({
   const [pendingProduct, setPendingProduct] = useState<Product | null>(null);
   const [sampleProduct, setSampleProduct] = useState<Product | null>(null);
   const [toast, setToast] = useState<OverlayToast | null>(null);
-  const favoriteCount = shopItems.filter((item) => item.favorite).length;
+  const [collectingItem, setCollectingItem] = useState<ShopItem | null>(null);
+  const [unlinking, setUnlinking] = useState<{ item: ShopItem; collection: Collection } | null>(null);
+
+  /** Flow 18: remove from one collection after the confirm, with Undo. */
+  const confirmRemoveFromCollection = (item: ShopItem, collection: Collection) => {
+    const { next, index } = removeItemFromCollection(loadCollections(shopItems), collection.id, item.id);
+    saveCollections(next);
+    setUnlinking(null);
+    setToast({
+      message: `Removed from ${collection.name}. Still in your shop.`,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          saveCollections(restoreItemInCollection(loadCollections(shopItems), collection.id, item.id, index));
+          setToast(null);
+        },
+      },
+    });
+  };
 
   useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(null), 3200);
     return () => window.clearTimeout(timer);
   }, [toast]);
-
-  const showFavoriteSlotsFullToast = () => {
-    setToast({
-      message: "Product failed to add as Favorite",
-      variant: "error",
-      action: { label: "Manage Favorite", onClick: goToShop },
-    });
-  };
-
-  const toggleFavorite = (item: ShopItem) => {
-    if (!item.favorite && favoriteCount >= MAX_FAVORITES) {
-      showFavoriteSlotsFullToast();
-      return;
-    }
-    setShopItems((current) => {
-      const next = current.map((row) => (row.id === item.id ? { ...row, favorite: !row.favorite } : row));
-      saveShopItems(next);
-      return next;
-    });
-    logShopActivity(item.favorite ? "product-unfeatured" : "product-featured", `${item.product.brand} ${item.product.name}`);
-    setToast({ message: item.favorite ? "Product Removed From Favorite" : "Product Added to Favorites" });
-  };
 
   const removeFromShop = (item: ShopItem) => {
     setShopItems((current) => {
@@ -92,9 +84,13 @@ export default function ProductOverlay({
     const item = shopItems.find((row) => row.product.id === viewed.id);
     if (!item) return undefined;
     return {
-      favorite: item.favorite,
+      collections: collectionsFor(item.id, loadCollections(shopItems)),
+      onRemoveFromCollection: (collectionId: string) => {
+        const collection = loadCollections(shopItems).find((c) => c.id === collectionId);
+        if (collection) setUnlinking({ item, collection });
+      },
       variant: item.variant,
-      onToggleFavorite: () => toggleFavorite(item),
+      onAddToCollection: () => setCollectingItem(item),
       onRemoveFromShop: () => removeFromShop(item),
       affiliateLink: affiliateLinkFor(item.product),
       onCopyLink: () => {
@@ -122,20 +118,17 @@ export default function ProductOverlay({
       ) : null}
 
       {pendingProduct ? (
-        <AddToShopModal
+        <AddToShopWithCollections
           product={pendingProduct}
-          favoriteCount={favoriteCount}
-          favoriteLimit={MAX_FAVORITES}
           existingVariants={shopItems
             .filter((item) => item.product.id === pendingProduct.id)
             .map((item) => item.variant)}
           onClose={() => setPendingProduct(null)}
-          onFavoriteBlocked={showFavoriteSlotsFullToast}
-          onConfirm={(favorite, variant) => {
+          onAdd={(variant) => {
             const newItem: ShopItem = {
               id: crypto.randomUUID(),
               product: pendingProduct,
-              favorite,
+              favorite: false,
               variant,
               addedAt: Date.now(),
             };
@@ -146,14 +139,35 @@ export default function ProductOverlay({
               return next;
             });
             logShopActivity("product-added", `${pendingProduct.brand} ${pendingProduct.name}`);
+            return newItem;
+          }}
+          onDone={(message) => {
             setPendingProduct(null);
-            setToast({ message: "Product added to your shop" });
+            setToast({ message });
           }}
         />
       ) : null}
 
       <RequestSampleFlow product={sampleProduct} onClose={() => setSampleProduct(null)} />
 
+      {unlinking ? (
+        <RemoveFromCollectionDialog
+          productName={unlinking.item.product.name}
+          collectionName={unlinking.collection.name}
+          onClose={() => setUnlinking(null)}
+          onConfirm={() => confirmRemoveFromCollection(unlinking.item, unlinking.collection)}
+        />
+      ) : null}
+      {collectingItem ? (
+        <CollectionPicker
+          item={collectingItem}
+          onClose={() => setCollectingItem(null)}
+          onSaved={(message) => {
+            setCollectingItem(null);
+            setToast({ message });
+          }}
+        />
+      ) : null}
       {toast ? <Toast message={toast.message} variant={toast.variant} action={toast.action} /> : null}
     </>
   );

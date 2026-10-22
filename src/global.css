@@ -100,6 +100,15 @@
   --color-border-default: #e5e5e5;
   --color-border-outlined: #b1b1b1;
   --color-border-muted: #f8f8f8;
+  /* Featured cards on the banner (`T-38`): raw values in the design, no
+     library token yet. */
+  --color-featured-surface: #f8f5ff;
+  --color-featured-eyebrow: #d31574;
+  --color-featured-body: #5c5c5c;
+  /* The dashed featured prompt and Add Another slot. */
+  --color-border-dashed: #d6d6d6;
+  /* border/color/dark — the selected backdrop tile's 2px ring. */
+  --color-border-dark: #464646;
   /* border/color/success — the bright green the stat pages' up-trend arrow and
      percentage use. Distinct from --color-text-success (#28802c), which is
      typography/color/other/success. */
@@ -135,6 +144,8 @@
 
   --shadow-ds-sm: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
   --shadow-store-card: 0 4px 20px 0 rgba(0, 0, 0, 0.03);
+  /* The My Shop banner's profile card over its backdrop (`T-38`). */
+  --shadow-banner-card: 0 4px 20px 0 rgba(0, 0, 0, 0.04);
 }
 
 /* Radix anchors every popover, select list and dropdown menu in a wrapper it
@@ -339,6 +350,20 @@ html body[data-scroll-locked] {
 }
 
 /* Mirrors shadcn's toast motion: enter from the top and exit to the right. */
+/* Collection reorder (My Shop boards): the board you moved lifts while it
+   slides, so the eye follows it; a failed save gives it a short shake as it
+   snaps back. */
+@keyframes board-lift {
+  0% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); transform: scale(1); }
+  30% { box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16); transform: scale(1.02); }
+  100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); transform: scale(1); }
+}
+@keyframes board-nudge {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-3px); }
+}
 @keyframes toast-lifecycle {
   0% { opacity: 0; transform: translateY(-100%); }
   8% { opacity: 1; transform: translateY(0); }
@@ -374,6 +399,8 @@ html body[data-scroll-locked] {
 .motion-popover[data-state="open"] { animation: portal-popover-in var(--motion-fast) var(--ease-portal) both; }
 .motion-popover[data-state="closed"] { animation: portal-popover-out 120ms ease-in both; }
 .motion-product-detail { animation: product-detail-enter var(--motion-base) ease-out both; }
+.motion-board-lift { animation: board-lift 520ms var(--ease-portal) both; position: relative; z-index: 1; }
+.motion-board-nudge { animation: board-nudge 360ms ease-in-out both; }
 .motion-toast { animation: toast-lifecycle 3200ms cubic-bezier(0.16, 1, 0.3, 1) both; }
 .motion-carousel-next { animation: carousel-in-next var(--motion-base) var(--ease-portal) both; }
 .motion-carousel-prev { animation: carousel-in-prev var(--motion-base) var(--ease-portal) both; }

@@ -1,7 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+import { getSelectedCountry, subscribeToSelectedCountry } from '../portal/country-status'
 import { logShopActivity } from './activity-log'
-import { MAX_FAVORITES, MAX_PRODUCTS } from './limits'
+import { MAX_PRODUCTS } from './limits'
 import { AddToShopModal } from './components/AddToShopModal'
+import { loadBackdrop, loadFeatured, loadPublishedBackdrop, loadPublishedFeatured, sameFeatured, saveBackdrop, saveFeatured, savePublishedBackdrop, savePublishedFeatured, type FeaturedRef } from './banner-store'
+import { ChangeBackdropDialog } from './components/ChangeBackdropDialog'
+import { FeaturedItemsDialog } from './components/FeaturedItemsDialog'
+import { resolveFeatured, shopperFeatured, type ResolvedFeatured } from './featured'
+import { CollectionDialog } from './components/CollectionDialog'
+import { DeleteCollectionDialog } from './components/DeleteCollectionDialog'
+import { RemoveFromCollectionDialog } from './components/RemoveFromCollectionDialog'
+import { AddToCollectionDialog } from './components/AddToCollectionDialog'
+import { addedToShopMessage, collectionLinkFor, collectionsFor, collectionsSavedMessage, createCollection, removeItemFromCollection, restoreItemInCollection, deleteCollection, loadCollections, moveCollection, saveCollections, setItemCollections, updateCollection, type Collection } from './collections-store'
 import { PublishShopDialog } from './components/PublishShopDialog'
 import { RemoveProductDialog } from './components/RemoveProductDialog'
 import { Toast } from './components/Toast'
@@ -47,8 +57,23 @@ type ToastState = {
   action?: { label: string; onClick: () => void }
 }
 
-export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string }) {
+export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter, initialPreview = false }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string; initialPreview?: boolean }) {
   const [items, setItems] = useState<ShopItem[]>(loadShopItems)
+  const [collections, setCollections] = useState<Collection[]>(() => loadCollections(loadShopItems()))
+  const [newCollectionOpen, setNewCollectionOpen] = useState(false)
+  const [editingCollection, setEditingCollection] = useState<Collection | null>(null)
+  const [deletingCollection, setDeletingCollection] = useState<Collection | null>(null)
+  /** The item whose collections are being picked, plus any collections made
+   *  from inside that dialog (they show "New" and arrive ticked). */
+  const [collectingItem, setCollectingItem] = useState<ShopItem | null>(null)
+  const [newFromPicker, setNewFromPicker] = useState<string[]>([])
+  /** A product page chip's × awaiting confirmation (flow 18). */
+  const [unlinking, setUnlinking] = useState<{ item: ShopItem; collection: Collection } | null>(null)
+  const [openCollectionId, setOpenCollectionId] = useState<string | null>(null)
+  /** The collection being filled from the catalogue (flow 09): results say
+   *  "Add to Collection" and Add to shop arrives with it ticked. */
+  const [collectionTarget, setCollectionTarget] = useState<string | null>(null)
+  const [boardMotion, setBoardMotion] = useState<{ id: string; kind: 'moved' | 'failed'; at: number } | null>(null)
   const [activeTab, setActiveTab] = useState('all')
   const [overlay, setOverlay] = useState<OverlayView | null>(() => {
     if (initialProductId) {
@@ -71,18 +96,29 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [sampleProduct, setSampleProduct] = useState<Product | null>(null)
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
   const [removalCandidate, setRemovalCandidate] = useState<ShopItem | null>(null)
-  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(initialPreview)
 
   const [publishOpen, setPublishOpen] = useState(false)
   const [profileComplete] = useState(isProfileSetupComplete)
   const [publishedAt, setPublishedAt] = useState<number | null>(loadPublishedAt)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(loadHasUnpublishedChanges)
   const [publishBlocked, setPublishBlocked] = useState(loadPublishBlocked)
+  const [backdropId, setBackdropId] = useState(loadBackdrop)
+  const [publishedBackdropId, setPublishedBackdropId] = useState(loadPublishedBackdrop)
+  const [changingBackdrop, setChangingBackdrop] = useState(false)
+  const [featured, setFeatured] = useState<FeaturedRef[]>(loadFeatured)
+  const [publishedFeatured, setPublishedFeatured] = useState<FeaturedRef[]>(loadPublishedFeatured)
+  const [editingFeatured, setEditingFeatured] = useState(false)
+  const [featuredInitial, setFeaturedInitial] = useState<FeaturedRef | undefined>()
 
   useEffect(() => {
     setShopItemCount(items.length)
     saveShopItems(items)
   }, [items])
+
+  useEffect(() => {
+    saveCollections(collections)
+  }, [collections])
 
   useEffect(() => {
     savePublishedAt(publishedAt)
@@ -97,6 +133,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   }, [publishBlocked])
 
   useEffect(() => {
+    saveBackdrop(backdropId)
+  }, [backdropId])
+
+  useEffect(() => {
+    saveFeatured(featured)
+  }, [featured])
+
+  useEffect(() => {
     if (!toast) return
     const timer = window.setTimeout(() => setToast(null), 3200)
     return () => window.clearTimeout(timer)
@@ -107,10 +151,13 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     if (publishedAt !== null) setHasUnpublishedChanges(true)
   }
 
-  const favoriteCount = items.filter((item) => item.favorite).length
   // Derived (not a snapshot) so the detail overlay stays in sync when its item
   // changes underneath it, and auto-closes if the item is removed from the shop.
   const viewingItem = items.find((item) => item.id === viewingItemId) ?? null
+  // The creator's market: a featured product not sold there shows as NOT
+  // AVAILABLE on My Shop and is left out of the preview (flow 05).
+  const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  const resolvedFeatured = resolveFeatured(featured, items, collections, country)
 
   function openCatalogue() {
     setQuery('')
@@ -122,6 +169,13 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setOverlay({ kind: 'results', query: nextQuery })
   }
 
+  function updateSearchQuery(nextQuery: string) {
+    setQuery(nextQuery)
+    if (nextQuery.trim() === '') {
+      setOverlay((current) => (current?.kind === 'results' ? { ...current, query: '' } : current))
+    }
+  }
+
   /** Selecting a brand pre-checks it in the Filters panel instead of typing
    *  it into the search box — matches the standalone Brands page's own
    *  `/shop/brand/:name` entry point (see `initialBrandFilter` above). */
@@ -131,40 +185,28 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setOverlay({ kind: 'results', query: '' })
   }
 
-  /** Shown wherever a "favorite this" action can't be satisfied because all
-   *  `MAX_FAVORITES` slots are already taken — the Shop's "⋮" menu, the Add to
-   *  Shop modal's favorite toggle, and the Product Detail page all hit this. */
-  function showFavoriteSlotsFullToast() {
-    setToast({
-      message: 'Product failed to add as Favorite',
-      variant: 'error',
-      action: { label: 'Manage Favorite', onClick: () => setActiveTab('favorites') },
-    })
-  }
-
-  function confirmAdd(favorite: boolean, variant: string) {
+  function confirmAdd(collectionIds: string[], variant: string) {
     if (!pendingProduct) return
     if (items.length >= MAX_PRODUCTS) {
       setPendingProduct(null)
       return
     }
-    const slotsFull = favorite && favoriteCount >= MAX_FAVORITES
+    const id = crypto.randomUUID()
     setItems((current) => [
       ...current,
-      {
-        id: crypto.randomUUID(),
-        product: pendingProduct,
-        favorite: favorite && !slotsFull,
-        variant,
-        addedAt: Date.now(),
-      },
+      { id, product: pendingProduct, favorite: false, variant, addedAt: Date.now() },
     ])
-    setPendingProduct(null)
-    if (slotsFull) {
-      showFavoriteSlotsFullToast()
-    } else {
-      setToast({ message: 'Product added to your shop' })
+    if (collectionIds.length > 0) {
+      setCollections((current) => setItemCollections(current, id, collectionIds))
     }
+    setPendingProduct(null)
+    setNewFromPicker([])
+    setToast({
+      // Named, as in flow 21 (Figma `1970:102469` "Added to Favorites").
+      message: collectionTarget
+        ? `Added to ${collections.find((c) => c.id === collectionTarget)?.name ?? 'collection'}`
+        : addedToShopMessage(collections.filter((c) => collectionIds.includes(c.id))),
+    })
     logShopActivity('product-added', `${pendingProduct.brand} ${pendingProduct.name}`)
     markChanged()
   }
@@ -187,6 +229,11 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     }
     setPublishedAt(Date.now())
     setHasUnpublishedChanges(false)
+    // The saved backdrop is a draft until now (flow 01).
+    savePublishedBackdrop(backdropId)
+    setPublishedBackdropId(backdropId)
+    savePublishedFeatured(featured)
+    setPublishedFeatured(featured)
     setPublishBlocked(false)
     setPublishBlockedShared(false)
     setShopPublished(true)
@@ -194,25 +241,45 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     logShopActivity('shop-published')
   }
 
-  function toggleFavorite(item: ShopItem) {
-    if (item.favorite) {
-      setItems((current) =>
-        current.map((row) => (row.id === item.id ? { ...row, favorite: false } : row)),
-      )
-      setToast({ message: 'Product Removed From Favorite' })
-      logShopActivity('product-unfeatured', `${item.product.brand} ${item.product.name}`)
-      markChanged()
-      return
-    }
+  /** Banner edits (backdrop, featured items) are drafts that only reach
+   *  shoppers on Publish Changes (main file `2799:105232`). Their toast only
+   *  comes with the first change since the last publish; after that Publish
+   *  Changes is already showing, so later edits stay quiet (user, 2026-10-21). */
+  const bannerUnchanged = backdropId === publishedBackdropId && sameFeatured(featured, publishedFeatured)
+  function bannerToast(message: string) {
+    if (bannerUnchanged) setToast({ message })
+  }
 
-    if (favoriteCount >= MAX_FAVORITES) {
-      showFavoriteSlotsFullToast()
-      return
-    }
+  function saveBackdropDraft(id: string) {
+    bannerToast('Banner saved. Publish changes to go live')
+    setBackdropId(id)
+    setChangingBackdrop(false)
+    markChanged()
+  }
 
-    setItems((current) => current.map((row) => (row.id === item.id ? { ...row, favorite: true } : row)))
-    setToast({ message: 'Product Added to Favorites' })
-    logShopActivity('product-featured', `${item.product.brand} ${item.product.name}`)
+  /** Save Changes in the Featured items dialog (flow 02, `2799:103925`).
+   *  Saving over an item that left the shop replaces it (flow 05, 05.7). */
+  function saveFeaturedDraft(refs: FeaturedRef[]) {
+    bannerToast(
+      resolvedFeatured.some((item) => item.kind === 'unavailable')
+        ? 'Featured item replaced. Publish changes to go live'
+        : 'Featured items saved. Publish changes to go live',
+    )
+    setFeatured(refs)
+    setFeaturedInitial(undefined)
+    setEditingFeatured(false)
+    markChanged()
+  }
+
+  function openFeaturedEditor(initial?: FeaturedRef) {
+    setFeaturedInitial(initial)
+    setEditingFeatured(true)
+  }
+
+  /** Remove on a featured card takes it off the banner, as a draft too. */
+  function removeFeatured(item: ResolvedFeatured) {
+    bannerToast('Removed from banner. Publish changes to go live')
+    setFeatured((current) => current.filter((ref) => !(ref.kind === item.ref.kind && ref.id === item.ref.id)))
     markChanged()
   }
 
@@ -226,36 +293,105 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     markChanged()
   }
 
-  /** Reorders within the favorite subset only; every other item keeps its slot. */
-  function reorderFavorite(id: string, direction: 'up' | 'down') {
+  /** New collections start at #1 on the storefront (Collections Q7). */
+  function addCollection(name: string, description: string) {
+    const next = createCollection(collections, name, description)
+    setCollections(next)
+    setNewCollectionOpen(false)
+    markChanged()
+    // From the Add to collection / Add to shop dialogs the new board just
+    // joins the list, ticked; the toast comes when that dialog saves
+    // (Figma `1862:86823`).
+    if (collectingItem || pendingProduct) {
+      setNewFromPicker((current) => [...current, next[0].id])
+      return
+    }
+    setToast({ message: `${name.trim()} created` })
+  }
+
+  function saveItemCollections(item: ShopItem, collectionIds: string[]) {
+    const before = collections.filter((c) => c.itemIds.includes(item.id)).map((c) => c.id)
+    const added = collections.filter((c) => collectionIds.includes(c.id) && !before.includes(c.id))
+    setCollections((current) => setItemCollections(current, item.id, collectionIds))
+    setCollectingItem(null)
+    setNewFromPicker([])
+    setToast({ message: collectionsSavedMessage(added) })
+    markChanged()
+  }
+
+  function saveCollectionDetails(id: string, name: string, description: string) {
+    setCollections((current) => updateCollection(current, id, name, description))
+    setEditingCollection(null)
+    setToast({ message: 'Collection updated' })
+    markChanged()
+  }
+
+  /** Copy from the design (Figma `1862:87448`). */
+  function removeCollection(collection: Collection) {
+    setCollections((current) => deleteCollection(current, collection.id))
+    setDeletingCollection(null)
+    setOpenCollectionId((current) => (current === collection.id ? null : current))
+    setToast({
+      message: `${collection.name} is no longer in the collection, but its products are still available in your shop.`,
+    })
+    markChanged()
+  }
+
+  function confirmRemoveFromCollection(item: ShopItem, collection: Collection) {
+    const { next, index } = removeItemFromCollection(collections, collection.id, item.id)
+    setCollections(next)
+    setUnlinking(null)
+    markChanged()
+    setToast({
+      message: `Removed from ${collection.name}. Still in your shop.`,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          setCollections((current) => restoreItemInCollection(current, collection.id, item.id, index))
+          setToast(null)
+        },
+      },
+    })
+  }
+
+  /** Flow 08: the collection page's card menu removes at once, with Undo
+   *  (reversible, so no confirm). */
+  function removeFromOpenCollection(item: ShopItem, collection: Collection) {
+    const { next, index } = removeItemFromCollection(collections, collection.id, item.id)
+    setCollections(next)
+    markChanged()
+    setToast({
+      message: `Removed from ${collection.name}. Still in your shop.`,
+      action: {
+        label: 'Undo',
+        onClick: () => {
+          setCollections((current) => restoreItemInCollection(current, collection.id, item.id, index))
+          setToast(null)
+        },
+      },
+    })
+  }
+
+  /** Flow 13: the page says "Collection link copied"; from a board, which
+   *  doesn't show the name, the toast names it. */
+  function copyCollectionLink(collection: Collection, from: 'page' | 'board') {
+    navigator.clipboard?.writeText(collectionLinkFor(collection)).catch(() => {})
+    setToast({ message: from === 'page' ? 'Collection link copied' : `Link to ${collection.name} copied` })
+  }
+
+  /** Each move saves at once with no toast: the board moving is the feedback.
+   *  A failed save snaps back with the old error toast (Collections Q7). */
+  function reorderCollection(id: string, direction: 'earlier' | 'later') {
     if (Math.random() < REORDER_FAILURE_RATE) {
+      setBoardMotion({ id, kind: 'failed', at: Date.now() })
       setToast({
         message: "Couldn't save the new order, we put it back the way it was",
         variant: 'error',
       })
       return
     }
-
-    setItems((current) => {
-      const favoriteIndices = current
-        .map((item, index) => (item.favorite ? index : -1))
-        .filter((index) => index >= 0)
-      const order = favoriteIndices.map((index) => current[index])
-      const position = order.findIndex((item) => item.id === id)
-      const swapWith = direction === 'up' ? position - 1 : position + 1
-      if (position < 0 || swapWith < 0 || swapWith >= order.length) return current
-
-      const nextOrder = order.slice()
-      const temp = nextOrder[position]
-      nextOrder[position] = nextOrder[swapWith]
-      nextOrder[swapWith] = temp
-
-      const next = current.slice()
-      favoriteIndices.forEach((index, k) => {
-        next[index] = nextOrder[k]
-      })
-      return next
-    })
+    setCollections((current) => moveCollection(current, id, direction))
+    setBoardMotion({ id, kind: 'moved', at: Date.now() })
     markChanged()
   }
 
@@ -269,21 +405,21 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setToast({ message: 'Shop link copied to clipboard' })
   }
 
-  // Derived from the live `query` (not `overlay.query`, frozen at the last
-  // Enter/suggestion submit) so results/empty-vs-all track every keystroke,
-  // including clearing the box back down to nothing.
-  // Results follow the *submitted* search, not the box's live text: clearing
-  // the box or typing a new keyword leaves the list alone until Enter, so the
-  // page doesn't reflow (and jump) on every keystroke.
+  // Results follow the submitted search while typing, but clearing the box
+  // immediately submits an empty query so the full catalogue comes back.
   const results = overlay?.kind === 'results' ? searchProducts(overlay.query) : []
 
   /** Builds the favorite/remove/affiliate-link controls for the standalone
    *  Product Detail page of an item already in the shop. */
   function shopModeFor(item: ShopItem, showPerformance: boolean) {
     return {
-      favorite: item.favorite,
+      collections: collectionsFor(item.id, collections),
+      onRemoveFromCollection: (collectionId: string) => {
+        const collection = collections.find((c) => c.id === collectionId)
+        if (collection) setUnlinking({ item, collection })
+      },
       variant: item.variant,
-      onToggleFavorite: () => toggleFavorite(item),
+      onAddToCollection: () => setCollectingItem(item),
       onRemoveFromShop: () => setRemovalCandidate(item),
       affiliateLink: affiliateLinkFor(item.product),
       onCopyLink: () => copyAffiliateLink(item),
@@ -298,8 +434,12 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       {previewOpen ? (
         <StorefrontPreview
           items={items}
-          onClose={() => setPreviewOpen(false)}
+          collections={collections}
+          onClose={() => initialPreview ? navigate('/shop') : setPreviewOpen(false)}
           onCopyShopLink={copyShopLink}
+          onCopyCollectionLink={(collection) => copyCollectionLink(collection, 'page')}
+          backdropId={backdropId}
+          featured={shopperFeatured(resolvedFeatured)}
         />
       ) : viewingItem ? (
         <ProductDetailPage
@@ -311,11 +451,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       ) : (
         <MyShop
           items={items}
-          favoriteLimit={MAX_FAVORITES}
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onBrowse={openCatalogue}
-          onPreview={() => setPreviewOpen(true)}
+          onPreview={() => navigate('/shop/preview')}
           onViewShop={() => {
             // Same origin as whatever's running, not a hardcoded deployment:
             // the storefront reads the shop from this browser's localStorage,
@@ -331,15 +470,36 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onPublish={() => setPublishOpen(true)}
           onViewDetails={(item) => setViewingItemId(item.id)}
           onCopyLink={copyAffiliateLink}
-          onToggleFavorite={toggleFavorite}
+          onAddToCollection={setCollectingItem}
           onRemoveFromShop={(item) => setRemovalCandidate(item)}
-          onReorderFavorite={reorderFavorite}
+          collections={collections}
+          onNewCollection={() => setNewCollectionOpen(true)}
+          onMoveCollection={reorderCollection}
+          onEditCollection={setEditingCollection}
+          onDeleteCollection={setDeletingCollection}
+          openCollectionId={openCollectionId}
+          onOpenCollection={setOpenCollectionId}
+          onCopyCollectionLink={copyCollectionLink}
+          onRemoveFromCollection={removeFromOpenCollection}
+          boardMotion={boardMotion}
+          backdropId={backdropId}
+          onChangeBackdrop={() => setChangingBackdrop(true)}
+          featured={resolvedFeatured}
+          onEditFeatured={openFeaturedEditor}
+          onRemoveFeatured={removeFeatured}
+          onAddProductsToCollection={(collection) => {
+            setCollectionTarget(collection.id)
+            openCatalogue()
+          }}
         />
       )}
 
       {overlay && (
         <BrowseOverlay
-          onClose={() => setOverlay(null)}
+          onClose={() => {
+            setOverlay(null)
+            setCollectionTarget(null)
+          }}
           scrollKey={overlay.kind === 'detail' ? `detail:${overlay.product.id}` : overlay.kind}
           scrollResetKey={overlay.kind === 'results' ? overlay.query : undefined}
           skeleton={
@@ -357,7 +517,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           {overlay.kind === 'catalogue' && (
             <CatalogueHome
               query={query}
-              onQueryChange={setQuery}
+              onQueryChange={updateSearchQuery}
               onSearch={runSearch}
               onViewAllBrands={() => setOverlay({ kind: 'brands' })}
             />
@@ -379,6 +539,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
                 setOverlay({ kind: 'detail', query: overlay.query, product })
               }
               onAddToShop={setPendingProduct}
+              addLabel={collectionTarget ? 'Add to Collection' : undefined}
             />
           )}
 
@@ -398,14 +559,47 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       {pendingProduct && (
         <AddToShopModal
           product={pendingProduct}
-          favoriteCount={favoriteCount}
-          favoriteLimit={MAX_FAVORITES}
+          collections={collections}
+          initialCollectionIds={collectionTarget ? [collectionTarget] : []}
+          title={collectionTarget ? 'Add this product to collection?' : undefined}
+          newCollectionIds={newFromPicker}
+          onNewCollection={() => setNewCollectionOpen(true)}
           existingVariants={items
             .filter((item) => item.product.id === pendingProduct.id)
             .map((item) => item.variant)}
-          onClose={() => setPendingProduct(null)}
+          onClose={() => {
+            setPendingProduct(null)
+            setNewFromPicker([])
+          }}
           onConfirm={confirmAdd}
-          onFavoriteBlocked={() => showFavoriteSlotsFullToast()}
+        />
+      )}
+
+      {editingFeatured && (
+        <FeaturedItemsDialog
+          items={items}
+          collections={collections}
+          // An item that left the shop frees its slot (05.5).
+          current={resolvedFeatured.filter((item) => item.kind !== 'unavailable').map((item) => item.ref)}
+          initial={featuredInitial}
+          onClose={() => {
+            setFeaturedInitial(undefined)
+            setEditingFeatured(false)
+          }}
+          onSave={saveFeaturedDraft}
+          onBrowseCatalogue={() => {
+            setFeaturedInitial(undefined)
+            setEditingFeatured(false)
+            openCatalogue()
+          }}
+        />
+      )}
+
+      {changingBackdrop && (
+        <ChangeBackdropDialog
+          currentId={backdropId}
+          onClose={() => setChangingBackdrop(false)}
+          onSave={saveBackdropDraft}
         />
       )}
 
@@ -429,6 +623,58 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
       )}
 
       <RequestSampleFlow product={sampleProduct} onClose={() => setSampleProduct(null)} />
+
+      {collectingItem && (
+        <AddToCollectionDialog
+          item={collectingItem}
+          collections={collections}
+          newCollectionIds={newFromPicker}
+          onNewCollection={() => setNewCollectionOpen(true)}
+          onClose={() => {
+            setCollectingItem(null)
+            setNewFromPicker([])
+          }}
+          onSave={(ids) => saveItemCollections(collectingItem, ids)}
+        />
+      )}
+
+      {newCollectionOpen && (
+        <CollectionDialog
+          mode="create"
+          takenNames={collections.map((c) => c.name)}
+          onSubmit={addCollection} onClose={() => setNewCollectionOpen(false)} />
+      )}
+
+      {editingCollection && (
+        <CollectionDialog
+          mode="edit"
+          takenNames={collections.filter((c) => c.id !== editingCollection.id).map((c) => c.name)}
+          initialName={editingCollection.name}
+          initialDescription={editingCollection.description}
+          onSubmit={(name, description) => saveCollectionDetails(editingCollection.id, name, description)}
+          onClose={() => setEditingCollection(null)}
+        />
+      )}
+
+      {unlinking && (
+        <RemoveFromCollectionDialog
+          productName={unlinking.item.product.name}
+          collectionName={unlinking.collection.name}
+          onClose={() => setUnlinking(null)}
+          onConfirm={() => confirmRemoveFromCollection(unlinking.item, unlinking.collection)}
+        />
+      )}
+
+      {deletingCollection && (
+        <DeleteCollectionDialog
+          name={deletingCollection.name}
+          productCount={
+            deletingCollection.itemIds.filter((id) => items.some((item) => item.id === id)).length
+          }
+          onClose={() => setDeletingCollection(null)}
+          onConfirm={() => removeCollection(deletingCollection)}
+        />
+      )}
 
       {toast && (
         <Toast message={toast.message} variant={toast.variant} action={toast.action} />

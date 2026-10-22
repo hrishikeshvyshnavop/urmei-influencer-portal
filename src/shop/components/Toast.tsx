@@ -6,7 +6,7 @@ type ToastProps = {
   message: string
   /** check-circle (success, default) or x-circle (blocked/error). */
   variant?: 'success' | 'error'
-  /** e.g. "Manage Slot" on the favorite-slots-full toast — fixes the toast at 400px wide. */
+  /** e.g. "Undo" after removing from a collection (Figma `1862:81759`). */
   action?: ToastAction
 }
 
@@ -24,13 +24,16 @@ export function Toast({ message, variant = 'success', action }: ToastProps) {
       <div
         role="status"
         className={[
-          'motion-toast pointer-events-auto flex items-center gap-md-sm rounded-md bg-surface-primary-500 p-md-sm',
-          action ? 'w-[400px] justify-between' : 'w-fit',
+          'motion-toast pointer-events-auto flex w-max max-w-[calc(100vw-32px)] items-center rounded-md bg-surface-primary-500 p-md-sm',
+          // The design hugs the message on one line with 108px before the
+          // action; a fixed width wrapped or clipped longer messages such as
+          // "Removed from My morning routine. Still in your shop."
+          action ? 'gap-[108px]' : 'gap-md-sm',
         ].join(' ')}
       >
-        <span className="flex items-center gap-sm">
+        <span className="flex min-w-0 items-center gap-sm">
           <Icon name={variant === 'success' ? 'check-circle' : 'x-circle'} size={22} />
-          <span className="truncate text-body-sm font-medium text-text-secondary-100">
+          <span className="min-w-0 truncate text-body-sm font-medium whitespace-nowrap text-text-secondary-100">
             {message}
           </span>
         </span>

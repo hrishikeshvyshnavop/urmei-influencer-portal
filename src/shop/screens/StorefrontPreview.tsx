@@ -1,118 +1,40 @@
-import { useRef, useState, useSyncExternalStore } from 'react'
+import { useState, useSyncExternalStore } from 'react'
+import { Icon } from '../components/Icon'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
 import { CreatorMarketBar } from '../components/CreatorMarketBar'
 import { EmptyStorefront } from '../components/EmptyStorefront'
-import { Icon } from '../components/Icon'
 import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
 import { ScaledBox } from '../components/ScaledBox'
 import { StorefrontHeader } from '../components/StorefrontHeader'
+import { StorefrontBreadcrumb } from '../components/StorefrontBreadcrumb'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
-import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontBanner } from '../components/StorefrontBanner'
 import { StorefrontReviews } from '../components/StorefrontReviews'
+import { StorefrontCollections } from '../components/StorefrontCollections'
+import { StorefrontCollectionPage } from '../components/StorefrontCollectionPage'
+import type { Collection } from '../collections-store'
 import { reviewsForShop } from '../data/reviews'
-import { useHasOverflowX } from '../hooks/useHasOverflowX'
-import { CONTENT_COLUMN } from '../layout'
 import type { ShopItem } from '../types'
+import type { AvailableFeatured } from '../featured'
 
 type StorefrontPreviewProps = {
   items: ShopItem[]
+  /** Board order as the creator set it; the preview drops empty ones. */
+  collections: Collection[]
   onClose: () => void
   onCopyShopLink: () => void
+  onCopyCollectionLink: (collection: Collection) => void
+  /** The saved banner (`T-38`): the preview shows it before it's published. */
+  backdropId: string
+  featured: AvailableFeatured[]
 }
 
 /** Also the threshold above which pagination appears at all — 8 or fewer
  *  picks all fit on one page, so the controls stay hidden. */
 const PICKS_PER_PAGE = 8
-/** How far one click of the favorite-strip's prev/next scrolls — one card + its gap. */
-const FAVORITES_SCROLL_STEP = 288 + 16
-
-function FavoritePicks({
-  items,
-  country,
-  /** The storefront owner's display name: the strip is titled after them
-   *  ("CHARLOTTE'S FAVORITE PICKS", Figma `1619:36970`). */
-  ownerName,
-  onSelect,
-}: {
-  items: ShopItem[]
-  country: string
-  ownerName: string
-  onSelect: (item: ShopItem) => void
-}) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const canScroll = useHasOverflowX(scrollRef, items.length)
-
-  function scroll(direction: 'left' | 'right') {
-    scrollRef.current?.scrollBy({
-      left: direction === 'left' ? -FAVORITES_SCROLL_STEP : FAVORITES_SCROLL_STEP,
-      behavior: 'smooth',
-    })
-  }
-
-  return (
-    <section className="bleed-x flex w-full flex-col items-center gap-md-2 py-3xl before:bg-gradient-to-b before:from-surface-tertiary-500/0 before:to-surface-tertiary-500">
-      <div className={`flex items-center gap-md-2 ${CONTENT_COLUMN}`}>
-        <p className="flex-1 text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
-          {ownerName}&rsquo;s favorite picks
-        </p>
-        {/* Only when the strip actually overflows. With a handful of favorite
-            picks every card is already on screen, and arrows that scroll
-            nothing read as broken controls. */}
-        {canScroll && (
-          <div className="flex items-start gap-sm">
-            <button
-              type="button"
-              aria-label="Scroll favorite products left"
-              onClick={() => scroll('left')}
-              className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
-            >
-              <Icon name="chevron-left" />
-            </button>
-            <button
-              type="button"
-              aria-label="Scroll favorite products right"
-              onClick={() => scroll('right')}
-              className="flex items-center justify-center overflow-clip rounded-md border border-border-default p-md-sm"
-            >
-              <Icon name="chevron-right" />
-            </button>
-          </div>
-        )}
-      </div>
-      {/* The card track is the 1200px content column, not the full page width
-          (Figma `916:65772`), so the page margin does the clipping and the row
-          starts and ends on the same edges as the profile card above it. The
-          margin has to sit on this wrapper rather than as the scroller's own
-          padding: as padding it scrolls with the content, which put the
-          overflow out in the page margin instead of clipped against it. */}
-      <div className={CONTENT_COLUMN}>
-        <div
-          ref={scrollRef}
-          className="flex w-full gap-md overflow-x-auto [scrollbar-width:none]"
-        >
-          {items.map((item) => (
-            <StorefrontProductCard
-              key={item.id}
-              product={item.product}
-              /* 288px, matching All Picks rather than the design's 280 — asked
-                 for directly, so the two sections' cards are the same size.
-                 It also divides the 1200px column exactly four ways
-                 (4 x 288 + 3 x 16 = 1200), so a row of four is flush with the
-                 column edge. */
-              className="w-[288px]"
-              available={item.product.regions.includes(country)}
-              onClick={() => onSelect(item)}
-            />
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
-
 function AllPicks({
   items,
   country,
@@ -193,18 +115,22 @@ function AllPicks({
  * A live preview of the creator's public storefront (Figma section
  * `917:53442`), reached from the "Preview Storefront" button on `StoreCard`
  * (enabled only once the shop is published). Shows the real shop contents
- * rather than the section's placeholder products — "Top Favorite Products"
- * mirrors the Favorite tab and is omitted entirely when nothing is favorite,
- * since the Figma frames never show that empty case. With no products at
+ * rather than the section's placeholder products. The Collections row (flow
+ * 15, Figma `1862:82562`) replaced Favorite Picks: the creator's boards in
+ * their order, empty ones hidden, and no row at all when none has a product.
+ * With no products at
  * all (e.g. everything removed after publishing), swaps both product
  * sections for the dedicated empty state.
  */
-export function StorefrontPreview({ items, onClose, onCopyShopLink }: StorefrontPreviewProps) {
-  const favoriteItems = items.filter((item) => item.favorite)
+export function StorefrontPreview({ items, collections, onClose, onCopyShopLink, onCopyCollectionLink, backdropId, featured }: StorefrontPreviewProps) {
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
+  /** A board opened in the preview (flow 16), and the collection a product
+   *  was opened from, for the market bar. */
+  const [openCollection, setOpenCollection] = useState<Collection | null>(null)
+  const [fromCollection, setFromCollection] = useState<Collection | null>(null)
 
   return (
     <div className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100">
@@ -222,11 +148,30 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
         <div className="sticky top-0 z-30 flex w-full flex-col">
           <StorefrontHeader onClose={onClose} />
           {selectedItem && (
-            <CreatorMarketBar name={name} country={country} onBack={() => setSelectedItem(null)} designWidth={1440} />
+            <CreatorMarketBar
+              name={name}
+              country={country}
+              collectionName={fromCollection?.name}
+              onBack={() => setSelectedItem(null)}
+              designWidth={1440}
+            />
           )}
         </div>
 
-        <div className="flex w-full flex-1 justify-center">
+        <div className="flex w-full flex-1 flex-col items-center">
+          {!selectedItem && !openCollection && (
+            <StorefrontBanner
+              backdropId={backdropId}
+              featured={featured}
+              scaleContent
+              onCopyLink={onCopyShopLink}
+              onOpenFeatured={(item) =>
+                item.kind === 'collection' ? setOpenCollection(item.collection) : setSelectedItem(item.item)
+              }
+            />
+          )}
+
+          <div className="flex w-full flex-1 justify-center">
           <ScaledBox width={1440} className="flex flex-col items-start bg-surface-secondary-100">
             <main className="flex w-full flex-col items-start">
               {selectedItem ? (
@@ -236,25 +181,63 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
                   creatorName={name}
                   onBack={() => setSelectedItem(null)}
                 />
+              ) : openCollection ? (
+                <div className="flex w-full flex-col gap-md-2 pt-md-2">
+                  <div className="px-margin">
+                    <StorefrontBreadcrumb
+                      items={[
+                        { label: 'Home', onClick: () => setOpenCollection(null) },
+                        { label: 'Creators', onClick: () => setOpenCollection(null) },
+                        { label: name, onClick: () => setOpenCollection(null) },
+                        { label: openCollection.name },
+                      ]}
+                    />
+                  </div>
+                  <div className="px-margin">
+                    <button
+                      type="button"
+                      onClick={() => setOpenCollection(null)}
+                      className="flex cursor-pointer items-center gap-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
+                    >
+                      <Icon name="chevron-left" />
+                      {name}&rsquo;s storefront
+                    </button>
+                  </div>
+                  <StorefrontCollectionPage
+                    collection={openCollection}
+                    items={items}
+                    collections={collections}
+                    ownerName={name}
+                    country={country}
+                    onSelectItem={(item) => {
+                      setFromCollection(openCollection)
+                      setSelectedItem(item)
+                    }}
+                    onSelectCollection={setOpenCollection}
+                    onCopyLink={() => onCopyCollectionLink(openCollection)}
+                  />
+                </div>
               ) : (
                 <>
-                  <div className="flex w-full flex-col gap-md-2 px-margin pt-md-2">
-                    <StorefrontProfileCard onCopyLink={onCopyShopLink} />
-                    {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice country={country} />}
-                  </div>
+                  {items.length > 0 && !hasAvailableItems && (
+                    <div className="flex w-full flex-col px-margin pt-md-2">
+                      <NoAvailabilityNotice country={country} />
+                    </div>
+                  )}
 
                   {items.length === 0 ? (
                     <EmptyStorefront name={name} />
                   ) : (
                     <>
-                      {favoriteItems.length > 0 && (
-                        <FavoritePicks
-                          items={favoriteItems}
-                          country={country}
-                          ownerName={name}
-                          onSelect={setSelectedItem}
-                        />
-                      )}
+                      <StorefrontCollections
+                        collections={collections}
+                        items={items}
+                        bleed
+                        onSelect={(collection) => {
+                          setFromCollection(null)
+                          setOpenCollection(collection)
+                        }}
+                      />
                       <StorefrontReviews
                         reviews={reviewsForShop(items)}
                         ownerName={name}
@@ -267,6 +250,7 @@ export function StorefrontPreview({ items, onClose, onCopyShopLink }: Storefront
               )}
             </main>
           </ScaledBox>
+          </div>
         </div>
       </div>
 

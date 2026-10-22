@@ -1,23 +1,31 @@
+import { useRef } from 'react'
 import AppShell from '../../portal/components/AppShell'
 import SetupBanner from '../../portal/components/SetupBanner'
 import { requestProductTour } from '../../portal/tour-status'
 import { AddProductTile } from '../components/AddProductTile'
 import { Button } from '../components/Button'
-import { EmptyFavorites } from '../components/EmptyFavorites'
+import { CollectionCard } from '../components/CollectionCard'
+import { CollectionPage } from '../components/CollectionPage'
+import { useFlip } from '../hooks/useFlip'
+import { EmptyCollections } from '../components/EmptyCollections'
 import { EmptyShop } from '../components/EmptyShop'
 import { Icon } from '../components/Icon'
 import { ShopProductCard } from '../components/ShopProductCard'
-import { StatsRow } from '../components/StatsRow'
+import { BannerFeaturedRow } from '../components/BannerFeaturedRow'
+import { backdropById } from '../data/backdrops'
+import { backdropColors } from '../data/backdrop-colors'
+import type { FeaturedRef } from '../banner-store'
+import type { ResolvedFeatured } from '../featured'
 import { hasLiveLink } from '../data/shop'
-import { statsRowEntries } from '../data/stats'
 import { StoreCard } from '../components/StoreCard'
 import { Tabs } from '../components/Tabs'
+import type { Collection } from '../collections-store'
 import type { ShopItem } from '../types'
 import { navigate } from '../../router'
+import { cn } from '../../lib/utils'
 
 type MyShopProps = {
   items: ShopItem[]
-  favoriteLimit: number
   activeTab: string
   onTabChange: (id: string) => void
   onBrowse: () => void
@@ -31,14 +39,37 @@ type MyShopProps = {
   onPublish: () => void
   onViewDetails: (item: ShopItem) => void
   onCopyLink: (item: ShopItem) => void
-  onToggleFavorite: (item: ShopItem) => void
+  onAddToCollection: (item: ShopItem) => void
   onRemoveFromShop: (item: ShopItem) => void
-  onReorderFavorite: (id: string, direction: 'up' | 'down') => void
+  collections: Collection[]
+  onNewCollection: () => void
+  onMoveCollection: (id: string, direction: 'earlier' | 'later') => void
+  onEditCollection: (collection: Collection) => void
+  onDeleteCollection: (collection: Collection) => void
+  /** The collection page open inside the Collections tab, if any (flow 08). */
+  openCollectionId: string | null
+  onOpenCollection: (id: string | null) => void
+  onCopyCollectionLink: (collection: Collection, from: 'page' | 'board') => void
+  onRemoveFromCollection: (item: ShopItem, collection: Collection) => void
+  /** Opens the catalogue to fill this collection (flow 09). */
+  onAddProductsToCollection: (collection: Collection) => void
+  /** The last board moved with the arrows, and whether the save held: it
+   *  lifts while sliding, or shakes as it snaps back. `at` restarts the
+   *  animation on repeated moves of the same board. */
+  boardMotion: { id: string; kind: 'moved' | 'failed'; at: number } | null
+  /** The saved banner backdrop (`T-38`); may not be published yet. */
+  backdropId: string
+  /** Opens the Change backdrop dialog (flow 01). */
+  onChangeBackdrop: () => void
+  /** The saved featured items (flow 02). */
+  featured: ResolvedFeatured[]
+  /** Opens the Featured items dialog. */
+  onEditFeatured: (initial?: FeaturedRef) => void
+  onRemoveFeatured: (featured: ResolvedFeatured) => void
 }
 
 export function MyShop({
   items,
-  favoriteLimit,
   activeTab,
   onTabChange,
   onBrowse,
@@ -51,36 +82,57 @@ export function MyShop({
   onPublish,
   onViewDetails,
   onCopyLink,
-  onToggleFavorite,
+  onAddToCollection,
   onRemoveFromShop,
-  onReorderFavorite,
+  collections,
+  onNewCollection,
+  onMoveCollection,
+  onEditCollection,
+  onDeleteCollection,
+  openCollectionId,
+  onOpenCollection,
+  onCopyCollectionLink,
+  onRemoveFromCollection,
+  onAddProductsToCollection,
+  boardMotion,
+  backdropId,
+  onChangeBackdrop,
+  featured,
+  onEditFeatured,
+  onRemoveFeatured,
 }: MyShopProps) {
-  const favoriteItems = items.filter((item) => item.favorite)
+  const boardsRef = useRef<HTMLDivElement>(null)
+  useFlip(boardsRef, collections.map((collection) => collection.id).join('|'))
   const isEmpty = items.length === 0
   // Adding a product resolves a blocked publish attempt immediately, even
   // before the user publishes again.
   const blocked = publishBlocked && isEmpty
-  const isFavoriteTab = activeTab === 'favorites'
+  // Collections replace the Favorites tab (`T-41`, Figma `1862:87949`).
+  const isCollectionsTab = activeTab === 'collections'
 
-  const tabs = isEmpty
-    ? [
-        { id: 'all', label: 'All Picks ' },
-        { id: 'favorites', label: 'Favorites' },
-      ]
-    : [
-        { id: 'all', label: `All Picks (${items.length})` },
-        {
-          id: 'favorites',
-          label: favoriteItems.length > 0 ? `Favorites (${favoriteItems.length})` : 'Favorites',
-        },
-      ]
+  const tabs = [
+    { id: 'all', label: isEmpty ? 'All Picks ' : `All Picks (${items.length})` },
+    { id: 'collections', label: `Collections (${collections.length})` },
+  ]
 
-  const heading = isFavoriteTab ? `Favorite products (${favoriteItems.length}/${favoriteLimit})` : 'Your Picks '
-  const subtitle = isFavoriteTab
-    ? 'Products here appear first in your storefront'
+  const heading = isCollectionsTab ? `Collections (${collections.length})` : 'Your Picks '
+  // With no boards there is nothing to reorder, so the design drops the
+  // arrows hint (Figma `1862:87353`).
+  const subtitle = isCollectionsTab
+    ? collections.length === 0
+      ? 'Group your picks into boards shoppers can browse on your storefront'
+      : 'Group your picks into boards. Use the arrows to set the order shoppers see'
     : 'Everything you add appears here'
-
-  const visibleItems = isFavoriteTab ? favoriteItems : items
+  const itemsById = new Map(items.map((item) => [item.id, item]))
+  const itemsOf = (collection: Collection) =>
+    collection.itemIds
+      .map((id) => itemsById.get(id))
+      .filter((item): item is ShopItem => item !== undefined)
+  const backdrop = backdropById(backdropId)
+  const colors = backdropColors(backdropId)
+  const openCollection = isCollectionsTab
+    ? collections.find((collection) => collection.id === openCollectionId) ?? null
+    : null
 
   return (
     <AppShell
@@ -90,16 +142,34 @@ export function MyShop({
       footerBelowFold
     >
       <SetupBanner />
-      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-8 pb-16 lg:px-[120px]">
-        <section className="flex w-full flex-col items-start gap-xl">
-          <div className="flex flex-col gap-xs">
-            <h1 className="text-h6 font-semibold text-text-secondary-1000 uppercase">My Shop</h1>
-            <p className="text-body-md text-text-secondary-700">Your curated URMEI storefront.</p>
-          </div>
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-xs px-6 py-lg lg:px-[120px]">
+        <h1 className="text-h6 font-semibold text-text-secondary-1000 uppercase">My Shop</h1>
+        <p className="text-body-md text-text-secondary-700">Your curated URMEI storefront.</p>
+      </div>
 
-          <div className="flex w-full flex-col items-center overflow-clip rounded-lg bg-surface-secondary-300 shadow-store-card">
+      {/* The banner (main file `2799:105075`): the saved backdrop runs the
+          full width behind the card, with Change Backdrop above it. Shop
+          stats are no longer here; they live on Home (MVP, 10 Oct notes). */}
+      <section aria-label="Shop banner" className="relative w-full overflow-clip">
+        <img
+          src={backdrop.image}
+          alt=""
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+        />
+        <div className="relative mx-auto flex w-full max-w-[1440px] flex-col items-end gap-fourteen px-6 py-[30px] lg:px-[120px]">
+          <button
+            type="button"
+            onClick={onChangeBackdrop}
+            className="flex cursor-pointer items-center gap-sm rounded-lg border border-border-default bg-surface-secondary-100 px-sm py-xs text-body-xs font-medium text-text-secondary-1000 capitalize"
+          >
+            <Icon name="sparkles" />
+            Change Backdrop
+          </button>
+          <div
+            className={cn('flex w-full flex-col gap-lg rounded-[16px] p-md shadow-banner-card sm:p-xxl', backdrop.cardClassName)}
+            style={{ background: colors.profileCard }}
+          >
             <StoreCard
-              attachedBelow
               published={published}
               publishedAt={publishedAt}
               hasUnpublishedChanges={hasUnpublishedChanges}
@@ -109,25 +179,49 @@ export function MyShop({
               onPreview={onPreview}
               onViewShop={onViewShop}
             />
-            {(published || blocked) && (
-              <StatsRow
-                stats={statsRowEntries(items, 'shop')}
-                showPeriod
-              />
-            )}
+            <BannerFeaturedRow
+              featured={featured}
+              // A bare reference would hand the click event in as the preselected item.
+              onEdit={() => onEditFeatured()}
+              onRemove={onRemoveFeatured}
+              featuredLabelColor={colors.featuredLabel}
+              featuredSurface={colors.featuredCard}
+            />
           </div>
-        </section>
+        </div>
+      </section>
 
+      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-4xl-2 pb-16 lg:px-[120px]">
         <section className="flex w-full flex-col items-center gap-3xl">
           <Tabs tabs={tabs} activeId={activeTab} onChange={onTabChange} />
 
+          {openCollection ? (
+            <CollectionPage
+              collection={openCollection}
+              items={itemsOf(openCollection)}
+              publishedAt={publishedAt}
+              onBack={() => onOpenCollection(null)}
+              onCopyLink={() => onCopyCollectionLink(openCollection, 'page')}
+              onEditDetails={() => onEditCollection(openCollection)}
+              onDelete={() => onDeleteCollection(openCollection)}
+              onViewDetails={onViewDetails}
+              onCopyAffiliateLink={onCopyLink}
+              onRemoveFromCollection={(item) => onRemoveFromCollection(item, openCollection)}
+              onRemoveFromShop={onRemoveFromShop}
+              onAddProducts={() => onAddProductsToCollection(openCollection)}
+            />
+          ) : (
           <div className="flex w-full flex-col items-start gap-lg">
             <div className="flex w-full items-center justify-between">
               <div className="flex flex-1 flex-col gap-[6px]">
                 <p className="text-body-xxl text-text-primary-1000">{heading}</p>
                 <p className="text-body-md text-text-secondary-700">{subtitle}</p>
               </div>
-              {!isFavoriteTab && (
+              {isCollectionsTab ? (
+                <Button variant="outline" onClick={onNewCollection} leftIcon={<Icon name="plus" />}>
+                  New Collection
+                </Button>
+              ) : (
                 <Button variant="outline" onClick={onBrowse} leftIcon={<Icon name="plus" />}>
                   Add product
                 </Button>
@@ -135,11 +229,59 @@ export function MyShop({
             </div>
 
             <div className="flex w-full flex-col items-start bg-surface-secondary-100">
-              {/* Checked before `isEmpty` so the Favorite tab always shows its
-                  own empty state — including when the shop has no products
-                  at all — rather than falling back to `EmptyShop`. */}
-              {isFavoriteTab && favoriteItems.length === 0 ? (
-                <EmptyFavorites limit={favoriteLimit} onGoToAllPicks={() => onTabChange('all')} />
+              {/* Checked before `isEmpty`: collections show even when the
+                  shop has no products yet (every shop starts with Favourites). */}
+              {isCollectionsTab && collections.length === 0 ? (
+                <EmptyCollections onNewCollection={onNewCollection} />
+              ) : isCollectionsTab ? (
+                // Four 282px boards fill the 1200px column exactly (24px gaps,
+                // 26px between rows, as in the design).
+                <div ref={boardsRef} className="flex w-full flex-wrap gap-x-lg gap-y-[26px]">
+                  {collections.map((collection, index) => (
+                    // The outer box slides (useFlip); the moved board sits above
+                    // its neighbours while they pass each other.
+                    <div
+                      key={collection.id}
+                      data-flip-key={collection.id}
+                      className={boardMotion?.id === collection.id ? 'relative z-[1]' : undefined}
+                    >
+                    {/* Re-keyed on each move so the lift / shake replays. */}
+                    <div
+                      key={boardMotion?.id === collection.id ? boardMotion.at : 'still'}
+                      className={
+                        boardMotion?.id === collection.id
+                          ? boardMotion.kind === 'moved'
+                            ? 'motion-board-lift rounded-t-md'
+                            : 'motion-board-nudge'
+                          : undefined
+                      }
+                    >
+                    <CollectionCard
+                      collection={collection}
+                      items={itemsOf(collection)}
+                      onOpen={() => onOpenCollection(collection.id)}
+                      position={index + 1}
+                      canMoveEarlier={index > 0}
+                      canMoveLater={index < collections.length - 1}
+                      onMove={(direction) => onMoveCollection(collection.id, direction)}
+                      menuActions={[
+                        { label: 'Edit details', onSelect: () => onEditCollection(collection) },
+                        {
+                          label: 'Copy collection link',
+                          disabled: publishedAt === null,
+                          onSelect: () => onCopyCollectionLink(collection, 'board'),
+                        },
+                        {
+                          label: 'Delete collection',
+                          destructive: true,
+                          onSelect: () => onDeleteCollection(collection),
+                        },
+                      ]}
+                    />
+                    </div>
+                    </div>
+                  ))}
+                </div>
               ) : isEmpty ? (
                 <EmptyShop onBrowse={onBrowse} />
               ) : (
@@ -147,7 +289,7 @@ export function MyShop({
                 // the 1200px column, stepping down to three and then two as
                 // the window narrows instead of squeezing four cards into it.
                 <div className="grid w-full grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-lg">
-                  {visibleItems.map((item) => (
+                  {items.map((item) => (
                     <ShopProductCard
                       key={item.id}
                       item={item}
@@ -158,31 +300,16 @@ export function MyShop({
                       onCopyLink={
                         hasLiveLink(item, publishedAt) ? () => onCopyLink(item) : undefined
                       }
-                      onToggleFavorite={() => onToggleFavorite(item)}
+                      onAddToCollection={() => onAddToCollection(item)}
                       onRemoveFromShop={() => onRemoveFromShop(item)}
-                      favoriteRank={
-                        isFavoriteTab
-                          ? {
-                              rank: favoriteItems.findIndex((f) => f.id === item.id) + 1,
-                              canMoveUp: favoriteItems.findIndex((f) => f.id === item.id) > 0,
-                              canMoveDown:
-                                favoriteItems.findIndex((f) => f.id === item.id) <
-                                favoriteItems.length - 1,
-                            }
-                          : undefined
-                      }
-                      onReorder={
-                        isFavoriteTab ? (direction) => onReorderFavorite(item.id, direction) : undefined
-                      }
                     />
                   ))}
-                  {/* Only All Picks gets a trailing "add" tile — the Favorite
-                      tab manages its slots via each card's own menu instead. */}
-                  {!isFavoriteTab && <AddProductTile onClick={onBrowse} />}
+                  <AddProductTile onClick={onBrowse} />
                 </div>
               )}
             </div>
           </div>
+          )}
         </section>
       </main>
     </AppShell>

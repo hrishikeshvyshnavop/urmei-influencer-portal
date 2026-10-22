@@ -25,6 +25,9 @@ type SearchResultsProps = {
   onBackToCatalogue: () => void
   onOpenProduct: (product: Product) => void
   onAddToShop: (product: Product) => void
+  /** The row button's label: "Add to Collection" while filling a collection
+   *  from its empty page (flow 09, Figma `1970:101208`). */
+  addLabel?: string
   /** Seeds the Filters panel — e.g. a brand card's "View Products" link
    *  arrives with that brand pre-checked instead of typed into the search box. */
   initialFilters?: ProductFilters
@@ -34,10 +37,12 @@ function ResultCard({
   product,
   onOpen,
   onAdd,
+  addLabel,
 }: {
   product: Product
   onOpen: () => void
   onAdd: () => void
+  addLabel: string
 }) {
   return (
     <div className="flex w-full items-center justify-center overflow-clip border-b border-border-default bg-surface-secondary-100 py-md-sm">
@@ -90,7 +95,7 @@ function ResultCard({
             className="flex items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100 capitalize"
           >
             <Icon name="plus-inverse" />
-            Add to shop
+            {addLabel}
           </button>
         </div>
       </div>
@@ -187,6 +192,7 @@ export function SearchResults({
   onOpenProduct,
   onAddToShop,
   initialFilters = EMPTY_FILTERS,
+  addLabel = 'Add to shop',
 }: SearchResultsProps) {
   const [filters, setFilters] = useState(initialFilters)
   const [sortBy, setSortBy] = useState<SortId>('relevance')
@@ -385,6 +391,7 @@ export function SearchResults({
                     product={product}
                     onOpen={() => onOpenProduct(product)}
                     onAdd={() => onAddToShop(product)}
+                    addLabel={addLabel}
                   />
                 ))
               )}

@@ -44,11 +44,12 @@ export default function AppHeader({
     setSearchFocused(false);
   };
 
+  // A suggestion is one product, so picking it opens that product's detail
+  // page; only submitting the typed text lists search results.
   const selectSuggestion = (suggestion: (typeof PRODUCTS)[number]) => {
-    const query = `${suggestion.brand} ${suggestion.name}`;
-    setSearchQuery(query);
+    setSearchQuery("");
     setSearchFocused(false);
-    navigate(`/shop/search/${encodeURIComponent(query)}`);
+    navigate(`/shop/product/${encodeURIComponent(suggestion.id)}`);
     window.scrollTo(0, 0);
   };
 

@@ -1,38 +1,49 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import type { Collection } from '../collections-store'
+import { useCollectionSelection } from '../hooks/useCollectionSelection'
 import type { Product } from '../types'
+import { CollectionChecklist } from './CollectionChecklist'
 import { Icon } from './Icon'
-import { Toggle } from './Toggle'
 import { VariantSelect } from './VariantSelect'
 
 type AddToShopModalProps = {
   product: Product
-  favoriteCount: number
-  favoriteLimit: number
+  /** The creator's collections, for the optional "Choose collections"
+   *  section that replaced the Favorite toggle (Figma `1913:35948`). */
+  collections: Collection[]
+  /** Pre-ticked, e.g. the collection being filled from its empty page
+   *  (flow 09, Figma `1970:101056`). */
+  initialCollectionIds?: string[]
+  /** Collections made from this dialog: shown "New", arriving ticked. */
+  newCollectionIds: string[]
+  onNewCollection: () => void
   /** Variants of this same product already in the shop — including when
    *  there's only one variant to begin with, which makes the product itself
    *  the thing that's already added. Re-adding one is blocked rather than
    *  creating an indistinguishable duplicate row. */
   existingVariants: string[]
   onClose: () => void
-  onConfirm: (favorite: boolean, variant: string) => void
-  /** Called instead of enabling the toggle when all `favoriteLimit` slots are
-   *  already taken — the caller shows the slots-full toast. */
-  onFavoriteBlocked: () => void
+  /** Filling a collection from the catalogue: "Add this product to
+   *  collection?" (flow 21, Figma `1970:101835`). */
+  title?: string
+  /** Nothing ticked means All Picks only, as before (annotation `1913:36641`). */
+  onConfirm: (collectionIds: string[], variant: string) => void
 }
 
 export function AddToShopModal({
   product,
-  favoriteCount,
-  favoriteLimit,
+  collections,
+  initialCollectionIds = [],
+  newCollectionIds,
+  onNewCollection,
   existingVariants,
   onClose,
   onConfirm,
-  onFavoriteBlocked,
+  title = 'Add this product to your shop?',
 }: AddToShopModalProps) {
-  const [favorite, setFavorite] = useState(false)
+  const { selected, toggle } = useCollectionSelection(initialCollectionIds, newCollectionIds)
   const [selectedVariant, setSelectedVariant] = useState(product.variant)
-  const atLimit = favoriteCount >= favoriteLimit
   const alreadyAdded = existingVariants.includes(selectedVariant)
 
   // The modal only actually unmounts once the parent clears `pendingProduct`,
@@ -47,7 +58,7 @@ export function AddToShopModal({
       window.clearTimeout(closeTimeoutRef.current)
       closeTimeoutRef.current = null
     }
-    if (kind === 'confirm') onConfirm(favorite, selectedVariant)
+    if (kind === 'confirm') onConfirm(selected, selectedVariant)
     else onClose()
   }
 
@@ -94,15 +105,6 @@ export function AddToShopModal({
     }
   }, [])
 
-  function handleFavoriteToggle(next: boolean) {
-    if (alreadyAdded) return
-    if (next && atLimit) {
-      onFavoriteBlocked()
-      return
-    }
-    setFavorite(next)
-  }
-
   return createPortal(
     <div
       className="motion-modal-backdrop fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-scrim p-4"
@@ -115,14 +117,12 @@ export function AddToShopModal({
         onAnimationEnd={handleExitAnimationEnd}
         role="dialog"
         aria-modal="true"
-        aria-label="Add this product to your shop?"
+        aria-label={title}
         data-state={closing ? 'closed' : 'open'}
         className="motion-modal-panel my-auto flex w-[525px] max-w-full shrink-0 flex-col items-center overflow-clip rounded-lg border border-border-default bg-surface-secondary-100"
       >
         <div className="flex w-full items-center justify-between border-b border-border-default px-lg py-md">
-          <p className="flex-1 text-body-xl font-semibold text-text-secondary-1000">
-            Add this product to your shop?
-          </p>
+          <p className="flex-1 text-body-xl font-semibold text-text-secondary-1000">{title}</p>
           <button
             type="button"
             aria-label="Close"
@@ -191,23 +191,15 @@ export function AddToShopModal({
               </div>
             </div>
 
-            <div className="flex w-full items-center justify-between rounded-[12px] border border-border-default p-md-sm">
-              <div className="flex flex-col justify-center gap-[2px]">
-                <p className="text-body-sm text-surface-secondary-1000">Add to your Favorite Picks</p>
-                {/* The shop's current count, which is what "added" means — the
-                    frames print 0/4 with the toggle both off and on, and the
-                    toggle itself is the feedback for the pending one. */}
-                <p className="text-body-xs font-medium text-text-secondary-700">
-                  {favoriteCount}/{favoriteLimit} products added
-                </p>
-              </div>
-              <Toggle
-                checked={favorite}
-                onChange={handleFavoriteToggle}
-                label="Add to your Favorite Picks"
-                disabled={atLimit || alreadyAdded}
-              />
-            </div>
+            <CollectionChecklist
+              title="Choose collections (optional)"
+              collections={collections}
+              selected={selected}
+              onToggle={toggle}
+              newCollectionIds={newCollectionIds}
+              onNewCollection={onNewCollection}
+              emptyBox={false}
+            />
           </div>
 
           <button

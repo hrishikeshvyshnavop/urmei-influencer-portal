@@ -62,6 +62,7 @@ export default function FieldGrid({
             maxLength={field.maxLength}
             latestDate={field.latestDate}
             locked={field.locked}
+            disabled={field.disabled}
             hint={field.hint}
             prefix={field.prefix}
             required={field.required}

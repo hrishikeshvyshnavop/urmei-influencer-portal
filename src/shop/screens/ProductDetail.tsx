@@ -10,11 +10,16 @@ import { hasSampleRequest } from '../../portal/sample-requests'
 type BreadcrumbItem = { label: string; onClick?: () => void }
 
 export type ShopMode = {
-  favorite: boolean
+  /** The collections this item is in, in board order (Figma `1862:85653`
+   *  "In collections"). */
+  collections: { id: string; name: string }[]
+  /** A chip's × (flow 18): asks first, then removes from that one collection. */
+  onRemoveFromCollection: (collectionId: string) => void
   /** The variant actually chosen when this item was added to the shop —
    *  distinct from the product's catalogue-wide `variant`/`variantOptions`. */
   variant: string
-  onToggleFavorite: () => void
+  /** Opens the Add to collection dialog (flow 07, Figma `1862:85590`). */
+  onAddToCollection: () => void
   onRemoveFromShop: () => void
   affiliateLink: string
   onCopyLink: () => void
@@ -49,7 +54,7 @@ type ProductDetailProps = {
    *  that led there is on screen. */
   showReviews?: boolean
   /** Set when viewing an item already in the shop: swaps the single CTA for
-   *  favorite/remove management buttons, an affiliate-link row, and adds the
+   *  Add to Collection / Remove from shop buttons, an affiliate-link row, and adds the
    *  "PERFORMANCE" stats section below. */
   shopMode?: ShopMode
 }
@@ -119,14 +124,6 @@ export function ProductDetail({
               alt={product.name}
               className="absolute inset-0 size-full object-cover"
             />
-            {shopMode?.favorite && (
-              <div className="absolute top-0 right-0 flex items-center p-md">
-                <span className="flex items-center gap-sm rounded-md bg-surface-primary-800 px-md py-sm text-body-sm font-medium text-text-tertiary-100 capitalize">
-                  <Icon name="star-featured" />
-                  Favorite
-                </span>
-              </div>
-            )}
           </div>
 
           <div className="flex w-full items-center gap-md-sm">
@@ -275,10 +272,10 @@ export function ProductDetail({
                   <div className="flex w-full items-center gap-md-sm">
                     <button
                       type="button"
-                      onClick={shopMode.onToggleFavorite}
+                      onClick={shopMode.onAddToCollection}
                       className="flex flex-1 items-center justify-center gap-sm rounded-md border border-border-default px-md py-sm text-body-sm font-medium text-text-secondary-1000 capitalize"
                     >
-                      {shopMode.favorite ? 'Remove From Favorite' : 'Add To Favorite'}
+                      Add to Collection
                     </button>
                     <button
                       type="button"
@@ -313,6 +310,36 @@ export function ProductDetail({
                       <Icon name="copy" />
                     )}
                   </div>
+
+                  {shopMode.collections.length > 0 && (
+                    <div className="flex w-full flex-col items-start gap-sm">
+                      <p className="text-body-sm leading-[20px] whitespace-pre text-text-secondary-700">
+                        <span className="font-medium">
+                          In {shopMode.collections.length}{' '}
+                          {shopMode.collections.length === 1 ? 'collection' : 'collections'}
+                        </span>
+                        {'  ·  Shoppers can find it in each one'}
+                      </p>
+                      <div className="flex w-full flex-wrap gap-sm">
+                        {shopMode.collections.map((collection) => (
+                          <span
+                            key={collection.id}
+                            className="flex items-center gap-sm rounded-full border border-border-default bg-[#f6f5f4] py-[6px] pr-sm pl-md-sm text-body-sm leading-[20px] font-medium whitespace-nowrap text-text-secondary-700"
+                          >
+                            {collection.name}
+                            <button
+                              type="button"
+                              aria-label={`Remove from ${collection.name}`}
+                              onClick={() => shopMode.onRemoveFromCollection(collection.id)}
+                              className="flex size-[18px] items-center justify-center rounded-xs p-[2px]"
+                            >
+                              <Icon name="x" size={14} srcSize={24} />
+                            </button>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : (
                 <button

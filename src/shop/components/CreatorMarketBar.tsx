@@ -13,8 +13,11 @@ const CURRENCY_BY_COUNTRY: Record<string, string> = {
 type CreatorMarketBarProps = {
   name: string
   country: string
-  /** Tapping the creator's name returns to their storefront. */
+  /** Tapping the creator/collection link returns to the relevant storefront. */
   onBack: () => void
+  /** Opened from a collection: "You're shopping <name>'s collection ·
+   *  <collection>" (Figma `1862:82124`). */
+  collectionName?: string
   /** Set by the in-app preview: the bar still spans the window, but its
    *  contents sit in a `ScaledBox` of this design width, in line with the
    *  scaled page below. */
@@ -27,7 +30,7 @@ type CreatorMarketBarProps = {
  * `StorefrontPreview` rather than the product page itself, so it can sit in the
  * same sticky block as the preview header.
  */
-export function CreatorMarketBar({ name, country, onBack, designWidth }: CreatorMarketBarProps) {
+export function CreatorMarketBar({ name, country, onBack, collectionName, designWidth }: CreatorMarketBarProps) {
   const currency = CURRENCY_BY_COUNTRY[country] ?? CURRENCY_BY_COUNTRY.Singapore
   const bar = 'overflow-clip border-b border-border-default bg-surface-secondary-100'
   const row = 'flex w-full items-center justify-between px-margin py-md-sm'
@@ -46,7 +49,11 @@ export function CreatorMarketBar({ name, country, onBack, designWidth }: Creator
           onClick={onBack}
           className="text-body-sm leading-[1.4] font-semibold whitespace-nowrap text-text-secondary-1000 underline"
         >
-          {name}&apos;s Picks
+          {collectionName ? (
+            <>{name}&apos;s collection{' · '}{collectionName}</>
+          ) : (
+            <>{name}&apos;s Picks</>
+          )}
         </button>
       </div>
       <p className="text-body-sm leading-[1.4] font-medium whitespace-nowrap text-text-secondary-1000">
@@ -60,6 +67,9 @@ export function CreatorMarketBar({ name, country, onBack, designWidth }: Creator
       <ScaledBox width={designWidth} className={row}>{contents}</ScaledBox>
     </div>
   ) : (
-    <div className={`${row} ${bar}`}>{contents}</div>
+    // The strip runs edge to edge; its row keeps to the 1440px content column.
+    <div className={`flex w-full justify-center ${bar}`}>
+      <div className={`${row} max-w-[1440px]`}>{contents}</div>
+    </div>
   )
 }

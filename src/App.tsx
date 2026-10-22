@@ -2,6 +2,8 @@ import { Fragment, useEffect, useState, useSyncExternalStore } from "react";
 import ApplyCreator from "./portal/ApplyCreator";
 import ApplyLanding from "./portal/ApplyLanding";
 import ApplySuccess from "./portal/ApplySuccess";
+import ApplyVerifyEmail from "./portal/ApplyVerifyEmail";
+import { getVerifiedApplyEmail } from "./portal/apply-email";
 import BankDetails from "./portal/BankDetails";
 import FinishProfile from "./portal/FinishProfile";
 import Login from "./portal/Login";
@@ -66,6 +68,16 @@ function continueInOpener(path: string) {
 }
 
 const toLogin = () => navigate("/login");
+
+/** Moves to `to` after render, replacing the history entry, for a route that
+ *  can't be shown yet. Navigating during render would update the router's
+ *  store mid-render. */
+function Redirect({ to }: { to: string }) {
+  useEffect(() => {
+    navigateTo(to, { replace: true });
+  }, [to]);
+  return null;
+}
 const toHome = () => navigate("/home");
 const skipSetup = () => {
   markSetupRequired();
@@ -160,6 +172,11 @@ function screenFor(fullHash: string) {
     if (metric) return <StatBreakdown metric={metric} origin={origin} />;
     return <ShopExperience />;
   }
+  // A shared collection link (flows 16 and 17).
+  if (hash.startsWith("/shop/view/collections/")) {
+    const collectionId = decodeURIComponent(hash.slice("/shop/view/collections/".length));
+    return <StandaloneStorefront key={collectionId} collectionId={collectionId} />;
+  }
   if (hash.startsWith("/sample-requests/")) {
     const requestId = decodeURIComponent(hash.slice("/sample-requests/".length));
     return <SampleRequestDetails key={requestId} requestId={requestId} />;
@@ -182,17 +199,29 @@ function screenFor(fullHash: string) {
     case "/apply":
       return (
         <ApplyLanding
-          onApply={() => navigate("/apply/form")}
+          onApply={() => navigate("/apply/verify")}
           onLogin={toLogin}
         />
       );
-    case "/apply/form":
+    case "/apply/verify":
+      return (
+        <ApplyVerifyEmail
+          onVerified={() => navigate("/apply/form")}
+          onLogin={toLogin}
+        />
+      );
+    case "/apply/form": {
+      // The form only opens on an email verified by OTP this session.
+      const verifiedEmail = getVerifiedApplyEmail();
+      if (!verifiedEmail) return <Redirect to="/apply/verify" />;
       return (
         <ApplyCreator
-          onBack={() => navigate("/apply")}
+          email={verifiedEmail}
+          onBack={() => navigate("/apply/verify")}
           onSubmit={() => navigate("/apply/success")}
         />
       );
+    }
     case "/apply/success":
       return (
         <ApplySuccess
@@ -331,6 +360,8 @@ function screenFor(fullHash: string) {
       return <ShopExperience />;
     case "/shop/browse":
       return <ShopExperience initialBrowse />;
+    case "/shop/preview":
+      return <ShopExperience initialPreview />;
     case "/shop/view":
       return <StandaloneStorefront />;
 
@@ -345,14 +376,14 @@ function screenFor(fullHash: string) {
             }
             navigate("/profile/review");
           }}
-          onApply={() => navigate("/apply/form")}
+          onApply={() => navigate("/apply/verify")}
         />
       );
 
     default:
       return (
         <ApplyLanding
-          onApply={() => navigate("/apply/form")}
+          onApply={() => navigate("/apply/verify")}
           onLogin={toLogin}
         />
       );

@@ -60,12 +60,15 @@ type SocialAccountRowProps = {
   platform: SocialPlatform;
   connected: boolean;
   onToggle: () => void;
+  /** "Connect" waits for the personal details (Figma `2660:53917`). */
+  disabled?: boolean;
 };
 
 export default function SocialAccountRow({
   platform,
   connected,
   onToggle,
+  disabled = false,
 }: SocialAccountRowProps) {
   return (
     <div className="flex items-center justify-between p-4">
@@ -84,6 +87,9 @@ export default function SocialAccountRow({
       <Button
         variant={connected ? "portalMuted" : "portalOutline"}
         onClick={onToggle}
+        // Disabled, the design drops the outline for a plain grey fill.
+        disabled={disabled && !connected}
+        className="disabled:border-transparent"
       >
         {connected ? "Disconnect" : "Connect"}
       </Button>

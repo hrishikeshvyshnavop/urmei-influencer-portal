@@ -42,6 +42,9 @@ type TextFieldProps = {
   error?: string;
   /** Review Details renders identity fields as read-only, filled swatches. */
   locked?: boolean;
+  /** The Inputbox's Disabled state (Figma `2852:132041`): locked, with the
+   *  value muted too — profile setup's market-locked Country. */
+  disabled?: boolean;
   /** Standing helper line below the input, drawn with the design's 12px info
    *  glyph (Figma `1583:87433`). `error` takes precedence: showing both would
    *  stack two lines of small print under one field and shift the grid. */
@@ -58,6 +61,12 @@ type TextFieldProps = {
    *  `1583:87772`). There is no failure glyph to match: `error` already
    *  reddens the border and prints the reason underneath. */
   valid?: boolean;
+  /** Prints "used/max" under the input, e.g. "16/40" (the New collection
+   *  dialog, Figma `1862:88145`). Needs `maxLength`; `error` replaces it. */
+  showCount?: boolean;
+  /** Limit the count shows when the input itself must not cap the length
+   *  (the collection name may run over 40 so its error can say so). */
+  countMax?: number;
 };
 
 export default function TextField({
@@ -73,12 +82,17 @@ export default function TextField({
   maxLength,
   latestDate,
   error,
-  locked = false,
+  locked: lockedProp = false,
+  disabled = false,
   hint,
   prefix,
   required = false,
   valid = false,
+  showCount = false,
+  countMax,
 }: TextFieldProps) {
+  const locked = lockedProp || disabled;
+  const countLimit = countMax ?? maxLength;
   const id = useId();
   const [open, setOpen] = useState(false);
   const selectedDate = parseDate(value);
@@ -129,7 +143,7 @@ export default function TextField({
                 aria-invalid={Boolean(error)}
                 aria-label={label}
               >
-                <span className={value ? "text-portal-text" : "text-portal-placeholder"}>
+                <span className={value && !disabled ? "text-portal-text" : "text-portal-placeholder"}>
                   <SelectValue placeholder={placeholder} />
                 </span>
               </SelectTrigger>
@@ -178,7 +192,9 @@ export default function TextField({
               readOnly={locked}
               disabled={locked}
               aria-invalid={Boolean(error)}
-              className={`w-full min-w-px bg-transparent text-body-sm text-portal-text outline-none placeholder:text-portal-placeholder ${
+              className={`w-full min-w-px bg-transparent text-body-sm outline-none placeholder:text-portal-placeholder ${
+                disabled ? "text-portal-placeholder" : "text-portal-text"
+              } ${
                 locked ? "cursor-not-allowed" : ""
               }`}
             />
@@ -195,15 +211,25 @@ export default function TextField({
                 aria-label={`Choose ${label}`}
                 className="relative size-[20px] shrink-0 cursor-pointer overflow-clip disabled:cursor-not-allowed"
               >
-                <span className="absolute inset-[8.33%_12.5%]">
-                  <span className="absolute inset-[-3.99%_-4.43%]">
-                    <img
-                      src="/urmei/icon-calendar.svg"
-                      alt=""
-                      className="block size-full max-w-none"
-                    />
+                {locked ? (
+                  // The design's read-only calendar, drawn in #D5D5D5 and
+                  // exported at the full 20px slot (Figma `2574:45462`).
+                  <img
+                    src="/urmei/icon-calendar-disabled.svg"
+                    alt=""
+                    className="block size-[20px] max-w-none"
+                  />
+                ) : (
+                  <span className="absolute inset-[8.33%_12.5%]">
+                    <span className="absolute inset-[-3.99%_-4.43%]">
+                      <img
+                        src="/urmei/icon-calendar.svg"
+                        alt=""
+                        className="block size-full max-w-none"
+                      />
+                    </span>
                   </span>
-                </span>
+                )}
               </button>
             </PopoverTrigger>
             <PopoverContent>
@@ -239,13 +265,20 @@ export default function TextField({
         ) : null}
       </div>
       {error ? (
-        <p className="text-body-xs text-portal-alert" role="alert">
+        // The Inputbox error variant carries the same info glyph as the hint
+        // (Figma `2660:54172`), at 4px rather than the hint's 2px.
+        <p className="flex items-center gap-1 text-body-xs text-portal-alert" role="alert">
+          <Info aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.5} />
           {error}
         </p>
       ) : hint ? (
         <p className="flex items-center gap-[2px] text-body-xs text-portal-muted">
           <Info aria-hidden="true" className="size-3 shrink-0" strokeWidth={1.5} />
           {hint}
+        </p>
+      ) : showCount && countLimit ? (
+        <p className="text-body-xs text-portal-muted">
+          {value.length}/{countLimit}
         </p>
       ) : null}
     </div>
