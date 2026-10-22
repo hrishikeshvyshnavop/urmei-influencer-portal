@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 import { BookOpen, FlaskConical, Info, Undo2 } from 'lucide-react'
 import { Accordion } from './Accordion'
 import { Button } from './Button'
@@ -14,6 +14,22 @@ type StorefrontProductDetailProps = {
   /** Storefront owner, for the notify-me confirmation's "Back to X's shop".
    *  Defaults to the design's creator so the preview can leave it off. */
   creatorName?: string
+}
+
+function gallerySpriteFor(heroImage: string): string {
+  const filename = heroImage.split('/').pop() ?? ''
+  const stem = filename.replace(/\.[^.]+$/, '')
+  return `/urmei/products/galleries/${stem}-gallery.png`
+}
+
+function galleryCropStyle(index: number): CSSProperties {
+  return {
+    width: '300%',
+    height: '200%',
+    maxWidth: 'none',
+    left: `${-(index % 3) * 100}%`,
+    top: `${-Math.floor(index / 3) * 100}%`,
+  }
 }
 
 /** "50 ML | Clear essence" -> "50ml" — the size Figma shows on the size chips
@@ -51,8 +67,19 @@ export function StorefrontProductDetail({
   const [selectedSize, setSelectedSize] = useState(product.variant)
   const [purchaseType, setPurchaseType] = useState<'one-time' | 'subscribe'>('one-time')
   const [quantity, setQuantity] = useState(1)
+  const gallerySprite = gallerySpriteFor(product.heroImage)
+  const galleryImages = Array.from({ length: 6 }, (_, index) => index)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const showGalleryControls = galleryImages.length > 1
+  const moveImage = (direction: -1 | 1) => {
+    setActiveImageIndex((current) => (current + direction + galleryImages.length) % galleryImages.length)
+  }
   const available = product.regions.includes(country)
   const hasDiscount = product.shopCompareAt.trim().length > 0
+
+  useEffect(() => {
+    setActiveImageIndex(0)
+  }, [product.id])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -79,9 +106,10 @@ export function StorefrontProductDetail({
           <div className="flex min-w-0 flex-1 flex-col items-start gap-md-sm">
             <div className="relative aspect-[533/531.45] w-full overflow-clip rounded-lg">
               <img
-                src={product.heroImage}
+                src={gallerySprite}
+                style={galleryCropStyle(activeImageIndex)}
                 alt={product.name}
-                className="absolute inset-0 size-full object-cover"
+                className="absolute object-cover"
               />
               <div className="absolute top-0 right-0 flex items-center justify-end gap-sm p-md">
                 <button
@@ -114,27 +142,40 @@ export function StorefrontProductDetail({
                 <button
                   type="button"
                   aria-label="Previous images"
-                  className="flex w-[40px] items-center justify-center overflow-clip rounded-full border border-border-default p-md-sm"
+                  className="flex w-[40px] items-center justify-center overflow-clip rounded-full border border-border-default p-md-sm disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={!showGalleryControls}
+                  onClick={() => moveImage(-1)}
                 >
                   <Icon name="chevron-left" />
                 </button>
               </div>
-              {product.thumbnails.map((thumbnail, index) => (
-                <div
-                  key={`${thumbnail}-${index}`}
+              {galleryImages.map((index) => (
+                <button
+                  key={index}
+                  type="button"
+                  aria-label={`View image ${index + 1}`}
+                  aria-current={index === activeImageIndex ? 'true' : undefined}
+                  onClick={() => setActiveImageIndex(index)}
                   className={[
-                    'relative aspect-square min-w-0 flex-1 rounded-sm',
-                    index === 0 ? 'border border-border-outlined' : '',
+                    'relative aspect-square min-w-0 flex-1 overflow-clip rounded-sm',
+                    index === activeImageIndex ? 'border border-border-outlined' : 'border border-transparent',
                   ].join(' ')}
                 >
-                  <img src={thumbnail} alt="" className="absolute inset-0 size-full rounded-sm object-cover" />
-                </div>
+                  <img
+                    src={gallerySprite}
+                    alt=""
+                    style={galleryCropStyle(index)}
+                    className="absolute rounded-sm object-cover"
+                  />
+                </button>
               ))}
               <div className="flex aspect-square min-w-0 flex-1 items-center justify-center overflow-clip rounded-sm">
                 <button
                   type="button"
                   aria-label="Next images"
-                  className="flex w-[40px] items-center justify-center overflow-clip rounded-full border border-border-default p-md-sm"
+                  className="flex w-[40px] items-center justify-center overflow-clip rounded-full border border-border-default p-md-sm disabled:cursor-not-allowed disabled:opacity-40"
+                  disabled={!showGalleryControls}
+                  onClick={() => moveImage(1)}
                 >
                   <Icon name="chevron-right" />
                 </button>

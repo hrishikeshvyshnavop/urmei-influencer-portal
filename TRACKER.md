@@ -17,6 +17,7 @@ Last updated: 2026-10-21
 
 | ID | Work | Branch | Committed | Pushed | Live | Status |
 | --- | --- | --- | :-: | :-: | :-: | --- |
+| T-52 | Generate six distinct product-specific gallery views and wire them into the creator and storefront PDP carousels | `main` | [x] | [ ] | [ ] | Committed |
 | T-01 | Period filter as radio list, adds Last 14 Days, All Time last (Figma `350:44963`) (`cfa61bb`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-02 | Shared `RadioDot` for the sort and period lists (`04310da`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-03 | Drop Total Products from the stats row (`018c7ef`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
