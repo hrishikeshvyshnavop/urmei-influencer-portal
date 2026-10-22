@@ -1,4 +1,4 @@
-import { useRef, type CSSProperties } from 'react'
+import { useRef } from 'react'
 import AppShell from '../../portal/components/AppShell'
 import SetupBanner from '../../portal/components/SetupBanner'
 import { requestProductTour } from '../../portal/tour-status'
@@ -191,15 +191,7 @@ export function MyShop({
         </div>
       </section>
 
-      {/* Product and collection cards take the backdrop's card surfaces, as
-          on the storefront (`data/backdrop-colors.ts`). */}
-      <main
-        className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-4xl-2 pb-16 lg:px-[120px]"
-        style={{
-          '--shop-collection-card': colors.collectionCard,
-          '--shop-product-card': colors.productCard,
-        } as CSSProperties}
-      >
+      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-4xl-2 pb-16 lg:px-[120px]">
         <section className="flex w-full flex-col items-center gap-3xl">
           <Tabs tabs={tabs} activeId={activeTab} onChange={onTabChange} />
 

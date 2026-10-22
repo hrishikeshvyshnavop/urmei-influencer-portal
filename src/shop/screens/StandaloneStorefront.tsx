@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
@@ -23,7 +23,6 @@ import { loadShopItems } from '../shop-items-store'
 import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
 import { resolveFeatured, shopperFeatured } from '../featured'
 import type { ShopItem } from '../types'
-import { backdropColors } from '../data/backdrop-colors'
 
 const PICKS_PER_PAGE = 8
 function AllPicks({
@@ -192,14 +191,7 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
     )
 
   return (
-    <div
-      className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100"
-      style={
-        {
-          '--shop-product-card': backdropColors(backdropId).productCard,
-        } as CSSProperties
-      }
-    >
+    <div className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100">
       {/* The footer never shares the first screenful, however short the shop
           or product page: everything above it fills at least the window, the
           same rule as `AppShell`'s `footerBelowFold`. */}

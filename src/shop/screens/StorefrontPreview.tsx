@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore, type CSSProperties } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import { Icon } from '../components/Icon'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
@@ -19,7 +19,6 @@ import type { Collection } from '../collections-store'
 import { reviewsForShop } from '../data/reviews'
 import type { ShopItem } from '../types'
 import type { AvailableFeatured } from '../featured'
-import { backdropColors } from '../data/backdrop-colors'
 
 type StorefrontPreviewProps = {
   items: ShopItem[]
@@ -134,14 +133,7 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
   const [fromCollection, setFromCollection] = useState<Collection | null>(null)
 
   return (
-    <div
-      className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100"
-      style={
-        {
-          '--shop-product-card': backdropColors(backdropId).productCard,
-        } as CSSProperties
-      }
-    >
+    <div className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100">
       {/* The footer never shares the first screenful, however short the
           preview: the chrome and content fill at least the window ("Footer
           below the fold" in CLAUDE.md). */}
