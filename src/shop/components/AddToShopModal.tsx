@@ -27,6 +27,11 @@ type AddToShopModalProps = {
   /** Filling a collection from the catalogue: "Add this product to
    *  collection?" (flow 21, Figma `1970:101835`). */
   title?: string
+  /** Filling a collection only: the collections the shop's item for this
+   *  variant is already in, or null when the variant isn't in the shop. An
+   *  already-added variant then shows those ticked and Confirm saves the
+   *  ticks onto that item instead of being blocked. */
+  existingCollectionIds?: (variant: string) => string[] | null
   /** Nothing ticked means All Picks only, as before (annotation `1913:36641`). */
   onConfirm: (collectionIds: string[], variant: string) => void
 }
@@ -40,11 +45,28 @@ export function AddToShopModal({
   existingVariants,
   onClose,
   onConfirm,
+  existingCollectionIds,
   title = 'Add this product to your shop?',
 }: AddToShopModalProps) {
-  const { selected, toggle } = useCollectionSelection(initialCollectionIds, newCollectionIds)
+  const ticksFor = (variant: string) => {
+    const existing = existingCollectionIds?.(variant)
+    return existing ? [...new Set([...existing, ...initialCollectionIds])] : initialCollectionIds
+  }
   const [selectedVariant, setSelectedVariant] = useState(product.variant)
+  const { selected, toggle, reset } = useCollectionSelection(ticksFor(product.variant), newCollectionIds)
   const alreadyAdded = existingVariants.includes(selectedVariant)
+  const existing = alreadyAdded ? existingCollectionIds?.(selectedVariant) ?? null : null
+  // An added variant can still be confirmed while filling a collection, once
+  // the ticks differ from the collections it is already in.
+  const changed =
+    existing !== null &&
+    (selected.length !== existing.length || selected.some((id) => !existing.includes(id)))
+  const canConfirm = !alreadyAdded || changed
+
+  function changeVariant(variant: string) {
+    setSelectedVariant(variant)
+    reset(ticksFor(variant))
+  }
 
   // The modal only actually unmounts once the parent clears `pendingProduct`,
   // so closing (either way) first plays the exit animation via `data-state`
@@ -162,12 +184,15 @@ export function AddToShopModal({
                     <VariantSelect
                       options={product.variantOptions}
                       value={selectedVariant}
-                      onChange={setSelectedVariant}
+                      onChange={changeVariant}
                     />
                     {alreadyAdded && (
                       <p className="text-body-xs font-medium text-surface-other-alert">
                         This variant is already in your shop
                       </p>
+                    )}
+                    {existing !== null && !changed && (
+                      <p className="text-body-xs text-text-secondary-700">Choose collections to add it to.</p>
                     )}
                   </div>
 
@@ -205,7 +230,7 @@ export function AddToShopModal({
           <button
             type="button"
             onClick={() => requestClose('confirm')}
-            disabled={alreadyAdded}
+            disabled={!canConfirm}
             className="flex w-full items-center justify-center gap-sm rounded-md bg-surface-primary-500 px-md py-sm text-body-sm font-medium text-text-secondary-100 disabled:bg-surface-secondary-300 disabled:text-text-secondary-500"
           >
             Confirm

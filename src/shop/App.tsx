@@ -187,6 +187,24 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
 
   function confirmAdd(collectionIds: string[], variant: string) {
     if (!pendingProduct) return
+    // Filling a collection with a variant already in the shop: no new item,
+    // the existing one takes exactly the ticked collections.
+    const existingItem = collectionTarget
+      ? items.find((item) => item.product.id === pendingProduct.id && item.variant === variant)
+      : undefined
+    if (existingItem) {
+      const before = collectionsFor(existingItem.id, collections).map((c) => c.id)
+      setCollections((current) => setItemCollections(current, existingItem.id, collectionIds))
+      setPendingProduct(null)
+      setNewFromPicker([])
+      setToast({
+        message: collectionsSavedMessage(
+          collections.filter((c) => collectionIds.includes(c.id) && !before.includes(c.id)),
+        ),
+      })
+      markChanged()
+      return
+    }
     if (items.length >= MAX_PRODUCTS) {
       setPendingProduct(null)
       return
@@ -571,6 +589,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
             setPendingProduct(null)
             setNewFromPicker([])
           }}
+          existingCollectionIds={
+            collectionTarget
+              ? (variant) => {
+                  const item = items.find((i) => i.product.id === pendingProduct.id && i.variant === variant)
+                  return item ? collectionsFor(item.id, collections).map((c) => c.id) : null
+                }
+              : undefined
+          }
           onConfirm={confirmAdd}
         />
       )}

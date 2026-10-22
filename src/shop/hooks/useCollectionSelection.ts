@@ -15,5 +15,12 @@ export function useCollectionSelection(initial: string[], newIds: string[]) {
     setDropped((current) => (on ? current.filter((x) => x !== id) : [...current, id]))
   }
 
-  return { selected, toggle }
+  /** Starts the ticks over, e.g. when the dialog switches to a variant that
+   *  is already in some collections. */
+  function reset(ids: string[]) {
+    setPicked(ids)
+    setDropped([])
+  }
+
+  return { selected, toggle, reset }
 }
