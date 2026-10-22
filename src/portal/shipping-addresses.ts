@@ -158,6 +158,45 @@ export function removeShippingAddress(current: ShippingAddress[], id: string) {
   return withOneOfEachDefault(remaining);
 }
 
+const SETUP_ADDRESS_ID = "setup-home";
+
+/** The address profile setup saved, if any — prefills step 3 on the way back. */
+export function readSetupAddressFields(): Record<string, string> | null {
+  return readShippingAddresses().find((address) => address.id === SETUP_ADDRESS_ID)?.fields ?? null;
+}
+
+/**
+ * Saves profile setup's address. The step asks no Address Type, so it is
+ * saved as Home (the creator can rename it in Manage Account). It's the
+ * creator's first address, so the demo addresses that stand in before
+ * anything is saved are dropped. Submitting the step again updates the same
+ * record instead of adding another Home.
+ */
+export function saveSetupAddress(fields: Record<string, string>) {
+  let stored: string | null = null;
+  try {
+    stored = window.localStorage.getItem(SHIPPING_ADDRESSES_KEY);
+  } catch {
+    // Treated as an empty address book below.
+  }
+  const current = stored === null ? [] : readShippingAddresses();
+  const existing = current.find((address) => address.id === SETUP_ADDRESS_ID);
+  const next = existing
+    ? current.map((address) =>
+        address.id === SETUP_ADDRESS_ID ? { ...address, fields: { ...address.fields, ...fields } } : address,
+      )
+    : [
+        ...current,
+        {
+          id: SETUP_ADDRESS_ID,
+          isDefaultShipping: false,
+          isDefaultBilling: false,
+          fields: { label: "Home", phone: "", ...fields },
+        },
+      ];
+  saveShippingAddresses(withOneOfEachDefault(next));
+}
+
 /** The address samples go to: the default shipping address. */
 export function defaultShippingAddress(addresses: ShippingAddress[]) {
   return addresses.find((address) => address.isDefaultShipping) ?? addresses[0] ?? null;
@@ -169,6 +208,15 @@ export function defaultShippingAddress(addresses: ShippingAddress[]) {
  * an address with no floor, unit or building still reads cleanly.
  */
 export function addressLines(fields: Record<string, string>) {
+  // Profile setup's address is two free lines, then city, state and country.
+  if (fields.addressLine1 !== undefined) {
+    return [
+      [fields.addressLine1, fields.addressLine2].filter(Boolean).join(", "),
+      [fields.city, fields.state, [fields.country, fields.postalCode].filter(Boolean).join(" ")]
+        .filter(Boolean)
+        .join(", "),
+    ].filter(Boolean);
+  }
   const street = [[fields.blockNo, fields.street].filter(Boolean).join(" "), fields.building].filter(Boolean).join(", ");
   const within = [
     fields.floorNo ? `Floor ${fields.floorNo}` : "",

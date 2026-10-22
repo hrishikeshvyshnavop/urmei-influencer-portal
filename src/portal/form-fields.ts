@@ -55,6 +55,109 @@ export const MALAYSIA_STATES = [
   "Putrajaya",
 ];
 
+/** City choices per Malaysian state, for profile setup's optional City
+ *  dropdown (Figma `2574:45799`). */
+export const MALAYSIA_CITIES: Record<string, string[]> = {
+  Johor: ["Johor Bahru", "Batu Pahat", "Kluang", "Muar"],
+  Kedah: ["Alor Setar", "Kulim", "Sungai Petani"],
+  Kelantan: ["Kota Bharu", "Pasir Mas"],
+  Melaka: ["Alor Gajah", "Melaka City"],
+  "Negeri Sembilan": ["Port Dickson", "Seremban"],
+  Pahang: ["Bentong", "Kuantan", "Temerloh"],
+  "Pulau Pinang": ["Bukit Mertajam", "Butterworth", "George Town"],
+  Perak: ["Ipoh", "Taiping", "Teluk Intan"],
+  Perlis: ["Arau", "Kangar"],
+  Sabah: ["Kota Kinabalu", "Sandakan", "Tawau"],
+  Sarawak: ["Kuching", "Miri", "Sibu"],
+  Selangor: ["Klang", "Petaling Jaya", "Shah Alam", "Subang Jaya"],
+  Terengganu: ["Kemaman", "Kuala Terengganu"],
+  "Kuala Lumpur": ["Kuala Lumpur"],
+  Labuan: ["Victoria"],
+  Putrajaya: ["Putrajaya"],
+};
+
+/** Provinces and their main cities, for profile setup's required
+ *  State/Province and City dropdowns (Figma `2574:45837`). */
+export const INDONESIA_CITIES: Record<string, string[]> = {
+  "DKI Jakarta": ["Jakarta"],
+  "Jawa Barat": ["Bandung", "Bekasi", "Bogor", "Depok"],
+  "Jawa Tengah": ["Semarang", "Surakarta"],
+  "DI Yogyakarta": ["Yogyakarta"],
+  "Jawa Timur": ["Malang", "Surabaya"],
+  Banten: ["Serang", "Tangerang"],
+  Bali: ["Denpasar"],
+  "Sumatera Utara": ["Medan"],
+  "Sumatera Selatan": ["Palembang"],
+  Riau: ["Pekanbaru"],
+  "Kalimantan Timur": ["Balikpapan", "Samarinda"],
+  "Sulawesi Selatan": ["Makassar"],
+};
+
+/**
+ * Profile setup's shipping address (Figma `2574:45764` Singapore, `2574:45799`
+ * Malaysia, `2574:45837` Indonesia). Country is locked to the creator's
+ * market and sits first, beside Postal code. Then come the market's own
+ * State/Province and City dropdowns, if it has them, and two free address
+ * lines across the row:
+ * - Singapore: no City or State/Province.
+ * - Malaysia: State/Province and City are optional.
+ * - Indonesia: both are required.
+ *
+ * City lists the chosen state's cities. Markets without a drawn form
+ * (Thailand, Vietnam) take Singapore's.
+ */
+export function setupAddressFields(country: string, state = ""): FieldSpec[] {
+  const regions =
+    country === "Malaysia" ? MALAYSIA_CITIES : country === "Indonesia" ? INDONESIA_CITIES : null;
+  const regionsOptional = country === "Malaysia";
+  const line = (name: string, label: string, autoComplete: string): FieldSpec => ({
+    name,
+    label,
+    placeholder: "",
+    autoComplete,
+    required: true,
+    fullWidth: true,
+  });
+
+  return [
+    { ...COUNTRY_FIELD, placeholder: "", required: true },
+    {
+      name: "postalCode",
+      label: "Postal code",
+      placeholder: "",
+      autoComplete: "postal-code",
+      numericOnly: true,
+      maxLength: country === "Singapore" ? 6 : 5,
+      required: true,
+    },
+    ...(regions
+      ? [
+          {
+            name: "state",
+            label: "State/Province",
+            placeholder: "",
+            autoComplete: "address-level1",
+            options: Object.keys(regions),
+            required: !regionsOptional,
+            optional: regionsOptional,
+          },
+          {
+            name: "city",
+            label: "City",
+            placeholder: "",
+            autoComplete: "address-level2",
+            // Before a state is picked, every city in the market is offered.
+            options: regions[state] ?? Object.values(regions).flat().sort(),
+            required: !regionsOptional,
+            optional: regionsOptional,
+          },
+        ]
+      : []),
+    line("addressLine1", "Address line 1", "address-line1"),
+    line("addressLine2", "Address line 2", "address-line2"),
+  ];
+}
+
 /** Always the last field in every country's address section — driven by the
  *  header's country selector rather than typed in, so it's locked here and
  *  synced from `country-status` in the component below. */

@@ -31,6 +31,7 @@ Last updated: 2026-10-21
 | T-28 | Pick several photos at once when writing a review (each loads in its own spinner tile, picks past the 3-photo cap are ignored, a broken file drops out while the rest are kept), and show a review's photos under its text on the Sample Requests list (`git log --grep T-28`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 
 | T-43 | Add a direct `/shop/preview` route and clickable storefront breadcrumbs; keep the active collection breadcrumb non-clickable | `main` | [ ] | [ ] | [ ] | Not started |
+| T-44 | Profile setup per market (main file `2574:45326`): shipping address Country locked to the market, fields per market (Singapore: postal code + two lines; Malaysia: optional State/Province and City; Indonesia: both required), saved as Home; bank details payout currency starts on the market's currency; locked selects read muted (`git log --grep T-44`) | `feature/shop-personalization` | [x] | [ ] | [ ] | 📝 Committed |
 
 ## Shipped to `main`
 

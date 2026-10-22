@@ -138,7 +138,9 @@ export default function TextField({
                 aria-invalid={Boolean(error)}
                 aria-label={label}
               >
-                <span className={value ? "text-portal-text" : "text-portal-placeholder"}>
+                {/* A locked select reads muted, like the Inputbox's Disabled
+                    state (Figma `2852:132041`). */}
+                <span className={value && !locked ? "text-portal-text" : "text-portal-placeholder"}>
                   <SelectValue placeholder={placeholder} />
                 </span>
               </SelectTrigger>
