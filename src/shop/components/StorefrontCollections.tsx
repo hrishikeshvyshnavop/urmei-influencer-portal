@@ -143,7 +143,7 @@ export function StorefrontCollections({
               >
                 <p className="w-full text-body-md font-medium text-text-secondary-1000">{collection.name}</p>
                 {collection.description && (
-                  <p className="w-full truncate text-body-sm leading-[20px] text-text-secondary-700">
+                  <p className="line-clamp-2 min-h-[40px] w-full text-body-sm leading-[20px] text-text-secondary-700">
                     {collection.description}
                   </p>
                 )}

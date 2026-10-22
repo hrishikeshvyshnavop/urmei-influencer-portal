@@ -152,7 +152,7 @@ export function CollectionCard({
           {collection.name}
         </h3>
         {collection.description && (
-          <p className="w-full truncate text-body-sm leading-[20px] text-text-secondary-700">
+          <p className="line-clamp-2 min-h-[40px] w-full text-body-sm leading-[20px] text-text-secondary-700">
             {collection.description}
           </p>
         )}
