@@ -41,12 +41,14 @@ export function dialCodeFor(country: string) {
 
 /**
  * The Add / Edit address modal's fields (Figma `2574:47209` Singapore,
- * `2574:47506` Malaysia, `2574:47575` Indonesia): the recipient's phone across
- * the row, then the same per-market address schema profile setup collects
- * (country locked to the market), then the Address type, Home by default.
+ * `2574:47506` Malaysia, `2574:47575` Indonesia): the same per-market address
+ * schema profile setup collects (country locked to the market), the
+ * recipient's phone across the row under the address lines, then the Address
+ * type, Home by default.
  */
 export function addressModalFields(country: string, state = ""): FieldSpec[] {
   return [
+    ...setupAddressFields(country, state),
     {
       name: "phone",
       label: "Recipient phone",
@@ -57,7 +59,6 @@ export function addressModalFields(country: string, state = ""): FieldSpec[] {
       optional: true,
       fullWidth: true,
     },
-    ...setupAddressFields(country, state),
     {
       name: "label",
       label: "Address type",
