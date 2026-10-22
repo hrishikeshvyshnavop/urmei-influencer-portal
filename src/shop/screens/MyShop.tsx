@@ -216,7 +216,6 @@ export function MyShop({
               onCopyAffiliateLink={onCopyLink}
               onRemoveFromCollection={(item) => onRemoveFromCollection(item, openCollection)}
               onRemoveFromShop={onRemoveFromShop}
-              onFeature={(initial) => onEditFeatured(initial)}
               onAddProducts={() => onAddProductsToCollection(openCollection)}
             />
           ) : (
@@ -281,11 +280,6 @@ export function MyShop({
                           onSelect: () => onCopyCollectionLink(collection, 'board'),
                         },
                         {
-                          label: 'Feature on banner',
-                          disabled: itemsOf(collection).length === 0,
-                          onSelect: () => onEditFeatured({ kind: 'collection', id: collection.id }),
-                        },
-                        {
                           label: 'Delete collection',
                           destructive: true,
                           onSelect: () => onDeleteCollection(collection),
@@ -315,7 +309,6 @@ export function MyShop({
                         hasLiveLink(item, publishedAt) ? () => onCopyLink(item) : undefined
                       }
                       onAddToCollection={() => onAddToCollection(item)}
-                      onFeature={() => onEditFeatured({ kind: 'product', id: item.id, productId: item.product.id })}
                       onRemoveFromShop={() => onRemoveFromShop(item)}
                     />
                   ))}
