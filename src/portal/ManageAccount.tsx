@@ -21,6 +21,7 @@ import {
   removeShippingAddress,
   saveShippingAddresses,
   setAddressDefaults,
+  toLineFields,
   upsertShippingAddress,
   type ShippingAddress,
 } from "./shipping-addresses";
@@ -300,7 +301,7 @@ export default function ManageAccount({
                         <div key={address.id} className={`flex w-full items-start gap-5 p-5 ${index > 0 ? "border-t border-portal-border" : ""}`}>
                           <div className="flex min-w-px flex-1 flex-col items-start gap-[6px]">
                             <div className="flex w-full flex-wrap items-center gap-2">
-                              <p className="text-body-sm font-medium">{address.fields.label}</p>
+                              <p className="text-body-sm font-medium">{toLineFields(address.fields).label}</p>
                               {address.isDefaultBilling ? <span className="rounded-full bg-portal-tick px-2 py-[3px] text-body-sm font-medium">Default billing</span> : null}
                               {address.isDefaultShipping ? <span className="rounded-full bg-portal-tick px-2 py-[3px] text-body-sm font-medium">Default shipping</span> : null}
                             </div>
@@ -336,7 +337,7 @@ export default function ManageAccount({
                   <EmptyState
                     icon={<MapPin className="size-8" strokeWidth={1.5} />}
                     title="No address added"
-                    description="Add an address for brands to send your product samples."
+                    description="Add an address — you can mark it as your default shipping and default billing address."
                     action={<Button variant="portal" onClick={() => openAddressModal()}>Add Address</Button>}
                   />
                 )
