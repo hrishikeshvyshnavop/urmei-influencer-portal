@@ -11,6 +11,8 @@ type ShopProductCardProps = {
    *  then simply has no "Copy affiliate link" row (Figma `1610:44155`). */
   onCopyLink?: () => void
   onAddToCollection?: () => void
+  /** Opens the banner picker with this product selected. */
+  onFeature?: () => void
   /** On a collection page the menu offers "Remove from collection" instead of
    *  "Add to collection" (Figma `1862:85019`). */
   onRemoveFromCollection?: () => void
@@ -95,7 +97,10 @@ export function ProductListingCard({
         {imageAction && <div className="absolute top-md-sm right-md-sm">{imageAction}</div>}
       </div>
 
-      <div className="flex w-full flex-col gap-md-sm bg-surface-secondary-200">
+      <div
+        className="flex w-full flex-col gap-md-sm"
+        style={{ backgroundColor: 'var(--shop-product-card, var(--color-surface-secondary-200))' }}
+      >
         <div className={`flex w-full flex-col px-ten pt-fourteen pb-fourteen ${titleOnly ? "" : "gap-[6px]"}`}>
           <div
             className={`flex w-full flex-col ${
@@ -140,6 +145,7 @@ export function ShopProductCard({
   onViewDetails,
   onCopyLink,
   onAddToCollection,
+  onFeature,
   onRemoveFromCollection,
   onRemoveFromShop,
   favoriteRank,
@@ -155,6 +161,7 @@ export function ShopProductCard({
       : onAddToCollection
         ? [{ label: 'Add to collection', onSelect: onAddToCollection }]
         : []),
+    ...(onFeature ? [{ label: 'Feature on banner', onSelect: onFeature }] : []),
     { label: 'Remove from shop', onSelect: onRemoveFromShop, destructive: true },
   ]
 

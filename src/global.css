@@ -100,6 +100,15 @@
   --color-border-default: #e5e5e5;
   --color-border-outlined: #b1b1b1;
   --color-border-muted: #f8f8f8;
+  /* Featured cards on the banner (`T-38`): raw values in the design, no
+     library token yet. */
+  --color-featured-surface: #f8f5ff;
+  --color-featured-eyebrow: #d31574;
+  --color-featured-body: #5c5c5c;
+  /* The dashed featured prompt and Add Another slot. */
+  --color-border-dashed: #d6d6d6;
+  /* border/color/dark — the selected backdrop tile's 2px ring. */
+  --color-border-dark: #464646;
   /* border/color/success — the bright green the stat pages' up-trend arrow and
      percentage use. Distinct from --color-text-success (#28802c), which is
      typography/color/other/success. */
@@ -135,6 +144,8 @@
 
   --shadow-ds-sm: 0 1px 2px 0 rgba(16, 24, 40, 0.05);
   --shadow-store-card: 0 4px 20px 0 rgba(0, 0, 0, 0.03);
+  /* The My Shop banner's profile card over its backdrop (`T-38`). */
+  --shadow-banner-card: 0 4px 20px 0 rgba(0, 0, 0, 0.04);
 }
 
 /* Radix anchors every popover, select list and dropdown menu in a wrapper it

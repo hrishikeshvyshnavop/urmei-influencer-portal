@@ -142,6 +142,21 @@ export const BANK_FIELDS: FieldSpec[] = [
   },
 ];
 
+const PAYOUT_CURRENCY_BY_COUNTRY: Record<string, string> = {
+  Singapore: "SGD - Singapore Dollar",
+  Malaysia: "MYR - Malaysian Ringgit",
+  Indonesia: "IDR - Indonesian Rupiah",
+  Thailand: "THB - Thai Baht",
+  Vietnam: "VND - Vietnamese Dong",
+};
+
+/** Payout currency follows the creator's market (Figma `2574:45724`
+ *  Singapore, `2574:45968` Malaysia, `2574:46009` Indonesia). It is still a
+ *  select, so this is only the starting value. */
+export function payoutCurrencyFor(country: string) {
+  return PAYOUT_CURRENCY_BY_COUNTRY[country] ?? "";
+}
+
 /** Whether a bank form has every field filled — the one check both the setup
  *  step and Manage Account's modal submit through. */
 export function isBankAccountComplete(values: Record<string, string>) {

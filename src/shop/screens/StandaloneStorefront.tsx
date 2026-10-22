@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react'
+import { useEffect, useState, useSyncExternalStore, type CSSProperties } from 'react'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
 import { getSavedDisplayName } from '../../portal/profile-status'
@@ -8,7 +8,7 @@ import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
 import { StorefrontBreadcrumb } from '../components/StorefrontBreadcrumb'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
-import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontBanner } from '../components/StorefrontBanner'
 import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
 import { StorefrontReviews } from '../components/StorefrontReviews'
 import { StorefrontCollections } from '../components/StorefrontCollections'
@@ -20,7 +20,10 @@ import { reviewsForShop } from '../data/reviews'
 import { SHOP_URL } from '../data/shop'
 import { CONTENT_COLUMN } from '../layout'
 import { loadShopItems } from '../shop-items-store'
+import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
+import { resolveFeatured, shopperFeatured } from '../featured'
 import type { ShopItem } from '../types'
+import { backdropColors } from '../data/backdrop-colors'
 
 const PICKS_PER_PAGE = 8
 function AllPicks({
@@ -118,6 +121,10 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
   const collections = loadCollections(items)
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  // Shoppers only ever see the published banner (flow 06), and never a
+  // featured product that isn't sold in their market.
+  const backdropId = loadPublishedBackdrop()
+  const featured = shopperFeatured(resolveFeatured(loadPublishedFeatured(), items, collections, country))
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
   /** The collection a product was opened from, for the market bar (16.3). */
@@ -185,7 +192,14 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
     )
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100">
+    <div
+      className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100"
+      style={
+        {
+          '--shop-product-card': backdropColors(backdropId).productCard,
+        } as CSSProperties
+      }
+    >
       {/* The footer never shares the first screenful, however short the shop
           or product page: everything above it fills at least the window, the
           same rule as `AppShell`'s `footerBelowFold`. */}
@@ -228,8 +242,17 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
             <StorefrontBreadcrumb
               items={
                 linkedCollection && linkedAvailable
-                  ? [{ label: 'Home' }, { label: 'Creators' }, { label: name }, { label: linkedCollection.name }]
-                  : [{ label: 'Home' }, { label: 'Creators' }, { label: name }]
+                  ? [
+                      { label: 'Home', onClick: () => navigate('/shop/view') },
+                      { label: 'Creators', onClick: () => navigate('/shop/view') },
+                      { label: name, onClick: () => navigate('/shop/view') },
+                      { label: linkedCollection.name },
+                    ]
+                  : [
+                      { label: 'Home', onClick: () => navigate('/shop/view') },
+                      { label: 'Creators', onClick: () => navigate('/shop/view') },
+                      { label: name, onClick: () => navigate('/shop/view') },
+                    ]
               }
             />
           </div>
@@ -237,25 +260,27 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
 
         <main className="flex w-full flex-1 flex-col items-center">
           {selectedItem ? (
-            <div className={CONTENT_COLUMN}>
-              <StorefrontProductDetail
-                item={selectedItem}
-                country={country}
-                creatorName={name}
-                onBack={clearSelection}
-              />
+            <>
+              <div className={CONTENT_COLUMN}>
+                <StorefrontProductDetail
+                  item={selectedItem}
+                  country={country}
+                  creatorName={name}
+                  onBack={clearSelection}
+                />
+              </div>
               {/* "In <name>'s collections" (Figma `1862:82122`): the boards
-                  this product is in. */}
+                  this product is in. Outside the column so its tint runs
+                  edge to edge; it centres its own content in the column. */}
               <StorefrontCollections
                 title={`In ${name}'s collections`}
                 collections={collections.filter((collection) =>
                   collectionsFor(selectedItem.id, collections).some((c) => c.id === collection.id),
                 )}
                 items={items}
-                ownerName={name}
                 onSelect={openCollection}
               />
-            </div>
+            </>
           ) : collectionId ? (
             linkedCollection && linkedAvailable ? (
               <StorefrontCollectionPage
@@ -279,20 +304,19 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
             )
           ) : (
             <>
-              {/* The 36px gap belongs between the profile card and the *first*
-                  section only (Figma `916:65747` wraps exactly those two). The
-                  page frame itself has no gap, so every section after the first
-                  is spaced by its own 36px top padding alone. */}
+              {/* The banner runs the full width straight under the breadcrumb
+                  (06.1–06.3, main file `2799:104829`), with the first section
+                  directly below it. */}
+              <StorefrontBanner
+                backdropId={backdropId}
+                featured={featured}
+                onCopyLink={copyShopLink}
+                onOpenFeatured={(item) => (item.kind === 'collection' ? openCollection(item.collection) : selectFrom(null)(item.item))}
+              />
               <div className="flex w-full flex-col items-center gap-3xl">
-                <div className={CONTENT_COLUMN}>
-                  <StorefrontProfileCard onCopyLink={copyShopLink} />
-                </div>
-                {/* Nothing here ships to the selected market. Sits in the same
-                    36px column as the creator card rather than tucked under it
-                    the way the preview does, which is how the edge frame
-                    (`1616:66073`) stacks it. */}
+                {/* Nothing here ships to the selected market (`1616:66073`). */}
                 {items.length > 0 && !hasAvailableItems && (
-                  <div className={CONTENT_COLUMN}>
+                  <div className={`${CONTENT_COLUMN} pt-3xl`}>
                     <NoAvailabilityNotice country={country} allowCountryChange />
                   </div>
                 )}
@@ -300,7 +324,7 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
                   <StorefrontCollections
                     collections={collections}
                     items={items}
-                    ownerName={name}
+                    showViewAll
                     onSelect={openCollection}
                   />
                 ) : (
@@ -315,8 +339,9 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
 
         {/* Figma `916:65859` — breathing room between the last section and the
             footer, on top of the section's own bottom padding. A product page
-            brings its own, shorter (64px) spacer. */}
-        {!selectedItem && <div className="h-[80px] w-full shrink-0" />}
+            brings its own, shorter (64px) spacer. A collection page has none: its
+            tinted "More collections" row stretches to the footer instead. */}
+        {!selectedItem && !collectionId && <div className="h-[80px] w-full shrink-0" />}
       </div>
 
       <AppFooter />

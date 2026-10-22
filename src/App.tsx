@@ -360,6 +360,8 @@ function screenFor(fullHash: string) {
       return <ShopExperience />;
     case "/shop/browse":
       return <ShopExperience initialBrowse />;
+    case "/shop/preview":
+      return <ShopExperience initialPreview />;
     case "/shop/view":
       return <StandaloneStorefront />;
 

@@ -1,4 +1,5 @@
 import type { Collection } from '../collections-store'
+import type { FeaturedRef } from '../banner-store'
 import { hasLiveLink } from '../data/shop'
 import type { ShopItem } from '../types'
 import { Button } from './Button'
@@ -19,6 +20,7 @@ type CollectionPageProps = {
   onCopyAffiliateLink: (item: ShopItem) => void
   onRemoveFromCollection: (item: ShopItem) => void
   onRemoveFromShop: (item: ShopItem) => void
+  onFeature: (initial: FeaturedRef) => void
   /** Empty collection: browse the catalogue to fill it (flow 09). */
   onAddProducts: () => void
 }
@@ -42,6 +44,7 @@ export function CollectionPage({
   onCopyAffiliateLink,
   onRemoveFromCollection,
   onRemoveFromShop,
+  onFeature,
   onAddProducts,
 }: CollectionPageProps) {
   const count = `${items.length} ${items.length === 1 ? 'product' : 'products'}`
@@ -80,7 +83,14 @@ export function CollectionPage({
           </Button>
           <ItemMenu
             label={`${collection.name} options`}
-            actions={[{ label: 'Delete collection', destructive: true, onSelect: onDelete }]}
+            actions={[
+              {
+                label: 'Feature on banner',
+                disabled: items.length === 0,
+                onSelect: () => onFeature({ kind: 'collection', id: collection.id }),
+              },
+              { label: 'Delete collection', destructive: true, onSelect: onDelete },
+            ]}
           />
         </div>
       </div>
@@ -115,6 +125,7 @@ export function CollectionPage({
             onViewDetails={() => onViewDetails(item)}
             onCopyLink={hasLiveLink(item, publishedAt) ? () => onCopyAffiliateLink(item) : undefined}
             onRemoveFromCollection={() => onRemoveFromCollection(item)}
+            onFeature={() => onFeature({ kind: 'product', id: item.id, productId: item.product.id })}
             onRemoveFromShop={() => onRemoveFromShop(item)}
           />
         ))}

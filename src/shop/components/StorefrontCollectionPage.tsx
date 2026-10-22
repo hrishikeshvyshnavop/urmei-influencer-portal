@@ -41,7 +41,7 @@ export function StorefrontCollectionPage({
     .filter((item): item is ShopItem => item !== undefined)
 
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="flex w-full flex-1 flex-col items-center">
       <div className={CONTENT_COLUMN}>
         <div className="flex w-full items-start justify-between py-sm">
           <div className="flex flex-col items-start gap-md-sm">
@@ -96,8 +96,9 @@ export function StorefrontCollectionPage({
         title={`More collections from ${ownerName}`}
         collections={collections.filter((other) => other.id !== collection.id)}
         items={items}
-        ownerName={ownerName}
         onSelect={onSelectCollection}
+        tinted={false}
+        className="flex-1"
       />
     </div>
   )
@@ -123,7 +124,7 @@ export function CollectionUnavailable({
   onSelectCollection: (collection: Collection) => void
 }) {
   return (
-    <div className="flex w-full flex-col items-center">
+    <div className="flex w-full flex-1 flex-col items-center">
       <div className={CONTENT_COLUMN}>
         <div className="flex w-full flex-col items-center gap-ten px-lg py-[96px] text-center">
           <h1 className="text-[32px] leading-[40px] font-semibold text-text-secondary-1000">
@@ -149,8 +150,9 @@ export function CollectionUnavailable({
         title={`More collections from ${ownerName}`}
         collections={collections}
         items={items}
-        ownerName={ownerName}
         onSelect={onSelectCollection}
+        bleed
+        className="flex-1"
       />
     </div>
   )

@@ -5,6 +5,8 @@ type ConfirmDialogProps = {
   title: string
   message: ReactNode
   confirmLabel: string
+  /** Defaults to Cancel; the discard confirm says Keep Editing. */
+  cancelLabel?: string
   onClose: () => void
   onConfirm: () => void
 }
@@ -15,7 +17,7 @@ type ConfirmDialogProps = {
  * header with the 40px close button, a 16px message, and Cancel / confirm
  * splitting the width. Escape, the × and Cancel all close without acting.
  */
-export function ConfirmDialog({ title, message, confirmLabel, onClose, onConfirm }: ConfirmDialogProps) {
+export function ConfirmDialog({ title, message, confirmLabel, cancelLabel = 'Cancel', onClose, onConfirm }: ConfirmDialogProps) {
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === 'Escape') onClose()
@@ -52,7 +54,7 @@ export function ConfirmDialog({ title, message, confirmLabel, onClose, onConfirm
               onClick={onClose}
               className="flex flex-1 items-center justify-center gap-sm rounded-md border border-surface-primary-200 px-md py-sm text-body-sm font-medium text-text-secondary-1000"
             >
-              Cancel
+              {cancelLabel}
             </button>
             <button
               type="button"

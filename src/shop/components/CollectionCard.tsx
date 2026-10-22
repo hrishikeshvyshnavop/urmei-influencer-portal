@@ -1,4 +1,5 @@
 import type { Collection } from '../collections-store'
+import { CollectionCover } from './CollectionCover'
 import type { ShopItem } from '../types'
 import { Icon } from './Icon'
 import { ItemMenu, type ItemMenuAction } from './ItemMenu'
@@ -16,19 +17,6 @@ type CollectionCardProps = {
   menuActions: ItemMenuAction[]
   /** Opens the collection page (flow 08, Figma `1862:85176`). */
   onOpen: () => void
-}
-
-/** One cover tile; a missing product leaves the slot as a quiet swatch. */
-function CoverImage({ item, className }: { item?: ShopItem; className: string }) {
-  return item ? (
-    <img
-      src={item.product.shopCardImage}
-      alt=""
-      className={`pointer-events-none object-cover ${className}`}
-    />
-  ) : (
-    <span aria-hidden="true" className={`bg-surface-secondary-300 ${className}`} />
-  )
 }
 
 function ArrowButton({
@@ -94,8 +82,10 @@ export function CollectionCard({
         aria-label={`Open ${collection.name}`}
         className="block cursor-pointer text-left"
       >
+      {/* The Collection Card's 3:2 cover (main file `2794:82137`); the main
+          image takes two thirds beside the stacked pair. */}
       {isEmpty ? (
-        <div className="flex size-[282px] flex-col items-center justify-center gap-xs rounded-t-md border border-dashed border-[#ccc] bg-[#f6f5f4]">
+        <div className="flex aspect-[3/2] w-[282px] flex-col items-center justify-center gap-xs rounded-t-md border border-dashed border-[#ccc] bg-[#f6f5f4]">
           <p className="text-body-sm leading-[20px] font-medium text-text-secondary-1000">
             No products yet
           </p>
@@ -104,13 +94,7 @@ export function CollectionCard({
           </p>
         </div>
       ) : (
-        <div className="flex gap-[2px] overflow-clip rounded-t-md">
-          <CoverImage item={items[0]} className="h-[282px] w-[188px]" />
-          <div className="flex flex-col gap-[2px]">
-            <CoverImage item={items[1]} className="h-[140px] w-[92px]" />
-            <CoverImage item={items[2]} className="h-[140px] w-[92px]" />
-          </div>
-        </div>
+        <CollectionCover items={items} className="aspect-[3/2] w-[282px] rounded-t-md" />
       )}
       </button>
 
@@ -127,13 +111,14 @@ export function CollectionCard({
       <button
         type="button"
         onClick={onOpen}
-        className="flex w-full cursor-pointer flex-col items-start gap-xs overflow-clip pt-md-sm text-left"
+        className="flex w-full cursor-pointer flex-col items-start gap-xs overflow-clip rounded-b-md px-ten pt-md-sm pb-sm text-left"
+        style={{ backgroundColor: 'var(--shop-collection-card, transparent)' }}
       >
         <h3 className="w-full text-body-md font-semibold text-text-secondary-1000">
           {collection.name}
         </h3>
         {collection.description && (
-          <p className="w-full truncate text-body-sm leading-[20px] text-text-secondary-700">
+          <p className="line-clamp-2 min-h-[40px] w-full text-body-sm leading-[20px] text-text-secondary-700">
             {collection.description}
           </p>
         )}

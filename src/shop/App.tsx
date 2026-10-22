@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+import { getSelectedCountry, subscribeToSelectedCountry } from '../portal/country-status'
 import { logShopActivity } from './activity-log'
 import { MAX_PRODUCTS } from './limits'
 import { AddToShopModal } from './components/AddToShopModal'
+import { loadBackdrop, loadFeatured, loadPublishedBackdrop, loadPublishedFeatured, sameFeatured, saveBackdrop, saveFeatured, savePublishedBackdrop, savePublishedFeatured, type FeaturedRef } from './banner-store'
+import { ChangeBackdropDialog } from './components/ChangeBackdropDialog'
+import { FeaturedItemsDialog } from './components/FeaturedItemsDialog'
+import { resolveFeatured, shopperFeatured, type ResolvedFeatured } from './featured'
 import { CollectionDialog } from './components/CollectionDialog'
 import { DeleteCollectionDialog } from './components/DeleteCollectionDialog'
 import { RemoveFromCollectionDialog } from './components/RemoveFromCollectionDialog'
@@ -52,7 +57,7 @@ type ToastState = {
   action?: { label: string; onClick: () => void }
 }
 
-export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string }) {
+export default function App({ initialBrowse = false, initialProductId, initialAddProductId, initialSearch, initialBrandFilter, initialPreview = false }: { initialBrowse?: boolean; initialProductId?: string; initialAddProductId?: string; initialSearch?: string; initialBrandFilter?: string; initialPreview?: boolean }) {
   const [items, setItems] = useState<ShopItem[]>(loadShopItems)
   const [collections, setCollections] = useState<Collection[]>(() => loadCollections(loadShopItems()))
   const [newCollectionOpen, setNewCollectionOpen] = useState(false)
@@ -91,13 +96,20 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [sampleProduct, setSampleProduct] = useState<Product | null>(null)
   const [viewingItemId, setViewingItemId] = useState<string | null>(null)
   const [removalCandidate, setRemovalCandidate] = useState<ShopItem | null>(null)
-  const [previewOpen, setPreviewOpen] = useState(false)
+  const [previewOpen, setPreviewOpen] = useState(initialPreview)
 
   const [publishOpen, setPublishOpen] = useState(false)
   const [profileComplete] = useState(isProfileSetupComplete)
   const [publishedAt, setPublishedAt] = useState<number | null>(loadPublishedAt)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(loadHasUnpublishedChanges)
   const [publishBlocked, setPublishBlocked] = useState(loadPublishBlocked)
+  const [backdropId, setBackdropId] = useState(loadBackdrop)
+  const [publishedBackdropId, setPublishedBackdropId] = useState(loadPublishedBackdrop)
+  const [changingBackdrop, setChangingBackdrop] = useState(false)
+  const [featured, setFeatured] = useState<FeaturedRef[]>(loadFeatured)
+  const [publishedFeatured, setPublishedFeatured] = useState<FeaturedRef[]>(loadPublishedFeatured)
+  const [editingFeatured, setEditingFeatured] = useState(false)
+  const [featuredInitial, setFeaturedInitial] = useState<FeaturedRef | undefined>()
 
   useEffect(() => {
     setShopItemCount(items.length)
@@ -121,6 +133,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   }, [publishBlocked])
 
   useEffect(() => {
+    saveBackdrop(backdropId)
+  }, [backdropId])
+
+  useEffect(() => {
+    saveFeatured(featured)
+  }, [featured])
+
+  useEffect(() => {
     if (!toast) return
     const timer = window.setTimeout(() => setToast(null), 3200)
     return () => window.clearTimeout(timer)
@@ -134,6 +154,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   // Derived (not a snapshot) so the detail overlay stays in sync when its item
   // changes underneath it, and auto-closes if the item is removed from the shop.
   const viewingItem = items.find((item) => item.id === viewingItemId) ?? null
+  // The creator's market: a featured product not sold there shows as NOT
+  // AVAILABLE on My Shop and is left out of the preview (flow 05).
+  const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  const resolvedFeatured = resolveFeatured(featured, items, collections, country)
 
   function openCatalogue() {
     setQuery('')
@@ -143,6 +167,13 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   function runSearch(nextQuery: string) {
     setQuery(nextQuery)
     setOverlay({ kind: 'results', query: nextQuery })
+  }
+
+  function updateSearchQuery(nextQuery: string) {
+    setQuery(nextQuery)
+    if (nextQuery.trim() === '') {
+      setOverlay((current) => (current?.kind === 'results' ? { ...current, query: '' } : current))
+    }
   }
 
   /** Selecting a brand pre-checks it in the Filters panel instead of typing
@@ -198,11 +229,58 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     }
     setPublishedAt(Date.now())
     setHasUnpublishedChanges(false)
+    // The saved backdrop is a draft until now (flow 01).
+    savePublishedBackdrop(backdropId)
+    setPublishedBackdropId(backdropId)
+    savePublishedFeatured(featured)
+    setPublishedFeatured(featured)
     setPublishBlocked(false)
     setPublishBlockedShared(false)
     setShopPublished(true)
     setToast({ message: 'Your shop published successfully' })
     logShopActivity('shop-published')
+  }
+
+  /** Banner edits (backdrop, featured items) are drafts that only reach
+   *  shoppers on Publish Changes (main file `2799:105232`). Their toast only
+   *  comes with the first change since the last publish; after that Publish
+   *  Changes is already showing, so later edits stay quiet (user, 2026-10-21). */
+  const bannerUnchanged = backdropId === publishedBackdropId && sameFeatured(featured, publishedFeatured)
+  function bannerToast(message: string) {
+    if (bannerUnchanged) setToast({ message })
+  }
+
+  function saveBackdropDraft(id: string) {
+    bannerToast('Banner saved. Publish changes to go live')
+    setBackdropId(id)
+    setChangingBackdrop(false)
+    markChanged()
+  }
+
+  /** Save Changes in the Featured items dialog (flow 02, `2799:103925`).
+   *  Saving over an item that left the shop replaces it (flow 05, 05.7). */
+  function saveFeaturedDraft(refs: FeaturedRef[]) {
+    bannerToast(
+      resolvedFeatured.some((item) => item.kind === 'unavailable')
+        ? 'Featured item replaced. Publish changes to go live'
+        : 'Featured items saved. Publish changes to go live',
+    )
+    setFeatured(refs)
+    setFeaturedInitial(undefined)
+    setEditingFeatured(false)
+    markChanged()
+  }
+
+  function openFeaturedEditor(initial?: FeaturedRef) {
+    setFeaturedInitial(initial)
+    setEditingFeatured(true)
+  }
+
+  /** Remove on a featured card takes it off the banner, as a draft too. */
+  function removeFeatured(item: ResolvedFeatured) {
+    bannerToast('Removed from banner. Publish changes to go live')
+    setFeatured((current) => current.filter((ref) => !(ref.kind === item.ref.kind && ref.id === item.ref.id)))
+    markChanged()
   }
 
   /** The actual removal, run once the confirm dialog is accepted. */
@@ -327,12 +405,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     setToast({ message: 'Shop link copied to clipboard' })
   }
 
-  // Derived from the live `query` (not `overlay.query`, frozen at the last
-  // Enter/suggestion submit) so results/empty-vs-all track every keystroke,
-  // including clearing the box back down to nothing.
-  // Results follow the *submitted* search, not the box's live text: clearing
-  // the box or typing a new keyword leaves the list alone until Enter, so the
-  // page doesn't reflow (and jump) on every keystroke.
+  // Results follow the submitted search while typing, but clearing the box
+  // immediately submits an empty query so the full catalogue comes back.
   const results = overlay?.kind === 'results' ? searchProducts(overlay.query) : []
 
   /** Builds the favorite/remove/affiliate-link controls for the standalone
@@ -361,9 +435,11 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
         <StorefrontPreview
           items={items}
           collections={collections}
-          onClose={() => setPreviewOpen(false)}
+          onClose={() => initialPreview ? navigate('/shop') : setPreviewOpen(false)}
           onCopyShopLink={copyShopLink}
           onCopyCollectionLink={(collection) => copyCollectionLink(collection, 'page')}
+          backdropId={backdropId}
+          featured={shopperFeatured(resolvedFeatured)}
         />
       ) : viewingItem ? (
         <ProductDetailPage
@@ -378,7 +454,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           activeTab={activeTab}
           onTabChange={setActiveTab}
           onBrowse={openCatalogue}
-          onPreview={() => setPreviewOpen(true)}
+          onPreview={() => navigate('/shop/preview')}
           onViewShop={() => {
             // Same origin as whatever's running, not a hardcoded deployment:
             // the storefront reads the shop from this browser's localStorage,
@@ -406,6 +482,11 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onCopyCollectionLink={copyCollectionLink}
           onRemoveFromCollection={removeFromOpenCollection}
           boardMotion={boardMotion}
+          backdropId={backdropId}
+          onChangeBackdrop={() => setChangingBackdrop(true)}
+          featured={resolvedFeatured}
+          onEditFeatured={openFeaturedEditor}
+          onRemoveFeatured={removeFeatured}
           onAddProductsToCollection={(collection) => {
             setCollectionTarget(collection.id)
             openCatalogue()
@@ -436,7 +517,7 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           {overlay.kind === 'catalogue' && (
             <CatalogueHome
               query={query}
-              onQueryChange={setQuery}
+              onQueryChange={updateSearchQuery}
               onSearch={runSearch}
               onViewAllBrands={() => setOverlay({ kind: 'brands' })}
             />
@@ -491,6 +572,34 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
             setNewFromPicker([])
           }}
           onConfirm={confirmAdd}
+        />
+      )}
+
+      {editingFeatured && (
+        <FeaturedItemsDialog
+          items={items}
+          collections={collections}
+          // An item that left the shop frees its slot (05.5).
+          current={resolvedFeatured.filter((item) => item.kind !== 'unavailable').map((item) => item.ref)}
+          initial={featuredInitial}
+          onClose={() => {
+            setFeaturedInitial(undefined)
+            setEditingFeatured(false)
+          }}
+          onSave={saveFeaturedDraft}
+          onBrowseCatalogue={() => {
+            setFeaturedInitial(undefined)
+            setEditingFeatured(false)
+            openCatalogue()
+          }}
+        />
+      )}
+
+      {changingBackdrop && (
+        <ChangeBackdropDialog
+          currentId={backdropId}
+          onClose={() => setChangingBackdrop(false)}
+          onSave={saveBackdropDraft}
         />
       )}
 

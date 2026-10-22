@@ -15,7 +15,9 @@ const variants: Record<ButtonVariant, string> = {
   portalOutlineLg: "rounded-lg border border-portal-border px-4 py-3 text-body-sm text-portal-text disabled:bg-portal-surface disabled:text-portal-disabled",
   portalGhost: "rounded-lg border border-transparent px-4 py-2 text-body-sm capitalize text-portal-text",
   portalGhostLg: "rounded-lg border border-transparent px-4 py-3 text-body-sm capitalize text-portal-text",
-  portalMuted: "rounded-lg border border-transparent bg-portal-surface px-4 py-2 text-body-sm text-portal-disabled",
+  // Outlined in border/color/muted with faint text, no fill (Disconnect,
+  // Figma `2574:45479`).
+  portalMuted: "rounded-lg border border-portal-surface px-4 py-2 text-body-sm text-portal-disabled",
   portalDestructive: "rounded-lg border border-portal-alert px-4 py-2 text-body-sm capitalize text-portal-alert disabled:border-transparent disabled:bg-portal-surface disabled:text-portal-disabled",
   portalLink: "overflow-clip rounded-lg text-body-md capitalize text-portal-text",
 };

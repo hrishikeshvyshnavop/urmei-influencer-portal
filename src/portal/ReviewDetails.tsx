@@ -9,8 +9,9 @@ import type { FieldSpec } from "./form-fields";
 import { scrollToFirstError } from "@/lib/form-validation";
 
 /**
- * Figma `1583:87857`. Name and email come back from the approved application
- * and are read-only here; phone, birthday and applying country stay editable.
+ * Figma `2574:45437` (main file). Name, email, birthday and applying country
+ * come back from the approved application and are read-only here; only the
+ * phone stays editable.
  * The address block that used to sit on this screen moved to its own setup
  * step (`ShippingAddress`).
  */
@@ -25,7 +26,9 @@ const personalFields: FieldSpec[] = [
     locked: true,
   },
   { name: "phone", label: "Phone number", placeholder: "", type: "tel" },
-  { name: "dob", label: "DOB", placeholder: "Select", icon: "calendar" },
+  // Read-only too (Figma `2574:45462`): the birthday was checked with the
+  // identity verification on the apply form.
+  { name: "dob", label: "DOB", placeholder: "Select", icon: "calendar", locked: true },
   {
     name: "applyingCountry",
     label: "Applying Country",
@@ -69,7 +72,9 @@ export default function ReviewDetails({ onContinue }: { onContinue: () => void }
     );
 
   return (
-    <PortalFormLayout hideLanguageSelector hideHeaderBackdrop>
+    // The header shows the market (flag + EN) like the rest of the portal;
+    // the creator portal's selector is display-only.
+    <PortalFormLayout hideHeaderBackdrop>
       <form
         /* Same column as the apply form (Figma `1583:87871`): content starts
            at the header's bottom edge, 40px between blocks. */

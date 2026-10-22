@@ -74,7 +74,10 @@ export function StorefrontProductCard({
           </>
         )}
       </div>
-      <div className="flex w-full items-center gap-fourteen">
+      <div
+        className="flex w-full items-center gap-fourteen rounded-b-sm px-xs py-sm"
+        style={{ backgroundColor: 'var(--shop-product-card, #ffffff)' }}
+      >
         <div className="flex min-w-0 flex-1 flex-col items-start">
           <p className="w-full text-body-sm text-text-secondary-700">{product.brand}</p>
           <div className="flex w-full flex-col items-start gap-xs">

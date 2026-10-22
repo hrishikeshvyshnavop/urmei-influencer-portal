@@ -1,4 +1,4 @@
-import { useState, useSyncExternalStore } from 'react'
+import { useState, useSyncExternalStore, type CSSProperties } from 'react'
 import { Icon } from '../components/Icon'
 import AppFooter from '../../portal/components/AppFooter'
 import { getSelectedCountry, subscribeToSelectedCountry } from '../../portal/country-status'
@@ -8,15 +8,18 @@ import { EmptyStorefront } from '../components/EmptyStorefront'
 import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
 import { ScaledBox } from '../components/ScaledBox'
 import { StorefrontHeader } from '../components/StorefrontHeader'
+import { StorefrontBreadcrumb } from '../components/StorefrontBreadcrumb'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
-import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontBanner } from '../components/StorefrontBanner'
 import { StorefrontReviews } from '../components/StorefrontReviews'
 import { StorefrontCollections } from '../components/StorefrontCollections'
 import { StorefrontCollectionPage } from '../components/StorefrontCollectionPage'
 import type { Collection } from '../collections-store'
 import { reviewsForShop } from '../data/reviews'
 import type { ShopItem } from '../types'
+import type { AvailableFeatured } from '../featured'
+import { backdropColors } from '../data/backdrop-colors'
 
 type StorefrontPreviewProps = {
   items: ShopItem[]
@@ -25,6 +28,9 @@ type StorefrontPreviewProps = {
   onClose: () => void
   onCopyShopLink: () => void
   onCopyCollectionLink: (collection: Collection) => void
+  /** The saved banner (`T-38`): the preview shows it before it's published. */
+  backdropId: string
+  featured: AvailableFeatured[]
 }
 
 /** Also the threshold above which pagination appears at all — 8 or fewer
@@ -117,7 +123,7 @@ function AllPicks({
  * all (e.g. everything removed after publishing), swaps both product
  * sections for the dedicated empty state.
  */
-export function StorefrontPreview({ items, collections, onClose, onCopyShopLink, onCopyCollectionLink }: StorefrontPreviewProps) {
+export function StorefrontPreview({ items, collections, onClose, onCopyShopLink, onCopyCollectionLink, backdropId, featured }: StorefrontPreviewProps) {
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
@@ -128,7 +134,14 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
   const [fromCollection, setFromCollection] = useState<Collection | null>(null)
 
   return (
-    <div className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100">
+    <div
+      className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100"
+      style={
+        {
+          '--shop-product-card': backdropColors(backdropId).productCard,
+        } as CSSProperties
+      }
+    >
       {/* The footer never shares the first screenful, however short the
           preview: the chrome and content fill at least the window ("Footer
           below the fold" in CLAUDE.md). */}
@@ -153,7 +166,20 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
           )}
         </div>
 
-        <div className="flex w-full flex-1 justify-center">
+        <div className="flex w-full flex-1 flex-col items-center">
+          {!selectedItem && !openCollection && (
+            <StorefrontBanner
+              backdropId={backdropId}
+              featured={featured}
+              scaleContent
+              onCopyLink={onCopyShopLink}
+              onOpenFeatured={(item) =>
+                item.kind === 'collection' ? setOpenCollection(item.collection) : setSelectedItem(item.item)
+              }
+            />
+          )}
+
+          <div className="flex w-full flex-1 justify-center">
           <ScaledBox width={1440} className="flex flex-col items-start bg-surface-secondary-100">
             <main className="flex w-full flex-col items-start">
               {selectedItem ? (
@@ -165,6 +191,16 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
                 />
               ) : openCollection ? (
                 <div className="flex w-full flex-col gap-md-2 pt-md-2">
+                  <div className="px-margin">
+                    <StorefrontBreadcrumb
+                      items={[
+                        { label: 'Home', onClick: () => setOpenCollection(null) },
+                        { label: 'Creators', onClick: () => setOpenCollection(null) },
+                        { label: name, onClick: () => setOpenCollection(null) },
+                        { label: openCollection.name },
+                      ]}
+                    />
+                  </div>
                   <div className="px-margin">
                     <button
                       type="button"
@@ -191,10 +227,11 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
                 </div>
               ) : (
                 <>
-                  <div className="flex w-full flex-col gap-md-2 px-margin pt-md-2">
-                    <StorefrontProfileCard onCopyLink={onCopyShopLink} />
-                    {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice country={country} />}
-                  </div>
+                  {items.length > 0 && !hasAvailableItems && (
+                    <div className="flex w-full flex-col px-margin pt-md-2">
+                      <NoAvailabilityNotice country={country} />
+                    </div>
+                  )}
 
                   {items.length === 0 ? (
                     <EmptyStorefront name={name} />
@@ -203,7 +240,6 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
                       <StorefrontCollections
                         collections={collections}
                         items={items}
-                        ownerName={name}
                         bleed
                         onSelect={(collection) => {
                           setFromCollection(null)
@@ -222,6 +258,7 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
               )}
             </main>
           </ScaledBox>
+          </div>
         </div>
       </div>
 

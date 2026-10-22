@@ -28,7 +28,8 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon asChild>
-        <ChevronDownIcon className="size-4 shrink-0 text-portal-muted" />
+        {/* Faint on a read-only select, like the design's disabled chevron. */}
+        <ChevronDownIcon className="size-4 shrink-0 text-portal-muted [button:disabled_&]:text-portal-disabled" />
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
   );
