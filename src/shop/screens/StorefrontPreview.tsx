@@ -10,13 +10,14 @@ import { ScaledBox } from '../components/ScaledBox'
 import { StorefrontHeader } from '../components/StorefrontHeader'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
-import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontBanner } from '../components/StorefrontBanner'
 import { StorefrontReviews } from '../components/StorefrontReviews'
 import { StorefrontCollections } from '../components/StorefrontCollections'
 import { StorefrontCollectionPage } from '../components/StorefrontCollectionPage'
 import type { Collection } from '../collections-store'
 import { reviewsForShop } from '../data/reviews'
 import type { ShopItem } from '../types'
+import type { AvailableFeatured } from '../featured'
 
 type StorefrontPreviewProps = {
   items: ShopItem[]
@@ -25,6 +26,9 @@ type StorefrontPreviewProps = {
   onClose: () => void
   onCopyShopLink: () => void
   onCopyCollectionLink: (collection: Collection) => void
+  /** The saved banner (`T-38`): the preview shows it before it's published. */
+  backdropId: string
+  featured: AvailableFeatured[]
 }
 
 /** Also the threshold above which pagination appears at all — 8 or fewer
@@ -117,7 +121,7 @@ function AllPicks({
  * all (e.g. everything removed after publishing), swaps both product
  * sections for the dedicated empty state.
  */
-export function StorefrontPreview({ items, collections, onClose, onCopyShopLink, onCopyCollectionLink }: StorefrontPreviewProps) {
+export function StorefrontPreview({ items, collections, onClose, onCopyShopLink, onCopyCollectionLink, backdropId, featured }: StorefrontPreviewProps) {
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
@@ -191,10 +195,21 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
                 </div>
               ) : (
                 <>
-                  <div className="flex w-full flex-col gap-md-2 px-margin pt-md-2">
-                    <StorefrontProfileCard onCopyLink={onCopyShopLink} />
-                    {items.length > 0 && !hasAvailableItems && <NoAvailabilityNotice country={country} />}
-                  </div>
+                  {/* The e-com banner (02.9, main file `2799:104149`) in place
+                      of the old profile card: backdrop, tinted card, featured. */}
+                  <StorefrontBanner
+                    backdropId={backdropId}
+                    featured={featured}
+                    onCopyLink={onCopyShopLink}
+                    onOpenFeatured={(item) =>
+                      item.kind === 'collection' ? setOpenCollection(item.collection) : setSelectedItem(item.item)
+                    }
+                  />
+                  {items.length > 0 && !hasAvailableItems && (
+                    <div className="flex w-full flex-col px-margin pt-md-2">
+                      <NoAvailabilityNotice country={country} />
+                    </div>
+                  )}
 
                   {items.length === 0 ? (
                     <EmptyStorefront name={name} />

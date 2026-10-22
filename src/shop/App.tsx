@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useSyncExternalStore } from 'react'
+import { getSelectedCountry, subscribeToSelectedCountry } from '../portal/country-status'
 import { logShopActivity } from './activity-log'
 import { MAX_PRODUCTS } from './limits'
 import { AddToShopModal } from './components/AddToShopModal'
+import { loadBackdrop, loadFeatured, loadPublishedBackdrop, loadPublishedFeatured, sameFeatured, saveBackdrop, saveFeatured, savePublishedBackdrop, savePublishedFeatured, type FeaturedRef } from './banner-store'
+import { ChangeBackdropDialog } from './components/ChangeBackdropDialog'
+import { FeaturedItemsDialog } from './components/FeaturedItemsDialog'
+import { resolveFeatured, shopperFeatured, type ResolvedFeatured } from './featured'
 import { CollectionDialog } from './components/CollectionDialog'
 import { DeleteCollectionDialog } from './components/DeleteCollectionDialog'
 import { RemoveFromCollectionDialog } from './components/RemoveFromCollectionDialog'
@@ -98,6 +103,12 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   const [publishedAt, setPublishedAt] = useState<number | null>(loadPublishedAt)
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(loadHasUnpublishedChanges)
   const [publishBlocked, setPublishBlocked] = useState(loadPublishBlocked)
+  const [backdropId, setBackdropId] = useState(loadBackdrop)
+  const [publishedBackdropId, setPublishedBackdropId] = useState(loadPublishedBackdrop)
+  const [changingBackdrop, setChangingBackdrop] = useState(false)
+  const [featured, setFeatured] = useState<FeaturedRef[]>(loadFeatured)
+  const [publishedFeatured, setPublishedFeatured] = useState<FeaturedRef[]>(loadPublishedFeatured)
+  const [editingFeatured, setEditingFeatured] = useState(false)
 
   useEffect(() => {
     setShopItemCount(items.length)
@@ -121,6 +132,14 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   }, [publishBlocked])
 
   useEffect(() => {
+    saveBackdrop(backdropId)
+  }, [backdropId])
+
+  useEffect(() => {
+    saveFeatured(featured)
+  }, [featured])
+
+  useEffect(() => {
     if (!toast) return
     const timer = window.setTimeout(() => setToast(null), 3200)
     return () => window.clearTimeout(timer)
@@ -134,6 +153,10 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
   // Derived (not a snapshot) so the detail overlay stays in sync when its item
   // changes underneath it, and auto-closes if the item is removed from the shop.
   const viewingItem = items.find((item) => item.id === viewingItemId) ?? null
+  // The creator's market: a featured product not sold there shows as NOT
+  // AVAILABLE on My Shop and is left out of the preview (flow 05).
+  const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  const resolvedFeatured = resolveFeatured(featured, items, collections, country)
 
   function openCatalogue() {
     setQuery('')
@@ -198,11 +221,52 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
     }
     setPublishedAt(Date.now())
     setHasUnpublishedChanges(false)
+    // The saved backdrop is a draft until now (flow 01).
+    savePublishedBackdrop(backdropId)
+    setPublishedBackdropId(backdropId)
+    savePublishedFeatured(featured)
+    setPublishedFeatured(featured)
     setPublishBlocked(false)
     setPublishBlockedShared(false)
     setShopPublished(true)
     setToast({ message: 'Your shop published successfully' })
     logShopActivity('shop-published')
+  }
+
+  /** Banner edits (backdrop, featured items) are drafts that only reach
+   *  shoppers on Publish Changes (main file `2799:105232`). Their toast only
+   *  comes with the first change since the last publish; after that Publish
+   *  Changes is already showing, so later edits stay quiet (user, 2026-10-21). */
+  const bannerUnchanged = backdropId === publishedBackdropId && sameFeatured(featured, publishedFeatured)
+  function bannerToast(message: string) {
+    if (bannerUnchanged) setToast({ message })
+  }
+
+  function saveBackdropDraft(id: string) {
+    bannerToast('Banner saved. Publish changes to go live')
+    setBackdropId(id)
+    setChangingBackdrop(false)
+    markChanged()
+  }
+
+  /** Save Changes in the Featured items dialog (flow 02, `2799:103925`).
+   *  Saving over an item that left the shop replaces it (flow 05, 05.7). */
+  function saveFeaturedDraft(refs: FeaturedRef[]) {
+    bannerToast(
+      resolvedFeatured.some((item) => item.kind === 'unavailable')
+        ? 'Featured item replaced. Publish changes to go live'
+        : 'Featured items saved. Publish changes to go live',
+    )
+    setFeatured(refs)
+    setEditingFeatured(false)
+    markChanged()
+  }
+
+  /** Remove on a featured card takes it off the banner, as a draft too. */
+  function removeFeatured(item: ResolvedFeatured) {
+    bannerToast('Removed from banner. Publish changes to go live')
+    setFeatured((current) => current.filter((ref) => !(ref.kind === item.ref.kind && ref.id === item.ref.id)))
+    markChanged()
   }
 
   /** The actual removal, run once the confirm dialog is accepted. */
@@ -364,6 +428,8 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onClose={() => setPreviewOpen(false)}
           onCopyShopLink={copyShopLink}
           onCopyCollectionLink={(collection) => copyCollectionLink(collection, 'page')}
+          backdropId={backdropId}
+          featured={shopperFeatured(resolvedFeatured)}
         />
       ) : viewingItem ? (
         <ProductDetailPage
@@ -406,6 +472,11 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
           onCopyCollectionLink={copyCollectionLink}
           onRemoveFromCollection={removeFromOpenCollection}
           boardMotion={boardMotion}
+          backdropId={backdropId}
+          onChangeBackdrop={() => setChangingBackdrop(true)}
+          featured={resolvedFeatured}
+          onEditFeatured={() => setEditingFeatured(true)}
+          onRemoveFeatured={removeFeatured}
           onAddProductsToCollection={(collection) => {
             setCollectionTarget(collection.id)
             openCatalogue()
@@ -491,6 +562,29 @@ export default function App({ initialBrowse = false, initialProductId, initialAd
             setNewFromPicker([])
           }}
           onConfirm={confirmAdd}
+        />
+      )}
+
+      {editingFeatured && (
+        <FeaturedItemsDialog
+          items={items}
+          collections={collections}
+          // An item that left the shop frees its slot (05.5).
+          current={resolvedFeatured.filter((item) => item.kind !== 'unavailable').map((item) => item.ref)}
+          onClose={() => setEditingFeatured(false)}
+          onSave={saveFeaturedDraft}
+          onBrowseCatalogue={() => {
+            setEditingFeatured(false)
+            openCatalogue()
+          }}
+        />
+      )}
+
+      {changingBackdrop && (
+        <ChangeBackdropDialog
+          currentId={backdropId}
+          onClose={() => setChangingBackdrop(false)}
+          onSave={saveBackdropDraft}
         />
       )}
 

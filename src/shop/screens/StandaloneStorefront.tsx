@@ -8,7 +8,7 @@ import { NoAvailabilityNotice } from '../components/NoAvailabilityNotice'
 import { StorefrontBreadcrumb } from '../components/StorefrontBreadcrumb'
 import { StorefrontProductCard } from '../components/StorefrontProductCard'
 import { StorefrontProductDetail } from '../components/StorefrontProductDetail'
-import { StorefrontProfileCard } from '../components/StorefrontProfileCard'
+import { StorefrontBanner } from '../components/StorefrontBanner'
 import { StorefrontPublicHeader } from '../components/StorefrontPublicHeader'
 import { StorefrontReviews } from '../components/StorefrontReviews'
 import { StorefrontCollections } from '../components/StorefrontCollections'
@@ -20,6 +20,8 @@ import { reviewsForShop } from '../data/reviews'
 import { SHOP_URL } from '../data/shop'
 import { CONTENT_COLUMN } from '../layout'
 import { loadShopItems } from '../shop-items-store'
+import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
+import { resolveFeatured, shopperFeatured } from '../featured'
 import type { ShopItem } from '../types'
 
 const PICKS_PER_PAGE = 8
@@ -118,6 +120,10 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
   const collections = loadCollections(items)
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
+  // Shoppers only ever see the published banner (flow 06), and never a
+  // featured product that isn't sold in their market.
+  const backdropId = loadPublishedBackdrop()
+  const featured = shopperFeatured(resolveFeatured(loadPublishedFeatured(), items, collections, country))
   const hasAvailableItems = items.some((item) => item.product.regions.includes(country))
   const [selectedItem, setSelectedItem] = useState<ShopItem | null>(null)
   /** The collection a product was opened from, for the market bar (16.3). */
@@ -279,20 +285,19 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
             )
           ) : (
             <>
-              {/* The 36px gap belongs between the profile card and the *first*
-                  section only (Figma `916:65747` wraps exactly those two). The
-                  page frame itself has no gap, so every section after the first
-                  is spaced by its own 36px top padding alone. */}
+              {/* The banner runs the full width straight under the breadcrumb
+                  (06.1–06.3, main file `2799:104829`), with the first section
+                  directly below it. */}
+              <StorefrontBanner
+                backdropId={backdropId}
+                featured={featured}
+                onCopyLink={copyShopLink}
+                onOpenFeatured={(item) => (item.kind === 'collection' ? openCollection(item.collection) : selectFrom(null)(item.item))}
+              />
               <div className="flex w-full flex-col items-center gap-3xl">
-                <div className={CONTENT_COLUMN}>
-                  <StorefrontProfileCard onCopyLink={copyShopLink} />
-                </div>
-                {/* Nothing here ships to the selected market. Sits in the same
-                    36px column as the creator card rather than tucked under it
-                    the way the preview does, which is how the edge frame
-                    (`1616:66073`) stacks it. */}
+                {/* Nothing here ships to the selected market (`1616:66073`). */}
                 {items.length > 0 && !hasAvailableItems && (
-                  <div className={CONTENT_COLUMN}>
+                  <div className={`${CONTENT_COLUMN} pt-3xl`}>
                     <NoAvailabilityNotice country={country} allowCountryChange />
                   </div>
                 )}

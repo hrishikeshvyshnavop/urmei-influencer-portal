@@ -11,14 +11,16 @@ import { EmptyCollections } from '../components/EmptyCollections'
 import { EmptyShop } from '../components/EmptyShop'
 import { Icon } from '../components/Icon'
 import { ShopProductCard } from '../components/ShopProductCard'
-import { StatsRow } from '../components/StatsRow'
+import { BannerFeaturedRow } from '../components/BannerFeaturedRow'
+import { backdropById } from '../data/backdrops'
+import type { ResolvedFeatured } from '../featured'
 import { hasLiveLink } from '../data/shop'
-import { statsRowEntries } from '../data/stats'
 import { StoreCard } from '../components/StoreCard'
 import { Tabs } from '../components/Tabs'
 import type { Collection } from '../collections-store'
 import type { ShopItem } from '../types'
 import { navigate } from '../../router'
+import { cn } from '../../lib/utils'
 
 type MyShopProps = {
   items: ShopItem[]
@@ -53,6 +55,15 @@ type MyShopProps = {
    *  lifts while sliding, or shakes as it snaps back. `at` restarts the
    *  animation on repeated moves of the same board. */
   boardMotion: { id: string; kind: 'moved' | 'failed'; at: number } | null
+  /** The saved banner backdrop (`T-38`); may not be published yet. */
+  backdropId: string
+  /** Opens the Change backdrop dialog (flow 01). */
+  onChangeBackdrop: () => void
+  /** The saved featured items (flow 02). */
+  featured: ResolvedFeatured[]
+  /** Opens the Featured items dialog. */
+  onEditFeatured: () => void
+  onRemoveFeatured: (featured: ResolvedFeatured) => void
 }
 
 export function MyShop({
@@ -82,6 +93,11 @@ export function MyShop({
   onRemoveFromCollection,
   onAddProductsToCollection,
   boardMotion,
+  backdropId,
+  onChangeBackdrop,
+  featured,
+  onEditFeatured,
+  onRemoveFeatured,
 }: MyShopProps) {
   const boardsRef = useRef<HTMLDivElement>(null)
   useFlip(boardsRef, collections.map((collection) => collection.id).join('|'))
@@ -110,6 +126,7 @@ export function MyShop({
     collection.itemIds
       .map((id) => itemsById.get(id))
       .filter((item): item is ShopItem => item !== undefined)
+  const backdrop = backdropById(backdropId)
   const openCollection = isCollectionsTab
     ? collections.find((collection) => collection.id === openCollectionId) ?? null
     : null
@@ -122,16 +139,31 @@ export function MyShop({
       footerBelowFold
     >
       <SetupBanner />
-      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-8 pb-16 lg:px-[120px]">
-        <section className="flex w-full flex-col items-start gap-xl">
-          <div className="flex flex-col gap-xs">
-            <h1 className="text-h6 font-semibold text-text-secondary-1000 uppercase">My Shop</h1>
-            <p className="text-body-md text-text-secondary-700">Your curated URMEI storefront.</p>
-          </div>
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-xs px-6 py-lg lg:px-[120px]">
+        <h1 className="text-h6 font-semibold text-text-secondary-1000 uppercase">My Shop</h1>
+        <p className="text-body-md text-text-secondary-700">Your curated URMEI storefront.</p>
+      </div>
 
-          <div className="flex w-full flex-col items-center overflow-clip rounded-lg bg-surface-secondary-300 shadow-store-card">
+      {/* The banner (main file `2799:105075`): the saved backdrop runs the
+          full width behind the card, with Change Backdrop above it. Shop
+          stats are no longer here; they live on Home (MVP, 10 Oct notes). */}
+      <section aria-label="Shop banner" className="relative w-full overflow-clip">
+        <img
+          src={backdrop.image}
+          alt=""
+          className="pointer-events-none absolute inset-0 size-full object-cover"
+        />
+        <div className="relative mx-auto flex w-full max-w-[1440px] flex-col items-end gap-fourteen px-6 py-[30px] lg:px-[120px]">
+          <button
+            type="button"
+            onClick={onChangeBackdrop}
+            className="flex cursor-pointer items-center gap-sm rounded-lg border border-border-default bg-surface-secondary-100 px-sm py-xs text-body-xs font-medium text-text-secondary-1000 capitalize"
+          >
+            <Icon name="sparkles" />
+            Change Backdrop
+          </button>
+          <div className={cn('flex w-full flex-col gap-lg rounded-[16px] p-md shadow-banner-card sm:p-xxl', backdrop.cardClassName)}>
             <StoreCard
-              attachedBelow
               published={published}
               publishedAt={publishedAt}
               hasUnpublishedChanges={hasUnpublishedChanges}
@@ -141,15 +173,12 @@ export function MyShop({
               onPreview={onPreview}
               onViewShop={onViewShop}
             />
-            {(published || blocked) && (
-              <StatsRow
-                stats={statsRowEntries(items, 'shop')}
-                showPeriod
-              />
-            )}
+            <BannerFeaturedRow featured={featured} onEdit={onEditFeatured} onRemove={onRemoveFeatured} />
           </div>
-        </section>
+        </div>
+      </section>
 
+      <main className="mx-auto flex flex-1 w-full max-w-[1440px] flex-col items-start gap-3xl px-6 pt-4xl-2 pb-16 lg:px-[120px]">
         <section className="flex w-full flex-col items-center gap-3xl">
           <Tabs tabs={tabs} activeId={activeTab} onChange={onTabChange} />
 
