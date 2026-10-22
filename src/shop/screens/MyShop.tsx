@@ -181,7 +181,8 @@ export function MyShop({
             />
             <BannerFeaturedRow
               featured={featured}
-              onEdit={onEditFeatured}
+              // A bare reference would hand the click event in as the preselected item.
+              onEdit={() => onEditFeatured()}
               onRemove={onRemoveFeatured}
               featuredLabelColor={colors.featuredLabel}
             />
