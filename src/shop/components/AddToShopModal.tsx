@@ -186,7 +186,7 @@ export function AddToShopModal({
                       value={selectedVariant}
                       onChange={changeVariant}
                     />
-                    {alreadyAdded && (
+                    {alreadyAdded && !existingCollectionIds && (
                       <p className="text-body-xs font-medium text-surface-other-alert">
                         This variant is already in your shop
                       </p>
