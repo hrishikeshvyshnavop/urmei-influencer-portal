@@ -272,6 +272,7 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
                   this product is in. */}
               <StorefrontCollections
                 title={`In ${name}'s collections`}
+                cardSurface={false}
                 collections={collections.filter((collection) =>
                   collectionsFor(selectedItem.id, collections).some((c) => c.id === collection.id),
                 )}

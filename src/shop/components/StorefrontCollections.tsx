@@ -5,6 +5,7 @@ import { CONTENT_COLUMN } from '../layout'
 import type { ShopItem } from '../types'
 import { MoreOverlay } from './CollectionCard'
 import { Icon } from './Icon'
+import { cn } from '../../lib/utils'
 
 /** How far one click of the row's prev/next scrolls: one board and its gap. */
 const SCROLL_STEP = 288 + 16
@@ -23,6 +24,10 @@ type StorefrontCollectionsProps = {
   bleed?: boolean
   /** The fade-to-tint background; the collection page sits on plain white. */
   tinted?: boolean
+  /** Fills the name and description block with the backdrop's collection
+   *  card colour. Off under a product ("In <name>'s collections"), where
+   *  the text sits straight on the section. */
+  cardSurface?: boolean
   /** Extra classes for the section, e.g. `flex-1` so its tint runs down to
    *  the footer when it's the last thing on a short page. */
   className?: string
@@ -45,6 +50,7 @@ export function StorefrontCollections({
   onSelect,
   bleed = false,
   tinted = true,
+  cardSurface = true,
   className,
   contentClassName = CONTENT_COLUMN,
 }: StorefrontCollectionsProps) {
@@ -129,8 +135,11 @@ export function StorefrontCollections({
                 </div>
               </div>
               <div
-                className="flex w-full flex-col items-start gap-xs overflow-clip rounded-b-md px-sm py-xs"
-                style={{ backgroundColor: 'var(--shop-collection-card, #ffffff)' }}
+                className={cn(
+                  'flex w-full flex-col items-start gap-xs overflow-clip',
+                  cardSurface && 'rounded-b-md px-sm py-xs',
+                )}
+                style={cardSurface ? { backgroundColor: 'var(--shop-collection-card, #ffffff)' } : undefined}
               >
                 <p className="w-full text-body-md font-medium text-text-secondary-1000">{collection.name}</p>
                 {collection.description && (
