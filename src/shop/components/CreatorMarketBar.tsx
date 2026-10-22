@@ -67,6 +67,9 @@ export function CreatorMarketBar({ name, country, onBack, collectionName, design
       <ScaledBox width={designWidth} className={row}>{contents}</ScaledBox>
     </div>
   ) : (
-    <div className={`${row} ${bar}`}>{contents}</div>
+    // The strip runs edge to edge; its row keeps to the 1440px content column.
+    <div className={`flex w-full justify-center ${bar}`}>
+      <div className={`${row} max-w-[1440px]`}>{contents}</div>
+    </div>
   )
 }

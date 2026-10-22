@@ -18,7 +18,7 @@ import { navigate } from '../../router'
 import { Toast } from '../components/Toast'
 import { reviewsForShop } from '../data/reviews'
 import { SHOP_URL } from '../data/shop'
-import { CONTENT_COLUMN, FULL_WIDTH_CONTENT } from '../layout'
+import { CONTENT_COLUMN } from '../layout'
 import { loadShopItems } from '../shop-items-store'
 import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
 import { resolveFeatured, shopperFeatured } from '../featured'
@@ -239,7 +239,7 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
         {!selectedItem && (
           /* Static, like the site nav above it: the shelves above this page have
              no screens to point at yet. */
-          <div className={FULL_WIDTH_CONTENT}>
+          <div className={CONTENT_COLUMN}>
             <StorefrontBreadcrumb
               items={
                 linkedCollection && linkedAvailable
@@ -261,15 +261,18 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
 
         <main className="flex w-full flex-1 flex-col items-center">
           {selectedItem ? (
-            <div className={CONTENT_COLUMN}>
-              <StorefrontProductDetail
-                item={selectedItem}
-                country={country}
-                creatorName={name}
-                onBack={clearSelection}
-              />
+            <>
+              <div className={CONTENT_COLUMN}>
+                <StorefrontProductDetail
+                  item={selectedItem}
+                  country={country}
+                  creatorName={name}
+                  onBack={clearSelection}
+                />
+              </div>
               {/* "In <name>'s collections" (Figma `1862:82122`): the boards
-                  this product is in. */}
+                  this product is in. Outside the column so its tint runs
+                  edge to edge; it centres its own content in the column. */}
               <StorefrontCollections
                 title={`In ${name}'s collections`}
                 cardSurface={false}
@@ -279,7 +282,7 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
                 items={items}
                 onSelect={openCollection}
               />
-            </div>
+            </>
           ) : collectionId ? (
             linkedCollection && linkedAvailable ? (
               <StorefrontCollectionPage

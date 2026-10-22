@@ -1,6 +1,6 @@
 import ProfilePhoto from '../../portal/components/ProfilePhoto'
 import type { Collection } from '../collections-store'
-import { FULL_WIDTH_CONTENT } from '../layout'
+import { CONTENT_COLUMN } from '../layout'
 import type { ShopItem } from '../types'
 import { Icon } from './Icon'
 import { StorefrontCollections } from './StorefrontCollections'
@@ -42,7 +42,7 @@ export function StorefrontCollectionPage({
 
   return (
     <div className="flex w-full flex-1 flex-col items-center">
-      <div className={FULL_WIDTH_CONTENT}>
+      <div className={CONTENT_COLUMN}>
         <div className="flex w-full items-start justify-between py-sm">
           <div className="flex flex-col items-start gap-md-sm">
             <div className="flex items-center gap-ten">
@@ -75,7 +75,7 @@ export function StorefrontCollectionPage({
         </div>
       </div>
 
-      <section className={`flex flex-col items-center gap-md-2 py-3xl ${FULL_WIDTH_CONTENT}`}>
+      <section className={`flex flex-col items-center gap-md-2 py-3xl ${CONTENT_COLUMN}`}>
         <p className="w-full text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
           In this collection
         </p>
@@ -99,7 +99,6 @@ export function StorefrontCollectionPage({
         onSelect={onSelectCollection}
         tinted={false}
         className="flex-1"
-        contentClassName={FULL_WIDTH_CONTENT}
       />
     </div>
   )
@@ -126,7 +125,7 @@ export function CollectionUnavailable({
 }) {
   return (
     <div className="flex w-full flex-1 flex-col items-center">
-      <div className={FULL_WIDTH_CONTENT}>
+      <div className={CONTENT_COLUMN}>
         <div className="flex w-full flex-col items-center gap-ten px-lg py-[96px] text-center">
           <h1 className="text-[32px] leading-[40px] font-semibold text-text-secondary-1000">
             This collection isn&rsquo;t available
@@ -154,7 +153,6 @@ export function CollectionUnavailable({
         onSelect={onSelectCollection}
         bleed
         className="flex-1"
-        contentClassName={FULL_WIDTH_CONTENT}
       />
     </div>
   )
