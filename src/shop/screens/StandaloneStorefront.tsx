@@ -38,8 +38,10 @@ function AllPicks({
   const totalPages = Math.max(1, Math.ceil(items.length / PICKS_PER_PAGE))
   const visible = items.slice((page - 1) * PICKS_PER_PAGE, page * PICKS_PER_PAGE)
 
+  // 36px above the header, 64px under the pagination, then straight into
+  // the footer (main file `2799:104177`).
   return (
-    <section className={`flex flex-col items-center gap-md-2 py-3xl ${CONTENT_COLUMN}`}>
+    <section className={`flex flex-col items-center gap-md-2 pt-3xl pb-5xl ${CONTENT_COLUMN}`}>
       <p className="w-full text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
         All Picks
       </p>
@@ -331,12 +333,6 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
             </>
           )}
         </main>
-
-        {/* Figma `916:65859` — breathing room between the last section and the
-            footer, on top of the section's own bottom padding. A product page
-            brings its own, shorter (64px) spacer. A collection page has none: its
-            tinted "More collections" row stretches to the footer instead. */}
-        {!selectedItem && !collectionId && <div className="h-[80px] w-full shrink-0" />}
       </div>
 
       <AppFooter />

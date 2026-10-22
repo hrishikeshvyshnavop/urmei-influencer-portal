@@ -8,7 +8,7 @@ import ProfilePhoto from "./components/ProfilePhoto";
 import SetupBanner from "./components/SetupBanner";
 import { requestProductTour } from "./tour-status";
 import { useHasShopItems, useIsPublishBlocked, useIsShopPublished } from "../shop/shop-status";
-import { loadPublishedAt, loadShopItems, saveShopItems } from "../shop/shop-items-store";
+import { loadPublishedAt, loadShopItems, saveHasUnpublishedChanges, saveShopItems } from "../shop/shop-items-store";
 import { logShopActivity } from "../shop/activity-log";
 import { StatsRow } from "../shop/components/StatsRow";
 import { productStatsHash, statsRowEntries } from "../shop/data/stats";
@@ -342,6 +342,7 @@ export default function Home({
               const next = [...current, newItem];
               saveShopItems(next);
               setShopItemCount(next.length);
+              if (loadPublishedAt() !== null) saveHasUnpublishedChanges(true);
               return next;
             });
             logShopActivity("product-added", `${pendingProduct.brand} ${pendingProduct.name}`);

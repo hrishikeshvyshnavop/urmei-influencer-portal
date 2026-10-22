@@ -461,13 +461,8 @@ export function SearchResults({
             // hidden (Home's carousel, the favorite strips) because those are
             // horizontal and have prev/next buttons as the affordance; this
             // rail has none, so hiding it made a list that does scroll read as
-            // one that doesn't once several groups were expanded.
-            //
-            // Styled with the standard properties rather than `::-webkit-
-            // scrollbar` pseudo-elements: Chrome now implements
-            // `scrollbar-width`/`scrollbar-color` natively and ignores the
-            // legacy pseudo-element rules whenever either is set.
-            className="[scrollbar-color:var(--color-border-outlined)_transparent] [scrollbar-width:thin]"
+            // one that doesn't once several groups were expanded. Its thin,
+            // track-less look is the app-wide one set on `body` (global.css).
           >
             <FiltersSidebar
               filters={filters}

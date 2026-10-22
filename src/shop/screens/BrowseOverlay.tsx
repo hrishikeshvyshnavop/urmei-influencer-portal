@@ -186,16 +186,13 @@ export function BrowseOverlay({
     // covers it, so none of that is visible.
     //
     // Both properties are inherited, and the viewport's scrollbar takes its
-    // values from the root, so `body` is pinned back to the defaults to stop
-    // `none` reaching the overlay's own scrollers and erasing the results
-    // list's scrollbar with it.
+    // values from the root. `body` declares its own (global.css), so `none`
+    // stops there and the overlay's scrollers keep the app's thin scrollbar.
     const root = document.documentElement
     const previousRootScrollbarWidth = root.style.scrollbarWidth
     const previousRootScrollbarGutter = root.style.scrollbarGutter
-    const previousBodyScrollbarWidth = document.body.style.scrollbarWidth
     root.style.scrollbarWidth = 'none'
     root.style.scrollbarGutter = 'auto'
-    document.body.style.scrollbarWidth = 'auto'
 
     // Belt and braces now that the page has no scrollbar to grab: holding the
     // position covers any route the guards above don't — a thumb drag if a
@@ -215,7 +212,6 @@ export function BrowseOverlay({
       window.removeEventListener('scroll', holdScrollPosition)
       root.style.scrollbarWidth = previousRootScrollbarWidth
       root.style.scrollbarGutter = previousRootScrollbarGutter
-      document.body.style.scrollbarWidth = previousBodyScrollbarWidth
     }
   }, [])
 
@@ -280,13 +276,10 @@ export function BrowseOverlay({
           </button>
         </header>
 
-        {/* Thin, track-less scrollbar to match the Filters rail's. Left at the
-            platform default this was a full-width classic scrollbar whose pale
-            track read as a white band down the edge of the screen, right next
-            to the scrim. */}
+        {/* Its scrollbar is the app-wide thin, track-less one (global.css). */}
         <div
           ref={bodyRef}
-          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-surface-secondary-100 [scrollbar-color:var(--color-border-outlined)_transparent] [scrollbar-width:thin]"
+          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain bg-surface-secondary-100"
         >
           <div className="flex min-h-full w-full justify-center" onMouseDown={(event) => { if (event.target === event.currentTarget) requestClose() }}>
             <ScaledBox width={1440} className="min-h-full shrink-0 rounded-b-lg bg-surface-secondary-100">

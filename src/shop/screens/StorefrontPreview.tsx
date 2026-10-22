@@ -49,7 +49,7 @@ function AllPicks({
   const visible = items.slice((page - 1) * PICKS_PER_PAGE, page * PICKS_PER_PAGE)
 
   return (
-    <section className="flex w-full flex-col items-center gap-md-2 px-margin py-3xl">
+    <section className="flex w-full flex-col items-center gap-md-2 px-margin pt-3xl pb-5xl">
       <p className="w-full max-w-[1200px] text-body-md leading-[22px] font-medium tracking-[1.6px] text-text-secondary-1000 uppercase">
         All Picks
       </p>

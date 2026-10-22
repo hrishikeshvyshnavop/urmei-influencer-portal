@@ -83,7 +83,7 @@ export const INDONESIA_CITIES: Record<string, string[]> = {
  * City lists the chosen state's cities. Markets without a drawn form
  * (Thailand, Vietnam) take Singapore's.
  */
-export function setupAddressFields(country: string, state = ""): FieldSpec[] {
+export function setupAddressFields(country: string, state = "", lockCountry = true): FieldSpec[] {
   const regions =
     country === "Malaysia" ? MALAYSIA_CITIES : country === "Indonesia" ? INDONESIA_CITIES : null;
   const regionsOptional = country === "Malaysia";
@@ -97,7 +97,7 @@ export function setupAddressFields(country: string, state = ""): FieldSpec[] {
   });
 
   return [
-    { ...COUNTRY_FIELD, placeholder: "", required: true, disabled: true },
+    { ...COUNTRY_FIELD, placeholder: "", required: true, locked: lockCountry, disabled: lockCountry },
     {
       name: "postalCode",
       label: "Postal code",

@@ -16,10 +16,9 @@ type ShippingAddressProps = {
  * (Figma `2574:45764` Singapore, `2574:45799` Malaysia, `2574:45837`
  * Indonesia).
  *
- * Country is locked to the creator's market, which is the header's country
- * selector. The rest of the form follows that market's address format (see
- * `setupAddressFields`), so switching market in the header swaps the form.
- * The address is saved as Home.
+ * Country can be selected on this profile page. The rest of the form follows
+ * the selected country's address format (see `setupAddressFields`). The
+ * address is saved as Home.
  */
 export default function ShippingAddress({
   onAddAddress,
@@ -34,8 +33,9 @@ export default function ShippingAddress({
   });
   const [showErrors, setShowErrors] = useState(false);
 
-  const fields = setupAddressFields(country, values.state);
-  const formValues: Record<string, string> = { ...values, country };
+  const formCountry = values.country || country;
+  const fields = setupAddressFields(formCountry, values.state, false);
+  const formValues: Record<string, string> = { ...values, country: formCountry };
 
   const setField = (name: string, value: string) =>
     setValues((current) => ({
@@ -43,6 +43,9 @@ export default function ShippingAddress({
       [name]: value,
       // A new state's city list may not hold the old city.
       ...(name === "state" && value !== current.state ? { city: "" } : {}),
+      ...(name === "country" && value !== current.country
+        ? { state: "", city: "", postalCode: "" }
+        : {}),
     }));
 
   return (

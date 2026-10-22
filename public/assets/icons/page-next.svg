@@ -2,6 +2,6 @@
 <g id="Icon Button / next">
 <rect x="0.5" y="0.5" width="37" height="37" rx="7.5" fill="#FFFEFD"/>
 <rect x="0.5" y="0.5" width="37" height="37" rx="7.5" stroke="#E5E5E5"/>
-<path id="Vector" d="M16 13L22 19L16 25" stroke="#222222" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Icon path" d="M16 13L22 19L16 25" stroke-width="1.33" stroke-linecap="round" stroke-linejoin="round" stroke="#222222"/>
 </g>
 </svg>

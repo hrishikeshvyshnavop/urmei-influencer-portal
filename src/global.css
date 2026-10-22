@@ -225,8 +225,15 @@ html.scrollbar-gutter-auto {
 
 body {
   /* Undoes the root's `scrollbar-width: none` for everything in the page, so
-     hiding the window's scrollbar doesn't hide in-page ones too. */
-  scrollbar-width: auto;
+     hiding the window's scrollbar doesn't hide in-page ones too, and gives
+     every in-page scrollbar one look: thin, a grey thumb, no track. Both
+     properties inherit, so modals, drawers, dropdown lists, the filter rail
+     and the browse overlay all take it from here. Horizontal carousels that
+     hide theirs (they have ‹ › buttons) set `scrollbar-width: none` on
+     themselves. The standard properties, not `::-webkit-scrollbar`: Chrome
+     ignores the pseudo-elements whenever these are set. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-outlined) transparent;
   background-color: #fff;
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
