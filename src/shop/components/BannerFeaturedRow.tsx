@@ -1,6 +1,7 @@
 import { MAX_FEATURED } from '../banner-store'
 import { backdropColors } from '../data/backdrop-colors'
-import { moreLabel, type ResolvedFeatured } from '../featured'
+import type { ResolvedFeatured } from '../featured'
+import { CollectionCover } from './CollectionCover'
 import { cn } from '../../lib/utils'
 import { Icon } from './Icon'
 
@@ -18,31 +19,7 @@ type BannerFeaturedRowProps = {
  *  stacked on the right, "+N products" over the last (main file
  *  `I2799:103926;3447:58904`). */
 function SquareCover({ featured }: { featured: Extract<ResolvedFeatured, { kind: 'collection' }> }) {
-  const [first, second, third] = featured.items
-  const more = moreLabel(featured.items.length)
-  const image = (item: typeof first | undefined) =>
-    item ? (
-      <img src={item.product.shopCardImage} alt="" className="pointer-events-none absolute inset-0 size-full object-cover" />
-    ) : (
-      <span aria-hidden="true" className="absolute inset-0 bg-surface-secondary-300" />
-    )
-  return (
-    <div className="flex size-[133px] shrink-0 gap-[2px] overflow-clip rounded-lg">
-      <div className="relative h-full min-w-0 flex-1">{image(first)}</div>
-      <div className="flex h-full min-w-0 flex-1 flex-col gap-[2px]">
-        <div className="relative min-h-0 flex-1">{image(second)}</div>
-        <div className="relative min-h-0 flex-1 overflow-clip">
-          {image(third)}
-          {more && (
-            <span className="absolute inset-0 flex flex-col items-center justify-center bg-scrim text-center font-medium whitespace-nowrap text-text-secondary-100">
-              <span className="text-body-sm">{more.count}</span>
-              <span className="text-body-xs">{more.label}</span>
-            </span>
-          )}
-        </div>
-      </div>
-    </div>
-  )
+  return <CollectionCover items={featured.items} className="size-[133px] shrink-0 rounded-lg" leadClassName="flex-1" moreSize="md" />
 }
 
 function FeaturedCard({ featured, onChange, onRemove, labelColor, surface }: { featured: ResolvedFeatured; onChange: () => void; onRemove: () => void; labelColor: string; surface: string }) {

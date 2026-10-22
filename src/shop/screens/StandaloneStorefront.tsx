@@ -196,7 +196,6 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
       className="flex min-h-screen w-full flex-col items-center bg-surface-secondary-100"
       style={
         {
-          '--shop-collection-card': backdropColors(backdropId).collectionCard,
           '--shop-product-card': backdropColors(backdropId).productCard,
         } as CSSProperties
       }
@@ -275,7 +274,6 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
                   edge to edge; it centres its own content in the column. */}
               <StorefrontCollections
                 title={`In ${name}'s collections`}
-                cardSurface={false}
                 collections={collections.filter((collection) =>
                   collectionsFor(selectedItem.id, collections).some((c) => c.id === collection.id),
                 )}
@@ -326,6 +324,7 @@ export function StandaloneStorefront({ collectionId }: { collectionId?: string }
                   <StorefrontCollections
                     collections={collections}
                     items={items}
+                    showViewAll
                     onSelect={openCollection}
                   />
                 ) : (

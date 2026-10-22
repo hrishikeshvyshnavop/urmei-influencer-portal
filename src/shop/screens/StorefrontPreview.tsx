@@ -138,7 +138,6 @@ export function StorefrontPreview({ items, collections, onClose, onCopyShopLink,
       className="flex min-h-screen w-full flex-col items-center overflow-x-clip bg-surface-secondary-100"
       style={
         {
-          '--shop-collection-card': backdropColors(backdropId).collectionCard,
           '--shop-product-card': backdropColors(backdropId).productCard,
         } as CSSProperties
       }

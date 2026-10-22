@@ -5,8 +5,9 @@ import { getSavedBio, getSavedDisplayName } from '../../portal/profile-status'
 import { backdropById } from '../data/backdrops'
 import { backdropColors } from '../data/backdrop-colors'
 import { FOLLOWER_STATS } from '../data/shop'
-import { moreLabel, type AvailableFeatured } from '../featured'
+import type { AvailableFeatured } from '../featured'
 import { Button } from './Button'
+import { CollectionCover } from './CollectionCover'
 import { Icon } from './Icon'
 import { ScaledBox } from './ScaledBox'
 
@@ -27,7 +28,6 @@ function StorefrontFeaturedCard({ featured, onOpen, surface, labelColor }: { fea
   const isCollection = featured.kind === 'collection'
   const title = isCollection ? featured.collection.name : featured.item.product.name
   const body = isCollection ? featured.collection.description : featured.item.product.brand
-  const more = isCollection ? moreLabel(featured.items.length) : null
   const image = (src: string | undefined, className: string) =>
     src ? (
       <img src={src} alt="" className={`pointer-events-none object-cover ${className}`} />
@@ -52,21 +52,7 @@ function StorefrontFeaturedCard({ featured, onOpen, surface, labelColor }: { fea
         </button>
       </div>
       {isCollection ? (
-        <div className="flex w-[180px] shrink-0 gap-xs">
-          <div className="relative min-w-0 flex-1">{image(featured.items[0]?.product.shopCardImage, 'absolute inset-0 size-full')}</div>
-          <div className="flex min-w-0 flex-1 flex-col gap-xs">
-            {image(featured.items[1]?.product.shopCardImage, 'h-[88px] w-full')}
-            <div className="relative h-[88px] w-full overflow-clip">
-              {image(featured.items[2]?.product.shopCardImage, 'absolute inset-0 size-full')}
-              {more && (
-                <span className="absolute inset-0 flex flex-col items-center justify-center bg-scrim text-center font-medium text-text-secondary-100">
-                  <span className="text-body-xl">{more.count}</span>
-                  <span className="text-body-xs">{more.label}</span>
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+        <CollectionCover items={featured.items} className="min-h-[180px] w-[180px] shrink-0" gapClassName="gap-xs" leadClassName="flex-1" />
       ) : (
         <div className="relative w-[180px] shrink-0 self-stretch">
           {image(featured.item.product.shopCardImage, 'absolute inset-0 size-full')}

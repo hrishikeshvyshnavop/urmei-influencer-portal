@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import { cn } from '../../lib/utils'
 import { MAX_FEATURED, sameFeatured, type FeaturedRef } from '../banner-store'
 import type { Collection } from '../collections-store'
-import { collectionItems, moreLabel } from '../featured'
+import { collectionItems } from '../featured'
 import type { ShopItem } from '../types'
 import { Button } from './Button'
+import { CollectionCover } from './CollectionCover'
 import { ConfirmDialog } from './ConfirmDialog'
 import { Icon } from './Icon'
 import { PickerEmptyState } from './PickerEmptyState'
@@ -55,14 +56,6 @@ function CollectionTile({
   disabled: boolean
   onToggle: () => void
 }) {
-  const [first, second, third] = items
-  const more = moreLabel(items.length)
-  const image = (item: ShopItem | undefined) =>
-    item ? (
-      <img src={item.product.shopCardImage} alt="" className="pointer-events-none absolute inset-0 size-full object-cover" />
-    ) : (
-      <span aria-hidden="true" className="absolute inset-0 bg-surface-secondary-300" />
-    )
   return (
     <button
       type="button"
@@ -73,21 +66,11 @@ function CollectionTile({
       className={cn('flex w-[224px] flex-col gap-md-sm text-left', disabled ? 'cursor-not-allowed' : 'cursor-pointer')}
     >
       <span className="relative block w-full">
-        <span className={cn('flex aspect-[288/192] w-full gap-[2px] overflow-clip rounded-md', disabled && 'opacity-40')}>
-          <span className="relative h-full min-w-0 flex-[2]">{image(first)}</span>
-          <span className="flex h-full min-w-0 flex-1 flex-col gap-[2px]">
-            <span className="relative min-h-0 flex-1">{image(second)}</span>
-            <span className="relative min-h-0 flex-1 overflow-clip">
-              {image(third)}
-              {more && (
-                <span className="absolute inset-0 flex flex-col items-center justify-center bg-scrim text-center font-medium whitespace-nowrap text-text-secondary-100">
-                  <span className="text-[14px] leading-none">{more.count}</span>
-                  <span className="text-[9px]">{more.label}</span>
-                </span>
-              )}
-            </span>
-          </span>
-        </span>
+        <CollectionCover
+          items={items}
+          className={cn('aspect-[288/192] w-full rounded-md', disabled && 'opacity-40')}
+          moreSize="sm"
+        />
         <span className="absolute top-[6px] right-[6px] flex size-[24px] items-center justify-center">
           <TickBox checked={checked} />
         </span>

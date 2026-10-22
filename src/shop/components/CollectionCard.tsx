@@ -1,5 +1,5 @@
 import type { Collection } from '../collections-store'
-import { moreLabel } from '../featured'
+import { CollectionCover } from './CollectionCover'
 import type { ShopItem } from '../types'
 import { Icon } from './Icon'
 import { ItemMenu, type ItemMenuAction } from './ItemMenu'
@@ -17,33 +17,6 @@ type CollectionCardProps = {
   menuActions: ItemMenuAction[]
   /** Opens the collection page (flow 08, Figma `1862:85176`). */
   onOpen: () => void
-}
-
-/** One cover tile; a missing product leaves the slot as a quiet swatch. */
-function CoverImage({ item, className }: { item?: ShopItem; className: string }) {
-  return item ? (
-    <img
-      src={item.product.shopCardImage}
-      alt=""
-      className={`pointer-events-none object-cover ${className}`}
-    />
-  ) : (
-    <span aria-hidden="true" className={`bg-surface-secondary-300 ${className}`} />
-  )
-}
-
-/** The "+N products" scrim on the last cover tile for the products beyond
- *  the three shown (Collection Card `2794:82137`, main file); nothing at three
- *  or fewer. */
-export function MoreOverlay({ count }: { count: number }) {
-  const more = moreLabel(count)
-  if (!more) return null
-  return (
-    <span className="absolute inset-0 flex flex-col items-center justify-center bg-scrim text-center font-medium text-text-secondary-100">
-      <span className="text-body-xl">{more.count}</span>
-      <span className="text-body-xs">{more.label}</span>
-    </span>
-  )
 }
 
 function ArrowButton({
@@ -109,8 +82,10 @@ export function CollectionCard({
         aria-label={`Open ${collection.name}`}
         className="block cursor-pointer text-left"
       >
+      {/* The Collection Card's 3:2 cover (main file `2794:82137`); the main
+          image takes two thirds beside the stacked pair. */}
       {isEmpty ? (
-        <div className="flex size-[282px] flex-col items-center justify-center gap-xs rounded-t-md border border-dashed border-[#ccc] bg-[#f6f5f4]">
+        <div className="flex aspect-[3/2] w-[282px] flex-col items-center justify-center gap-xs rounded-t-md border border-dashed border-[#ccc] bg-[#f6f5f4]">
           <p className="text-body-sm leading-[20px] font-medium text-text-secondary-1000">
             No products yet
           </p>
@@ -119,16 +94,7 @@ export function CollectionCard({
           </p>
         </div>
       ) : (
-        <div className="flex gap-[2px] overflow-clip rounded-t-md">
-          <CoverImage item={items[0]} className="h-[282px] w-[188px]" />
-          <div className="flex flex-col gap-[2px]">
-            <CoverImage item={items[1]} className="h-[140px] w-[92px]" />
-            <div className="relative h-[140px] w-[92px] overflow-clip">
-              <CoverImage item={items[2]} className="h-[140px] w-[92px]" />
-              <MoreOverlay count={items.length} />
-            </div>
-          </div>
-        </div>
+        <CollectionCover items={items} className="aspect-[3/2] w-[282px] rounded-t-md" />
       )}
       </button>
 
