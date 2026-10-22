@@ -17,9 +17,9 @@ import { collectionLinkFor, collectionsFor, loadCollections, type Collection } f
 import { navigate } from '../../router'
 import { Toast } from '../components/Toast'
 import { reviewsForShop } from '../data/reviews'
-import { SHOP_URL } from '../data/shop'
+import { hasLiveLink, SHOP_URL } from '../data/shop'
 import { CONTENT_COLUMN } from '../layout'
-import { loadShopItems } from '../shop-items-store'
+import { loadPublishedAt, loadShopItems } from '../shop-items-store'
 import { loadPublishedBackdrop, loadPublishedFeatured } from '../banner-store'
 import { resolveFeatured, shopperFeatured } from '../featured'
 import type { ShopItem } from '../types'
@@ -116,7 +116,10 @@ function AllPicks({
  * (`916:66693`).
  */
 export function StandaloneStorefront({ collectionId }: { collectionId?: string } = {}) {
-  const items = loadShopItems()
+  const publishedAt = loadPublishedAt()
+  // The public e-commerce storefront is a published snapshot. Creator-side
+  // additions remain in the draft shop until the creator publishes changes.
+  const items = loadShopItems().filter((item) => hasLiveLink(item, publishedAt))
   const collections = loadCollections(items)
   const name = getSavedDisplayName('Charlotte')
   const country = useSyncExternalStore(subscribeToSelectedCountry, getSelectedCountry)
