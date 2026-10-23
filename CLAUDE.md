@@ -11,6 +11,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 >
 > Comments citing the main file usually name it.
 >
+> **All four Figma files** (main creator file, the K-Beauty e-commerce file `jjLjjHCNlAAusOC5rnqhNr`, the K-Beauty component file `BtZLL72dc5VxlwW45GLnQN`, the Work File) and the new-feature sections on the main file's page `236:15116` are mapped in `docs/figma-files.md`.
+>
 > **Figma design work:** the Work File's current page ids, the **locked handoff design** (the whole main-file page `794:24650` "-> Responsive Design (Web & Mob)", plus the Work File's `2320:42706`: never edit them; build only in the Work File), components, tokens and product rules all live in `workflows/_shared/workfile.md`. Script traps are in `workflows/_shared/figma-gotchas.md`. Before any page-wide Figma write, check that every locked id still exists. If one is missing, stop and ask.
 
 ## Commands
