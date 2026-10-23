@@ -11,12 +11,13 @@ Each task has a permanent ID (`T-01`, `T-02`, …). New tasks take the next free
 | ⬆️ Pushed | On `origin` (`main` or a feature branch) |
 | 🟢 Live | Deployed and checked on the Vercel site |
 
-Last updated: 2026-10-21
+Last updated: 2026-10-23
 
 ## In progress
 
 | ID | Work | Branch | Committed | Pushed | Live | Status |
 | --- | --- | --- | :-: | :-: | :-: | --- |
+| T-55 | Map the four Figma files (main creator file, K-Beauty e-commerce, K-Beauty components, Work File) and the new-feature sections on page `236:15116` in `docs/figma-files.md`, linked from `CLAUDE.md` | `staging` | [x] | [ ] | [ ] | Committed |
 | T-54 | Thin, track-less scrollbar on every in-page scroller (set per element in the base layer so `[scrollbar-width:none]` carousels still win) and on Radix select lists, which hid theirs | `staging` | [x] | [x] | [ ] | Pushed |
 | T-53 | Tidy the repo root: drop the stale `COLLECTIONS-*.md` / `REQUIREMENT-COLLECTIONS.md` and `responsive-workflow-urmei/` copies a merge brought back (the current ones are in `change-requests/collections/` and `workflows/`), untrack the ignored `.figma-comments/seen.json`, move `vercel-debug-commands.md` to `docs/vercel-debugging.md` | `staging` | [x] | [x] | [ ] | Pushed |
 | T-01 | Period filter as radio list, adds Last 14 Days, All Time last (Figma `350:44963`) (`cfa61bb`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
