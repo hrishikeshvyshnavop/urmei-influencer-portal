@@ -17,6 +17,8 @@ Last updated: 2026-10-21
 
 | ID | Work | Branch | Committed | Pushed | Live | Status |
 | --- | --- | --- | :-: | :-: | :-: | --- |
+| T-54 | Thin, track-less scrollbar on every in-page scroller (set per element in the base layer so `[scrollbar-width:none]` carousels still win) and on Radix select lists, which hid theirs | `staging` | [x] | [x] | [ ] | Pushed |
+| T-53 | Tidy the repo root: drop the stale `COLLECTIONS-*.md` / `REQUIREMENT-COLLECTIONS.md` and `responsive-workflow-urmei/` copies a merge brought back (the current ones are in `change-requests/collections/` and `workflows/`), untrack the ignored `.figma-comments/seen.json`, move `vercel-debug-commands.md` to `docs/vercel-debugging.md` | `staging` | [x] | [x] | [ ] | Pushed |
 | T-52 | Generate six distinct product-specific gallery views and wire them into the creator and storefront PDP carousels | `main` | [x] | [ ] | [ ] | Committed |
 | T-01 | Period filter as radio list, adds Last 14 Days, All Time last (Figma `350:44963`) (`cfa61bb`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |
 | T-02 | Shared `RadioDot` for the sort and period lists (`04310da`) | `main` | [x] | [x] | [ ] | ⬆️ Pushed |

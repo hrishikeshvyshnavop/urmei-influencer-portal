@@ -223,16 +223,28 @@ html.scrollbar-gutter-auto {
   scrollbar-gutter: auto;
 }
 
-body {
-  /* Undoes the root's `scrollbar-width: none` for everything in the page, so
-     hiding the window's scrollbar doesn't hide in-page ones too, and gives
-     every in-page scrollbar one look: thin, a grey thumb, no track. Both
-     properties inherit, so modals, drawers, dropdown lists, the filter rail
-     and the browse overlay all take it from here. Horizontal carousels that
-     hide theirs (they have ‹ › buttons) set `scrollbar-width: none` on
-     themselves. The standard properties, not `::-webkit-scrollbar`: Chrome
-     ignores the pseudo-elements whenever these are set. */
+/* One look for every in-page scrollbar (modals, drawers, dropdown lists, the
+   filter rail, the browse overlay): thin, a grey thumb, no track. Only
+   `scrollbar-color` inherits, so the width is set on every element; it sits
+   in the base layer so a utility such as `[scrollbar-width:none]` (the
+   horizontal carousels, which have ‹ › buttons instead) still wins. The
+   standard properties, not `::-webkit-scrollbar`: Chrome ignores the
+   pseudo-elements whenever these are set. */
+@layer base {
+  body,
+  body * {
+    scrollbar-width: thin;
+  }
+}
+
+/* Radix hides a select list's scrollbar (its own `<style>` sets `none`) and
+   expects scroll arrows, which our select doesn't render, so long lists gave
+   no sign they scroll. They take the same thin bar as everything else. */
+body [data-radix-select-viewport] {
   scrollbar-width: thin;
+}
+
+body {
   scrollbar-color: var(--color-border-outlined) transparent;
   background-color: #fff;
   overflow-x: hidden;

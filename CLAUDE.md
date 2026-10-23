@@ -27,6 +27,7 @@ There is no test runner configured, so verify UI changes by running the dev serv
 | `TRACKER.md` | Every task, by `T-nn`. |
 | `workflows/` | The agent-driven workflows: one folder per workflow, each with its `SKILL.md` and its own `references/`. `workflows/README.md` is the index. |
 | `change-requests/` | One folder per client change request (`change-requests/<topic>/`): `REQUIREMENT.md`, then `ANSWERS.md` and `FLOWS.md` as the request reaches those steps. `change-requests/README.md` lists them with their task and status. |
+| `docs/` | Project docs that aren't a workflow or a change request: product specs in `docs/prd/`, and `vercel-debugging.md` (the commands for reading a failed Vercel deploy). |
 | `.claude/` | Claude Code config only: `launch.json` and the thin auto-loading `skills/change-request` stub. No workflow content lives here. |
 
 Don't drop new working documents at the root: a client request goes in `change-requests/<topic>/`, and a workflow note or report goes in its workflow's `references/` (finished or superseded ones in `references/archive/`, with a date in the name).
