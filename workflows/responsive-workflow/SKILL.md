@@ -523,6 +523,10 @@ These are the lessons from real runs, shared by every Figma skill in this projec
 - **Adapting the success toast** into a warning or error toast: copy the icon stroke across, and set the inner Toast's `itemSpacing` from 108 to 12, with HUG height. Or reuse the finished error toast `2348:55780`.
 - **The Button component forces Title Case** on its label.
 - **`createSlice()` crops don't render image fills.** Verify images with `get_screenshot` on the frame.
+- **Resizing a layer nested inside an instance does nothing** (found 2026-10-23 on `Backdrop tile` and `Storefront featured card`). The call doesn't error, the size just doesn't change. Fix it in the main component instead: let the nested layer FILL with a locked aspect ratio and SCALE constraints on its artwork, or add a variant such as `Size=Mobile`.
+- **Switching a variant drops text overrides** set through text properties. Read the old values first, then set them again with `setProperties` after the switch.
+- **A FILL height on an aspect-locked layer inside a HUG parent** grows without limit (a 180 image became 1841). Keep such layers FIXED.
+- **A cloned instance named like a hidden one:** `findAll(...).pop()` can return a hidden copy in a dropdown list, as with the search field's `x`. Filter by visibility through the ancestors, and read positions in a second call once layout has settled.
 
 ## Recipes
 

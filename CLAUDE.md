@@ -14,6 +14,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > **All four Figma files** (main creator file, the K-Beauty e-commerce file `jjLjjHCNlAAusOC5rnqhNr`, the K-Beauty component file `BtZLL72dc5VxlwW45GLnQN`, the Work File) and the new-feature sections on the main file's page `236:15116` are mapped in `docs/figma-files.md`.
 >
 > **Figma design work:** the Work File's current page ids, the **locked handoff design** (the whole main-file page `794:24650` "-> Responsive Design (Web & Mob)", plus the Work File's `2320:42706`: never edit them; build only in the Work File), components, tokens and product rules all live in `workflows/_shared/workfile.md`. Script traps are in `workflows/_shared/figma-gotchas.md`. Before any page-wide Figma write, check that every locked id still exists. If one is missing, stop and ask.
+>
+> **Shop Personalization mobiles (`T-38`, 2026-10-26):** they live in the Work File's `✨ NEW Personalization - 21.10.26 (Client Submitted Copy)` `3603:224359` (page `3350:84583`), the twin of the main file's `2799:103759`. Don't build in the older `NEW Personalization - 20.10.26` copies on that page. Flows 01–06 have a 375 mobile beside each desktop; ids are in `workflows/mobile-screen/references/mobile-inventory.md` and build notes in `existing-mobile-screens.md`. Flow 07 Feature on Banner is dropped: its section is hidden, and the app removed the action in `T-45`. On mobile, desktop picker dialogs become bottom sheets, and the banners are the `My Shop banner / Mobile` and `Storefront banner (e-com) / Mobile` components (listed in `workfile.md`).
 
 ## Commands
 
@@ -29,7 +31,7 @@ There is no test runner configured, so verify UI changes by running the dev serv
 | `TRACKER.md` | Every task, by `T-nn`. |
 | `workflows/` | The agent-driven workflows: one folder per workflow, each with its `SKILL.md` and its own `references/`. `workflows/README.md` is the index. |
 | `change-requests/` | One folder per client change request (`change-requests/<topic>/`): `REQUIREMENT.md`, then `ANSWERS.md` and `FLOWS.md` as the request reaches those steps. `change-requests/README.md` lists them with their task and status. |
-| `docs/` | Project docs that aren't a workflow or a change request: product specs in `docs/prd/`, and `vercel-debugging.md` (the commands for reading a failed Vercel deploy). |
+| `docs/` | Project docs that aren't a workflow or a change request: product specs in `docs/prd/`, `prototype-announcement.md` (the dev-team messages for the live prototype, https://creator-urmei.vercel.app), and `vercel-debugging.md` (the commands for reading a failed Vercel deploy). |
 | `.claude/` | Claude Code config only: `launch.json` and the thin auto-loading `skills/change-request` stub. No workflow content lives here. |
 
 Don't drop new working documents at the root: a client request goes in `change-requests/<topic>/`, and a workflow note or report goes in its workflow's `references/` (finished or superseded ones in `references/archive/`, with a date in the name).
