@@ -219,6 +219,58 @@ The older copy of this section, the `2126:*` ids, is on Hrishi Workspace now. Us
 
 > **2026-09-30:** the flows page is now **`2650:50683`** and every id above this section changed to `2650:*` (e.g. 09.2 is `2650:130464`, 09.1 Public PDP `2650:145003`). `2462:56445` no longer exists. Regenerate this file with the script below, pointed at the new page.
 
+## Personalisation — Backdrop & Featured Items page `3350:84583` (`T-38`)
+
+Inside `✨ NEW Personalization - 21.10.26 (Client Submitted Copy)` `3603:224359`, the Work File twin of the main file's `2799:103759`. Built on 2026-10-23, one 50px right of each desktop.
+
+**01 - Change Backdrop** `3603:225672` (7 desktops, 7 mobiles)
+- `3637:71626` 01.1 My Shop Click Change Backdrop (2190)
+- `3641:72847` 01.2 Change Backdrop Dialog, Current Plain (812, bottom sheet)
+- `3641:73898` 01.3 Valentine's Day Previewed (812, bottom sheet)
+- `3641:71853` 01.4 Banner Saved (2190, toast)
+- `3641:74949` 01.5 Seasonal Filter (812, bottom sheet)
+- `3641:76247` 01.6 Click Close with an Unsaved Pick (812, bottom sheet)
+- `3641:77298` 01.7 Discard Unsaved Changes? (812, centred dialog over the sheet)
+
+**02 - Add Featured Items** `3603:224360` (9 desktops, 9 mobiles; two rows, sub-flow cover on row 2)
+- `3674:241618` 02.1 My Shop Click Add Featured Items (2212)
+- `3676:78201` 02.2 Pick a Collection (812, picker sheet)
+- `3676:79246` 02.3 Pick a Product, 2 of 2 (812, picker sheet)
+- `3674:242546` 02.4 Two Items Featured (2322, toast)
+- `3674:243558` 02.5 Click Change on a Featured Item (2322)
+- `3676:80183` 02.6 Change Opens Featured Items, Uncheck a Product (812, picker sheet)
+- `3676:81148` 02.7 Product Unchecked, Click Save (812, picker sheet)
+- `3674:244478` 02.8 One Item Featured, Click Preview Storefront (2247, toast)
+- `3676:83762` 02.9 Storefront Preview, One Item Featured (4702)
+
+**03 - Search in the Picker** `3603:224804` (3 desktops, 3 mobiles)
+- `3687:81115` 03.1 Search Matches (812, picker sheet)
+- `3687:83426` 03.3 No Matches (812, picker sheet with `Picker empty state`)
+- `3687:82497` 03.2 Search Cleared (812, picker sheet)
+
+**04 - Nothing to Feature Yet** `3603:224993` (2 desktops, 2 mobiles)
+- `3695:83251` 04.1 Empty Shop Click Add Featured Items (My Shop, empty Collections tab)
+- `3695:123015` 04.2 Picker Empty (812, picker sheet with `Picker empty state`)
+
+**05 - Featured Item No Longer Available** `3603:225096` (7 desktops, 7 mobiles; edge case on row 2)
+- `3705:247280` 05.1 Marked on My Shop (2364)
+- `3705:248531` 05.2 Removed, Publish to Go Live (2247, toast)
+- `3706:89423` 05.3 Shopper View (4986, e-commerce storefront)
+- `3705:249914` 05.4 Click Change (2364)
+- `3706:85869` 05.5 Picker Opens with the Slot Free (812, picker sheet)
+- `3706:86839` 05.6 New Item Picked (812, picker sheet)
+- `3705:251159` 05.7 Replaced, Publish to Go Live (2322, toast)
+
+**06 - Shopper's View** `3603:225426` (3 desktops, 3 mobiles)
+- `3710:88036` 06.1 Two Featured Items (5178)
+- `3710:89439` 06.2 One Featured Item (4986)
+- `3710:90325` 06.3 Nothing Featured (4794)
+
+**07 - Feature on Banner** `3608:69915` (3 desktops, 3 mobiles). **Dropped 2026-10-26** (user): the section is hidden and renamed `07 - Feature on Banner (dropped 26.10.26)`; don't build on it.
+- `3712:127355` 07.1 Collection Menu Click Feature on Banner (2212, card menu open)
+- `3713:90484` 07.2 Picker Opens with It Ticked, Click Save (812, picker sheet)
+- `3712:128122` 07.3 Featured on the Banner (2247, toast)
+
 ## Stale ids in `existing-mobile-screens.md`
 
 Checked on 2026-09-28. Of its 151 ids, 102 are current.
