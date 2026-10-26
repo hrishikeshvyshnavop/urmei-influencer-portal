@@ -699,3 +699,8 @@ Built from the main file's `2799:104149` (02.9 Add Featured Items — Storefront
 - **Preview header** (`2799:104150`, `StorefrontHeader`): a grey `surface/secondary/300` bar 80 high, the full URMEI wordmark with "Your shop preview" in body-md, and a 40×40 outlined close button. The design has no language selector here, so the preview header drops it.
 - **Banner height** (`StorefrontBanner`): the e-com banner hugs its content at 434 (30 + the 374 profile card + 30), not the 558 minimum the preview had. The 558 backdrop art is top-anchored and clipped, as in the design. The bio sits 12px above Follow / Copy Shop Link (`Identity text`), not 16.
 - Kept as is: the per-backdrop card tints on the featured card, collection boards and product cards (dev-configured, see "Card colour per backdrop").
+
+## Mobile screens and flow 07 dropped (user, 2026-10-23 to 2026-10-26)
+
+- **Mobiles for flows 01–06** are built in the Work File's `3603:224359`, 50px beside each desktop (31 screens). The pickers (Change backdrop, Featured items) are bottom sheets; the storefront pages use the new `Storefront banner (e-com) / Mobile`. Ids and build notes: `workflows/mobile-screen/references/mobile-inventory.md` and `existing-mobile-screens.md`.
+- **07 - Feature on Banner is dropped** (user: "drop Feature on banner"): sub-section `3608:69915` is hidden and renamed `07 - Feature on Banner (dropped 26.10.26)`, with its desktops and the three mobiles built that day kept inside. The app already removed the action in `T-45`. The main file's `2799:103759` never had a flow 07.

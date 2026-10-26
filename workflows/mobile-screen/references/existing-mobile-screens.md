@@ -347,3 +347,64 @@ The source of truth is the main design file's mobile stats (`cehltPtMoGWEtKbF7k3
   - The sheet underlays (M …) predate the footers; they're clipped at 812, so nothing shows.
 
 **2026-09-30 organize pass:** every Onboarding & Home frame was renamed to `NN.S Flow — State — Device` (ids unchanged), and the Sample Request sections now sit in the recreated parent `2617:56695`. The nested stats sub-flow is `10.8 Detailed Product Stats` (`2381:64707`).
+
+## Personalization 01 - Change Backdrop — `node-id=3603-225672` (built 2026-10-23, `T-38`)
+
+Work File page `Personalisation — Backdrop & Featured Items` `3350:84583`, inside `✨ NEW Personalization - 21.10.26 (Client Submitted Copy)` `3603:224359` (the twin of the main file's `2799:103759`). Ids are in `mobile-inventory.md`.
+
+- **New component `My Shop banner / Mobile`** `3636:163517` (variant `Featured=None` `3636:163514`), next to the desktop `My Shop banner` on the `Personlisation` page. Built from the desktop banner's own parts: page title, backdrop band (exposed `Backdrop`, scaled 1.25 so the 518-tall artwork covers the 559 band), right-aligned Change Backdrop, then the card with a 64 avatar, name over @handle, a full-width Shop URL, Preview Storefront / View Shop stacked full width 8 apart, Last Published, and the dashed featured prompt. Flows 02–05 need `One` / `Two` / `Two unavailable` variants added to it.
+- **01.1 / 01.4 (My Shop):** a clone of `11.1a Collections — No Collections Empty State — Mobile` `2767:51671` (Hrishi Workspace) for the chrome (Status Bar, Header, Search wrap, footer, Home Indicator). `Content` holds the banner instance and `Page content` (pt24 pb48, gutter `spacing/md`): the desktop Tab bar, then the toolbar (heading + New Collection) and the four `Collection Card` instances at 167.5 in two columns (gap 8 / 24). 01.4 sets the banner's `Backdrop` to Valentine's Day and adds the desktop `Toast` at x16 y64, 343 wide (gap 12).
+- **01.2, 01.3, 01.5, 01.6 (sheet):** the desktop's centred "Change backdrop" dialog becomes a bottom sheet. 812 frame with the 01.1 page as underlay, then an `Overlay` (desktop scrim fill, vertical, justify end) holding `Change backdrop sheet` (top radius `border/radius/lg`): the desktop Header, `Body` (category pills, then the `Tiles` grid: 3 columns of 106.3, gaps 12 / 16), and the desktop Footer with Cancel / Save Changes half width each (pb 50 = 16 + HI). Tiles are fresh `Backdrop tile` instances carrying each desktop tile's props plus its note text ("Seasonal" is a nested-text override, not a property).
+- **`Backdrop tile` change:** the `Thumbnail frame` now FILLs the tile with its 122:80 ratio locked, and the thumbnail scales, so the tile resizes (desktop tiles are scaled instances and look the same). Resizing the thumbnail on an instance did nothing before this.
+- **01.7:** the 01.6 sheet plus a `Confirm overlay` (desktop confirm scrim, centred, 20 side padding) with the desktop "Discard your changes?" dialog at 335, Keep Editing / Discard side by side.
+- **Cursors** are each desktop's own `Pointer Container`, fingertip on: Change Backdrop (01.1), Valentine's Day tile (01.2), Save Changes (01.3), Seasonal pill (01.5), the sheet's close (01.6), Discard (01.7). 01.4 has none.
+- **Layout:** pairs 50 apart, columns 200 apart; 01.4's mobile sits right of its toast `Annotation` (`3603:226054`) so the card doesn't cover it. The section grew to 10722 × 3300.
+
+## Personalization 02 - Add Featured Items — `node-id=3603-224360` (built 2026-10-23, `T-38`)
+
+Same page and parent as flow 01. Ids are in `mobile-inventory.md`.
+
+- **`My Shop banner / Mobile` gained `Featured=Two`** `3673:162724` and **`Featured=One`** `3673:162873`. The featured cards stack full width (12 apart), each a 104 image or board cover beside the copy and Change / Remove; One hides card 1 and adds the dashed `Add another slot` (from the desktop One variant, bound to `Creator controls`).
+- **New component `Storefront banner (e-com) / Mobile`** `3674:78519` (`None` `3674:75776`, `One` `3674:76967`, `Two` `3674:78186`), beside the desktop set in `Components — Storefront banner (e-com)`: the gradient profile card (96 avatar), then the featured cards stacked, over an exposed `Backdrop` scaled to cover each variant.
+- **`Storefront featured card` gained `Size`** (`Desktop` / `Mobile`; Mobile `3674:78520` collection, `3674:78537` product): 343 wide, 128 media, 16 padding. Resizing the media on an instance doesn't work (nested resizes are ignored), hence the variant. Switching variant drops text overrides, so copy Title / Body / Eyebrow back.
+- **02.1, 02.4, 02.5, 02.8:** clones of the 01.1 mobile with the banner's `Featured` set from the desktop instance, Valentine's Day backdrop, and the desktop instance's overrides copied (primary button label, featured card texts, card and image fills). 02.4 / 02.8 add the desktop toast at x16 y64, 343 wide, with its message set to FILL + wrap (two lines).
+- **02.2, 02.3, 02.6, 02.7 (picker):** the desktop "Featured items" dialog becomes a 764-tall bottom sheet: header (title + subtitle wrapping), `Body` (fills, clips: heading, pills + full-width search, `Tiles` 2 × 167.5, gaps 8 / 16), footer Cancel / Save Changes half width (pb 50). Tiles are clones of the desktop ones: collection `Pick / …` frames with the `Collection Card` resized and the `Selected ring` refitted, product `Featured pick tile` instances resized. Underlays: 02.1 (02.2, 02.3) and 02.5 (02.6, 02.7).
+- **02.9:** Status Bar, the desktop `Preview header` (padding 16 / 8), the mobile storefront banner (One), then `Section / Collections`, `Reviews Section` and `Section / All picks` cloned from `04.1 Storefront — collections — Mobile` `2770:52701`, then the influencer mobile footer (as the approved 09.2 does). Copy aligned to the desktop: "Collections", "Charlotte's Reviews", pager "2 / 24", sale prices hidden; the old boards are hidden as `(replaced)` and the desktop's four `Collection Card`s sit in the scroll row at 240.
+- **Cursors:** Add Featured Items (02.1), the My morning routine tile (02.2), Save Changes (02.3, 02.7), card 1's Change (02.5), card 1's checkbox (02.6), Preview Storefront (02.8).
+- **Layout:** two rows lined up across columns (row 2 at y 2622 with the sub-flow cover); the section grew to 12445 × 7424, sections 03–07 moved down 2183, and the parent grew to fit.
+
+## Personalization 03 - Search in the Picker — `node-id=3603-224804` (built 2026-10-23, `T-38`)
+
+- Three picker sheets over the 02.1 mobile (My Shop, nothing featured, Valentine's Day), built with the flow 02 picker recipe from each desktop's own dialog, so the search field state (Filled with "morning" / "retinol", or empty), pill counts and tiles carry over. Only visible desktop tiles are cloned.
+- **03.3 No Matches:** the desktop's `Picker empty state` instance sits in `Empty state wrap` (FILL, centred, top padding `spacing/4xl-2`) under the search field, in place of the hidden tiles.
+- **Cursors:** 03.3 on the search field's clear `x`. The search field has hidden `x` icons in its dropdown list, so take the visible one, and read its position in a second call (in the build call it reported y 868). **03.1's desktop cursor points at nothing** (a "Search list" instance under the dialog footer), so its mobile has none. 03.2 has no cursor.
+- **Layout:** 03.1 and 03.3 stacked in column 1, 03.2 in column 2; the section grew to 6250 wide.
+
+## Personalization 04 - Nothing to Feature Yet — `node-id=3603-224993` (built 2026-10-23, `T-38`)
+
+- **04.1:** a clone of the 02.1 mobile with the tab labels set from the desktop ("All Picks (0)", "Collections (0)"), the toolbar and collections grid hidden, and the desktop's `Empty state box` (dashed, "No collections yet", Browse Catalogue) added at full width. Cursor on Add Featured Items.
+- **04.2:** the picker sheet over 04.1, with the desktop's `Picker empty state` ("Nothing to feature yet") centred in an `Empty state wrap` that fills the body. The search field stays hidden, as on desktop. Cursor on Browse Catalogue.
+- **Layout:** pairs side by side; the section grew to 6250 × 2197 and sections 05–07 moved down to keep the 200 gap.
+
+## Personalization 05 - Featured Item No Longer Available — `node-id=3603-225096` (built 2026-10-26, `T-38`)
+
+- **`My Shop banner / Mobile` gained `Featured=Two unavailable`** `3705:162762`: card 1 is the desktop variant's own unavailable card (dimmed image at 40%, the note "Shoppers no longer see it…", Change / Remove) refitted to mobile (104 image, padding 12 / 16). Its absolute `Unavailable tag` sits at the card's top right (x = card − tag − 4, constraint MAX) because the 111-wide tag is wider than the 104 image.
+- **05.1, 05.2, 05.4, 05.7:** clones of the 02.4 mobile with `Featured` and the overrides copied from each desktop instance (as in flow 02). 05.2 / 05.7 add their wrapped toasts. Cursors: card 1's Remove (05.1) and Change (05.4).
+- **05.5, 05.6:** the picker sheet over the 02.5 mobile (products tab). Cursors: the Auto kernel farming cream tile (05.5), Save Changes (05.6).
+- **05.3 Shopper View:** a clone of `04.1 Storefront — collections — Mobile` `2770:52701` (e-commerce header, breadcrumb set to Home › Influencers › Charlotte, bottom nav). `Creator Profile Card Section` is hidden as `(replaced)` and the `Storefront banner (e-com) / Mobile` (`One`, Valentine's Day, featured card overrides copied) takes its place; collections, review titles and prices fixed as in 02.9. The desktop's shopper footer is the URMEI mobile footer with its links changed to the desktop's (URMEI: About Us, Articles; Shop: Categories, Top Brands, New Arrival, Best Sellers; Support adds Shipping & Returns, Track My Order), above the bottom nav. The K-Beauty library `Footer/Mobile/Default` is the old "K.Beauty Rewards" brand: don't use it.
+- **Layout:** two rows (row 2 at y 5287 with the edge-case cover); the section grew to 10380 × 7751, and sections 06–07 moved down 2409.
+
+## Personalization 06 - Shopper's View — `node-id=3603-225426` (built 2026-10-26, `T-38`)
+
+- All three are clones of the 05.3 mobile (e-commerce storefront with the URMEI shopper footer) with the `Storefront banner (e-com) / Mobile` switched to the desktop's `Featured` (Two / One / None), the backdrop set, and each featured card's Title / Body / Eyebrow / Type, fills and the card gradient copied from the desktop instance. No cursors (the desktops have none).
+- The "Card colour" `Annotation` (`3603:225671`) stays on the 06.2 desktop only (a note shows once, on its main screen); 06.2's mobile sits right of it so the card doesn't cover it.
+- **Layout:** one row; the section grew to 8663 × 5379, and section 07 moved down 2007.
+
+## Personalization 07 - Feature on Banner — `node-id=3608-69915` (built 2026-10-26, `T-38`)
+
+- **07.1:** the 02.1 mobile (nothing featured) with the desktop's own `More button` and `Collection menu` (Edit details, Copy collection link, Feature on banner in hover, Delete collection) cloned in as absolute overlays: the ⋯ 8px inside the My morning routine card's top right, the 262-wide menu right-aligned to the card 4px below it, as the Collections WIP 11.6 anchors its card menu. Cursor on Feature on banner.
+- **07.2:** the picker sheet over 02.1 (Collections tab, My morning routine ticked, 1 of 2), cursor on Save Changes.
+- **07.3:** the 02.1 mobile switched to `Featured=One` with the desktop's overrides (Publish Changes, FEATURED / My morning routine) and the wrapped "Featured items saved" toast.
+- **Layout:** one row; the section grew to 8315 × 2447 (it is the last section, so nothing moved).
+
+**Dropped on 2026-10-26** (user: "drop Feature on banner"): the whole flow 07 section is hidden and renamed `(dropped 26.10.26)`, nothing deleted. The app had already removed the action (`T-45`, commit `3bb31f7`). The live flows are 01–06: 31 mobile screens.
