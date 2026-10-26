@@ -9,6 +9,21 @@ The four Figma files the user pointed at on 2026-10-23, with what each holds. Id
 | [K-Beauty — Work file](https://www.figma.com/design/BtZLL72dc5VxlwW45GLnQN/K-Beauty---Work-file?node-id=3197-24124) | `BtZLL72dc5VxlwW45GLnQN` | Both | Shared component library |
 | [MVP] Influencer Portal \| Work File | `FdmVPJo1j4t8s9gej1H7Yb` | Creator portal | Where all new Figma building happens (see `workflows/_shared/workfile.md`) |
 
+## Links as the user gave them (2026-10-23)
+
+The user shared these four links, with these labels, as the project's Figma context:
+
+| User's label | Link | Opens on |
+| --- | --- | --- |
+| Creator Portal URMEI with mobile (MVP) | https://www.figma.com/design/cehltPtMoGWEtKbF7k3MQQ/-MVP--Influencer-Portal?node-id=794-24650 | `794:24650` -> Responsive Design (Web & Mob), the locked handoff |
+| URMEI E-com portal | https://www.figma.com/design/jjLjjHCNlAAusOC5rnqhNr/K-Beauty---Project?node-id=1303-37860 | `1303:37860` ✨ 🛒 E-commerce Platform \| 11.08.26 |
+| Components | https://www.figma.com/design/BtZLL72dc5VxlwW45GLnQN/K-Beauty---Work-file?node-id=3197-24124 | `3197:24124` 💠Components |
+| New Feature of the MVP Creator Portal | https://www.figma.com/design/cehltPtMoGWEtKbF7k3MQQ/-MVP--Influencer-Portal?node-id=236-15116 | `236:15116` ✅ Updated Design - 09.09.26 |
+
+All four links open a whole page, not a single frame. When the user says "the new feature page", they mean `236:15116`; "the e-com portal" is the K-Beauty Project file; "components" is the K-Beauty Work file's 💠Components page. The Work File `FdmVPJo1j4t8s9gej1H7Yb` wasn't in the list but is still where new Figma work is built.
+
+This map was written from the files' live structure on 2026-10-23 and committed as `T-55` on `staging` and `docs/workflows-and-change-requests`.
+
 ## 1. Creator portal, with mobile (MVP): `cehltPtMoGWEtKbF7k3MQQ`
 
 Page **-> Responsive Design (Web & Mob)** `794:24650` is the final desktop and mobile design handed to dev. **It's locked: read and clone from it, never edit it.** Its mobile board `1174:34352` is catalogued in `workflows/mobile-screen/references/main-file-mobile-flows.md`.
@@ -63,3 +78,16 @@ Other pages worth knowing: 🗂️ Foundations `1579:8`, 📦 Components `1646:8
 ## 4. Components: `BtZLL72dc5VxlwW45GLnQN`
 
 **💠Components** `3197:24124` is the shared component page for both portals. Some components there aren't published to the library (e.g. Pill Tab `3563:65314`), so the Work File rebuilds them locally; check `workflows/_shared/workfile.md` before rebuilding another. The file also holds the final presentations (influencer `6153:91998`, e-commerce `5557:136703`), Client Comments `6115:34587`, Asset Ratio Guidelines `8136:12400`, Promos & Coupons `9186:148235`, and the designers' workspaces.
+
+## Chat log: how this file came about (2026-10-23 → 2026-10-26)
+
+The whole conversation that produced this file, in order, so the next session has the context.
+
+1. **2026-10-23, the ask.** The user shared the four Figma links (table above) and asked for the new features of the MVP creator portal (`236:15116`) to be written up "as a md file or the context".
+2. **Reading Figma.** Read the page list of all three files with the Figma MCP (`get_metadata`). The `236:15116` page dump was 3.6 MB, so its sections and frames were pulled out with a script: the base MVP sections, then the dated new-feature sections (Sample request 19.09, Request Flow 30.09, Collections 07.10, Personalization ideation 15.10, ✨ NEW Personalization 21.10, Assets 22.10) and every frame in the six Personalization flows. Nothing in Figma was changed.
+3. **Writing it.** Created this file, `docs/figma-files.md`, and added a pointer to it in the Figma notes at the top of `CLAUDE.md`. Rules and component details stay in `workflows/_shared/workfile.md`; this file is only the map.
+4. **"Commit all changes to the staging" / "commit all change docs".** Switched from `docs/workflows-and-change-requests` to `staging` (it matched `origin/staging`), added tracker row `T-55` and committed `fd59759 T-55: Map the Figma files and new MVP features`.
+5. **"Add to doc branch".** Cherry-picked it onto `docs/workflows-and-change-requests` as `29229e8`, with no conflicts.
+6. **"Push both and mark T-55 pushed".** Committed "T-55: Mark pushed in the tracker" on each branch and pushed: `staging` at `865ae95`, `docs/workflows-and-change-requests` at `b2c2145`. **Live** is left for the user to tick after checking Vercel.
+7. **2026-10-26, "update the chat context to the md file".** Added the "Links as the user gave them" section above.
+8. **"Drop Feature on banner banner feature"** was started and interrupted; nothing was done for it. Then **"update the whole chat to the md file"** added this log.
