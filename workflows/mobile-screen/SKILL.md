@@ -57,6 +57,7 @@ Use this when the user pastes a link to a flow (a section or board of desktop sc
 - **Wording:** "Favorite", never "Featured". Title case on screen names.
 - **Toasts** follow 04.7 (`2348:55780`): full width 343, height hugs, bottom-anchored in the `Tost` wrapper.
 - **Shop Info Card buttons:** stacked vertically, both full width, Preview Storefront first, 8px gap (`spacing/sm`). Labels and status line follow the state table in `workfile.md`.
+- **Mobile button sizing (user, 2026-10-26):** use the `Button` component's `Size=lg` variant for tappable mobile actions by default. Use `Size=md` only for a genuinely compact/inline action where the larger target would disrupt the layout; treat that as the rare exception. Keep buttons as linked instances and swap the variant rather than resizing or restyling them manually.
 - **PDP:** the `Stack / What Creators Say` wrapper holds the inner `Stack / What Creators Say` and the `Performance Section`, as on 07.3. The modal PDP (Recommended Product Detail over My Shop) stays as it is.
 
 ## References
