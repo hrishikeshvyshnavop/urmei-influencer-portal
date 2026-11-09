@@ -704,3 +704,58 @@ Built from the main file's `2799:104149` (02.9 Add Featured Items — Storefront
 
 - **Mobiles for flows 01–06** are built in the Work File's `3603:224359`, 50px beside each desktop (31 screens). The pickers (Change backdrop, Featured items) are bottom sheets; the storefront pages use the new `Storefront banner (e-com) / Mobile`. Ids and build notes: `workflows/mobile-screen/references/mobile-inventory.md` and `existing-mobile-screens.md`.
 - **07 - Feature on Banner is dropped** (user: "drop Feature on banner"): sub-section `3608:69915` is hidden and renamed `07 - Feature on Banner (dropped 26.10.26)`, with its desktops and the three mobiles built that day kept inside. The app already removed the action in `T-45`. The main file's `2799:103759` never had a flow 07.
+
+## Featured items picker: selection ring clipped (comment `1980619469`, 2026-11-04)
+
+- The `Selected ring` sits 3px outside its tile, and the `Tiles` frame clipped it, cutting off the ring's left edge on mobile. Fixed by turning off clip content on `Tiles` in 02.2 (`3676:79165`), 03.1 (`3687:82458`) and 03.2 (`3687:83345`). These were the only clipped rings in `3603:224359`.
+
+## Collections header on mobile: 3 options (comment `1993717627`, 2026-11-04)
+
+- On the 01.1 mobile, "New Collection" sat beside the title and squeezed the description into a 4-line column. Built three options in the new section `Collections Header Options — Mobile — Lead Review` `3774:86794` (left of `3603:224359`), as clones of 01.1: **A** stacked, with a full-width outlined button (`3774:86804`); **B** a + icon button in the title row (`3774:87049`); **C** a dashed "New collection" tile first in the grid, with no header button (`3774:87299`). Recommended A. Waiting for a pick, then it applies to every mobile with this header.
+
+## Collections header font size on mobile (comment `1993720878`, Neethu KU, 2026-11-04)
+
+- The mobile Collections header title was 24px. It now uses the submitted mobile design's toolbar title style, `Body/body-xl-regular` (20/30), matching "Your Picks" on the main file's `1347:47722`; the description was already `Body/body-md-regular` (16/22). Applied to all 26 mobiles in `3603:224359` that have this header, plus the 3 option frames in `3774:86794`.
+- **Option A picked** (Hrishi, 2026-11-04): it's applied to all 26 mobiles in `3603:224359`. The `Content toolbar` is vertical with a 16 gap, the heading fills the width, and New Collection is a full-width outlined button. The options section stays for reference.
+
+## Collections one per row on My Shop mobile (comment `1993735157`, 2026-11-04)
+
+- The My Shop Collections tab shows one `Collection Card` per row, like All Picks: `Collection cards` is vertical with a 24 gap, and cards fill the 343 width with the cover kept at 3:2 (343×229). Applied to 25 My Shop mobiles. The shopper storefront's Collections row (06.1–06.3, 05.3, 02.9) stays a horizontal carousel (240 cards, 240×160 cover, 16 gap, per `StorefrontCollections.tsx`). The first sweep also changed those 5 rows by mistake, and they were restored.
+
+## Change Backdrop button size on mobile (comment `1993735808`, Neethu KU, 2026-11-04)
+
+- Change Backdrop in `My Shop banner / Mobile` `3636:163517` is now `Size=sm` (30 tall, the same as the desktop banner; was `lg` 46), in all 4 variants. It went to `md` first (Hrishi: "make it md"), then to `sm` (Neethu: "make it small", "apply this to all responsive screens"). All 29 mobile instances on `3350:84583` are `sm`.
+
+## Screen arrangement re-checked (comment `1993742909`, 2026-11-04)
+
+- Today's taller mobiles (option A header, one-per-row collections) broke the spacing. In 02, row 2 moved down 863 to sit 200 below row 1's tallest frame (02.4 mobile), and the section grew to 8287. In 05, the section grew to 8613 to hold the row-2 mobiles. Sections 03–06 were restacked 200 apart, and `3603:224359` was refit to 12645 × 31174. A check of every flow (01–06) found no overlaps and no screen outside its section. The annotation overlaps on 01.4 and 06.2 are intended.
+
+## Storefront bio 12px on mobile (comment `1993746309`, Neethu KU, 2026-11-04)
+
+- The creator bio in `Storefront banner (e-com) / Mobile` `3674:78519` changed from `Body/body-sm-regular` (14) to `Body/body-xs-regular` (12/19) in all 3 variants. All 5 instances (02.9, 05.3, 06.1–06.3) now read 12.
+
+## Storefront Collections: View All and 2-line descriptions (comments `1993747694`, `1993747914`, `1993748134`, Neethu KU, 2026-11-04)
+
+- Following the client comments on the main file (Nelson Seh, 2026-10-22): the storefront Collections header turns on the library `Section Header`'s `Show Button` ("View All", plain, chevron right) on all 10 storefront screens (02.9, 05.3, 06.1–06.3, desktop and mobile), as on the submitted desktop `2980:74624`. View All opens a separate all-collections page (Neethu's reply in the client thread). The `Collection Card` `3122:85580` description is now `maxLines` 2 (was 1), so all 232 cards wrap to 2 lines.
+
+## Mobile banner fixes (comments `1993749945`, `1993750605`, `1993750979`, `1993751078`, Neethu KU, 2026-11-04)
+
+- **Unavailable tag:** in `My Shop banner / Mobile` `Two unavailable` `3705:162762`, the NOT AVAILABLE tag (111) overflowed the 104 product image. On mobile it now sits in card 1's `Copy`, above the brand line. Desktop keeps it on the image.
+- **Product image fills:** in `Storefront featured card` `Type=Product, Size=Mobile` `3674:78537`, the image is 128 wide and fills the card height (was a centred 128 square), matching the Collection media.
+- **Backdrop coverage:** in every variant of `My Shop banner / Mobile` and `Storefront banner (e-com) / Mobile`, the `Backdrop` is rescaled to the container height + 200 and centred, and the band or root clips it. Before, the backdrop stopped 13–18px short of the bottom.
+- Re-ran the arrangement pass afterwards: row 2 of 05 moved 22, and the sections were refit and restacked (parent now 12645 × 31267).
+
+## Mobile featured collection cover grid (comment `1993757110`, Hrishi, 2026-11-04)
+
+- In `Storefront featured card` `Type=Collection, Size=Mobile` `3674:78520`, the `More tile` (62×88) held two 88×88 photos (one offset −13) and didn't clip, so the photos spilled into the next column and "products" overflowed. The tile and `Media` now clip, the photos fill the tile with STRETCH constraints, and `More overlay` is centred at full tile width. All 6 instances are fixed. The desktop variant (88 tile) was already right.
+
+## Collection reorder arrows restored on My Shop (main file, user, 2026-11-09)
+
+- The user noticed that the collection reordering approved in Collections (Q7: "#n on storefront" with ‹ › arrows, `[NEW] Collections` flow 12 `1862:83537`) was missing from `✨ NEW Personalization - 21.10.26` `2799:103759`. Its My Shop Collections tab used the storefront `Collection Card` (remote), which has no position strip, and the subtitle had no arrows hint.
+- **Main file only, desktop only (user's choice).** The Work File twin `3603:224359` and its mobiles still use the storefront card, so they are now out of step with the main file.
+- New local component set **`My Shop collection board`** `3571:74648` (key `e5f4fce91687f7baaa68ff3e0002c800bc4b2fe2`), in a new section `Components — My Shop collection board` `3571:74539` below `Assets 22.10.26` on page `236:15116`. It keeps the `Collection Card` 3:2 cover with "+N products" on the third tile, adds the ⋮ menu and flow 12.1's Position bar (cover bottom corners square), then shows Title and Description. Variants are `Order=First` `3571:74597` (earlier disabled), `Middle` `3571:74622` and `Last` `3571:74647` (later disabled). Props: `Title`, `Description`, `More count`, `More label`, `Position`, plus the booleans `Show description` and `Show more`.
+- All 102 cards in the 26 My Shop grids were swapped to it (01.1–01.7, 02.1–02.8, 03.1–03.3, 04.1–04.2, 05.1–05.2, 05.4–05.7). Each swap kept its text and cover images, is numbered #1–#4 (#1–#3 in 04), and is named `Collection board / <title>`. The full-page frames grew 36px through auto layout, and nothing overlaps.
+- The subtitle is now "Group your picks into boards. Use the arrows to set the order shoppers see", matching the app (`MyShop.tsx`). 04.1 and 04.2 have no boards, so they keep "…shoppers can browse on your storefront".
+- Not touched: the grids say "Collections (3)" over 4 boards (this was already wrong before this change).
+- **Code:** nothing to do. The prototype (https://creator-urmei.vercel.app) has had the arrows since `T-41`: `CollectionCard.tsx` and `moveCollection` in `collections-store.ts`.
+- **Message to Neethu (2026-11-09):** "Hi Neethu, collection reorder arrows added in Figma; prototype already updated."
