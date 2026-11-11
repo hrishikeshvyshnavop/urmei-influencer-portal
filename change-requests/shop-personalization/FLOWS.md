@@ -752,10 +752,69 @@ Built from the main file's `2799:104149` (02.9 Add Featured Items — Storefront
 ## Collection reorder arrows restored on My Shop (main file, user, 2026-11-09)
 
 - The user noticed that the collection reordering approved in Collections (Q7: "#n on storefront" with ‹ › arrows, `[NEW] Collections` flow 12 `1862:83537`) was missing from `✨ NEW Personalization - 21.10.26` `2799:103759`. Its My Shop Collections tab used the storefront `Collection Card` (remote), which has no position strip, and the subtitle had no arrows hint.
-- **Main file only, desktop only (user's choice).** The Work File twin `3603:224359` and its mobiles still use the storefront card, so they are now out of step with the main file.
+- **Main file only, desktop only (user's choice).** The Work File twin `3603:224359` and its mobiles were brought in step on 2026-11-11 (see below).
 - New local component set **`My Shop collection board`** `3571:74648` (key `e5f4fce91687f7baaa68ff3e0002c800bc4b2fe2`), in a new section `Components — My Shop collection board` `3571:74539` below `Assets 22.10.26` on page `236:15116`. It keeps the `Collection Card` 3:2 cover with "+N products" on the third tile, adds the ⋮ menu and flow 12.1's Position bar (cover bottom corners square), then shows Title and Description. Variants are `Order=First` `3571:74597` (earlier disabled), `Middle` `3571:74622` and `Last` `3571:74647` (later disabled). Props: `Title`, `Description`, `More count`, `More label`, `Position`, plus the booleans `Show description` and `Show more`.
 - All 102 cards in the 26 My Shop grids were swapped to it (01.1–01.7, 02.1–02.8, 03.1–03.3, 04.1–04.2, 05.1–05.2, 05.4–05.7). Each swap kept its text and cover images, is numbered #1–#4 (#1–#3 in 04), and is named `Collection board / <title>`. The full-page frames grew 36px through auto layout, and nothing overlaps.
 - The subtitle is now "Group your picks into boards. Use the arrows to set the order shoppers see", matching the app (`MyShop.tsx`). 04.1 and 04.2 have no boards, so they keep "…shoppers can browse on your storefront".
 - Not touched: the grids say "Collections (3)" over 4 boards (this was already wrong before this change).
 - **Code:** nothing to do. The prototype (https://creator-urmei.vercel.app) has had the arrows since `T-41`: `CollectionCard.tsx` and `moveCollection` in `collections-store.ts`.
 - **Message to Neethu (2026-11-09):** "Hi Neethu, collection reorder arrows added in Figma; prototype already updated."
+
+## Mobile featured cards match web, toolbar gap, 10+ collections (Neethu KU, 2026-11-11)
+
+- **Cards "look different from web"** (comments `2003169761`, `2003170061`, `2003172896`, `2003173244`, `2003174741`, `2003175135`), all closed. Fixed once in `My Shop banner / Mobile` `3636:163517`, in every variant, to match `BannerFeaturedRow.tsx`:
+  1. `Product image` and `Board cover` are now 133×133 (from 104). The cover tiles are 66 + 65.
+  2. `Product name` is one line with an ending truncation.
+  3. Each mobile frame's `Brand` ("FEATURED") colour and card surface are copied from its desktop twin, because they follow the backdrop (pink `#d31574` on Valentine's).
+  4. Cursors back on target after the cards grew: 02.1 → Add Featured Items, 02.5 / 05.4 → Change on card 1, 02.8 → Preview Storefront, 05.1 → Remove on card 1.
+- **Spacing in 01.4** (`2003168503`, closed): `Content toolbar` used SPACE_BETWEEN, so the New Collection button sat flush under the supporting text. Now MIN with a 16 gap in 01.2–01.7.
+- **"10+ collections, how do we manage this?"** (`2003174043`, closed): replied with 3 options. Hrishi answered "Add pagination same as my picks". The new component **`Pagination / Mobile`** `3804:274334` (key `87fec5383148d0892495460550a7d32d2056b8d3`, in `Components — Backdrop & Featured Items` `3463:233010`) is made from the storefront All picks pagination `3676:84660`. An instance sits under `Collections grid` in `Tab content area` (gap 24) in all 24 My Shop mobiles (01.1–01.7, 02.1–02.8, 03.1–03.3, 05.1–05.2, 05.4–05.7). The full-page frames grew 78px through auto layout; the 812 dialog frames clip.
+- Not addressed: the two 2026-10-21 threads on desktop `3540:71344` (outside this section).
+
+## Collection reorder arrows in the Work File, desktop and mobile (user, 2026-11-11)
+
+- The 2026-11-09 fix only reached the main file, so the Work File twin `3603:224359` still had no reorder. The main file's `My Shop collection board` `3571:74648` is local there and unpublished, so it was rebuilt in the Work File on the local **`Collection Card`** `3122:85580` (page `Components — Dev Handoff`) rather than as a new component. The storefront uses the same card, so the bar sits behind a boolean.
+- New on `Collection Card`: `Position bar` `3806:1199` between `Board cover` and `Board info`. It has a light fill (library variable), "#n on storefront" (Figtree Medium 12/19, grey variable), and `Reorder buttons`: two library `Button` `Outlined icon, Size=sm` instances with chevron-left and chevron-right, as in main-file flow 12.1. New props `Show reorder` (BOOLEAN, default off) and `Position` (TEXT). The card's gap is now 0, and `Board info` has 12 top padding, so storefront cards (bar off) keep the same spacing.
+- Turned on for all 206 My Shop boards in 52 grids: every desktop `Collection Cards Row` and mobile `Collections grid` in 01–05. Each board is numbered #1–#n in grid order. The first board's ‹ and the last board's › use `State=Disabled`, and the cover's bottom corners are square where the bar joins. Storefront boards (02.9, 05.3, 06.x) and the picker's checkbox cards are untouched.
+- The desktop `Collection Cards Row` (26) is now top-aligned. It was centred, which left the shorter "Copy my wedding look" board lower than the others.
+- The subtitle in all 52 grids is now "Group your picks into boards. Use the arrows to set the order shoppers see" (as in `MyShop.tsx` and the main file).
+- Frames grew 36px through auto layout. Nothing clips or overlaps the footer (checked on screenshots).
+- Not touched: the main file's ⋮ menu on the board cover.
+
+## Collections: Show More instead of pagination (user, 2026-11-11)
+
+- The user said numbered pages would be a technical problem for collections: with the reorder arrows, a board would have to move across page boundaries. So collections use a single **Show More** button, which keeps the list in one order and loads more in place.
+- Mobile: the `Pagination` instances under `Collections grid` (24 frames, added earlier today) are replaced by `Show more button`, the library `Button` `Outlined, Size=md` (the same as New Collection), full width, label "Show More", no icons.
+- Desktop: the same button is centred in a FILL `Show more row` under every `Collection Cards Row` in `Product grid container` (26 frames, gap 26).
+- `Pagination / Mobile` `3804:274334` had no instances left and was deleted. The storefront All Picks pagination (plain frames) is unchanged.
+
+## Sections tidied (organize-flow, user, 2026-11-11)
+
+- `3603:224359`, sub-sections 01–06. Layout and names only, no design changes.
+- **Rows:** in 02 the Change Featured Items row (cover `3603:224551` and 02.5–02.9) moved down 228. The row 1 mobiles had grown to 3,413 and ran 28px into it. It now starts 200px under row 1. 05's edge-case row was already 200 below.
+- **Fit:** each section is refit to its contents with 100 padding. 01 was 3354 → 3481 and 05 was 8760 → 8887 (contents overflowed after today's changes); 02 is 8310 → 8537.
+- **Stack:** 01 → 06 sit at x 100, 200 apart (01 @100, 02 @3781, 03 @12518, 04 @14918, 05 @17314, 06 @26401). The parent is refit to 12645×31901 and overlaps nothing on the page.
+- **Names:** the 31 `Group` layers inside the header `Logo` are now `Logo mark`. Frame and section names already follow the format, so none changed.
+- **Not changed, on purpose:**
+  1. The 01.4 and 06.2 mobiles sit further right than the 50px rule, to clear the annotation cards on their desktops.
+  2. "Featured" stays in these names: this flow's feature is Featured Items, not the old Favourites.
+  3. Cursor `Ellipse` layers (`Pointer Container`) are kept, as the workflow says.
+  4. About 23,200 generic names inside library instances (icon `Vector`s and the like) belong to the components, not these frames.
+
+## Spacer before the footer replaced by padding (user, 2026-11-11)
+
+- `spacer / before footer` was an empty 1200×80 frame between `SECTION / All Picks by Charlotte` and `Footer / Client`, because the storefront desktop frames are auto layout with a 0 gap. It's removed from 05.3, 06.1, 06.2 and 06.3 desktop (`3603:225237`, `3603:225507`, `3603:225588`, `3603:225669`). The All Picks section's bottom padding is now 64 (it was 36), so the pagination sits 64 above the footer, matching `StandaloneStorefront.tsx` (`pb-5xl`). It was 116 before. The frames are 52 shorter.
+- 02.9 has no spacer. The 11 other spacers on the page are in older copies outside `3603:224359` and were left alone.
+
+## Home Indicator under the footer (comment `2003827851`, Hrishi, 2026-11-11)
+
+- "Use the bg for the footer and home indicator change to fff, consistent across Personalization." The pin covers the Home Indicator strip under the dark footer on the 01.1 mobile.
+- On all 27 mobiles where `Home Indicator` follows `Footer/Mobile/Default` (01.1–01.7, 02.1–02.9, 03.1–03.3, 04.1–04.2, 05.1–05.2, 05.4–05.7): `Dark Mode=YES` (white #fff bar), and the instance fill is the footer's fill (the same colour variable, #2c2927).
+- Not changed: 05.3 and 06.1–06.3 (storefront mobiles). Their indicator sits inside the white `Bottom nav` tab bar, not under the footer.
+
+## No footer on shopper-side mobiles (comment `2003834101`, Hrishi, 2026-11-11)
+
+- Removed `Footer/Mobile/Default` (842 tall, inside `Content`) from the shopper storefront mobiles 05.3 `3706:89423`, 06.1 `3710:88036`, 06.2 `3710:89439` and 06.3 `3710:90325`. They now end with the All Picks pagination, then the `Bottom nav`. The frames are 842 shorter.
+- Re-laid out: 05's edge-case row moved up 843 (to 200 under row 1). Sections 05 and 06 are refit, the sections restacked, and the parent is now 12645×30216.
+- Not changed: 02.9 (the creator's storefront preview, creator side).
+- Rule recorded in `workflows/_shared/workfile.md` (Product rules) and `mobile-screen/references/existing-mobile-screens.md` (05.3 and 06 notes).
